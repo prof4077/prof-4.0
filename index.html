@@ -160,10 +160,10 @@ footer .foot-brand{font-family:'Orbitron',sans-serif;color:var(--level-neon);fon
 
 .feature-row{display:flex;justify-content:center;gap:44px;margin:34px 0 64px;flex-wrap:wrap;position:relative;z-index:2;}
 .feature-item{display:flex;flex-direction:column;align-items:center;gap:10px;}
-.feature-icon{width:48px;height:48px;border:1px solid var(--level-neon);border-radius:10px;
+.feature-icon{width:48px;height:48px;border:1px solid var(--accent, var(--level-neon));border-radius:10px;
   display:flex;align-items:center;justify-content:center;background:var(--bg-panel-2);
-  box-shadow:0 0 16px var(--level-glow);cursor:default;}
-.feature-icon svg{width:22px;height:22px;stroke:var(--level-neon);fill:none;}
+  box-shadow:0 0 16px color-mix(in srgb, var(--accent, var(--level-neon)) 55%, transparent);cursor:default;}
+.feature-icon svg{width:22px;height:22px;stroke:var(--accent, var(--level-neon));fill:none;}
 .feature-label{font-family:'Rajdhani',sans-serif;font-size:11.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:700;}
 
 .hud-grid{display:grid;grid-template-columns:1fr 1fr;gap:36px;max-width:1000px;margin:0 auto;position:relative;z-index:2;}
@@ -320,10 +320,9 @@ footer .foot-brand{font-family:'Orbitron',sans-serif;color:var(--level-neon);fon
   <p class="tagline">Apprendre &middot; Comprendre &middot; R&eacute;ussir</p>
 
   <div class="feature-row">
-    <div class="feature-item"><div class="feature-icon"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div><div class="feature-label">Exercices</div></div>
-    <div class="feature-item"><div class="feature-icon"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9"/></svg></div><div class="feature-label">Corrig&eacute;s</div></div>
-    <div class="feature-item"><div class="feature-icon"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg></div><div class="feature-label">Quiz</div></div>
-    <div class="feature-item"><div class="feature-icon"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M8 4a3 3 0 00-3 3c-1.5.3-2.5 1.6-2.5 3.2 0 1 .4 1.9 1 2.5-.6.6-1 1.5-1 2.5A3.3 3.3 0 006 18.5c.2 1.7 1.7 3 3.4 3A3.2 3.2 0 0012 18.6V6.5A2.5 2.5 0 008 4z"/><path d="M16 4a3 3 0 013 3c1.5.3 2.5 1.6 2.5 3.2 0 1-.4 1.9-1 2.5.6.6 1 1.5 1 2.5a3.3 3.3 0 01-3.5 3.3c-.2 1.7-1.7 3-3.4 3A3.2 3.2 0 0112 18.6V6.5A2.5 2.5 0 0116 4z"/></svg></div><div class="feature-label">R&eacute;visions</div></div>
+    <div class="feature-item"><div class="feature-icon" style="--accent:#2F5FFF"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M8 3v18"/><path d="M4.5 7.5h2.5M4.5 11.5h2.5M4.5 15.5h2.5"/></svg></div><div class="feature-label">Synth&egrave;ses</div></div>
+    <div class="feature-item"><div class="feature-icon" style="--accent:#FF3B3B"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5v-7z"/></svg></div><div class="feature-label">Vid&eacute;os</div></div>
+    <div class="feature-item"><div class="feature-icon" style="--accent:#9B4FFF"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M4 15v-3a8 8 0 0116 0v3"/><rect x="2" y="14" width="5" height="8" rx="2.2"/><rect x="17" y="14" width="5" height="8" rx="2.2"/></svg></div><div class="feature-label">Podcast</div></div>
   </div>
 
   <div class="hud-grid">
