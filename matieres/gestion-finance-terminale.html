@@ -136,8 +136,13 @@ h1.title .w{text-shadow:0 0 18px rgba(238,243,236,.35);}
 .status-empty{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;
   text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:7px 16px;flex-shrink:0;}
 .status-ready{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;
-  text-transform:uppercase;color:#04160a;background:var(--subj);padding:7px 16px;flex-shrink:0;
-  text-decoration:none;display:inline-block;}
+  text-transform:uppercase;color:#04160a;background:var(--subj);padding:7px 16px 7px 12px;flex-shrink:0;
+  text-decoration:none;display:inline-flex;align-items:center;gap:7px;}
+.type-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;background:currentColor;
+  box-shadow:0 0 0 2px #04160a, 0 0 8px 1px currentColor;}
+.type-fiche{color:#2F5FFF;}
+.type-video{color:#FF3B3B;}
+.type-podcast{color:#9B4FFF;}
 .chapter-links{display:flex;flex-direction:column;gap:8px;width:100%;}
 .links-row{display:flex;gap:10px 12px;flex-wrap:wrap;align-items:center;}
 
@@ -494,7 +499,7 @@ footer .foot-brand{font-family:'Orbitron',sans-serif;color:var(--level-neon);fon
           <div class="chapter-name">L'informatisation de l'information financière</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><a href="../ressources/gf/gf-ch1-informatisation.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/gf/gf-ch1-informatisation.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
       <div class="corner-br"></div>
     </div>
 
