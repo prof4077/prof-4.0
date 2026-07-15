@@ -284,6 +284,7 @@ footer .foot-brand{font-family:'Orbitron',sans-serif;color:var(--level-neon);fon
 <div class="bg-field"></div>
 <div class="hex-grid" style="background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2784%27%20height%3D%2796%27%20viewBox%3D%270%200%2084%2096%27%3E%3Cpath%20d%3D%27M42%200%20L84%2024%20L84%2072%20L42%2096%20L0%2072%20L0%2024%20Z%27%20fill%3D%27none%27%20stroke%3D%27%2335C8FF%27%20stroke-width%3D%271%27/%3E%3C/svg%3E');"></div>
 
+<div class="page-bg-decor" style="position:absolute;top:0;left:0;width:100%;overflow:hidden;z-index:0;pointer-events:none;">
 <!-- motif 1 : cadran tech, haut gauche -->
 <div style="position:absolute;top:-60px;left:-60px;width:320px;height:320px;z-index:0;pointer-events:none;opacity:.30;">
   <svg viewBox="0 0 200 200" style="width:100%;height:100%;animation:spinA 60s linear infinite;transform-origin:center;">
@@ -388,7 +389,7 @@ footer .foot-brand{font-family:'Orbitron',sans-serif;color:var(--level-neon);fon
 </div>
 
 <!-- trame "circuit" reliant les motifs, sur toute la hauteur -->
-<svg style="position:absolute;top:0;left:0;width:100%;height:3200px;z-index:0;pointer-events:none;opacity:.34;" preserveAspectRatio="none">
+<svg style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.34;" preserveAspectRatio="none">
   <path d="M 60,140 Q 200,300 400,560 T 900,900 Q 1100,1050 950,1300 T 500,1750 Q 250,1950 700,2200 T 900,2650 Q 750,2850 500,3000"
     fill="none" stroke="#5B8FFF" stroke-width="1.5" stroke-dasharray="2 10"/>
   <circle cx="400" cy="560" r="3" fill="#5B8FFF"/>
@@ -415,7 +416,7 @@ footer .foot-brand{font-family:'Orbitron',sans-serif;color:var(--level-neon);fon
 </div>
 
 <!-- particules hexagonales flottantes sur toute la hauteur -->
-<div style="position:absolute;top:0;left:0;width:100%;height:3200px;z-index:0;pointer-events:none;overflow:hidden;">
+<div style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:hidden;">
   <div class="particle" style="left:8%;bottom:0%;width:14px;height:16px;animation-delay:0s;animation-duration:22s;border-color:#5B8FFF;"></div>
   <div class="particle" style="left:22%;bottom:15%;width:18px;height:20px;animation-delay:3s;animation-duration:26s;border-color:#5B8FFF;"></div>
   <div class="particle" style="left:38%;bottom:35%;width:12px;height:14px;animation-delay:6s;animation-duration:20s;border-color:#5B8FFF;"></div>
@@ -437,6 +438,8 @@ footer .foot-brand{font-family:'Orbitron',sans-serif;color:var(--level-neon);fon
 </style>
 
 
+</div>
+<div class="page-content" style="position:relative;z-index:1;">
 <header>
   <div class="nav-wrap">
     <div class="brand">
@@ -722,5 +725,19 @@ footer .foot-brand{font-family:'Orbitron',sans-serif;color:var(--level-neon);fon
        style="color:var(--level-neon);font-weight:700;">&#9654; Cha&icirc;ne YouTube</a>
   </p>
 </footer>
+</div>
+
+<script>
+(function(){
+  function fitDecor(){
+    var pc = document.querySelector('.page-content');
+    var decor = document.querySelector('.page-bg-decor');
+    if(pc && decor){ decor.style.height = pc.scrollHeight + 'px'; }
+  }
+  window.addEventListener('load', fitDecor);
+  window.addEventListener('resize', fitDecor);
+})();
+</script>
+
 </body>
 </html>
