@@ -111,7 +111,7 @@ h1.title .w{text-shadow:0 0 18px rgba(238,243,236,.35);}
 .subject-desc{font-size:13.5px;color:var(--muted);line-height:1.55;}
 
 .chapter-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;position:relative;z-index:2;}
-.chapter-card{background:var(--bg-panel);border:1px solid var(--line);padding:32px 34px;display:flex;
+.chapter-card{background:linear-gradient(150deg, color-mix(in srgb, var(--subj) 20%, var(--bg-panel)) 0%, color-mix(in srgb, var(--subj) 7%, var(--bg-panel)) 100%);border:1px solid var(--line);padding:32px 34px;display:flex;
   flex-direction:column;align-items:flex-start;gap:20px;transition:border-color .2s;}
 .chapter-card{position:relative;overflow:hidden;}
 .chapter-card::before{content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
@@ -127,8 +127,10 @@ h1.title .w{text-shadow:0 0 18px rgba(238,243,236,.35);}
 
 .chapter-card:hover{border-color:var(--subj);}
 .chapter-left{display:flex;align-items:center;gap:20px;}
-.chapter-num{font-family:'Orbitron',sans-serif;font-size:15px;color:var(--subj);border:1.5px solid var(--subj);
-  width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.chapter-num-wrap{position:relative;width:44px;height:44px;flex-shrink:0;}
+.chapter-num-wrap svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+.chapter-num{position:relative;z-index:1;font-family:'Orbitron',sans-serif;font-size:15px;color:var(--subj);
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
 .chapter-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17.5px;}
 .chapter-meta{font-size:12px;color:var(--muted);margin-top:3px;}
 .status-empty{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;
@@ -497,221 +499,221 @@ footer .foot-brand{font-family:'Orbitron',sans-serif;color:var(--level-neon);fon
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">01</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">01</div></div>
         <div>
-          <div class="chapter-name">Chapitre 1 &mdash; Qu'est-ce qu'une organisation ?</div>
+          <div class="chapter-name">Qu'est-ce qu'une organisation ?</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch01-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div><div class="links-row"><a href="https://youtu.be/Fvne7VGoZNc" target="_blank" class="status-ready">Vidéo</a><a href="https://open.spotify.com/episode/3l5qBwl2GjoHbYvp5Izqik?si=BbI7v1KaTs-1bgBjVMfp0A" target="_blank" class="status-ready">Podcast</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch01-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div><div class="links-row"><a href="https://youtu.be/Fvne7VGoZNc" target="_blank" class="status-ready">Vidéo</a><a href="https://open.spotify.com/episode/3l5qBwl2GjoHbYvp5Izqik?si=BbI7v1KaTs-1bgBjVMfp0A" target="_blank" class="status-ready">Podcast</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">02</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">02</div></div>
         <div>
-          <div class="chapter-name">Chapitre 2 &mdash; Comment les comportements individuels influencent-ils les relations dans une organisation ?</div>
+          <div class="chapter-name">Comment les comportements individuels influencent-ils les relations dans une organisation ?</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch02-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div><div class="links-row"><a href="https://youtu.be/1l804c512Jg" target="_blank" class="status-ready">Vidéo</a><a href="https://open.spotify.com/episode/4GxnVSPxRKVGZPhpdTYIYG?si=MUIOjN1wRLKFYz9Il1R4yg" target="_blank" class="status-ready">Podcast</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch02-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div><div class="links-row"><a href="https://youtu.be/1l804c512Jg" target="_blank" class="status-ready">Vidéo</a><a href="https://open.spotify.com/episode/4GxnVSPxRKVGZPhpdTYIYG?si=MUIOjN1wRLKFYz9Il1R4yg" target="_blank" class="status-ready">Podcast</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">03</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">03</div></div>
         <div>
-          <div class="chapter-name">Chapitre 3 &mdash; Comment les groupes influencent-ils les individus dans une organisation ?</div>
+          <div class="chapter-name">Comment les groupes influencent-ils les individus dans une organisation ?</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch03-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div><div class="links-row"><a href="https://youtu.be/grtX0t5Takc" target="_blank" class="status-ready">Vidéo</a><a href="https://open.spotify.com/episode/3iy5e0azwvnZM08ceXyfS2?si=MpicFG31SxO0PYJqB5gRBA" target="_blank" class="status-ready">Podcast</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch03-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div><div class="links-row"><a href="https://youtu.be/grtX0t5Takc" target="_blank" class="status-ready">Vidéo</a><a href="https://open.spotify.com/episode/3iy5e0azwvnZM08ceXyfS2?si=MpicFG31SxO0PYJqB5gRBA" target="_blank" class="status-ready">Podcast</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">04</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">04</div></div>
         <div>
-          <div class="chapter-name">Chapitre 4 &mdash; Les phénomènes relationnels : comment un individu devient-il acteur dans une organisation ?</div>
+          <div class="chapter-name">Les phénomènes relationnels : comment un individu devient-il acteur dans une organisation ?</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch04-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div><div class="links-row"><a href="https://youtu.be/GVpixsCv2X0" target="_blank" class="status-ready">Vidéo</a><a href="https://open.spotify.com/episode/7oN6vXUXMJGWhYo4rlLabQ?si=UU8vr8CRSUKu3XFjln0mmA" target="_blank" class="status-ready">Podcast</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch04-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div><div class="links-row"><a href="https://youtu.be/GVpixsCv2X0" target="_blank" class="status-ready">Vidéo</a><a href="https://open.spotify.com/episode/7oN6vXUXMJGWhYo4rlLabQ?si=UU8vr8CRSUKu3XFjln0mmA" target="_blank" class="status-ready">Podcast</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">05</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">05</div></div>
         <div>
-          <div class="chapter-name">Chapitre 5 &mdash; Les interactions au sein de l'organisation : comment l'organisation influence-t-elle les comportements des individus ?</div>
+          <div class="chapter-name">Les interactions au sein de l'organisation : comment l'organisation influence-t-elle les comportements des individus ?</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch05-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div><div class="links-row"><a href="https://youtu.be/KABZv_Bu1jA" target="_blank" class="status-ready">Vidéo</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch05-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div><div class="links-row"><a href="https://youtu.be/KABZv_Bu1jA" target="_blank" class="status-ready">Vidéo</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">06</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">06</div></div>
         <div>
-          <div class="chapter-name">Chapitre 6 &mdash; L'activité de travail : comment concilier les besoins des organisations et ceux des individus au travail ?</div>
+          <div class="chapter-name">L'activité de travail : comment concilier les besoins des organisations et ceux des individus au travail ?</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch06-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div><div class="links-row"><a href="https://youtu.be/ubXvdbg6OSg" target="_blank" class="status-ready">Vidéo</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch06-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div><div class="links-row"><a href="https://youtu.be/ubXvdbg6OSg" target="_blank" class="status-ready">Vidéo</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">07</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">07</div></div>
         <div>
-          <div class="chapter-name">Chapitre 7 &mdash; La rémunération et l'évaluation de l'activité de travail</div>
+          <div class="chapter-name">La rémunération et l'évaluation de l'activité de travail</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch07-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch07-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">08</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">08</div></div>
         <div>
-          <div class="chapter-name">Chapitre 8 &mdash; Les données et le système d'information : en quoi les technologies transforment-elles l'information en ressource ?</div>
+          <div class="chapter-name">Les données et le système d'information : en quoi les technologies transforment-elles l'information en ressource ?</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch08-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch08-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">09</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">09</div></div>
         <div>
-          <div class="chapter-name">Chapitre 9 &mdash; Le partage de l'information : comment contribue-t-il à l'émergence d'une intelligence collective ?</div>
+          <div class="chapter-name">Le partage de l'information : comment contribue-t-il à l'émergence d'une intelligence collective ?</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch09-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch09-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">10</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">10</div></div>
         <div>
-          <div class="chapter-name">Chapitre 10 &mdash; L'automatisation des activités : le numérique crée-t-il de l'agilité ou de la rigidité organisationnelle ?</div>
+          <div class="chapter-name">L'automatisation des activités : le numérique crée-t-il de l'agilité ou de la rigidité organisationnelle ?</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch10-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch10-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">11</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">11</div></div>
         <div>
-          <div class="chapter-name">Chapitre 11 &mdash; Cloud et mobilité : le numérique crée-t-il de la souplesse ou de la rigidité organisationnelle ?</div>
+          <div class="chapter-name">Cloud et mobilité : le numérique crée-t-il de la souplesse ou de la rigidité organisationnelle ?</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch11-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch11-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">12</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">12</div></div>
         <div>
-          <div class="chapter-name">Chapitre 12 &mdash; La contribution des acteurs à la valeur ajoutée</div>
+          <div class="chapter-name">La contribution des acteurs à la valeur ajoutée</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch12-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch12-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">13</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">13</div></div>
         <div>
-          <div class="chapter-name">Chapitre 13 &mdash; Mesurer la valeur financière de l'entreprise</div>
+          <div class="chapter-name">Mesurer la valeur financière de l'entreprise</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch13-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch13-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">14</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">14</div></div>
         <div>
-          <div class="chapter-name">Chapitre 14 &mdash; La valeur actionnariale, boursière et partenariale</div>
+          <div class="chapter-name">La valeur actionnariale, boursière et partenariale</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch14-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch14-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">15</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">15</div></div>
         <div>
-          <div class="chapter-name">Chapitre 15 &mdash; La valeur perçue</div>
+          <div class="chapter-name">La valeur perçue</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch15-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch15-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">16</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">16</div></div>
         <div>
-          <div class="chapter-name">Chapitre 16 &mdash; Prix, coûts, marge et charges</div>
+          <div class="chapter-name">Prix, coûts, marge et charges</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch16-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch16-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">17</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">17</div></div>
         <div>
-          <div class="chapter-name">Chapitre 17 &mdash; La performance de l'organisation</div>
+          <div class="chapter-name">La performance de l'organisation</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch17-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch17-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">18</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">18</div></div>
         <div>
-          <div class="chapter-name">Chapitre 18 &mdash; Prévoir l'activité</div>
+          <div class="chapter-name">Prévoir l'activité</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch18-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch18-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">19</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">19</div></div>
         <div>
-          <div class="chapter-name">Chapitre 19 &mdash; Prévoir les financements et planifier</div>
+          <div class="chapter-name">Prévoir les financements et planifier</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch19-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch19-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
       <div class="corner-br"></div>
     </div>
 
     <div class="chapter-card">
       <div class="chapter-left">
-        <div class="chapter-num">20</div>
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">20</div></div>
         <div>
-          <div class="chapter-name">Chapitre 20 &mdash; Les facteurs de risque</div>
+          <div class="chapter-name">Les facteurs de risque</div>
           </div>
         </div>
-      <div class="chapter-links"><div class="links-row"><span class="chapter-dot"></span><a href="../ressources/sdgn/sdgn-ch20-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/sdgn/sdgn-ch20-fiche.pdf" target="_blank" class="status-ready">Fiche</a></div></div>
       <div class="corner-br"></div>
     </div>
 
