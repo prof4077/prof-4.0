@@ -1,0 +1,2003 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NEXUS — Prof 4.0 STMG</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#07090f; --panel:#131a2b; --line:#2a3554;
+    --accent:#4d8dff; --accent2:#00e5ff;
+    --ok:#4ade80; --bad:#f87171;
+    --text:#e8ecf7; --dim:#8892b0;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);
+    font-family:'Space Mono',monospace;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;overflow-y:auto}
+  #titlebar{width:100%;max-width:720px;display:flex;justify-content:space-between;align-items:baseline;padding:10px 12px 6px}
+  #titlebar h1{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--accent);letter-spacing:1px;margin:0;text-shadow:0 0 8px rgba(77,141,255,.5)}
+  #titlebar span{font-size:9.5px;color:var(--dim)}
+
+  #stage{position:relative;width:720px;max-width:98vw;aspect-ratio:16/10;
+    border:2px solid var(--line);border-radius:10px;overflow:hidden;background:#000;
+    box-shadow:0 0 0 1px #000, 0 0 40px rgba(77,141,255,.1);}
+
+  #camera{position:absolute;inset:0;transition:transform .55s cubic-bezier(.22,.8,.25,1);
+    transform-origin:50% 50%;will-change:transform;}
+
+  #bgCanvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+  #hud{position:absolute;top:0;left:0;right:0;z-index:6;display:flex;gap:6px;padding:8px;
+    background:linear-gradient(to bottom, rgba(7,9,15,.85), rgba(7,9,15,0));flex-wrap:wrap}
+  .pill{flex:1;min-width:110px;background:rgba(15,23,48,.75);border:1px solid var(--line);border-radius:7px;padding:5px 8px;backdrop-filter:blur(2px)}
+  .pill .row{display:flex;justify-content:space-between;align-items:center;font-size:8.5px;color:var(--dim);margin-bottom:3px}
+  .pill .row b{color:var(--text);font-family:'Space Mono',monospace}
+  .pill .bar{height:5px;background:#1c2540;border-radius:3px;overflow:hidden}
+  .pill .fill{height:100%;transition:width .6s ease, background .6s ease}
+  .pill.time .bar .fill{background:linear-gradient(90deg,var(--accent2),var(--accent))}
+
+  #portraits{position:absolute;bottom:0;left:0;right:0;z-index:4;display:flex;justify-content:center;
+    align-items:flex-end;gap:4px;pointer-events:none;height:66%;}
+  .portraitSlot{width:0;flex:0 0 0px;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+    overflow:hidden;transition:opacity .35s ease, transform .35s ease, filter .35s ease, flex-basis .35s ease, width .35s ease;
+    opacity:0;transform:translateY(14px) scale(.97);filter:brightness(.65) saturate(.7);}
+  .portraitSlot.on{opacity:1;transform:translateY(0) scale(1);flex:0 0 130px;width:130px}
+  .portraitSlot.speaking{filter:brightness(1) saturate(1);transform:translateY(0) scale(1.04);z-index:5}
+  .portraitSlot canvas{width:130px;flex-shrink:0;height:auto;display:block}
+  .nameTag{
+    font-family:'Press Start 2P',monospace;font-size:7px;color:var(--accent2);text-align:center;
+    letter-spacing:.4px;line-height:1.6;margin-top:4px;text-shadow:0 0 4px rgba(0,229,255,.5);white-space:nowrap;
+  }
+  .nameTag span{color:var(--dim);font-family:'Space Mono',monospace;font-size:8px;letter-spacing:0}
+
+  #titlecard{position:absolute;inset:0;z-index:15;background:rgba(4,5,9,.92);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+    opacity:0;pointer-events:none;transition:opacity .5s ease}
+  #titlecard.show{opacity:1}
+  #titlecard h2{font-family:'Press Start 2P',monospace;font-size:20px;color:var(--accent2);letter-spacing:2px;margin:0 0 8px;
+    text-shadow:0 0 16px rgba(0,229,255,.6)}
+  #titlecard p{font-size:11px;color:var(--dim);letter-spacing:1px;margin:0}
+
+  #dialogue{position:absolute;left:0;right:0;bottom:0;z-index:10;
+    background:linear-gradient(180deg, rgba(19,26,43,0) 0%, rgba(10,13,22,.97) 22%, rgba(10,13,22,.97) 100%);
+    padding:14px 16px 16px;cursor:pointer;min-height:118px;max-height:92%;overflow-y:auto}
+  #dialogue.choicemode{cursor:default}
+  #speakerName{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--accent2);letter-spacing:1px;margin-bottom:6px;min-height:11px}
+  #dialogueText{font-size:13px;line-height:1.55;min-height:44px}
+  #dialogueText.narration{color:var(--dim);font-style:italic}
+  #continueHint{font-size:9px;color:var(--dim);text-align:right;margin-top:6px;opacity:.8;
+    animation:blink 1.4s ease-in-out infinite}
+  @keyframes blink{0%,100%{opacity:.3}50%{opacity:.9}}
+  #choiceButtons{display:none;flex-direction:column;gap:7px;margin-top:8px}
+  #choiceButtons.show{display:flex}
+  #choiceButtons button{text-align:left;background:#1c2540;border:1px solid var(--line);color:var(--text);
+    font-family:'Space Mono',monospace;font-size:12px;padding:10px 12px;border-radius:8px;cursor:pointer;transition:.15s}
+  #choiceButtons button:hover{border-color:var(--accent2);background:#212c4a;transform:translateX(3px);box-shadow:0 0 0 1px rgba(0,229,255,.25)}
+  #choiceButtons button .tag{color:var(--accent2);margin-right:6px}
+
+  #endscreen{position:absolute;inset:0;z-index:20;background:radial-gradient(ellipse at 50% 35%, rgba(20,20,40,.97) 0%, rgba(4,5,9,.98) 75%);
+    display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px;overflow-y:auto}
+  #endscreen .card{max-width:480px;animation:cardIn .35s cubic-bezier(.2,.8,.2,1);margin:auto 0}
+  @keyframes cardIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+  .rule{width:44px;height:3px;border-radius:2px;background:var(--accent);box-shadow:0 0 8px var(--accent);margin:0 auto 14px}
+  #endscreen h2{font-family:'Press Start 2P',monospace;font-size:12px;color:var(--accent);margin:0 0 14px;letter-spacing:1px}
+  #endscreen p{font-size:11.5px;line-height:1.65;margin:0 0 14px;color:var(--text)}
+  #endStats{display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+  #endStats .es{background:#0f1730;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:10px}
+  #teaser{font-size:10.5px;color:var(--dim);border-top:1px dashed var(--line);padding-top:12px;margin-top:2px;line-height:1.6}
+  #teaser b{color:var(--accent2)}
+  #endscreen button{margin-top:16px;background:var(--accent2);border:none;color:#031a1f;font-family:'Press Start 2P',monospace;
+    font-size:9.5px;padding:11px 18px;border-radius:6px;cursor:pointer;letter-spacing:.5px;box-shadow:0 4px 16px rgba(0,229,255,.3)}
+
+  /* ===== Épilogue enrichi (fin de l'Acte 3 uniquement) ===== */
+  #endscreen.flash{animation:endFlash .5s ease-out}
+  @keyframes endFlash{0%{box-shadow:inset 0 0 0 0 rgba(0,229,255,0)}20%{box-shadow:inset 0 0 120px 20px rgba(0,229,255,.35)}100%{box-shadow:inset 0 0 0 0 rgba(0,229,255,0)}}
+
+  #epilogueStamp{display:none;font-family:'Press Start 2P',monospace;font-size:13px;text-align:center;
+    border:3px solid var(--accent2);border-radius:10px;padding:12px 16px;margin:0 auto 12px;max-width:280px;
+    transform:scale(0) rotate(-10deg);opacity:0}
+  #epilogueStamp.show{animation:epilogueStampIn .45s cubic-bezier(.2,1.5,.4,1) forwards}
+  @keyframes epilogueStampIn{60%{transform:scale(1.12) rotate(-6deg);opacity:1}100%{transform:scale(1) rotate(-6deg);opacity:1}}
+  #epilogueStamp.stamp-ok{color:var(--ok);border-color:var(--ok);box-shadow:0 0 16px rgba(74,222,128,.35)}
+  #epilogueStamp.stamp-bad{color:var(--bad);border-color:var(--bad);box-shadow:0 0 16px rgba(248,113,113,.35)}
+  #epilogueStamp.stamp-neutral{color:var(--accent2);border-color:var(--accent2);box-shadow:0 0 16px rgba(0,229,255,.35)}
+
+  #epilogueTitle{display:none;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;color:var(--text);
+    letter-spacing:.5px;margin:0 0 16px;opacity:0}
+  #epilogueTitle.show{animation:fadeUp .35s ease forwards .15s}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+  #tonNexusBox{display:none;background:#0f1730;border:1px solid var(--line);border-radius:10px;
+    padding:12px 14px;margin:0 0 16px;text-align:left;opacity:0}
+  #tonNexusBox.show{animation:fadeUp .35s ease forwards .3s}
+  .tnx-head{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--accent2);letter-spacing:1px;margin-bottom:8px}
+  .tnx-row{display:flex;justify-content:space-between;gap:10px;font-size:11px;padding:3px 0;border-bottom:1px dashed rgba(255,255,255,.06)}
+  .tnx-row:last-child{border-bottom:none}
+  .tnx-row span{color:var(--dim)}
+  .tnx-row b{color:var(--text);font-weight:400;text-align:right}
+
+  #pedagogyText{display:none;font-size:10.5px;font-style:italic;color:var(--dim);line-height:1.6;
+    border-left:2px solid var(--accent);padding:2px 0 2px 12px;text-align:left;opacity:0}
+  #pedagogyText.show{animation:fadeUp .35s ease forwards .45s}
+
+  #finishBtn{display:none;font-size:11px;padding:14px 22px;box-shadow:0 6px 20px rgba(0,229,255,.4)}
+  #finishBtn:disabled{opacity:.6;cursor:default;box-shadow:none}
+  #exploreAgainBtn{display:none;background:none;border:1px solid var(--line);color:var(--dim);
+    font-family:'Space Mono',monospace;font-size:10px;padding:8px 14px;box-shadow:none;margin-top:10px}
+  #exploreAgainBtn:hover{border-color:var(--accent2);color:var(--accent2)}
+
+  #introscreen{position:absolute;inset:0;z-index:25;background:radial-gradient(ellipse at 50% 35%, rgba(20,20,40,.97) 0%, rgba(4,5,9,.98) 75%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px}
+  #introscreen .card{max-width:480px;animation:cardIn .35s cubic-bezier(.2,.8,.2,1)}
+  #introscreen h2{font-family:'Press Start 2P',monospace;font-size:14px;color:var(--accent);margin:0 0 14px;letter-spacing:1px;text-shadow:0 0 10px rgba(77,141,255,.5)}
+  #introscreen p{font-size:12px;line-height:1.7;margin:0 0 20px}
+  #introscreen button{background:var(--accent2);border:none;color:#031a1f;font-family:'Press Start 2P',monospace;
+    font-size:10px;padding:12px 20px;border-radius:6px;cursor:pointer;letter-spacing:.5px;box-shadow:0 4px 16px rgba(0,229,255,.3)}
+
+  footer{color:var(--dim);font-size:9.5px;margin:12px 0 20px;text-align:center;max-width:660px;padding:0 12px}
+  footer b{color:var(--accent2)}
+
+  /* ===== Tableau de crise (Acte 3) ===== */
+  #crisisBoard{position:absolute;inset:0;z-index:22;background:radial-gradient(ellipse at 50% 30%, rgba(30,10,10,.97) 0%, rgba(4,5,9,.99) 80%);
+    display:none;flex-direction:column;align-items:center;padding:16px;overflow-y:auto}
+  #crisisHeader{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--bad);letter-spacing:1px;
+    margin-bottom:12px;text-align:center;text-shadow:0 0 8px rgba(248,113,113,.4)}
+  #crisisRes,#crisisTasks{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:520px}
+  #crisisResCards{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%}
+  .rcard{background:#1a1220;border:2px solid var(--line);border-radius:10px;padding:10px;cursor:pointer;transition:border-color .2s ease,background .2s ease}
+  .rcard.sel{border-color:var(--accent2);background:#0f1f2a}
+  .rcard h4{font-size:11px;color:var(--text);margin:0 0 4px}
+  .rcard ul{margin:0;padding-left:14px;font-size:9.5px;color:var(--dim);line-height:1.5}
+  #crisisResConfirm,#crisisTaskConfirm{background:var(--accent2);border:none;color:#031a1f;font-family:'Press Start 2P',monospace;
+    font-size:9.5px;padding:11px 16px;border-radius:8px;cursor:pointer}
+  #crisisResConfirm:disabled{opacity:.4;cursor:default}
+  #crisisTaskButtons{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px}
+  #crisisTaskReset{background:none;border:1px solid var(--bad);color:var(--bad);font-family:'Space Mono',monospace;
+    font-size:10.5px;padding:10px 14px;border-radius:8px;cursor:pointer}
+  .trow{width:100%;background:#101a30;border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+  .trow .tlabel{font-size:11px;color:var(--text);margin-bottom:6px}
+  .trow .tchars{display:flex;gap:6px;flex-wrap:wrap}
+  .tchar-btn{background:#1c2540;border:1px solid var(--line);color:var(--text);font-family:'Space Mono',monospace;
+    font-size:10px;padding:6px 9px;border-radius:6px;cursor:pointer}
+  .tchar-btn.picked{background:var(--accent2);color:#031a1f;border-color:var(--accent2)}
+  .tchar-btn:disabled{opacity:.3;cursor:default}
+
+  /* ===== Tablette interactive (Acte 2) ===== */
+  #tablet{position:absolute;inset:0;z-index:22;background:radial-gradient(ellipse at 50% 30%, rgba(20,26,46,.99) 0%, rgba(4,5,9,.99) 80%);
+    display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding:16px;overflow-y:auto}
+  #tabletHeader{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--accent2);letter-spacing:1px;
+    margin-bottom:14px;text-align:center;text-shadow:0 0 8px rgba(0,229,255,.4)}
+  #tabletProgress{color:var(--accent);margin-left:8px}
+
+  #tabletCards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-width:640px}
+  .tcard{background:#101a30;border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
+  .tcard h3{font-size:12px;color:var(--text);margin:0 0 2px}
+  .tcard ul{margin:0;padding-left:16px;font-size:10.5px;color:var(--dim);line-height:1.5}
+  .tcard-obj{background:none;border:1px solid var(--line);color:var(--accent2);font-family:'Space Mono',monospace;
+    font-size:10px;padding:6px 8px;border-radius:6px;cursor:pointer}
+  .tcard-objtext{display:none;font-size:10px;color:var(--bad);line-height:1.5;padding:2px 2px}
+  .tcard-objtext.show{display:block}
+  .tcard-choose{background:var(--accent);border:none;color:#04070f;font-family:'Press Start 2P',monospace;
+    font-size:9px;padding:9px;border-radius:6px;cursor:pointer;margin-top:2px}
+
+  #tabletDoc{display:none;flex-direction:column;gap:8px;width:100%;max-width:440px}
+  .field{background:#101a30;border:2px solid var(--line);border-radius:8px;padding:9px 12px;font-size:10px;
+    color:var(--dim);letter-spacing:.5px;transition:border-color .3s ease, background .3s ease}
+  .field b{display:block;font-size:12.5px;color:var(--text);font-weight:400;margin-top:3px;font-family:'Space Mono',monospace}
+  .field.err{border-color:var(--bad);cursor:pointer}
+  .field.err b{color:var(--bad)}
+  .field.ok{border-color:var(--ok);background:#0f1f18}
+  .field.ok b{color:var(--ok)}
+  #tabletOptions{display:flex;flex-direction:column;gap:6px}
+  .topt-title{font-size:10.5px;color:var(--dim);margin-top:4px}
+  .topt-btn{text-align:left;background:#1c2540;border:1px solid var(--line);color:var(--text);
+    font-family:'Space Mono',monospace;font-size:11.5px;padding:9px 11px;border-radius:8px;cursor:pointer}
+  .topt-btn:hover{border-color:var(--accent2);background:#212c4a}
+  #transmitBtn{display:none;margin-top:6px;background:var(--accent2);border:none;color:#031a1f;
+    font-family:'Press Start 2P',monospace;font-size:10px;padding:12px;border-radius:8px;cursor:pointer}
+
+  #tabletScan{display:none;flex-direction:column;align-items:center;justify-content:center;height:60%;position:relative;width:100%;max-width:300px}
+  #tabletScan .scanbeam{width:100%;height:4px;background:var(--accent2);box-shadow:0 0 14px var(--accent2);opacity:0}
+  #tabletScan.scanning .scanbeam{opacity:1;animation:scanmove 1s ease-in-out}
+  @keyframes scanmove{0%{transform:translateY(-80px)}100%{transform:translateY(80px)}}
+  #tabletScan .stamp{font-family:'Press Start 2P',monospace;font-size:14px;color:var(--ok);text-align:center;
+    border:3px solid var(--ok);border-radius:10px;padding:14px 20px;transform:scale(0) rotate(-8deg);opacity:0;margin-top:16px}
+  #tabletScan.stamped .stamp{animation:stampIn .35s cubic-bezier(.2,1.4,.4,1) forwards}
+  @keyframes stampIn{to{transform:scale(1) rotate(-8deg);opacity:1}}
+
+  #tabletUnlock{display:none;flex-direction:column;align-items:center;gap:14px;padding-top:20px}
+  #unlockIcons{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;max-width:420px}
+  .uicon{background:#101a30;border:1px solid var(--accent2);border-radius:8px;padding:10px;font-size:11px;
+    text-align:center;opacity:0;animation:uiconIn .3s ease forwards}
+  .uicon:nth-child(1){animation-delay:.05s} .uicon:nth-child(2){animation-delay:.15s}
+  .uicon:nth-child(3){animation-delay:.25s} .uicon:nth-child(4){animation-delay:.35s}
+  .uicon:nth-child(5){animation-delay:.45s}
+  @keyframes uiconIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  #unlockMsg{font-family:'Press Start 2P',monospace;font-size:11px;text-align:center;padding:10px 14px;border-radius:8px}
+  #unlockMsg.ok{color:var(--ok);border:1px solid var(--ok);background:rgba(74,222,128,.1)}
+  #unlockMsg.danger{color:var(--bad);border:1px solid var(--bad);background:rgba(248,113,113,.1)}
+  #unlockContinueBtn{background:var(--accent2);border:none;color:#031a1f;font-family:'Press Start 2P',monospace;
+    font-size:10px;padding:11px 18px;border-radius:8px;cursor:pointer}
+
+  @media (max-width:760px){
+    #stage{aspect-ratio:4/5}
+    .portraitSlot.on{width:24vw;flex-basis:24vw}
+    .portraitSlot canvas{width:24vw}
+    #dialogueText{font-size:12.5px}
+    #tabletCards{grid-template-columns:1fr}
+    #crisisResCards{grid-template-columns:1fr}
+    #unlockIcons{grid-template-columns:1fr}
+    #endscreen .card{display:flex;flex-direction:column}
+    #continueAct2Btn,#continueAct3Btn{margin-right:0 !important;margin-bottom:8px}
+  }
+</style>
+</head>
+<body>
+
+<div id="titlebar">
+  <h1>PROF 4.0 STMG // MANAGEMENT</h1>
+  <span>NEXUS — ÉPISODE 1 : L’ULTIMATUM</span>
+</div>
+
+<div id="stage">
+  <div id="camera">
+    <canvas id="bgCanvas" width="720" height="450"></canvas>
+
+    <div id="portraits">
+      <div class="portraitSlot" id="slot-0"><canvas width="220" height="420"></canvas><div class="nameTag"></div></div>
+      <div class="portraitSlot" id="slot-1"><canvas width="220" height="420"></canvas><div class="nameTag"></div></div>
+      <div class="portraitSlot" id="slot-2"><canvas width="220" height="420"></canvas><div class="nameTag"></div></div>
+      <div class="portraitSlot" id="slot-3"><canvas width="220" height="420"></canvas><div class="nameTag"></div></div>
+    </div>
+  </div>
+
+  
+  <div id="hud">
+    <div class="pill"><div class="row">🤝 COHÉSION <b id="v-cohesion">55</b></div><div class="bar"><div class="fill" id="bar-cohesion"></div></div></div>
+    <div class="pill"><div class="row">⭐ CRÉDIBILITÉ <b id="v-credibilite">50</b></div><div class="bar"><div class="fill" id="bar-credibilite"></div></div></div>
+    <div class="pill"><div class="row">📦 RESSOURCES <b id="v-ressources">45</b></div><div class="bar"><div class="fill" id="bar-ressources"></div></div></div>
+    <div class="pill time"><div class="row">⏳ TEMPS RESTANT <b id="v-jours">5 JOURS</b></div><div class="bar"><div class="fill" id="bar-jours"></div></div></div>
+  </div>
+
+  <div id="titlecard"><h2 id="titlecardH2">JOUR 1</h2><p id="titlecardP">À l'intérieur de Nexus</p></div>
+
+  <div id="dialogue">
+    <div id="speakerName"></div>
+    <div id="dialogueText"></div>
+    <div id="continueHint">▸ toucher pour continuer</div>
+    <div id="choiceButtons"></div>
+  </div>
+
+  <div id="introscreen">
+    <div class="card">
+      <div class="rule"></div>
+      <h2>NEXUS</h2>
+      <p>Néo-City, quartier de Nexus. Un ancien lieu culturel laissé à l'abandon. La mairie vous donne cinq jours pour transformer une foule motivée en une véritable équipe capable de porter un projet.</p>
+      <p style="color:var(--dim);font-size:10.5px">Prologue + Acte 1 — « Sauver Nexus… mais pour quoi faire ? »</p>
+      <button id="startBtn">ENTRER DANS NEXUS ▸</button>
+    </div>
+  </div>
+
+  <div id="crisisBoard">
+    <div id="crisisHeader"></div>
+    <div id="crisisRes">
+      <div id="crisisResCards"></div>
+      <button id="crisisResConfirm" disabled>VALIDER LE PLAN (0/3) ▸</button>
+    </div>
+    <div id="crisisTasks" style="display:none">
+      <div id="crisisTaskRows"></div>
+      <div id="crisisTaskButtons">
+        <button id="crisisTaskReset" type="button">RÉINITIALISER LES AFFECTATIONS</button>
+        <button id="crisisTaskConfirm" style="display:none">VALIDER LES AFFECTATIONS ▸</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="tablet">
+    <div id="tabletHeader">DOSSIER DE CRÉATION — NEXUS <span id="tabletProgress"></span></div>
+    <div id="tabletCards"></div>
+    <div id="tabletDoc">
+      <div class="field" id="field-forme">FORME JURIDIQUE<br><b id="f-forme">—</b></div>
+      <div class="field" id="field-denom">DÉNOMINATION<br><b id="f-denom">—</b></div>
+      <div class="field err" id="field-objet">OBJET<br><b id="f-objet">« Sauver Nexus et faire plein de trucs pour le quartier »</b></div>
+      <div class="field err" id="field-duree">DURÉE<br><b id="f-duree">Non précisée</b></div>
+      <div id="tabletOptions"></div>
+      <button id="transmitBtn">TRANSMETTRE À GABRIEL ▸</button>
+    </div>
+    <div id="tabletScan">
+      <div class="scanbeam"></div>
+      <div class="stamp">DOSSIER<br>RECEVABLE</div>
+    </div>
+    <div id="tabletUnlock">
+      <div id="unlockIcons"></div>
+      <div id="unlockMsg"></div>
+      <button id="unlockContinueBtn">CONTINUER ▸</button>
+    </div>
+  </div>
+
+  <div id="endscreen">
+    <div class="card" id="endCard">
+      <div class="rule"></div>
+      <h2 id="endTitle">FIN DE L'ACTE 1</h2>
+
+      <div id="epilogueStamp"></div>
+      <div id="epilogueTitle"></div>
+
+      <div id="endStats"></div>
+
+      <div id="tonNexusBox">
+        <div class="tnx-head">TON NEXUS</div>
+        <div class="tnx-row"><span>Structure</span><b id="tnx-structure">—</b></div>
+        <div class="tnx-row"><span>Orientation initiale</span><b id="tnx-orientation">—</b></div>
+        <div class="tnx-row"><span>Force principale</span><b id="tnx-force">—</b></div>
+        <div class="tnx-row"><span>Point de vigilance</span><b id="tnx-vigilance">—</b></div>
+        <div class="tnx-row"><span>Verdict</span><b id="tnx-verdict">—</b></div>
+      </div>
+
+      <p id="endText"></p>
+      <div id="teaser"></div>
+      <p id="pedagogyText"></p>
+
+      <button id="continueAct2Btn" style="margin-right:8px">CONTINUER — ACTE 2 ▸</button>
+      <button id="continueAct3Btn" style="margin-right:8px">CONTINUER — ACTE 3 ▸</button>
+      <button id="restartBtn">RECOMMENCER LA MISSION ▸</button>
+
+      <button id="finishBtn">TERMINER LA MISSION ✓</button>
+      <button id="exploreAgainBtn">↻ EXPLORER UN AUTRE PARCOURS</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Prototype <b>visual novel</b> — Prologue + Actes 1, 2 et 3 du scénario Nexus.
+</footer>
+
+<script>
+/* ============================================================
+   UTILITAIRES DE DESSIN (même famille que les autres moteurs)
+   ============================================================ */
+function rr(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function darken(hex,amt){ const n=parseInt(hex.slice(1),16); let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  r=Math.max(0,Math.round(r*(1-amt))); g=Math.max(0,Math.round(g*(1-amt))); b=Math.max(0,Math.round(b*(1-amt))); return `rgb(${r},${g},${b})`; }
+function lighten(hex,amt){ const n=parseInt(hex.slice(1),16); let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  r=Math.min(255,Math.round(r+(255-r)*amt)); g=Math.min(255,Math.round(g+(255-g)*amt)); b=Math.min(255,Math.round(b+(255-b)*amt)); return `rgb(${r},${g},${b})`; }
+function shadeFill(ctx,x,y,w,h,hex){
+  const grad=ctx.createLinearGradient(x,y,x+w*0.4,y+h);
+  grad.addColorStop(0,lighten(hex,0.22)); grad.addColorStop(0.5,hex); grad.addColorStop(1,darken(hex,0.4));
+  return grad;
+}
+
+/* ============================================================
+   PERSONNAGES — palette + style de coiffure + expressions
+   ============================================================ */
+const CHARACTERS = {
+  varga:  { name:"Madame Varga", role:"Représentante municipale", skin:'#c9a37a', hair:'#4a3a42', top:'#4a5578', hairStyle:'long' },
+  noah:   { name:"Noah",         role:"L'entrepreneur",           skin:'#e0ac7c', hair:'#2a1a12', top:'#1c2540', hairStyle:'short'  },
+  yasmine:{ name:"Yasmine",      role:"La militante",             skin:'#a9683f', hair:'#160f0c', top:'#2f8f4e', hairStyle:'afro'   },
+  ines:   { name:"Inès",         role:"La technicienne",          skin:'#d9a679', hair:'#3a2a1a', top:'#c9581a', hairStyle:'bun'    },
+  tom:    { name:"Tom",          role:"Le bénévole",              skin:'#ffcf9e', hair:'#8a5a2a', top:'#e0574a', hairStyle:'messy'  },
+  gabriel:{ name:"Gabriel Morel", role:"Chargé des conventions",   skin:'#c9a37a', hair:'#2a2420', top:'#3a4560', hairStyle:'short' },
+};
+const MOODS = {
+  neutral:  { brow:0,    mouth:0    },
+  stern:    { brow:-3.5, mouth:-2.5 },
+  defiant:  { brow:-3,   mouth:-1.5 },
+  angry:    { brow:-4,   mouth:-3   },
+  worried:  { brow:2.5,  mouth:-1   },
+  annoyed:  { brow:-2.5, mouth:-2   },
+  happy:    { brow:1,    mouth:3    },
+  confident:{ brow:0.5,  mouth:1.5  },
+  skeptical:{ brow:-2,   mouth:-1   },
+};
+
+// Portrait pleine silhouette (tête, cou, torse cintré, bras + mains, jambes + pieds)
+// avec un pupitre optionnel dessiné dans le MÊME canvas pour un alignement parfait.
+function drawPortrait(ctx, charId, mood, opts){
+  opts = opts || {};
+  const c = CHARACTERS[charId];
+  const m = MOODS[mood] || MOODS.neutral;
+  const W=220, H=420, cx=W/2;
+  ctx.clearRect(0,0,W,H);
+
+  const groundY = H-14;
+  const feetH=18, legH=145, torsoH=135, neckH=24, headR=46;
+  const feetBottom = groundY, feetTop = feetBottom-feetH;
+  const legsBottom = feetTop+4, legsTop = legsBottom-legH;
+  const torsoBottom = legsTop+6, torsoTop = torsoBottom-torsoH;
+  const neckBottom = torsoTop+4, neckTop = neckBottom-neckH;
+  const headCy = neckTop-headR+8;
+  const shoulderW=78, waistW=56; // torse cintré : épaules larges, taille resserrée
+
+  // ombre au sol
+  ctx.fillStyle='rgba(0,0,0,.3)';
+  ctx.beginPath(); ctx.ellipse(cx,groundY+8,60,12,0,0,7); ctx.fill();
+
+  // halo directionnel
+  const halo = ctx.createRadialGradient(cx-30,headCy-10,10,cx-30,headCy-10,170);
+  halo.addColorStop(0,'rgba(255,255,255,.14)'); halo.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=halo; ctx.beginPath(); ctx.arc(cx-30,headCy-10,170,0,7); ctx.fill();
+
+  ctx.lineWidth=4; ctx.strokeStyle='#0d1424';
+
+  // jambes + pieds
+  ctx.fillStyle=shadeFill(ctx,cx-30,legsTop,26,legH,darken(c.top,0.35));
+  rr(ctx,cx-30,legsTop,26,legH,10); ctx.fill(); ctx.stroke();
+  rr(ctx,cx+4,legsTop,26,legH,10); ctx.fill(); ctx.stroke();
+  ctx.fillStyle='#0d1424';
+  rr(ctx,cx-32,feetTop,30,feetH,7); ctx.fill();
+  rr(ctx,cx+2,feetTop,30,feetH,7); ctx.fill();
+
+  // bras + mains
+  ctx.fillStyle=shadeFill(ctx,cx-96,torsoTop+14,28,96,c.top);
+  rr(ctx,cx-96,torsoTop+14,28,96,14); ctx.fill(); ctx.stroke();
+  rr(ctx,cx+68,torsoTop+14,28,96,14); ctx.fill(); ctx.stroke();
+  ctx.fillStyle=shadeFill(ctx,cx-96,torsoTop+100,28,28,c.skin);
+  ctx.beginPath(); ctx.arc(cx-82,torsoTop+116,16,0,7); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx+82,torsoTop+116,16,0,7); ctx.fill(); ctx.stroke();
+
+  // torse cintré — un seul tracé continu (évite l'effet "deux corps superposés")
+  ctx.fillStyle=shadeFill(ctx,cx-shoulderW,torsoTop,shoulderW*2,torsoH,c.top);
+  ctx.beginPath();
+  ctx.moveTo(cx-shoulderW+34, torsoTop);
+  ctx.lineTo(cx+shoulderW-34, torsoTop);
+  ctx.quadraticCurveTo(cx+shoulderW,torsoTop, cx+shoulderW,torsoTop+34);
+  ctx.quadraticCurveTo(cx+shoulderW,torsoTop+62, cx+waistW,torsoTop+78);
+  ctx.lineTo(cx+waistW, torsoBottom-26);
+  ctx.quadraticCurveTo(cx+waistW,torsoBottom, cx+waistW-26,torsoBottom);
+  ctx.lineTo(cx-waistW+26, torsoBottom);
+  ctx.quadraticCurveTo(cx-waistW,torsoBottom, cx-waistW,torsoBottom-26);
+  ctx.lineTo(cx-waistW, torsoTop+78);
+  ctx.quadraticCurveTo(cx-shoulderW,torsoTop+62, cx-shoulderW,torsoTop+34);
+  ctx.lineTo(cx-shoulderW, torsoTop+34);
+  ctx.quadraticCurveTo(cx-shoulderW,torsoTop, cx-shoulderW+34,torsoTop);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.28)'; ctx.lineWidth=2.4;
+  ctx.beginPath(); ctx.arc(cx-shoulderW+18,torsoTop+50,42,Math.PI*0.75,Math.PI*1.1); ctx.stroke();
+  ctx.lineWidth=4; ctx.strokeStyle='#0d1424';
+
+  // liseré chemise / col
+  ctx.fillStyle='rgba(255,255,255,.92)';
+  rr(ctx,cx-20,torsoTop,40,torsoH-6,16); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle='#0d1424'; ctx.lineWidth=2.4;
+  ctx.beginPath(); ctx.moveTo(cx-20,torsoTop+2); ctx.lineTo(cx-38,torsoTop+24); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx+20,torsoTop+2); ctx.lineTo(cx+38,torsoTop+24); ctx.stroke();
+  ctx.lineWidth=4;
+
+  // cou
+  ctx.fillStyle=darken(c.skin,0.08);
+  rr(ctx,cx-16,neckTop,32,neckH+6,9); ctx.fill();
+
+  // tête
+  ctx.fillStyle=shadeFill(ctx,cx-headR,headCy-headR,headR*2,headR*2,c.skin);
+  ctx.beginPath(); ctx.arc(cx,headCy,headR,0,7); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.32)'; ctx.lineWidth=2.4;
+  ctx.beginPath(); ctx.arc(cx,headCy,headR-3,Math.PI*1.12,Math.PI*1.42); ctx.stroke();
+  ctx.lineWidth=4; ctx.strokeStyle='#0d1424';
+
+  // coiffure
+  ctx.fillStyle=c.hair;
+  if(c.hairStyle==='afro'){
+    // grand halo de cheveux, puis le visage est redessiné par-dessus à sa taille normale
+    // (garantit un visage rond correct, sans découpe hasardeuse qui cassait le rendu)
+    ctx.beginPath(); ctx.arc(cx,headCy,headR+16,0,7); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=shadeFill(ctx,cx-headR,headCy-headR,headR*2,headR*2,c.skin);
+    ctx.beginPath(); ctx.arc(cx,headCy,headR-2,0,7); ctx.fill();
+    ctx.strokeStyle='#0d1424'; ctx.lineWidth=3.4;
+    ctx.beginPath(); ctx.arc(cx,headCy,headR-2,0,7); ctx.stroke();
+  } else if(c.hairStyle==='long'){
+    // cheveux longs et bien visibles, qui retombent le long du visage jusqu'aux épaules
+    ctx.beginPath(); ctx.arc(cx,headCy,headR,Math.PI*1.0,Math.PI*2.0); ctx.fill(); ctx.stroke();
+    rr(ctx,cx-headR+2,headCy-4,headR*2-4,16,6); ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx-headR+6, headCy-8);
+    ctx.quadraticCurveTo(cx-headR-10, headCy+70, cx-headR+14, headCy+118);
+    ctx.lineTo(cx-headR+30, headCy+112);
+    ctx.quadraticCurveTo(cx-headR+16, headCy+60, cx-headR+22, headCy-4);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx+headR-6, headCy-8);
+    ctx.quadraticCurveTo(cx+headR+10, headCy+70, cx+headR-14, headCy+118);
+    ctx.lineTo(cx+headR-30, headCy+112);
+    ctx.quadraticCurveTo(cx+headR-16, headCy+60, cx+headR-22, headCy-4);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+  } else if(c.hairStyle==='bun'){
+    ctx.beginPath(); ctx.arc(cx,headCy,headR,Math.PI*1.02,Math.PI*1.98); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx,headCy-headR-6,16,0,7); ctx.fill(); ctx.stroke();
+  } else if(c.hairStyle==='messy'){
+    for(let i=-3;i<=3;i++){
+      ctx.beginPath();
+      ctx.moveTo(cx+i*15, headCy-headR+8);
+      ctx.lineTo(cx+i*15+(i%2?6:-6), headCy-headR-13-Math.abs(i)*2);
+      ctx.lineTo(cx+i*15+15, headCy-headR+10);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.beginPath(); ctx.arc(cx,headCy,headR,Math.PI*1.05,Math.PI*1.95); ctx.fill();
+  } else { // short
+    ctx.beginPath(); ctx.arc(cx,headCy,headR,Math.PI*1.05,Math.PI*1.95); ctx.fill(); ctx.stroke();
+  }
+
+  // sourcils (expression)
+  ctx.strokeStyle='#0d1424'; ctx.lineWidth=3.4;
+  ctx.beginPath(); ctx.moveTo(cx-30,headCy-8+m.brow); ctx.lineTo(cx-9,headCy-12-m.brow*0.4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx+9,headCy-12-m.brow*0.4); ctx.lineTo(cx+30,headCy-8+m.brow); ctx.stroke();
+
+  // yeux
+  ctx.fillStyle='#0d1424';
+  ctx.beginPath(); ctx.arc(cx-18,headCy+2,4.6,0,7); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+18,headCy+2,4.6,0,7); ctx.fill();
+  ctx.fillStyle='#ffffff';
+  ctx.beginPath(); ctx.arc(cx-16,headCy,1.7,0,7); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+20,headCy,1.7,0,7); ctx.fill();
+
+  // bouche (expression)
+  ctx.strokeStyle='#0d1424'; ctx.lineWidth=3;
+  ctx.beginPath();
+  ctx.moveTo(cx-13,headCy+28);
+  ctx.quadraticCurveTo(cx, headCy+28-m.mouth, cx+13, headCy+28);
+  ctx.stroke();
+
+  // joues
+  ctx.fillStyle='rgba(255,120,110,.15)';
+  ctx.beginPath(); ctx.ellipse(cx-31,headCy+15,6.5,4,0,0,7); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx+31,headCy+15,6.5,4,0,0,7); ctx.fill();
+
+  // pupitre — dessiné dans le même canvas, donc toujours parfaitement aligné avec le personnage
+  // hauteur fixée depuis le sol (indépendant des proportions du corps, plus robuste)
+  if(opts.podium){
+    const pH = 108, pY = groundY-pH;
+    ctx.lineWidth=3.4; ctx.strokeStyle='#0d1424';
+    ctx.fillStyle=shadeFill(ctx,cx-70,pY,140,pH,'#141c33');
+    rr(ctx,cx-70,pY,140,pH,10); ctx.fill(); ctx.stroke();
+    ctx.save(); ctx.shadowColor='#00e5ff'; ctx.shadowBlur=14;
+    ctx.fillStyle='#00e5ff'; rr(ctx,cx-46,pY+10,92,9,4); ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle='rgba(0,229,255,.35)'; ctx.lineWidth=1.6;
+    ctx.beginPath(); ctx.moveTo(cx-70,pY+30); ctx.lineTo(cx+70,pY+30); ctx.stroke();
+  }
+}
+
+/* ============================================================
+   DÉCOR — deux fonds : réunion municipale / intérieur de Nexus
+   ============================================================ */
+function drawSkyline(ctx,W,H,baseY){
+  ctx.fillStyle='#131c33'; ctx.fillRect(0,0,W,baseY);
+  const seed=[0.4,0.7,0.3,0.9,0.5,0.8,0.35,0.6,0.45,0.75];
+  let x=0;
+  for(let i=0;i<seed.length;i++){
+    const w=W/seed.length+4, h=baseY*(0.25+seed[i]*0.55);
+    ctx.fillStyle= i%2? '#1c2a4d':'#182440';
+    ctx.fillRect(x,baseY-h,w,h);
+    ctx.fillStyle='rgba(0,229,255,.7)';
+    for(let wy=baseY-h+10; wy<baseY-6; wy+=14){
+      for(let wx=x+6; wx<x+w-6; wx+=12){ if(Math.random()>0.5) ctx.fillRect(wx,wy,4,6); }
+    }
+    x+=w;
+  }
+  // léger halo de ciel bleu au-dessus des toits pour donner de la profondeur
+  const skyHalo=ctx.createLinearGradient(0,0,0,baseY*0.5);
+  skyHalo.addColorStop(0,'rgba(80,140,220,.16)'); skyHalo.addColorStop(1,'rgba(80,140,220,0)');
+  ctx.fillStyle=skyHalo; ctx.fillRect(0,0,W,baseY*0.5);
+}
+function drawScene(sceneName){
+  // redimensionne le canvas à la taille réellement affichée (évite tout étirement CSS,
+  // le décor est redessiné aux bonnes proportions quel que soit le format de l'écran)
+  const rect = bgCanvas.getBoundingClientRect();
+  const rw = Math.max(1, Math.round(rect.width)), rh = Math.max(1, Math.round(rect.height));
+  if(bgCanvas.width!==rw) bgCanvas.width = rw;
+  if(bgCanvas.height!==rh) bgCanvas.height = rh;
+
+  const ctx = bgCanvas.getContext('2d');
+  const W=bgCanvas.width, H=bgCanvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  if(sceneName==='varga'){
+    const skyGrad=ctx.createLinearGradient(0,0,0,H*0.55);
+    skyGrad.addColorStop(0,'#1e2a4a'); skyGrad.addColorStop(1,'#141b33');
+    ctx.fillStyle=skyGrad; ctx.fillRect(0,0,W,H*0.55);
+    drawSkyline(ctx,W,H*0.55,H*0.55);
+    // salle municipale : mur clair + rangée de silhouettes assises
+    const wallGrad=ctx.createLinearGradient(0,H*0.42,0,H);
+    wallGrad.addColorStop(0,'#232f52'); wallGrad.addColorStop(1,'#1a2440');
+    ctx.fillStyle=wallGrad; ctx.fillRect(0,H*0.42,W,H*0.58);
+    ctx.strokeStyle='rgba(0,229,255,.22)'; ctx.lineWidth=2;
+    for(let x=40;x<W;x+=90){ ctx.beginPath(); ctx.moveTo(x,H*0.42); ctx.lineTo(x,H); ctx.stroke(); }
+    // appliques murales lumineuses (halos bleus/cyan pour donner de la profondeur)
+    for(let x=85;x<W;x+=180){
+      const wallHalo=ctx.createRadialGradient(x,H*0.5,4,x,H*0.5,70);
+      wallHalo.addColorStop(0,'rgba(0,229,255,.22)'); wallHalo.addColorStop(1,'rgba(0,229,255,0)');
+      ctx.fillStyle=wallHalo; ctx.beginPath(); ctx.arc(x,H*0.5,70,0,7); ctx.fill();
+      ctx.save(); ctx.shadowColor='#00e5ff'; ctx.shadowBlur=10;
+      ctx.fillStyle='#7fe8ff'; rr(ctx,x-3,H*0.46,6,14,3); ctx.fill();
+      ctx.restore();
+    }
+    // rangées de silhouettes (la foule) — Varga (portrait+pupitre) viendra se superposer devant, au centre
+    for(let row=0; row<2; row++){
+      for(let i=0;i<11;i++){
+        const sx = 20+i*64, sy=H*0.72+row*46;
+        ctx.fillStyle='rgba(28,36,60,.92)';
+        ctx.strokeStyle='rgba(0,229,255,.18)'; ctx.lineWidth=1.4;
+        ctx.beginPath(); ctx.arc(sx,sy,14,0,7); ctx.fill(); ctx.stroke();
+        rr(ctx,sx-16,sy+8,32,34,10); ctx.fill(); ctx.stroke();
+      }
+    }
+    // reflet au sol sous la foule (bande lumineuse discrète)
+    const floorRefl=ctx.createLinearGradient(0,H*0.86,0,H);
+    floorRefl.addColorStop(0,'rgba(0,229,255,.08)'); floorRefl.addColorStop(1,'rgba(0,229,255,0)');
+    ctx.fillStyle=floorRefl; ctx.fillRect(0,H*0.86,W,H*0.14);
+
+  } else if(sceneName==='nexus'){
+    ctx.fillStyle='#141c33'; ctx.fillRect(0,0,W,H);
+    // grands murs d'entrepôt avec fenêtres hautes
+    const wallGrad=ctx.createLinearGradient(0,0,0,H*0.62);
+    wallGrad.addColorStop(0,'#202c4d'); wallGrad.addColorStop(1,'#1a2444');
+    ctx.fillStyle=wallGrad; ctx.fillRect(0,0,W,H*0.62);
+    for(let x=30;x<W;x+=110){
+      ctx.save(); ctx.shadowColor='#00e5ff'; ctx.shadowBlur=12;
+      const g=ctx.createLinearGradient(0,H*0.08,0,H*0.32);
+      g.addColorStop(0,'#5b86c2'); g.addColorStop(1,'#1c3258');
+      ctx.fillStyle=g; rr(ctx,x,H*0.08,60,H*0.24,6); ctx.fill();
+      ctx.restore();
+      ctx.strokeStyle='#0d1424'; ctx.lineWidth=2; rr(ctx,x,H*0.08,60,H*0.24,6); ctx.stroke();
+    }
+    // sol industriel, plus clair, avec bandes de reflet
+    const floorGrad=ctx.createLinearGradient(0,H*0.6,0,H);
+    floorGrad.addColorStop(0,'#232f52'); floorGrad.addColorStop(1,'#151e38');
+    ctx.fillStyle=floorGrad; ctx.fillRect(0,H*0.6,W,H*0.4);
+    ctx.strokeStyle='rgba(77,141,255,.2)'; ctx.lineWidth=1;
+    for(let x=0;x<W;x+=40){ ctx.beginPath(); ctx.moveTo(x,H*0.6); ctx.lineTo(x-40,H); ctx.stroke(); }
+    // reflets cyan discrets au sol, sous les fenêtres
+    for(let x=30;x<W;x+=110){
+      const refl=ctx.createLinearGradient(0,H*0.62,0,H*0.85);
+      refl.addColorStop(0,'rgba(0,229,255,.14)'); refl.addColorStop(1,'rgba(0,229,255,0)');
+      ctx.fillStyle=refl; ctx.fillRect(x-10,H*0.62,80,H*0.23);
+    }
+    // machines à l'arrêt (silhouettes, plus lisibles) + halo d'accent près de chacune
+    ctx.fillStyle='#28345a'; rr(ctx,40,H*0.5,90,H*0.14,6); ctx.fill();
+    ctx.strokeStyle='#0d1424'; ctx.lineWidth=2; rr(ctx,40,H*0.5,90,H*0.14,6); ctx.stroke();
+    ctx.fillStyle='#28345a'; rr(ctx,W-140,H*0.48,100,H*0.16,6); ctx.fill();
+    ctx.strokeStyle='#0d1424'; rr(ctx,W-140,H*0.48,100,H*0.16,6); ctx.stroke();
+    const m1=ctx.createRadialGradient(85,H*0.57,4,85,H*0.57,60);
+    m1.addColorStop(0,'rgba(0,229,255,.16)'); m1.addColorStop(1,'rgba(0,229,255,0)');
+    ctx.fillStyle=m1; ctx.beginPath(); ctx.arc(85,H*0.57,60,0,7); ctx.fill();
+    const m2=ctx.createRadialGradient(W-90,H*0.56,4,W-90,H*0.56,60);
+    m2.addColorStop(0,'rgba(77,141,255,.16)'); m2.addColorStop(1,'rgba(77,141,255,0)');
+    ctx.fillStyle=m2; ctx.beginPath(); ctx.arc(W-90,H*0.56,60,0,7); ctx.fill();
+
+    ctx.save();
+    ctx.font="bold 34px 'Press Start 2P', monospace";
+    ctx.textAlign='center';
+    ctx.shadowColor='#4d8dff'; ctx.shadowBlur=22;
+    ctx.fillStyle='rgba(77,141,255,.95)';
+    ctx.fillText('N E X U S', W/2, H*0.24);
+    ctx.restore();
+    ctx.save();
+    ctx.globalAlpha=0.5;
+    ctx.font="bold 34px 'Press Start 2P', monospace";
+    ctx.textAlign='center';
+    ctx.fillStyle='#1e3a68';
+    ctx.fillText('N E X U S', W/2+2, H*0.24+2);
+    ctx.restore();
+
+    // faisceau lumineux tombant du plafond
+    const beam=ctx.createLinearGradient(0,0,0,H*0.7);
+    beam.addColorStop(0,'rgba(0,229,255,.2)'); beam.addColorStop(1,'rgba(0,229,255,0)');
+    ctx.fillStyle=beam;
+    ctx.beginPath(); ctx.moveTo(W*0.4,0); ctx.lineTo(W*0.6,0); ctx.lineTo(W*0.75,H*0.7); ctx.lineTo(W*0.25,H*0.7); ctx.closePath(); ctx.fill();
+  }
+}
+
+/* ============================================================
+   SCRIPT — Prologue + Acte 1
+   ============================================================ */
+let stats = { cohesion:55, credibilite:50, ressources:45, jours:0 };
+const JOURS_TOTAL = 5;
+
+const SCRIPT = [
+  { type:'scene', scene:'varga' },
+  { type:'narration', text:"Un ancien lieu culturel et technologique, laissé à l'abandon depuis des années. Ce soir, la salle municipale est bondée. Tout le monde parle en même temps." },
+  { type:'crowd', text:"— On en fait un centre pour les jeunes !" },
+  { type:'crowd', text:"— Un espace pour les artistes, plutôt !" },
+  { type:'line', charId:'varga', mood:'stern', text:"Vous êtes nombreux. Vous êtes motivés." },
+  { type:'line', charId:'varga', mood:'stern', text:"Mais pour le moment, vous n'êtes qu'une foule." },
+  { type:'line', charId:'varga', mood:'stern', text:"Vendredi à 18 heures, je veux face à moi une équipe capable de porter ce projet, de signer une convention et de faire fonctionner ce lieu." },
+  { type:'line', charId:'varga', mood:'angry', shot:'close', text:"Sans cela, Nexus sera confié à Axiom Immobilier." },
+  { type:'narration', text:"Un silence pesant s'installe. Cinq jours. C'est tout ce qu'il vous reste pour transformer cette foule en une organisation crédible." },
+
+  { type:'title', title:"JOUR 1", sub:"À l'intérieur de Nexus" },
+  { type:'scene', scene:'nexus' },
+  { type:'narration', text:"Locaux poussiéreux, néons cassés, une odeur d'humidité et de métal froid. Quatre personnes vous attendent au milieu des machines à l'arrêt." },
+  { type:'line', charId:'noah', mood:'confident', slots:['yasmine','noah','ines','tom'], text:"Un café, des postes de travail payants et quelques événements. En trois mois, Nexus devient rentable." },
+  { type:'line', charId:'yasmine', mood:'defiant', shot:'medium', text:"Et les habitants qui ne peuvent pas payer restent dehors ? Certainement pas." },
+  { type:'line', charId:'ines', mood:'annoyed', text:"Pendant que vous débattez, les machines prennent l'humidité." },
+  { type:'line', charId:'tom', mood:'happy', text:"Moi, j'ai déjà annoncé un espace gaming. Les gens adorent l'idée." },
+  { type:'narration', text:"Tout le monde se tait. Avant de trancher, il reste peut-être des choses à savoir." },
+
+  { type:'hub', prompt:"Tu peux interroger chacun avant de te décider.", decideLabel:"J'ai assez entendu — proposer une direction",
+    npcs:[
+      { charId:'noah', label:"Demander à Noah qui financerait vraiment ce projet",
+        lines:[{ mood:'confident', text:"Un investisseur du quartier est prêt à avancer les premiers loyers. En échange, il veut un droit de regard sur la programmation les deux premières années." }] },
+      { charId:'yasmine', label:"Demander à Yasmine sur qui elle peut compter",
+        lines:[{ mood:'defiant', text:"J'ai douze bénévoles prêts à commencer cette semaine, et tout le tissu associatif du quartier derrière eux. Mais ils ne lèveront pas le petit doigt pour un projet qui trie ses visiteurs par portefeuille." }] },
+      { charId:'ines', label:"Demander à Inès ce qui est vraiment urgent",
+        lines:[{ mood:'annoyed', text:"Le tableau électrique est mort. Deux machines sont irrécupérables. Et l'humidité continue de grignoter le reste. Chaque jour perdu à discuter en coûte un de plus sur le matériel." }] },
+      { charId:'tom', label:"Demander à Tom ce qu'il a déjà raconté dehors",
+        lines:[{ mood:'worried', text:"Bon... j'ai peut-être déjà posté que Nexus rouvrait « très bientôt » sur le groupe du quartier. Ça a fait à peu près 400 vues." }] },
+    ]
+  },
+
+  { type:'narration', text:"Tout le monde se tourne vers vous. Il va falloir trancher." },
+
+  { type:'choice', prompt:"Quelle direction donnes-tu à Nexus ?", options:[
+      { id:'A', label:"« Sans revenus, Nexus ne tiendra pas. On suit le plan de Noah. »" },
+      { id:'B', label:"« Si on fait payer l'entrée, ce lieu trahit le quartier. On suit Yasmine. »" },
+      { id:'C', label:"« Il doit y avoir un moyen de tenir sans fermer la porte à personne. On tente un compromis. »" },
+      { id:'D', label:"« On n'a pas fini d'explorer les options. Laissons la question ouverte encore un peu. »" },
+    ]}
+];
+
+const BRANCHES = {
+  A: {
+    deltas:{cohesion:-15, credibilite:10, ressources:10, jours:1},
+    lines:[
+      { charId:'yasmine', mood:'angry', shot:'close', text:"Alors très bien. Comptez sur moi pour ne plus mobiliser mes bénévoles pour un projet qui les exclut." },
+      { charId:'noah', mood:'confident', text:"Yasmine, personne ne parle d'exclure qui que ce soit. On a juste besoin d'un modèle qui tient debout." },
+      { charId:'ines', mood:'neutral', text:"Tant que quelqu'un finance les réparations, moi ça me va." },
+    ],
+    narration:"Yasmine quitte la pièce plus tôt que prévu, sans un mot pour Tom.",
+    teaser:"Noah a pris de l'assurance dans son rôle. Beaucoup, dans le quartier, se souviendront que Nexus a d'abord été <b>son</b> projet."
+  },
+  B: {
+    deltas:{cohesion:10, credibilite:-10, ressources:-10, jours:1},
+    lines:[
+      { charId:'noah', mood:'skeptical', shot:'medium', text:"Les bonnes intentions ne paieront ni l'électricité ni les assurances." },
+      { charId:'yasmine', mood:'happy', text:"On trouvera un moyen. On l'a toujours fait." },
+      { charId:'tom', mood:'happy', text:"Ça, c'est motivant ! Je peux mobiliser du monde dès ce soir." },
+    ],
+    narration:"Noah reste silencieux le reste de la réunion, un calepin de chiffres fermé sur les genoux.",
+    teaser:"Le compte de Nexus reste désespérément vide. Sans le financement de Noah, il faudra trouver l'argent <b>ailleurs</b> — et vite."
+  },
+  C: {
+    deltas:{cohesion:6, credibilite:-4, ressources:-6, jours:2},
+    lines:[
+      { charId:'tom', mood:'happy', text:"Un peu des deux ? Pourquoi pas, ça peut plaire à tout le monde !" },
+      { charId:'noah', mood:'skeptical', text:"« Un peu des deux », ça ne finance rien du tout tant que personne ne dit ce qui sera payant." },
+      { charId:'yasmine', mood:'worried', text:"Je veux bien essayer. Mais je veux savoir exactement quelles activités deviendront payantes — pas dans six mois, maintenant." },
+      { charId:'ines', mood:'annoyed', text:"Pendant que vous cherchez la formule parfaite, moi j'ai toujours un tableau électrique mort." },
+    ],
+    narration:"Personne ne dit clairement non. Personne ne dit clairement oui non plus. La réunion se termine sans qu'aucune activité précise n'ait été tranchée — gratuite ou payante.",
+    teaser:"Le flou a évité la rupture ce soir-là. Mais personne ne sait encore ce qui sera gratuit et ce qui ne le sera pas — et cette question-là, quelqu'un devra y répondre <b>avant de signer quoi que ce soit</b>."
+  },
+  D: {
+    deltas:{cohesion:-5, credibilite:-5, ressources:0, jours:1},
+    lines:[
+      { charId:'ines', mood:'annoyed', text:"Génial. Encore une réunion pour ne rien décider." },
+      { charId:'tom', mood:'worried', text:"Bon... en attendant, je vais peut-être commencer à en parler autour de moi, histoire d'avancer un peu." },
+    ],
+    narration:"Personne ne s'oppose vraiment. Mais en sortant de la pièce, chacun commence, discrètement, à agir de son côté.",
+    teaser:"Tom a déjà commencé à passer le mot dans le quartier. Rien ne dit que tout le monde raconte <b>la même histoire</b>."
+  }
+};
+
+/* ============================================================
+   ACTE 2 — Le nom sur la ligne
+   ============================================================ */
+
+// Ouverture de Gabriel, commune à tous les parcours
+const ACT2_OPENING = [
+  { type:'__act2Title__' },
+  { type:'scene', scene:'nexus' },
+  { type:'narration', text:"Un homme entre dans Nexus avec une tablette et une mallette contenant plusieurs dossiers. Gabriel Morel, chargé des conventions municipales." },
+  { type:'line', charId:'gabriel', mood:'neutral', slots:['yasmine','noah','gabriel','tom'], text:"Madame Varga attend votre convention avant 17 heures. Je suis venu vérifier que quelqu'un peut réellement la signer." },
+  { type:'line', charId:'tom', mood:'happy', text:"On signe tous. Comme une pétition." },
+  { type:'line', charId:'gabriel', mood:'stern', shot:'medium', text:"Une convention n'est pas une pétition. J'ai besoin d'un nom capable de posséder les clés, d'assurer les machines et de répondre si quelque chose tourne mal." },
+  { type:'line', charId:'noah', mood:'confident', text:"Dans ce cas, je peux signer." },
+  { type:'line', charId:'yasmine', mood:'defiant', shot:'medium', text:"En ton nom ? Donc Nexus deviendrait ton projet ?" },
+  { type:'narration', text:"La tablette de Gabriel affiche une ligne vide : COCONTRACTANT — ____________________" },
+];
+
+// Ouverture différente selon la décision de l'Acte 1 (variables narratives)
+const ACT2_BRANCH_INTRO = {
+  orientation_noah: [
+    { type:'line', charId:'noah', mood:'confident', text:"J'ai gagné du temps. Mon investisseur est prêt à débloquer les fonds dès que la convention est signée." },
+    { type:'line', charId:'yasmine', mood:'angry', shot:'close', text:"Tu n'as pas gagné du temps. Tu as décidé seul de ce que nous allions devenir." },
+  ],
+  orientation_yasmine: [
+    { type:'line', charId:'yasmine', mood:'confident', text:"Les bénévoles sont prêts à devenir membres. On peut créer l'association aujourd'hui." },
+    { type:'line', charId:'noah', mood:'skeptical', shot:'medium', text:"Et son compte bancaire contiendra quoi exactement ? Des applaudissements ?" },
+  ],
+  projet_hybride: [
+    // slots corrigés : Inès remplace Tom dans ce quatuor pour que son portrait apparaisse réellement quand elle parle
+    { type:'line', charId:'gabriel', mood:'neutral', slots:['yasmine','noah','gabriel','ines'], text:"« Un lieu hybride, inclusif et économiquement viable »… Cela signifie quoi concrètement ?" },
+    { type:'line', charId:'ines', mood:'annoyed', shot:'medium', text:"Que personne n'a encore décidé quelles activités seront gratuites." },
+    { type:'line', charId:'gabriel', mood:'stern', text:"Alors je ne peux pas déterminer ce que la ville est supposée autoriser." },
+  ],
+  decision_reportee: [
+    { type:'line', charId:'gabriel', mood:'stern', text:"D'après vos réseaux sociaux, Nexus sera à la fois un café, une salle de jeux, un atelier et un centre gratuit pour les jeunes." },
+    { type:'line', charId:'tom', mood:'worried', text:"Techniquement, je n'ai jamais dit que tout ouvrirait le même jour." },
+    { type:'line', charId:'gabriel', mood:'stern', shot:'medium', text:"Techniquement, vous n'avez toujours aucun projet officiel." },
+  ],
+};
+function pickAct2BranchIntro(){
+  if(narrativeFlags.orientation_noah) return ACT2_BRANCH_INTRO.orientation_noah;
+  if(narrativeFlags.orientation_yasmine) return ACT2_BRANCH_INTRO.orientation_yasmine;
+  if(narrativeFlags.projet_hybride) return ACT2_BRANCH_INTRO.projet_hybride;
+  return ACT2_BRANCH_INTRO.decision_reportee;
+}
+
+/* ============================================================
+   LA TABLETTE — remplace le hub + les 4 choix successifs par une
+   interface visuelle : 4 cartes affichées ensemble, une voie choisie
+   directement depuis sa carte, puis une convention à corriger.
+   ============================================================ */
+const act2State = { voie:null, denomination:null, objet:null, duree:null };
+
+const TABLET_CARDS = [
+  { id:'association', title:"Association Nexus Quartier", lines:["Organisation de la société civile","Collectif et bénévoles","Financement plus fragile"],
+    forme:"Association", denomination:"Nexus Quartier", jours:1, flag:'voie_association',
+    objection:{charId:'noah', text:"Des membres ne remplacent pas un modèle économique."},
+    reactionFav:{charId:'yasmine', mood:'happy', text:"Enfin. Nexus reste entre nos mains, pas entre celles d'un bilan comptable."},
+    reactionOpp:{charId:'noah', mood:'skeptical', shot:'medium', text:"J'espère que les cotisations suffiront, parce que ça ne financera pas grand-chose."},
+    deltas:{cohesion:12, credibilite:-4, ressources:-6} },
+  { id:'entreprise', title:"Nexus Lab", lines:["Entreprise privée","Investissement et revenus","Contrôle privé renforcé"],
+    forme:"Entreprise privée", denomination:"Nexus Lab", jours:1, flag:'voie_entreprise',
+    objection:{charId:'yasmine', text:"Une entreprise peut décider que les habitants ne sont plus assez rentables pour entrer."},
+    reactionFav:{charId:'noah', mood:'confident', text:"Voilà. Maintenant on peut vraiment avancer."},
+    reactionOpp:{charId:'yasmine', mood:'angry', shot:'close', text:"Maintenant, c'est ton nom qui décide qui entre. J'espère que tu t'en souviendras."},
+    deltas:{cohesion:-10, credibilite:10, ressources:12} },
+  { id:'municipal', title:"Service municipal Nexus", lines:["Organisation publique","Sécurité et financement public","Lenteur et perte d'autonomie"],
+    forme:"Organisation publique", denomination:"Service municipal Nexus", jours:2, flag:'voie_municipale',
+    objection:{charId:'tom', text:"Donc on n'a plus vraiment notre mot à dire, en fait ?"},
+    reactionFav:{charId:'gabriel', mood:'confident', text:"La ville peut prendre en charge le dossier dès cette semaine. C'est la solution la plus sûre."},
+    reactionOpp:{charId:'tom', mood:'worried', text:"Donc c'est le conseil municipal qui décidera à notre place, maintenant ?"},
+    deltas:{cohesion:-4, credibilite:14, ressources:8} },
+  { id:'personnelle', title:"Signature personnelle provisoire", lines:["Aucune organisation créée","Solution immédiate","Responsabilité personnelle"],
+    forme:"Aucune structure durable", denomination:"Convention provisoire au nom du joueur", jours:0, flag:'voie_personnelle',
+    objection:{charId:'yasmine', text:"Ou trouver quelqu'un qui acceptera de porter tous les risques à notre place."},
+    reactionFav:{charId:'noah', mood:'neutral', text:"On régularisera plus tard. L'important est d'obtenir les clés."},
+    reactionOpp:{charId:'gabriel', mood:'stern', shot:'medium', text:"Je dois vous prévenir : tout ce qui sera signé portera votre nom. Personnellement."},
+    deltas:{cohesion:0, credibilite:-8, ressources:2} },
+];
+
+const OBJET_OPTIONS = [
+  { id:'objet_culturel', label:"Gérer un lieu culturel et technologique accessible aux habitants", deltas:{cohesion:4, credibilite:2, ressources:0} },
+  { id:'objet_eco', label:"Exploiter un café, des espaces de travail et des événements", deltas:{cohesion:-6, credibilite:4, ressources:6} },
+  { id:'objet_gratuit', label:"Organiser gratuitement des activités sociales, culturelles et numériques", deltas:{cohesion:8, credibilite:-4, ressources:-6} },
+  { id:'objet_mixte', label:"Combiner des services payants avec des activités gratuites clairement définies", deltas:{cohesion:2, credibilite:0, ressources:0} },
+];
+const DUREE_OPTIONS = [
+  { id:'six_mois', label:"Six mois d'expérimentation", deltas:{cohesion:2, credibilite:-6, ressources:0} },
+  { id:'trois_ans', label:"Trois années renouvelables", deltas:{cohesion:2, credibilite:6, ressources:0} },
+  { id:'indetermine', label:"Durée indéterminée", deltas:{cohesion:-4, credibilite:8, ressources:-2} },
+];
+
+const ACT2_CLOSING_INTRO = [
+  { type:'line', charId:'gabriel', mood:'stern', shot:'medium', text:"Dernier point : si l'électricien n'est pas payé, si une machine blesse quelqu'un, si Axiom conteste la convention — au nom de qui nous défendrons-nous ?" },
+];
+const ACT2_LIABILITY_ANSWER = {
+  voie_association: "La réponse tient en un mot : l'association. Pas Yasmine, pas Noah, pas toi personnellement — la structure elle-même, à condition qu'elle ait de quoi répondre financièrement.",
+  voie_entreprise: "La réponse tient en un mot : Nexus Lab. L'entreprise répond de ses dettes et de ses accidents — et c'est aussi elle qui, en pratique, décide de tout.",
+  voie_municipale: "La réponse tient en un mot : la ville. C'est elle qui répondra devant la justice — et c'est aussi elle qui gardera la main sur chaque décision.",
+  voie_personnelle: "La réponse tient en un mot : toi. Tant qu'aucune structure durable n'existe, c'est ton nom, et rien d'autre, qui répondra de tout."
+};
+
+const ACT2_CONCLUSION = [
+  { type:'narration', text:"Gabriel scanne le dossier. Après quelques secondes, la ligne vide est enfin complétée." },
+  { type:'line', charId:'gabriel', mood:'confident', text:"Très bien. Nexus possède désormais un nom, une mission et quelqu'un capable de l'engager. Je transmets la convention à Madame Varga." },
+  { type:'line', charId:'tom', mood:'happy', text:"Donc nous avons réussi ?" },
+  { type:'line', charId:'ines', mood:'annoyed', shot:'medium', slots:['yasmine','noah','ines','tom'], text:"Nous avons surtout obtenu le droit de commencer." },
+  { type:'narration', text:"Inès pose alors un devis sur la table : REMISE AUX NORMES ÉLECTRIQUES — 18 700 €" },
+  { type:'line', charId:'ines', mood:'stern', shot:'close', text:"Maintenant que Nexus peut signer un contrat… quelqu'un peut-il m'expliquer comment nous allons le payer ?" },
+];
+
+// Séquence complète de l'Acte 2 — la tablette (__showTabletCards__) met le
+// scénario en pause et reprend la file d'attente une fois la convention validée.
+const ACT2_QUEUE = [
+  ...ACT2_OPENING,
+  { type:'__act2BranchIntro__' },
+  { type:'__showTabletCards__' },
+  ...ACT2_CLOSING_INTRO,
+  { type:'__liabilityAnswer__' },
+  ...ACT2_CONCLUSION,
+  { type:'__end2__' }
+];
+
+/* ============================================================
+   ACTE 3 — La nuit de crise
+   ============================================================ */
+let act3State = { resources:[], assignments:{}, regle:null, message:null, finalChoice:null };
+
+const ACT3_OPENING = [
+  { type:'title', title:"DERNIÈRE NUIT", sub:"22 h 07" },
+  { type:'scene', scene:'nexus' },
+  { type:'line', charId:'ines', mood:'stern', slots:['yasmine','noah','ines','tom'], text:"L'électricien peut sécuriser le bâtiment cette nuit. Mais il lui faut 18 700 €, du matériel et une équipe avant minuit. Après, il part sur un autre chantier." },
+  { type:'narration', text:"Tom a déjà annoncé une ouverture au public dès demain. Des bénévoles commencent à arriver. Noah reçoit une offre financière avec contrepartie. Yasmine refuse que les bénévoles soient traités comme une main-d'œuvre gratuite. Tout le monde donne des consignes contradictoires." },
+  { type:'narration', text:"L'écran bascule vers un tableau de crise." },
+];
+
+// ---- Phase 1 : monter le plan (choisir 3 ressources sur 4) ----
+const ACT3_RESOURCES = [
+  { id:'investisseur', title:"15 000 € — Investisseur de Noah", lines:["Financement immédiat","Logo imposé, droit de regard sur les événements"],
+    deltas:{ressources:15, credibilite:-4, cohesion:-3} },
+  { id:'subvention', title:"8 000 € — Subvention municipale", lines:["Aucune perte de contrôle","Versement retardé si la crédibilité est insuffisante"],
+    deltas:{ressources:8, credibilite:3} },
+  { id:'benevoles', title:"12 bénévoles de Yasmine", lines:["Travaux et accueil possibles","Seulement si une activité gratuite est garantie"],
+    deltas:{cohesion:10, ressources:-2} },
+  { id:'materiel', title:"Matériel prêté par le lycée technique", lines:["Réduit fortement le devis","Inès indisponible 1h pour l'inventaire"],
+    deltas:{ressources:10, cohesion:-2} },
+];
+function resourceDeltas(card){
+  const d = Object.assign({}, card.deltas);
+  if(card.id==='investisseur' && narrativeFlags.voie_entreprise) d.ressources += 5;
+  if(card.id==='benevoles' && (narrativeFlags.voie_association || act2State.objet==='objet_gratuit')) d.cohesion += 4;
+  if(card.id==='subvention' && narrativeFlags.voie_municipale) d.credibilite += 3;
+  if(card.id==='subvention' && stats.credibilite < 45) d.ressources -= 3;
+  if(narrativeFlags.voie_personnelle) d.credibilite = (d.credibilite||0) - 2; // tout engagement pèse sur le joueur
+  return d;
+}
+
+// ---- Phase 2 : qui fait quoi (affecter les 4 personnages aux 4 tâches) ----
+const ACT3_TASKS = [
+  { id:'technique', label:"Coordonner l'électricien", good:'ines' },
+  { id:'benevoles', label:"Accueillir et encadrer les bénévoles", good:'yasmine' },
+  { id:'communication', label:"Contrôler la communication publique", good:'tom' },
+  { id:'financement', label:"Négocier avec le financeur / la mairie", good:'noah' },
+];
+const ACT3_TASK_GOOD_BONUS = { technique:{ressources:4}, benevoles:{cohesion:6}, communication:{credibilite:4}, financement:{ressources:6} };
+const ACT3_TASK_FLAVOR = {
+  technique_tom:      { deltas:{credibilite:-6}, text:"Tom débranche plus de choses qu'il n'en répare. Inès devra tout revérifier." },
+  benevoles_noah:      { deltas:{cohesion:-8}, text:"Noah traite les bénévoles comme des employés. Deux repartent avant la fin de soirée." },
+  financement_yasmine: { deltas:{cohesion:2, ressources:-2}, text:"Yasmine négocie sans détour. La discussion est tendue, mais rien ne lui est imposé." },
+  communication_ines:  { deltas:{credibilite:-2}, text:"Inès répond aux messages entre deux réparations, par phrases courtes et sèches." },
+};
+
+// ---- Phase 3 : une seule consigne (règle de décision + message de Tom) ----
+const REGLE_CHOICE = { type:'choice', prompt:"Comment tranchez-vous cette nuit ?", options:[
+  { id:'noah_seul', label:"« Noah décide seul jusqu'à l'ouverture. »" },
+  { id:'vote', label:"« Chaque décision est votée par toute l'équipe. »" },
+  { id:'canal_commun', label:"« Chacun décide dans son domaine et publie sur un canal commun. »" },
+  { id:'joueur_valide', label:"« Je valide personnellement toutes les décisions. »" },
+]};
+const REGLES = {
+  noah_seul:     { deltas:{cohesion:-10, ressources:2}, narration:"Les décisions tombent vite. Trop vite pour certains." },
+  vote:          { deltas:{cohesion:8, ressources:-6}, narration:"Chaque choix est discuté. La nuit est courte pour décider de tout." },
+  canal_commun:  { deltas:{cohesion:4, credibilite:4}, narration:"Chacun agit dans son domaine, et le canal commun reste étonnamment clair — à condition que les tâches aient été bien réparties." },
+  joueur_valide: { deltas:{credibilite:2, cohesion:-4}, narration:"Tout remonte vers toi. La nuit va être longue." },
+};
+
+const MESSAGE_CHOICE = { type:'choice', prompt:"Que fait publier Tom ?", options:[
+  { id:'ouvre_demain', label:"« Nexus ouvre demain comme prévu. »" },
+  { id:'reporte_flou', label:"« Ouverture reportée, aucune explication. »" },
+  { id:'inspection_officiel', label:"« Inspection en cours : l'horaire définitif sera confirmé à 8h sur le canal officiel. »" },
+]};
+
+// ---- Phase 4 : crise finale ----
+const CRISIS_CHOICE = { type:'choice', prompt:"Le tableau électrique vient de lâcher. Que sauves-tu ?", options:[
+  { id:'machines', label:"« Je sauve les machines. »" },
+  { id:'salle', label:"« Je sécurise la salle pour l'inspection. »" },
+  { id:'les_deux', label:"« Je tente les deux — c'est risqué. »" },
+]};
+
+function act3Readiness(){
+  let score = 0;
+  if(act3State.resources.length===3) score += 1;
+  ACT3_TASKS.forEach(t=>{ if(act3State.assignments[t.id]===t.good) score += 1; });
+  if(act3State.regle==='canal_commun') score += 1;
+  if(stats.cohesion>=55) score += 1;
+  if(stats.ressources>=45) score += 1;
+  return score; // sur 8
+}
+
+// Les 5 fins possibles — déterminées par les jauges et la crise finale, pas par le dernier clic seul
+const ACT3_ENDINGS = {
+  organisation_durable: {
+    key:'organisation_durable',
+    title:"NEXUS SURVIT — ORGANISATION DURABLE",
+    text:"Vous n'avez pas simplement remis un bâtiment en marche. Vous avez construit une organisation."
+  },
+  ouverture_fragile: {
+    key:'ouverture_fragile',
+    title:"OUVERTURE SPECTACULAIRE, STRUCTURE FRAGILE",
+    text:"Le public est là. Reste à savoir si Nexus existera encore dans trois mois."
+  },
+  desorganisee: {
+    key:'desorganisee',
+    title:"STRUCTURE JURIDIQUE, ÉQUIPE DÉSORGANISÉE",
+    text:"Sur le papier, Nexus est une organisation. Dans les faits, chacun agit encore de son côté."
+  },
+  controle_exterieur: {
+    key:'controle_exterieur',
+    title:"NEXUS SAUVÉ SOUS CONTRÔLE EXTÉRIEUR",
+    text:"Nexus restera ouvert. Mais il ne vous appartient plus tout à fait."
+  },
+  ultimatum_perdu: {
+    key:'ultimatum_perdu',
+    title:"ULTIMATUM PERDU",
+    text:"Axiom Immobilier récupère les clés. Vous aviez des individus motivés, mais vous n'avez pas réussi à les organiser à temps."
+  }
+};
+function computeEnding(){
+  const s = stats;
+  if(s.cohesion<30 || s.credibilite<30 || s.ressources<20) return ACT3_ENDINGS.ultimatum_perdu;
+  if(narrativeFlags.voie_municipale || narrativeFlags.voie_entreprise){
+    if(s.cohesion<45) return ACT3_ENDINGS.controle_exterieur;
+  }
+  const coordOk = act3Readiness() >= 5;
+  if(s.cohesion>=55 && s.credibilite>=55 && s.ressources>=45 && coordOk) return ACT3_ENDINGS.organisation_durable;
+  if(!coordOk && s.credibilite>=45) return ACT3_ENDINGS.desorganisee;
+  return ACT3_ENDINGS.ouverture_fragile;
+}
+
+// ---- Épilogue : verdict oral, tampon, titre du joueur, résumé "TON NEXUS" ----
+const VARGA_VERDICTS = {
+  organisation_durable: "Vous avez transformé des volontés individuelles en une organisation capable de décider et d'agir. Nexus restera entre vos mains.",
+  ouverture_fragile: "Nexus ouvrira. Mais attirer du public ne suffit pas : il vous reste encore à construire une organisation capable de durer.",
+  desorganisee: "Votre structure existe sur le papier. Votre équipe, elle, doit encore apprendre à agir comme une organisation.",
+  controle_exterieur: "Nexus est sauvé, mais votre manque de cohésion vous a obligés à abandonner une partie de votre autonomie.",
+  ultimatum_perdu: "Vous aviez l'énergie et les idées. Mais sans coordination suffisante, cela n'a pas permis de construire une organisation viable."
+};
+const END_META = {
+  organisation_durable:  { stamp:"MISSION ACCOMPLIE", stampClass:'stamp-ok', playerTitle:"ARCHITECTE DU COLLECTIF", verdictShort:"Organisation durable" },
+  ouverture_fragile:      { stamp:"MISSION SOUS SURVEILLANCE", stampClass:'stamp-neutral', playerTitle:"ENTREPRENEUR DE L'URGENCE", verdictShort:"Ouverture fragile" },
+  desorganisee:           { stamp:"ORGANISATION INACHEVÉE", stampClass:'stamp-neutral', playerTitle:"COORDINATEUR SOUS PRESSION", verdictShort:"Structure désorganisée" },
+  controle_exterieur:     { stamp:"NEXUS SAUVÉ", stampClass:'stamp-neutral', playerTitle:"STRATÈGE PRAGMATIQUE", verdictShort:"Sous contrôle extérieur" },
+  ultimatum_perdu:        { stamp:"ULTIMATUM PERDU", stampClass:'stamp-bad', playerTitle:"CAPITAINE D'UNE ÉQUIPE FRAGILE", verdictShort:"Ultimatum perdu" }
+};
+const ORIENTATION_LABELS = {
+  orientation_noah:"Modèle économique de Noah",
+  orientation_yasmine:"Projet social de Yasmine",
+  projet_hybride:"Projet hybride",
+  decision_reportee:"Direction longtemps reportée"
+};
+function pickOrientationLabel(){
+  if(narrativeFlags.orientation_noah) return ORIENTATION_LABELS.orientation_noah;
+  if(narrativeFlags.orientation_yasmine) return ORIENTATION_LABELS.orientation_yasmine;
+  if(narrativeFlags.projet_hybride) return ORIENTATION_LABELS.projet_hybride;
+  return ORIENTATION_LABELS.decision_reportee;
+}
+function pickForceEtVigilance(){
+  const order = ['cohesion','credibilite','ressources'];
+  const names = {cohesion:'🤝 Cohésion', credibilite:'⭐ Crédibilité', ressources:'📦 Ressources'};
+  let maxK=order[0], minK=order[0];
+  order.forEach(k=>{
+    if(stats[k] > stats[maxK]) maxK = k;
+    if(stats[k] < stats[minK]) minK = k;
+  });
+  return { force:names[maxK], vigilance:names[minK] };
+}
+
+/* ============================================================
+   MOTEUR
+   ============================================================ */
+const bgCanvas = document.getElementById('bgCanvas');
+const cameraEl = document.getElementById('camera');
+const speakerNameEl = document.getElementById('speakerName');
+const dialogueTextEl = document.getElementById('dialogueText');
+const continueHintEl = document.getElementById('continueHint');
+const choiceButtonsEl = document.getElementById('choiceButtons');
+const dialogueEl = document.getElementById('dialogue');
+const titlecardEl = document.getElementById('titlecard');
+
+let currentActiveSlots = [];
+let currentScene = null;
+let pos = 0;
+let typing = false;
+let queue = [];
+let branchTag = null;
+
+// Le pupitre n'est pertinent que pour Varga, et seulement dans la scène de la réunion municipale.
+function portraitOpts(charId){
+  return { podium: charId==='varga' && currentScene==='varga' };
+}
+
+// ============================================================
+// Caméra — 3 cadrages réels (wide / medium / close). Le recentrage se fait par
+// une translation calculée, pas seulement par transform-origin : sans ça, le
+// personnage visé reste bloqué à sa position d'origine au lieu de se rapprocher
+// du centre du cadre quand on zoome.
+// ============================================================
+function setCamera(cam){
+  cameraEl.style.transformOrigin = '50% 50%';
+  cameraEl.style.transform = `scale(${cam.zoom}) translate(${cam.tx}%, ${cam.ty}%)`;
+}
+function camWide(){ return { zoom:1, tx:0, ty:0 }; }
+// strength=1 recentre exactement le personnage ; strength=0 ne fait que zoomer sans bouger
+function camFor(charId, zoom, strength){
+  const idx = currentActiveSlots.indexOf(charId);
+  if(idx===-1) return camWide();
+  const total = currentActiveSlots.length;
+  const px = ((idx+0.5)/total)*100;
+  return { zoom, tx:(50-px)*strength, ty:-4*strength };
+}
+function camMedium(charId){ return camFor(charId, 1.16, 0.55); } // léger zoom + léger recentrage
+function camClose(charId){ return camFor(charId, 1.42, 0.92); }  // rapprochement marqué, quasi centré
+
+function showWide(){
+  setCamera(camWide());
+}
+function showCrowdShot(){
+  setCamera({ zoom:1.1, tx:0, ty:-10 });
+}
+function setShotForLine(node){
+  if(node.shot==='close') setCamera(camClose(node.charId));
+  else if(node.shot==='medium') setCamera(camMedium(node.charId));
+  else setCamera(camWide());
+}
+
+function renderStats(){
+  const map = {cohesion:'cohesion', credibilite:'credibilite', ressources:'ressources'};
+  Object.keys(map).forEach(k=>{
+    document.getElementById('v-'+k).textContent = Math.max(0,Math.min(100,stats[k]));
+    const el = document.getElementById('bar-'+k);
+    const v = Math.max(0,Math.min(100,stats[k]));
+    el.style.width = v+'%';
+    el.style.background = v<30 ? 'linear-gradient(90deg,#f87171,#fca5a5)' : (v<60 ? 'linear-gradient(90deg,#facc15,#fde68a)' : 'linear-gradient(90deg,var(--accent2),var(--ok))');
+  });
+  const consumed = Math.max(0, Math.min(JOURS_TOTAL, stats.jours));
+  const remaining = JOURS_TOTAL - consumed;
+  document.getElementById('v-jours').textContent = remaining===1 ? '1 JOUR' : `${remaining} JOURS`;
+  document.getElementById('bar-jours').style.width = (remaining/JOURS_TOTAL*100)+'%';
+  const jFill = document.getElementById('bar-jours');
+  jFill.style.background = remaining<=1 ? 'linear-gradient(90deg,#f87171,#fca5a5)' : (remaining<=2 ? 'linear-gradient(90deg,#facc15,#fde68a)' : 'linear-gradient(90deg,var(--accent2),var(--accent))');
+}
+
+function setSlots(ids){
+  currentActiveSlots = ids || [];
+  for(let i=0;i<4;i++){
+    const slot = document.getElementById('slot-'+i);
+    const tag = slot.querySelector('.nameTag');
+    if(ids && ids[i]){
+      slot.classList.add('on');
+      const canvas = slot.querySelector('canvas');
+      drawPortrait(canvas.getContext('2d'), ids[i], 'neutral', portraitOpts(ids[i]));
+      slot.dataset.char = ids[i];
+      const c = CHARACTERS[ids[i]];
+      if(tag) tag.innerHTML = `${c.name}<br><span>${c.role}</span>`;
+    } else {
+      slot.classList.remove('on');
+      slot.dataset.char = '';
+    }
+  }
+}
+function setSpeaking(charId, mood){
+  for(let i=0;i<4;i++){
+    const slot = document.getElementById('slot-'+i);
+    if(slot.dataset.char === charId){
+      slot.classList.add('speaking');
+      drawPortrait(slot.querySelector('canvas').getContext('2d'), charId, mood||'neutral', portraitOpts(charId));
+    } else {
+      slot.classList.remove('speaking');
+    }
+  }
+}
+
+function typeText(el, text, cls, onDone){
+  clearInterval(el._t);
+  el.className = cls||'';
+  el.textContent='';
+  el._fullText = text;
+  let i=0; typing=true;
+  continueHintEl.style.visibility='hidden';
+  el._t = setInterval(()=>{
+    el.textContent += text[i]; i++;
+    if(i>=text.length){ clearInterval(el._t); typing=false; continueHintEl.style.visibility='visible'; if(onDone) onDone(); }
+  }, 14);
+}
+
+function showTitlecard(title, sub, cb){
+  document.getElementById('titlecardH2').textContent = title;
+  document.getElementById('titlecardP').textContent = sub;
+  titlecardEl.classList.add('show');
+  setTimeout(()=>{ titlecardEl.classList.remove('show'); setTimeout(cb, 500); }, 1600);
+}
+
+function buildQueue(){
+  queue = SCRIPT.slice();
+}
+
+function next(){
+  if(typing){
+    // affiche immédiatement le texte complet plutôt que de le laisser tronqué
+    const el = dialogueTextEl;
+    clearInterval(el._t);
+    if(el._fullText) el.textContent = el._fullText;
+    typing=false;
+    continueHintEl.style.visibility='visible';
+    return;
+  }
+  if(pos >= queue.length){ return; }
+  const node = queue[pos]; pos++;
+  runNode(node);
+}
+
+function runNode(node){
+  if(node.type==='scene'){
+    currentScene = node.scene;
+    drawScene(node.scene);
+    if(node.scene==='varga') setSlots(['varga']);
+    showWide();
+    next();
+  } else if(node.type==='title'){
+    dialogueEl.style.visibility='hidden';
+    setSlots([]); // la scène se vide au changement de séquence (Varga disparaît ici)
+    setSpeaking(null);
+    showWide();
+    showTitlecard(node.title, node.sub, ()=>{ dialogueEl.style.visibility='visible'; next(); });
+  } else if(node.type==='narration'){
+    speakerNameEl.textContent='';
+    setSpeaking(null);
+    showWide();
+    typeText(dialogueTextEl, node.text, 'narration');
+  } else if(node.type==='crowd'){
+    speakerNameEl.textContent='FOULE';
+    setSpeaking(null);
+    showCrowdShot();
+    typeText(dialogueTextEl, node.text, 'narration');
+  } else if(node.type==='line'){
+    if(node.slots) setSlots(node.slots);
+    else if(currentActiveSlots.length===0) setSlots([node.charId]);
+    setSpeaking(node.charId, node.mood);
+    setShotForLine(node);
+    speakerNameEl.textContent = CHARACTERS[node.charId].name.toUpperCase();
+    typeText(dialogueTextEl, node.text, '');
+  } else if(node.type==='hub'){
+    hubVisited = new Set();
+    showHub(node);
+  } else if(node.type==='hub_refresh'){
+    showHub(node.node);
+  } else if(node.type==='choice'){
+    speakerNameEl.textContent='';
+    setSpeaking(null);
+    dialogueTextEl.className='';
+    dialogueTextEl.textContent = node.prompt;
+    continueHintEl.style.visibility='hidden';
+    showWide();
+    dialogueEl.classList.add('choicemode');
+    choiceButtonsEl.classList.add('show');
+    choiceButtonsEl.innerHTML='';
+    node.options.forEach(opt=>{
+      const btn=document.createElement('button');
+      btn.textContent = opt.label;
+      btn.onclick = (e)=>{ e.stopPropagation(); (node.resolver || chooseBranch)(opt.id); };
+      choiceButtonsEl.appendChild(btn);
+    });
+  }
+}
+
+// ---- Phase d'interrogation libre des PNJ avant la décision d'Acte 1 ----
+let hubVisited = new Set();
+function showHub(node){
+  speakerNameEl.textContent='';
+  setSpeaking(null);
+  showWide();
+  dialogueTextEl.className='';
+  dialogueTextEl.textContent = node.prompt;
+  continueHintEl.style.visibility='hidden';
+  dialogueEl.classList.add('choicemode');
+  choiceButtonsEl.classList.add('show');
+  choiceButtonsEl.innerHTML='';
+  node.npcs.forEach(npc=>{
+    const key = npc.id || npc.charId;
+    const btn=document.createElement('button');
+    const visited = hubVisited.has(key);
+    btn.textContent = (visited?'✓ ':'') + npc.label;
+    if(visited){
+      // PNJ déjà interrogé : bouton désactivé, plus aucune action possible
+      btn.disabled = true;
+      btn.style.opacity='.5';
+      btn.style.cursor='default';
+      btn.style.pointerEvents='none';
+    } else {
+      btn.onclick=(e)=>{
+        e.stopPropagation();
+        hubVisited.add(key);
+        // ferme immédiatement le mode choix avant de lancer la réplique du PNJ,
+        // sinon le joueur reste bloqué (choicemode empêchait tout clic pour avancer)
+        dialogueEl.classList.remove('choicemode');
+        choiceButtonsEl.classList.remove('show');
+        choiceButtonsEl.innerHTML = '';
+        const injected = npc.lines.map(l=>({type:'line', charId:l.charId||npc.charId, mood:l.mood, text:l.text}));
+        injected.push({type:'hub_refresh', node});
+        queue = queue.slice(0,pos).concat(injected).concat(queue.slice(pos));
+        next();
+      };
+    }
+    choiceButtonsEl.appendChild(btn);
+  });
+  // le bouton de décision n'apparaît qu'une fois les quatre PNJ interrogés
+  if(hubVisited.size >= node.npcs.length){
+    const decideBtn=document.createElement('button');
+    decideBtn.textContent = node.decideLabel;
+    decideBtn.style.borderColor='var(--accent)'; decideBtn.style.color='var(--accent2)';
+    decideBtn.onclick=(e)=>{
+      e.stopPropagation();
+      dialogueEl.classList.remove('choicemode');
+      choiceButtonsEl.classList.remove('show');
+      next();
+    };
+    choiceButtonsEl.appendChild(decideBtn);
+  }
+}
+
+function chooseBranch(id){
+  branchTag = id;
+  dialogueEl.classList.remove('choicemode');
+  choiceButtonsEl.classList.remove('show');
+
+  // injecte les répliques de réaction, PUIS l'application des jauges/variables,
+  // PUIS la narration de clôture, PUIS la fin — les jauges ne bougent qu'une fois
+  // toutes les réactions jouées, juste avant la narration finale.
+  const b = BRANCHES[id];
+  const injected = b.lines.map(l=>({type:'line', charId:l.charId, mood:l.mood, text:l.text, shot:l.shot}));
+  injected.push({type:'__applyDeltas__', branchId:id});
+  injected.push({type:'narration', text:b.narration});
+  injected.push({type:'__end__'});
+  queue = queue.slice(0,pos).concat(injected).concat(queue.slice(pos));
+  next();
+}
+
+// ============================================================
+// Variables narratives persistantes — activées selon la branche choisie,
+// utiles pour les actes suivants (mémoire des décisions du joueur).
+// ============================================================
+const narrativeFlags = {
+  orientation_noah:false, orientation_yasmine:false, projet_hybride:false, decision_reportee:false,
+  projet_flou:false, budget_fragile:false, confiance_yasmine:false, influence_noah:false,
+  communication_non_controlee:false,
+  voie_association:false, voie_entreprise:false, voie_municipale:false, voie_personnelle:false
+};
+const BRANCH_FLAGS = {
+  A: ['orientation_noah', 'influence_noah'],
+  B: ['orientation_yasmine', 'confiance_yasmine', 'budget_fragile'],
+  C: ['projet_hybride', 'projet_flou', 'budget_fragile'],
+  D: ['decision_reportee', 'communication_non_controlee'],
+};
+function applyBranchOutcome(branchId){
+  const b = BRANCHES[branchId];
+  Object.keys(b.deltas).forEach(k=> stats[k] = stats[k] + b.deltas[k]);
+  renderStats();
+  (BRANCH_FLAGS[branchId]||[]).forEach(flag=> narrativeFlags[flag] = true);
+}
+// Application générique de jauges (+ flag optionnel) pour les choix de l'Acte 2
+function applyGenericOutcome(deltas, flag){
+  if(deltas) Object.keys(deltas).forEach(k=> stats[k] = stats[k] + deltas[k]);
+  renderStats();
+  if(flag) narrativeFlags[flag] = true;
+}
+function pickVoieFlag(){
+  return ['voie_association','voie_entreprise','voie_municipale','voie_personnelle'].find(f=>narrativeFlags[f]);
+}
+
+/* ============================================================
+   LOGIQUE DE LA TABLETTE
+   ============================================================ */
+const tabletEl = document.getElementById('tablet');
+const tabletCardsEl = document.getElementById('tabletCards');
+const tabletDocEl = document.getElementById('tabletDoc');
+const tabletScanEl = document.getElementById('tabletScan');
+const tabletUnlockEl = document.getElementById('tabletUnlock');
+const tabletProgressEl = document.getElementById('tabletProgress');
+
+function showTabletCards(){
+  dialogueEl.style.display = 'none';
+  tabletEl.style.display = 'flex';
+  tabletCardsEl.style.display = 'grid';
+  tabletDocEl.style.display = 'none';
+  tabletScanEl.style.display = 'none';
+  tabletUnlockEl.style.display = 'none';
+  tabletProgressEl.textContent = '';
+  tabletCardsEl.innerHTML = '';
+  TABLET_CARDS.forEach(card=>{
+    const div = document.createElement('div');
+    div.className = 'tcard';
+    div.innerHTML = `
+      <h3>${card.title}</h3>
+      <ul>${card.lines.map(l=>`<li>${l}</li>`).join('')}</ul>
+      <button class="tcard-obj" type="button">Objection ▸</button>
+      <div class="tcard-objtext"></div>
+      <button class="tcard-choose" type="button">CHOISIR CETTE VOIE</button>`;
+    div.querySelector('.tcard-obj').onclick = ()=>{
+      const ot = div.querySelector('.tcard-objtext');
+      if(ot.classList.contains('show')){ ot.classList.remove('show'); return; }
+      ot.textContent = `${CHARACTERS[card.objection.charId].name.toUpperCase()} — « ${card.objection.text} »`;
+      ot.classList.add('show');
+    };
+    div.querySelector('.tcard-choose').onclick = ()=> chooseVoieCard(card);
+    tabletCardsEl.appendChild(div);
+  });
+}
+
+function chooseVoieCard(card){
+  act2State.voie = card.id;
+  act2State.denomination = card.denomination;
+  tabletEl.style.display = 'none';
+  dialogueEl.style.display = 'block';
+
+  const injected = [
+    { type:'line', charId:card.reactionFav.charId, mood:card.reactionFav.mood, shot:card.reactionFav.shot, text:card.reactionFav.text },
+    { type:'line', charId:card.reactionOpp.charId, mood:card.reactionOpp.mood, shot:card.reactionOpp.shot, text:card.reactionOpp.text },
+    { type:'__applyGeneric__', deltas:Object.assign({}, card.deltas, {jours:card.jours}), flag:card.flag },
+    { type:'__crossConsequence__' },
+    { type:'__showTabletDoc__', card },
+  ];
+  queue = queue.slice(0,pos).concat(injected).concat(queue.slice(pos));
+  next();
+}
+
+// Conséquences croisées très courtes selon la décision de l'Acte 1 (section 7)
+function crossConsequenceFor(){
+  if(narrativeFlags.orientation_noah && act2State.voie==='association')
+    return { charId:'noah', mood:'skeptical', text:"Mon investisseur vient d'apprendre qu'on part sur une association. Il retire son offre.", deltas:{ressources:-8} };
+  if(narrativeFlags.orientation_yasmine && act2State.voie==='entreprise')
+    return { charId:'yasmine', mood:'angry', text:"Plusieurs bénévoles viennent de m'écrire : ils ne reviendront pas pour une entreprise.", deltas:{cohesion:-8} };
+  if(narrativeFlags.decision_reportee)
+    return { charId:'gabriel', mood:'confident', text:"Au moins, cette fois, une direction claire a été prise.", deltas:{credibilite:6} };
+  return null;
+}
+
+function showTabletDoc(card){
+  dialogueEl.style.display = 'none';
+  tabletEl.style.display = 'flex';
+  tabletCardsEl.style.display = 'none';
+  tabletDocEl.style.display = 'flex';
+  document.getElementById('f-forme').textContent = card.forme;
+  document.getElementById('f-denom').textContent = card.denomination;
+  document.getElementById('f-objet').textContent = "« Sauver Nexus et faire plein de trucs pour le quartier »";
+  document.getElementById('f-duree').textContent = "Non précisée";
+  document.getElementById('field-objet').className = 'field err';
+  document.getElementById('field-duree').className = 'field err';
+  document.getElementById('tabletOptions').innerHTML = '';
+  document.getElementById('transmitBtn').style.display = 'none';
+  updateTabletProgress();
+
+  document.getElementById('field-objet').onclick = ()=> openFieldOptions('objet');
+  document.getElementById('field-duree').onclick = ()=> openFieldOptions('duree');
+}
+
+function updateTabletProgress(){
+  let n = 2;
+  if(act2State.objet) n++;
+  if(act2State.duree) n++;
+  tabletProgressEl.textContent = `DOSSIER COMPLÉTÉ : ${n}/4`;
+  if(n===4) document.getElementById('transmitBtn').style.display = 'inline-block';
+}
+
+function openFieldOptions(kind){
+  const opts = kind==='objet' ? OBJET_OPTIONS : DUREE_OPTIONS;
+  const already = kind==='objet' ? act2State.objet : act2State.duree;
+  if(already) return; // déjà corrigé, plus rien à faire sur ce champ
+  const box = document.getElementById('tabletOptions');
+  box.innerHTML = `<div class="topt-title">${kind==='objet' ? "Choisis l'objet réel de Nexus :" : "Choisis la durée d'engagement :"}</div>`;
+  opts.forEach(o=>{
+    const b = document.createElement('button');
+    b.className = 'topt-btn';
+    b.textContent = o.label;
+    b.onclick = ()=> resolveField(kind, o);
+    box.appendChild(b);
+  });
+}
+
+function resolveField(kind, opt){
+  applyGenericOutcome(opt.deltas);
+  if(kind==='objet'){
+    act2State.objet = opt.id;
+    document.getElementById('f-objet').textContent = opt.label;
+    document.getElementById('field-objet').className = 'field ok';
+    if(narrativeFlags.projet_hybride) narrativeFlags.projet_flou = false; // résolu par un objet enfin précis
+  } else {
+    act2State.duree = opt.id;
+    document.getElementById('f-duree').textContent = opt.label;
+    document.getElementById('field-duree').className = 'field ok';
+  }
+  document.getElementById('tabletOptions').innerHTML = '';
+  updateTabletProgress();
+}
+
+document.getElementById('transmitBtn').onclick = ()=>{
+  tabletDocEl.style.display = 'none';
+  tabletScanEl.style.display = 'flex';
+  tabletScanEl.classList.add('scanning');
+  setTimeout(()=>{
+    tabletScanEl.classList.remove('scanning');
+    tabletScanEl.classList.add('stamped');
+  }, 1000);
+  setTimeout(()=> showTabletUnlock(), 2000);
+};
+
+function showTabletUnlock(){
+  tabletScanEl.style.display = 'none';
+  tabletUnlockEl.style.display = 'flex';
+  const icons = ['✍️ Signer la convention','🛠️ Recevoir les machines','🛡️ Souscrire une assurance','⚡ Engager un électricien','🏦 Ouvrir un compte'];
+  const listEl = document.getElementById('unlockIcons');
+  listEl.innerHTML = icons.map(t=>`<div class="uicon">${t}</div>`).join('');
+  const msgEl = document.getElementById('unlockMsg');
+  if(act2State.voie==='personnelle'){
+    msgEl.textContent = 'RESPONSABILITÉ PERSONNELLE ENGAGÉE';
+    msgEl.className = 'danger';
+  } else {
+    msgEl.textContent = 'NEXUS PEUT DÉSORMAIS AGIR SOUS SON PROPRE NOM';
+    msgEl.className = 'ok';
+  }
+}
+document.getElementById('unlockContinueBtn').onclick = ()=>{
+  tabletEl.style.display = 'none';
+  dialogueEl.style.display = 'block';
+  next();
+};
+
+// intercepte les nœuds spéciaux ajoutés dynamiquement (fin, application des jauges, contenu variable)
+const _runNode = runNode;
+runNode = function(node){
+  if(node.type==='__end__'){ showEnd(); return; }
+  if(node.type==='__applyDeltas__'){ applyBranchOutcome(node.branchId); next(); return; }
+  if(node.type==='__applyGeneric__'){ applyGenericOutcome(node.deltas, node.flag); next(); return; }
+  if(node.type==='__act2Title__'){
+    const day = Math.max(1, Math.min(JOURS_TOTAL, stats.jours)) + 1;
+    dialogueEl.style.visibility='hidden';
+    setSlots([]); setSpeaking(null); showWide();
+    showTitlecard(`JOUR ${day}`, "Une convention à signer", ()=>{ dialogueEl.style.visibility='visible'; next(); });
+    return;
+  }
+  if(node.type==='__act2BranchIntro__'){
+    const intro = pickAct2BranchIntro();
+    queue = queue.slice(0,pos).concat(intro).concat(queue.slice(pos));
+    next();
+    return;
+  }
+  if(node.type==='__showTabletCards__'){ showTabletCards(); return; } // en pause : attend le choix d'une carte
+  if(node.type==='__showTabletDoc__'){ showTabletDoc(node.card); return; } // en pause : attend la correction des 2 champs puis transmission
+  if(node.type==='__crossConsequence__'){
+    const cc = crossConsequenceFor();
+    if(cc){
+      const injected = [{type:'line', charId:cc.charId, mood:cc.mood, text:cc.text}, {type:'__applyGeneric__', deltas:cc.deltas}];
+      queue = queue.slice(0,pos).concat(injected).concat(queue.slice(pos));
+    }
+    next();
+    return;
+  }
+  if(node.type==='__liabilityAnswer__'){
+    speakerNameEl.textContent=''; setSpeaking(null); showWide();
+    const flag = pickVoieFlag();
+    typeText(dialogueTextEl, ACT2_LIABILITY_ANSWER[flag] || "La responsabilité reste, pour l'instant, une question sans réponse claire.", 'narration');
+    return;
+  }
+  if(node.type==='__end2__'){ showEnd2(); return; }
+  if(node.type==='__showCrisisResources__'){ showCrisisResources(); return; } // en pause : attend le choix des 3 ressources
+  if(node.type==='__end3__'){ stats.jours = JOURS_TOTAL; renderStats(); showEnd3(); return; }
+  if(node.type==='__vargaVerdict__'){
+    const ending = computeEnding();
+    setSlots(['varga']);
+    setSpeaking('varga','stern');
+    showWide();
+    speakerNameEl.textContent = CHARACTERS.varga.name.toUpperCase();
+    typeText(dialogueTextEl, VARGA_VERDICTS[ending.key], '');
+    return;
+  }
+  _runNode(node);
+};
+
+function showEnd(){
+  dialogueEl.style.display='none';
+  document.getElementById('endscreen').style.display='flex';
+  document.getElementById('endTitle').textContent = "FIN DE L'ACTE 1";
+  document.getElementById('continueAct2Btn').style.display='inline-block';
+  document.getElementById('continueAct3Btn').style.display='none';
+  document.getElementById('restartBtn').style.display='inline-block';
+  document.getElementById('teaser').style.display='block';
+  document.getElementById('epilogueStamp').style.display='none';
+  document.getElementById('epilogueTitle').style.display='none';
+  document.getElementById('tonNexusBox').style.display='none';
+  document.getElementById('pedagogyText').style.display='none';
+  document.getElementById('finishBtn').style.display='none';
+  document.getElementById('exploreAgainBtn').style.display='none';
+  const es = document.getElementById('endStats');
+  es.innerHTML='';
+  const labels = {cohesion:'🤝 Cohésion', credibilite:'⭐ Crédibilité', ressources:'📦 Ressources'};
+  Object.keys(labels).forEach(k=>{
+    const div=document.createElement('div'); div.className='es';
+    div.textContent = `${labels[k]} : ${Math.max(0,Math.min(100,stats[k]))}/100`;
+    es.appendChild(div);
+  });
+  const jDiv=document.createElement('div'); jDiv.className='es';
+  const remaining = Math.max(0, JOURS_TOTAL - Math.max(0,Math.min(JOURS_TOTAL,stats.jours)));
+  jDiv.textContent = `⏳ Temps restant : ${remaining} jour${remaining>1?'s':''}`;
+  es.appendChild(jDiv);
+
+  document.getElementById('endText').textContent =
+    "L'orientation de Nexus est fixée. L'équipe n'est pas parfaitement unie, mais une direction existe désormais — et Madame Varga attend toujours une réponse claire vendredi.";
+  document.getElementById('teaser').innerHTML =
+    `<b>À suivre (Acte 2) :</b> ${BRANCHES[branchTag].teaser}`;
+}
+
+function showEnd2(){
+  dialogueEl.style.display='none';
+  document.getElementById('endscreen').style.display='flex';
+  document.getElementById('endTitle').textContent = "FIN DE L'ACTE 2";
+  document.getElementById('continueAct2Btn').style.display='none';
+  document.getElementById('continueAct3Btn').style.display='inline-block';
+  document.getElementById('restartBtn').style.display='inline-block';
+  document.getElementById('teaser').style.display='block';
+  document.getElementById('epilogueStamp').style.display='none';
+  document.getElementById('epilogueTitle').style.display='none';
+  document.getElementById('tonNexusBox').style.display='none';
+  document.getElementById('pedagogyText').style.display='none';
+  document.getElementById('finishBtn').style.display='none';
+  document.getElementById('exploreAgainBtn').style.display='none';
+  const es = document.getElementById('endStats');
+  es.innerHTML='';
+  const labels = {cohesion:'🤝 Cohésion', credibilite:'⭐ Crédibilité', ressources:'📦 Ressources'};
+  Object.keys(labels).forEach(k=>{
+    const div=document.createElement('div'); div.className='es';
+    div.textContent = `${labels[k]} : ${Math.max(0,Math.min(100,stats[k]))}/100`;
+    es.appendChild(div);
+  });
+  const jDiv=document.createElement('div'); jDiv.className='es';
+  const remaining = Math.max(0, JOURS_TOTAL - Math.max(0,Math.min(JOURS_TOTAL,stats.jours)));
+  jDiv.textContent = `⏳ Temps restant : ${remaining} jour${remaining>1?'s':''}`;
+  es.appendChild(jDiv);
+
+  document.getElementById('endText').textContent =
+    "Nexus a désormais un nom, une mission et quelqu'un pour l'engager. La convention part chez Madame Varga. Mais le bâtiment, lui, reste dans l'état où vous l'avez trouvé.";
+  document.getElementById('teaser').innerHTML =
+    `<b>À suivre — Acte 3 : Un bâtiment vide ne suffit pas.</b> Inès a posé un devis de 18 700 € sur la table. Nexus peut désormais signer un contrat — reste à savoir avec quel argent.`;
+}
+
+// Réinitialise complètement l'état et l'interface de l'Acte 2 (tablette comprise)
+function resetAct2State(){
+  act2State.voie = null;
+  act2State.denomination = null;
+  act2State.objet = null;
+  act2State.duree = null;
+
+  tabletScanEl.classList.remove('scanning', 'stamped');
+  tabletEl.style.display = 'none';
+  tabletDocEl.style.display = 'none';
+  tabletScanEl.style.display = 'none';
+  tabletUnlockEl.style.display = 'none';
+  document.getElementById('tabletOptions').innerHTML = '';
+  document.getElementById('transmitBtn').style.display = 'none';
+
+  document.getElementById('f-objet').textContent = "« Sauver Nexus et faire plein de trucs pour le quartier »";
+  document.getElementById('f-duree').textContent = "Non précisée";
+  document.getElementById('field-objet').className = 'field err';
+  document.getElementById('field-duree').className = 'field err';
+  tabletProgressEl.textContent = 'DOSSIER COMPLÉTÉ : 2/4';
+
+  document.getElementById('unlockIcons').innerHTML = '';
+  const msgEl = document.getElementById('unlockMsg');
+  msgEl.textContent = '';
+  msgEl.className = '';
+}
+
+document.getElementById('continueAct2Btn').onclick = ()=>{
+  resetAct2State();
+  document.getElementById('endscreen').style.display='none';
+  dialogueEl.style.display='block';
+  queue = queue.slice(0,pos).concat(ACT2_QUEUE).concat(queue.slice(pos));
+  next();
+};
+
+/* ============================================================
+   LOGIQUE DU TABLEAU DE CRISE (ACTE 3)
+   ============================================================ */
+const crisisBoardEl = document.getElementById('crisisBoard');
+const crisisResEl = document.getElementById('crisisRes');
+const crisisTasksEl = document.getElementById('crisisTasks');
+
+function showCrisisResources(){
+  dialogueEl.style.display = 'none';
+  crisisBoardEl.style.display = 'flex';
+  crisisResEl.style.display = 'flex';
+  crisisTasksEl.style.display = 'none';
+  document.getElementById('crisisHeader').textContent = 'MONTER LE PLAN — CHOISIS 3 RESSOURCES SUR 4';
+  act3State.resources = [];
+  const cardsEl = document.getElementById('crisisResCards');
+  cardsEl.innerHTML = '';
+  ACT3_RESOURCES.forEach(card=>{
+    const div = document.createElement('div');
+    div.className = 'rcard';
+    div.innerHTML = `<h4>${card.title}</h4><ul>${card.lines.map(l=>`<li>${l}</li>`).join('')}</ul>`;
+    div.onclick = ()=>{
+      const idx = act3State.resources.indexOf(card.id);
+      if(idx>-1){ act3State.resources.splice(idx,1); div.classList.remove('sel'); }
+      else if(act3State.resources.length<3){ act3State.resources.push(card.id); div.classList.add('sel'); }
+      const n = act3State.resources.length;
+      const btn = document.getElementById('crisisResConfirm');
+      btn.textContent = `VALIDER LE PLAN (${n}/3) ▸`;
+      btn.disabled = n!==3;
+    };
+    cardsEl.appendChild(div);
+  });
+}
+document.getElementById('crisisResConfirm').onclick = ()=>{
+  // applique les jauges des 3 ressources choisies, puis enchaîne sur l'affectation des tâches
+  act3State.resources.forEach(id=>{
+    const card = ACT3_RESOURCES.find(c=>c.id===id);
+    applyGenericOutcome(resourceDeltas(card));
+  });
+  crisisResEl.style.display = 'none';
+  showCrisisTasks();
+};
+
+function showCrisisTasks(){
+  crisisTasksEl.style.display = 'flex';
+  document.getElementById('crisisHeader').textContent = 'QUI FAIT QUOI — AFFECTE CHAQUE PERSONNAGE À UNE TÂCHE';
+  act3State.assignments = {};
+  const rowsEl = document.getElementById('crisisTaskRows');
+  rowsEl.innerHTML = '';
+  const chars = ['ines','yasmine','tom','noah'];
+  ACT3_TASKS.forEach(task=>{
+    const row = document.createElement('div');
+    row.className = 'trow';
+    row.innerHTML = `<div class="tlabel">${task.label}</div><div class="tchars">${chars.map(c=>
+      `<button class="tchar-btn" data-char="${c}">${CHARACTERS[c].name}</button>`).join('')}</div>`;
+    row.querySelectorAll('.tchar-btn').forEach(btn=>{
+      btn.onclick = ()=> pickAssignment(task.id, btn.dataset.char);
+    });
+    rowsEl.appendChild(row);
+  });
+}
+function pickAssignment(taskId, charId){
+  if(act3State.assignments[taskId]===charId){
+    // recliquer sur le personnage déjà affecté à cette tâche le libère
+    delete act3State.assignments[taskId];
+  } else {
+    // un personnage ne peut être affecté qu'à une seule tâche à la fois
+    Object.keys(act3State.assignments).forEach(t=>{ if(act3State.assignments[t]===charId) delete act3State.assignments[t]; });
+    act3State.assignments[taskId] = charId;
+  }
+  // marque visuellement les boutons choisis et désactive les personnages déjà pris ailleurs
+  document.querySelectorAll('.trow').forEach((row,i)=>{
+    const tId = ACT3_TASKS[i].id;
+    row.querySelectorAll('.tchar-btn').forEach(btn=>{
+      const c = btn.dataset.char;
+      btn.classList.toggle('picked', act3State.assignments[tId]===c);
+      const usedElsewhere = Object.entries(act3State.assignments).some(([t,ch])=> ch===c && t!==tId);
+      btn.disabled = usedElsewhere;
+    });
+  });
+  const done = Object.keys(act3State.assignments).length === ACT3_TASKS.length;
+  document.getElementById('crisisTaskConfirm').style.display = done ? 'inline-block' : 'none';
+}
+document.getElementById('crisisTaskReset').onclick = ()=>{
+  act3State.assignments = {};
+  document.querySelectorAll('.tchar-btn').forEach(btn=>{
+    btn.classList.remove('picked');
+    btn.disabled = false;
+  });
+  document.getElementById('crisisTaskConfirm').style.display = 'none';
+};
+document.getElementById('crisisTaskConfirm').onclick = ()=>{
+  crisisBoardEl.style.display = 'none';
+  dialogueEl.style.display = 'block';
+
+  // applique bonus/malus selon la qualité des affectations, avec des répliques ciblées pour les cas notables
+  const lines = [];
+  let deltas = {};
+  ACT3_TASKS.forEach(t=>{
+    const assigned = act3State.assignments[t.id];
+    const key = `${t.id}_${assigned}`;
+    if(assigned===t.good){
+      Object.keys(ACT3_TASK_GOOD_BONUS[t.id]).forEach(k=> deltas[k]=(deltas[k]||0)+ACT3_TASK_GOOD_BONUS[t.id][k]);
+    } else if(ACT3_TASK_FLAVOR[key]){
+      const f = ACT3_TASK_FLAVOR[key];
+      Object.keys(f.deltas).forEach(k=> deltas[k]=(deltas[k]||0)+f.deltas[k]);
+      lines.push({type:'narration', text:f.text});
+    }
+  });
+  const injected = lines.concat([{type:'__applyGeneric__', deltas}]);
+  queue = queue.slice(0,pos).concat(injected).concat(queue.slice(pos));
+  next();
+};
+
+// ---- Résolveurs des choix de la phase 3 et de la crise finale ----
+function chooseRegle(id){
+  dialogueEl.classList.remove('choicemode');
+  choiceButtonsEl.classList.remove('show');
+  act3State.regle = id;
+  const r = REGLES[id];
+  const injected = [{type:'__applyGeneric__', deltas:r.deltas}, {type:'narration', text:r.narration}];
+  queue = queue.slice(0,pos).concat(injected).concat(queue.slice(pos));
+  next();
+}
+function chooseMessage(id){
+  dialogueEl.classList.remove('choicemode');
+  choiceButtonsEl.classList.remove('show');
+  act3State.message = id;
+  let deltas, text;
+  if(id==='ouvre_demain'){ deltas={credibilite:-6, cohesion:2}; text="L'annonce rassure sur le moment. Elle promet peut-être plus que ce que Nexus peut tenir."; }
+  else if(id==='reporte_flou'){ deltas={credibilite:-4, cohesion:-4}; text="Le flou de l'annonce inquiète plus qu'il ne protège."; }
+  else { deltas={credibilite: stats.credibilite>=50?8:2}; text="La formulation est prudente. Son effet dépend surtout de la confiance déjà accumulée."; }
+  const injected = [{type:'__applyGeneric__', deltas}, {type:'narration', text}];
+  queue = queue.slice(0,pos).concat(injected).concat(queue.slice(pos));
+  next();
+}
+function chooseCrisis(id){
+  dialogueEl.classList.remove('choicemode');
+  choiceButtonsEl.classList.remove('show');
+  act3State.finalChoice = id;
+  let deltas, text;
+  if(id==='machines'){ deltas={ressources:8, credibilite:-6}; text="Les machines sont sauvées. La grande salle, elle, restera dans le noir pour l'inspection."; }
+  else if(id==='salle'){ deltas={credibilite:8, ressources:-6}; text="La salle est prête pour l'inspection. Mais plusieurs machines sont perdues."; }
+  else {
+    const ready = act3Readiness() >= 5;
+    if(ready){ deltas={credibilite:6, ressources:4}; text="Contre toute attente, l'équipe préparée en amont tient le choc : machines et salle sont sauvées de justesse."; }
+    else { deltas={credibilite:-10, ressources:-10, cohesion:-6}; text="Sans organisation solide derrière, tenter les deux échoue : ni les machines, ni la salle ne sont sauvées à temps."; }
+  }
+  const injected = [
+    {type:'__applyGeneric__', deltas},
+    {type:'narration', text},
+    {type:'narration', text:"Le jour se lève. Madame Varga entre dans Nexus pour l'inspection finale."},
+    {type:'scene', scene:'varga'},
+    {type:'line', charId:'varga', mood:'stern', slots:['varga'], text:"Voyons maintenant si vous avez réellement construit une organisation."},
+    {type:'__vargaVerdict__'},
+    {type:'__end3__'}
+  ];
+  queue = queue.slice(0,pos).concat(injected).concat(queue.slice(pos));
+  next();
+}
+REGLE_CHOICE.resolver = chooseRegle;
+MESSAGE_CHOICE.resolver = chooseMessage;
+CRISIS_CHOICE.resolver = chooseCrisis;
+
+const ACT3_QUEUE = [
+  ...ACT3_OPENING,
+  { type:'__showCrisisResources__' },
+  REGLE_CHOICE,
+  MESSAGE_CHOICE,
+  { type:'line', charId:'ines', mood:'stern', shot:'close', slots:['yasmine','noah','ines','tom'], text:"Le tableau principal vient de lâcher. Je peux sauver les machines ou remettre la grande salle sous tension. Pas les deux." },
+  CRISIS_CHOICE,
+];
+
+function showEnd3(){
+  dialogueEl.style.display='none';
+  const endscreenEl = document.getElementById('endscreen');
+  endscreenEl.style.display='flex';
+  endscreenEl.classList.remove('flash'); void endscreenEl.offsetWidth; endscreenEl.classList.add('flash'); // halo cyan, rejouable proprement
+
+  // écran final : seuls les boutons dédiés à l'épilogue sont visibles
+  document.getElementById('continueAct2Btn').style.display='none';
+  document.getElementById('continueAct3Btn').style.display='none';
+  document.getElementById('restartBtn').style.display='none';
+  document.getElementById('teaser').style.display='none';
+
+  const ending = computeEnding();
+  const meta = END_META[ending.key];
+  document.getElementById('endTitle').textContent = ending.title;
+
+  // tampon animé
+  const stampEl = document.getElementById('epilogueStamp');
+  stampEl.textContent = meta.stamp;
+  stampEl.className = meta.stampClass;
+  stampEl.style.display = 'inline-block';
+  void stampEl.offsetWidth;
+  stampEl.classList.add('show');
+
+  // titre attribué au joueur
+  const titleEl = document.getElementById('epilogueTitle');
+  titleEl.textContent = `— ${meta.playerTitle} —`;
+  titleEl.style.display = 'block';
+  titleEl.classList.add('show');
+
+  // bilan chiffré (inchangé)
+  const es = document.getElementById('endStats');
+  es.innerHTML='';
+  const labels = {cohesion:'🤝 Cohésion', credibilite:'⭐ Crédibilité', ressources:'📦 Ressources'};
+  Object.keys(labels).forEach(k=>{
+    const div=document.createElement('div'); div.className='es';
+    div.textContent = `${labels[k]} : ${Math.max(0,Math.min(100,stats[k]))}/100`;
+    es.appendChild(div);
+  });
+  const jDiv=document.createElement('div'); jDiv.className='es';
+  jDiv.textContent = `⏳ Temps restant : 0 jour`;
+  es.appendChild(jDiv);
+
+  // encadré "TON NEXUS"
+  const card = TABLET_CARDS.find(c=>c.id===act2State.voie);
+  const structure = card ? `${card.forme} — ${act2State.denomination || card.denomination}` : "Non déterminée";
+  const { force, vigilance } = pickForceEtVigilance();
+  document.getElementById('tnx-structure').textContent = structure;
+  document.getElementById('tnx-orientation').textContent = pickOrientationLabel();
+  document.getElementById('tnx-force').textContent = force;
+  document.getElementById('tnx-vigilance').textContent = vigilance;
+  document.getElementById('tnx-verdict').textContent = meta.verdictShort;
+  document.getElementById('tonNexusBox').style.display = 'block';
+  document.getElementById('tonNexusBox').classList.add('show');
+
+  document.getElementById('endText').textContent = ending.text;
+
+  // conclusion pédagogique (texte exact demandé)
+  const pedaEl = document.getElementById('pedagogyText');
+  pedaEl.textContent = "Une organisation ne naît pas seulement d'un statut ou d'une bonne idée. Elle existe lorsque des individus coordonnent leurs ressources et leurs décisions pour atteindre un objectif commun.";
+  pedaEl.style.display = 'block';
+  pedaEl.classList.add('show');
+
+  // action de fin, distincte du redémarrage
+  const finishBtn = document.getElementById('finishBtn');
+  finishBtn.style.display = 'block';
+  finishBtn.disabled = false;
+  finishBtn.textContent = 'TERMINER LA MISSION ✓';
+  document.getElementById('exploreAgainBtn').style.display = 'block';
+}
+
+function resetAct3State(){
+  act3State = { resources:[], assignments:{}, regle:null, message:null, finalChoice:null };
+  crisisBoardEl.style.display = 'none';
+  crisisResEl.style.display = 'none';
+  crisisTasksEl.style.display = 'none';
+  document.getElementById('crisisResCards').innerHTML = '';
+  document.getElementById('crisisTaskRows').innerHTML = '';
+  document.getElementById('crisisResConfirm').disabled = true;
+  document.getElementById('crisisResConfirm').textContent = 'VALIDER LE PLAN (0/3) ▸';
+  document.getElementById('crisisTaskConfirm').style.display = 'none';
+}
+
+document.getElementById('continueAct3Btn').onclick = ()=>{
+  resetAct3State();
+  stats.jours = Math.max(stats.jours, JOURS_TOTAL - 1);
+  renderStats();
+  document.getElementById('endscreen').style.display='none';
+  dialogueEl.style.display='block';
+  queue = queue.slice(0,pos).concat(ACT3_QUEUE).concat(queue.slice(pos));
+  next();
+};
+
+function doFullRestart(){
+  stats = { cohesion:55, credibilite:50, ressources:45, jours:0 };
+  Object.keys(narrativeFlags).forEach(k=> narrativeFlags[k]=false);
+  hubVisited = new Set();
+  resetAct2State();
+  resetAct3State();
+  renderStats();
+  document.getElementById('endscreen').style.display='none';
+  // réinitialise l'épilogue (tampon, titre, encadré, bouton de fin) pour la prochaine partie
+  document.getElementById('epilogueStamp').classList.remove('show');
+  document.getElementById('epilogueStamp').style.display='none';
+  document.getElementById('epilogueTitle').classList.remove('show');
+  document.getElementById('epilogueTitle').style.display='none';
+  document.getElementById('tonNexusBox').classList.remove('show');
+  document.getElementById('tonNexusBox').style.display='none';
+  document.getElementById('pedagogyText').classList.remove('show');
+  document.getElementById('pedagogyText').style.display='none';
+  document.getElementById('finishBtn').style.display='none';
+  document.getElementById('finishBtn').disabled=false;
+  document.getElementById('finishBtn').textContent='TERMINER LA MISSION ✓';
+  document.getElementById('exploreAgainBtn').style.display='none';
+  document.getElementById('restartBtn').style.display='inline-block';
+  document.getElementById('teaser').style.display='block';
+  dialogueEl.style.display='block';
+  pos=0; buildQueue(); setSlots([]);
+  next();
+}
+document.getElementById('restartBtn').onclick = doFullRestart;
+// bouton discret de l'épilogue final : exactement la même logique que "recommencer"
+document.getElementById('exploreAgainBtn').onclick = doFullRestart;
+
+// action de fin distincte : ne réinitialise rien, ne prétend à aucune sauvegarde,
+// se contente de clore visuellement la session et d'éviter les clics répétés
+document.getElementById('finishBtn').onclick = function(){
+  this.disabled = true;
+  this.textContent = 'MISSION TERMINÉE';
+};
+
+dialogueEl.addEventListener('click', ()=>{ if(!dialogueEl.classList.contains('choicemode')) next(); });
+
+document.getElementById('startBtn').onclick = ()=>{
+  document.getElementById('introscreen').style.display='none';
+  renderStats();
+  buildQueue();
+  next();
+};
+
+renderStats();
+
+// Redessine le décor à la bonne taille si l'écran change (rotation, redimensionnement)
+let resizeTimer=null;
+window.addEventListener('resize', ()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(()=>{ if(currentScene) drawScene(currentScene); }, 150);
+});
+</script>
+</body>
+</html>
