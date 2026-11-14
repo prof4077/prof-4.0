@@ -327,10 +327,15 @@ footer summary:hover{color:var(--level-neon);}
   border:1px solid rgba(255,198,79,.45);background:rgba(255,198,79,.08);padding:4px 11px;border-radius:20px;}
 .fil-btn{align-self:flex-start;display:inline-flex;align-items:center;gap:7px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;
   letter-spacing:1px;text-transform:uppercase;color:#04160a;background:#FFC64F;padding:7px 16px 7px 12px;}
+.fil-links{display:flex;gap:10px;flex-wrap:wrap;}
+.fil-dot-video{background:#FF3B3B !important;box-shadow:0 0 0 2px #04160a, 0 0 8px 1px #FF3B3B !important;}
 .fil-dot{width:11px;height:11px;border-radius:50%;background:#2F5FFF;box-shadow:0 0 0 2px #04160a, 0 0 8px 1px #2F5FFF;}
 @media (max-width:980px){.fil-grid{grid-template-columns:repeat(2,1fr);}}
 @media (max-width:620px){.fil-grid{grid-template-columns:1fr;}}
-.info-video{display:flex;justify-content:flex-start;margin:0 0 22px;}
+.info-video{display:flex;justify-content:flex-start;flex-wrap:wrap;gap:14px;margin:0 0 22px;}
+.yt-cta.sp-cta{border-color:#9B4FFF;background:radial-gradient(circle at 30% 30%, rgba(155,79,255,.2), transparent 70%);box-shadow:0 0 20px rgba(155,79,255,.35);}
+.yt-cta.sp-cta:hover{box-shadow:0 0 32px rgba(155,79,255,.55);}
+.sp-cta .yt-cta-icon{background:#9B4FFF;}
 @media (max-width:560px){.info-video{justify-content:center;}.info-video .yt-cta{padding:12px 18px;}.info-video .yt-cta-text{font-size:12.5px;}}
 </style>
 </head>
@@ -386,6 +391,10 @@ footer summary:hover{color:var(--level-neon);}
         <span class="yt-cta-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
         <span class="yt-cta-text">Voir la vid&eacute;o qui r&eacute;sume les 5 fiches</span>
       </a>
+      <a href="https://open.spotify.com/episode/4Xz6u5xuG8eOUhqFb7q3TS?si=Gbddq-uKQBiQ9mrm6nGFLQ" target="_blank" rel="noopener" class="yt-cta sp-cta">
+        <span class="yt-cta-icon"><svg viewBox="0 0 24 24" style="fill:none;stroke:#04160a;stroke-width:2.4;"><path d="M4 15v-3a8 8 0 0116 0v3"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg></span>
+        <span class="yt-cta-text">&Eacute;couter le podcast</span>
+      </a>
     </div>
     <div class="info-list">
       <a class="info-row" href="ressources/orientation/parcours/orientation-01-choisir-sa-specialite-terminale.pdf" target="_blank" rel="noopener">
@@ -438,7 +447,7 @@ footer summary:hover{color:var(--level-neon);}
         </div>
         <p class="fil-desc">Une formation courte, professionnalisante et concr&egrave;te, en lyc&eacute;e ou en alternance.</p>
         <div class="fil-meta"><span class="fil-chip">&#9201; 2 ans</span><span class="fil-chip">Bac +2</span></div>
-        <a class="fil-btn" href="ressources/orientation/filieres/filiere-01-bts.pdf" target="_blank" rel="noopener"><span class="fil-dot"></span>Fiche</a>
+        <div class="fil-links"><a class="fil-btn" href="ressources/orientation/filieres/filiere-01-bts.pdf" target="_blank" rel="noopener"><span class="fil-dot"></span>Fiche</a><a class="fil-btn" href="https://youtu.be/_dpeBoVmZ1c" target="_blank" rel="noopener"><span class="fil-dot fil-dot-video"></span>Vid&eacute;o</a></div>
         <div class="fil-corner"></div>
       </div>
       <div class="fil-card">
@@ -448,7 +457,7 @@ footer summary:hover{color:var(--level-neon);}
         </div>
         <p class="fil-desc">Un &eacute;quilibre entre th&eacute;orie et pratique, en IUT, avec stages et projets.</p>
         <div class="fil-meta"><span class="fil-chip">&#9201; 3 ans</span><span class="fil-chip">Bac +3</span></div>
-        <a class="fil-btn" href="ressources/orientation/filieres/filiere-02-but.pdf" target="_blank" rel="noopener"><span class="fil-dot"></span>Fiche</a>
+        <div class="fil-links"><a class="fil-btn" href="ressources/orientation/filieres/filiere-02-but.pdf" target="_blank" rel="noopener"><span class="fil-dot"></span>Fiche</a><a class="fil-btn" href="https://youtu.be/N2PlsznN_Sw" target="_blank" rel="noopener"><span class="fil-dot fil-dot-video"></span>Vid&eacute;o</a></div>
         <div class="fil-corner"></div>
       </div>
       <div class="fil-card">
@@ -458,7 +467,7 @@ footer summary:hover{color:var(--level-neon);}
         </div>
         <p class="fil-desc">Des savoirs approfondis &agrave; l&rsquo;universit&eacute;, avec une large part d&rsquo;autonomie.</p>
         <div class="fil-meta"><span class="fil-chip">&#9201; 3 ans</span><span class="fil-chip">Bac +3</span></div>
-        <a class="fil-btn" href="ressources/orientation/filieres/filiere-03-licence.pdf" target="_blank" rel="noopener"><span class="fil-dot"></span>Fiche</a>
+        <div class="fil-links"><a class="fil-btn" href="ressources/orientation/filieres/filiere-03-licence.pdf" target="_blank" rel="noopener"><span class="fil-dot"></span>Fiche</a><a class="fil-btn" href="https://youtu.be/107A9uAMYgc" target="_blank" rel="noopener"><span class="fil-dot fil-dot-video"></span>Vid&eacute;o</a></div>
         <div class="fil-corner"></div>
       </div>
       <div class="fil-card">
@@ -468,7 +477,7 @@ footer summary:hover{color:var(--level-neon);}
         </div>
         <p class="fil-desc">Une voie d&rsquo;excellence pour pr&eacute;parer les concours des grandes &eacute;coles de commerce.</p>
         <div class="fil-meta"><span class="fil-chip">&#9201; 2 ans</span><span class="fil-chip">Concours</span></div>
-        <a class="fil-btn" href="ressources/orientation/filieres/filiere-05-prepa-ect.pdf" target="_blank" rel="noopener"><span class="fil-dot"></span>Fiche</a>
+        <div class="fil-links"><a class="fil-btn" href="ressources/orientation/filieres/filiere-05-prepa-ect.pdf" target="_blank" rel="noopener"><span class="fil-dot"></span>Fiche</a><a class="fil-btn" href="https://youtu.be/B9EVPIU2wVI" target="_blank" rel="noopener"><span class="fil-dot fil-dot-video"></span>Vid&eacute;o</a></div>
         <div class="fil-corner"></div>
       </div>
       <div class="fil-card">
