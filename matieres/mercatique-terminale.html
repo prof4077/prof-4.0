@@ -297,6 +297,60 @@ footer summary:hover{color:var(--level-neon);}
   padding:11px 20px;position:relative;z-index:3;text-align:center;}
 .build-banner svg{width:17px;height:17px;stroke:#FFB020;fill:none;flex-shrink:0;}
 .build-banner span{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:.3px;color:#FFB020;}
+
+/* ================= REGROUPEMENT PAR THÈMES (programme officiel) ================= */
+.theme-nav{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 12px;margin:-18px auto 56px;max-width:1000px;position:relative;z-index:2;}
+.theme-chip{display:inline-flex;align-items:center;gap:9px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:.4px;
+  color:var(--white-metal);border:1px solid color-mix(in srgb, var(--subj) 45%, transparent);
+  background:color-mix(in srgb, var(--subj) 8%, var(--bg-panel));padding:7px 15px 7px 7px;border-radius:30px;
+  transition:border-color .2s, background .2s, transform .15s;max-width:100%;}
+.theme-chip:hover{border-color:var(--subj);background:color-mix(in srgb, var(--subj) 18%, var(--bg-panel));transform:translateY(-2px);}
+.theme-chip-num{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:800;color:#04160a;background:var(--subj);
+  border-radius:20px;padding:4px 9px;flex-shrink:0;}
+.theme-chip-txt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px;}
+.theme-block{position:relative;z-index:2;margin-bottom:64px;scroll-margin-top:96px;}
+.theme-block:last-of-type{margin-bottom:0;}
+.theme-head-wrap{position:relative;margin-bottom:26px;
+  filter:drop-shadow(0 0 16px color-mix(in srgb, var(--subj) 40%, transparent));}
+.theme-head{display:flex;align-items:center;gap:22px;padding:20px 26px;position:relative;overflow:hidden;min-height:104px;
+  background:
+    radial-gradient(120% 160% at 0% 0%, color-mix(in srgb, var(--subj) 38%, transparent), transparent 60%),
+    linear-gradient(105deg, color-mix(in srgb, var(--subj) 46%, #040805) 0%, color-mix(in srgb, var(--subj) 24%, #040805) 50%, color-mix(in srgb, var(--subj) 12%, #040805) 100%);
+  border:1px solid color-mix(in srgb, var(--subj) 75%, transparent);border-left:4px solid var(--subj);
+  clip-path:polygon(0 0, calc(100% - 26px) 0, 100% 26px, 100% 100%, 0 100%);}
+.theme-head::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:repeating-linear-gradient(135deg, color-mix(in srgb, var(--subj) 22%, transparent) 0 1px, transparent 1px 10px);
+  mask-image:linear-gradient(90deg, transparent 30%, black 100%);-webkit-mask-image:linear-gradient(90deg, transparent 30%, black 100%);}
+.theme-head::after{content:'';position:absolute;top:0;left:-40%;width:25%;height:100%;pointer-events:none;z-index:1;
+  background:linear-gradient(110deg, transparent, rgba(255,255,255,.10), transparent);transform:skewX(-18deg);
+  animation:themeShine 7s ease-in-out infinite;}
+@keyframes themeShine{0%,70%{left:-40%;}100%{left:140%;}}
+.theme-deco{position:absolute;right:0;top:0;height:100%;width:min(420px,60%);color:var(--subj);opacity:.55;z-index:0;pointer-events:none;}
+.theme-bignum{position:absolute;right:250px;top:50%;transform:translateY(-50%) skewX(-6deg);z-index:0;pointer-events:none;
+  font-family:'Orbitron',sans-serif;font-weight:900;font-size:92px;line-height:1;color:transparent;
+  -webkit-text-stroke:1.5px color-mix(in srgb, var(--subj) 55%, transparent);opacity:.55;}
+.theme-hex-wrap{position:relative;width:74px;height:74px;flex-shrink:0;z-index:2;display:flex;align-items:center;justify-content:center;}
+.theme-ring{position:absolute;inset:0;width:100%;height:100%;color:var(--subj);animation:spinA 24s linear infinite;}
+.theme-hex{width:56px;height:56px;clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background:linear-gradient(150deg, color-mix(in srgb, var(--subj) 70%, white), var(--subj) 55%, color-mix(in srgb, var(--subj) 70%, black));
+  display:flex;align-items:center;justify-content:center;}
+.theme-hex span{font-family:'Orbitron',sans-serif;font-weight:900;font-size:22px;color:#04160a;}
+.theme-head-txt{position:relative;z-index:2;max-width:calc(100% - 300px);}
+.theme-label{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:2.5px;text-transform:uppercase;
+  color:color-mix(in srgb, var(--subj) 65%, white);}
+.theme-title{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(17px,2.2vw,22px);line-height:1.3;margin-top:5px;color:#fff;
+  text-shadow:0 0 18px color-mix(in srgb, var(--subj) 60%, transparent);}
+@media (max-width:760px){
+  .theme-head{padding:14px 16px;gap:14px;}
+  .theme-hex-wrap{width:58px;height:58px;}
+  .theme-hex{width:44px;height:44px;}
+  .theme-bignum{display:none;}
+  .theme-head-txt{max-width:none;}
+  .theme-deco{opacity:.35;}
+  .theme-hex span{font-size:18px;}
+  .theme-chip-txt{max-width:220px;}
+  .theme-block{scroll-margin-top:190px;}
+}
 </style>
 </head>
 <body>
@@ -506,6 +560,22 @@ footer summary:hover{color:var(--level-neon);}
     </div>
     <p class="sec-sub" style="margin-left:auto;margin-right:auto;">Bienvenue ! Tu trouveras ici toutes les ressources n&eacute;cessaires pour progresser en Mercatique.</p>
   </div>
+  <nav class="theme-nav" aria-label="Th&egrave;mes du programme">
+    <a href="#theme-1" class="theme-chip" title="La définition de l&#x27;offre"><span class="theme-chip-num">TH&Egrave;ME 1</span><span class="theme-chip-txt">La définition de l'offre</span></a>
+    <a href="#theme-2" class="theme-chip" title="La distribution de l&#x27;offre"><span class="theme-chip-num">TH&Egrave;ME 2</span><span class="theme-chip-txt">La distribution de l'offre</span></a>
+    <a href="#theme-3" class="theme-chip" title="La communication de l&#x27;offre"><span class="theme-chip-num">TH&Egrave;ME 3</span><span class="theme-chip-txt">La communication de l'offre</span></a>
+  </nav>
+
+  <div class="theme-block" id="theme-1">
+    <div class="theme-head-wrap"><div class="theme-head">
+      <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
+      <div class="theme-bignum" aria-hidden="true">01</div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><span>1</span></div></div>
+      <div class="theme-head-txt">
+        <div class="theme-label">Th&egrave;me 1 &middot; Chapitres 01 &agrave; 06</div>
+        <h2 class="theme-title">La définition de l'offre</h2>
+      </div>
+    </div></div>
   <div class="chapter-grid">
 
     <div class="chapter-card">
@@ -580,6 +650,21 @@ footer summary:hover{color:var(--level-neon);}
       <div class="corner-br"></div>
     </div>
 
+  </div>
+  </div>
+
+  <div class="theme-block" id="theme-2">
+    <div class="theme-head-wrap"><div class="theme-head">
+      <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
+      <div class="theme-bignum" aria-hidden="true">02</div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><span>2</span></div></div>
+      <div class="theme-head-txt">
+        <div class="theme-label">Th&egrave;me 2 &middot; Chapitres 07 &agrave; 11</div>
+        <h2 class="theme-title">La distribution de l'offre</h2>
+      </div>
+    </div></div>
+  <div class="chapter-grid">
+
     <div class="chapter-card">
       <div class="chapter-left">
         <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">07</div></div>
@@ -640,6 +725,21 @@ footer summary:hover{color:var(--level-neon);}
       <div class="corner-br"></div>
     </div>
 
+  </div>
+  </div>
+
+  <div class="theme-block" id="theme-3">
+    <div class="theme-head-wrap"><div class="theme-head">
+      <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
+      <div class="theme-bignum" aria-hidden="true">03</div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><span>3</span></div></div>
+      <div class="theme-head-txt">
+        <div class="theme-label">Th&egrave;me 3 &middot; Chapitres 12 &agrave; 15</div>
+        <h2 class="theme-title">La communication de l'offre</h2>
+      </div>
+    </div></div>
+  <div class="chapter-grid">
+
     <div class="chapter-card">
       <div class="chapter-left">
         <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">12</div></div>
@@ -688,6 +788,7 @@ footer summary:hover{color:var(--level-neon);}
       <div class="corner-br"></div>
     </div>
 
+  </div>
   </div>
   <div class="back-row"><a href="../terminale.html" class="btn btn-ghost">&larr; Retour &agrave; Terminale</a></div>
 </section>
