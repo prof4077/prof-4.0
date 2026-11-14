@@ -334,7 +334,8 @@ footer summary:hover{color:var(--level-neon);}
 .theme-hex{width:56px;height:56px;clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   background:linear-gradient(150deg, color-mix(in srgb, var(--subj) 70%, white), var(--subj) 55%, color-mix(in srgb, var(--subj) 70%, black));
   display:flex;align-items:center;justify-content:center;}
-.theme-hex span{font-family:'Orbitron',sans-serif;font-weight:900;font-size:22px;color:#04160a;}
+.theme-ico{width:32px;height:32px;color:#04160a;}
+.subj-flank{flex-shrink:0;color:var(--subj);filter:drop-shadow(0 0 7px color-mix(in srgb, var(--subj) 70%, transparent));}
 .theme-head-txt{position:relative;z-index:2;max-width:calc(100% - 300px);}
 .theme-label{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:2.5px;text-transform:uppercase;
   color:color-mix(in srgb, var(--subj) 65%, white);}
@@ -347,7 +348,8 @@ footer summary:hover{color:var(--level-neon);}
   .theme-bignum{display:none;}
   .theme-head-txt{max-width:none;}
   .theme-deco{opacity:.35;}
-  .theme-hex span{font-size:18px;}
+  .theme-ico{width:26px;height:26px;}
+  .subj-flank{width:40px;height:40px;}
   .theme-chip-txt{max-width:220px;}
   .theme-block{scroll-margin-top:190px;}
 }
@@ -532,31 +534,9 @@ footer summary:hover{color:var(--level-neon);}
   <div class="sec-head" style="text-align:center;">
     <div class="sec-num" style="color:#FF9D3D;">Terminale</div>
     <div style="display:flex;align-items:center;justify-content:center;gap:20px;">
-      <svg width="50" height="50" viewBox="0 0 200 200" style="flex-shrink:0;">
-        <defs><filter id="flank-droit-dro" x="-60%" y="-60%" width="220%" height="220%">
-          <feGaussianBlur stdDeviation="3" result="b"/>
-          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter></defs>
-        <g filter="url(#flank-droit-dro)"><g stroke="#FF9D3D" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="86" y="52" width="46" height="26" rx="3" transform="rotate(-35 109 65)"/>
-          <line x1="97" y1="83" x2="127" y2="45"/>
-          <line x1="118" y1="90" x2="150" y2="122" stroke-width="4"/>
-          <line x1="60" y1="150" x2="150" y2="150"/>
-          <line x1="70" y1="150" x2="70" y2="130"/>
-          <line x1="140" y1="150" x2="140" y2="130"/>
-        </g></g>
-      </svg>
+      <svg class="subj-flank" width="50" height="50" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M32 11v37M18 19h28M32 13l-18 10M32 13l18 10M14 23l-7 15h14L14 23Zm36 0-7 15h14L50 23ZM22 52h20M26 48v4m12-4v4"/></g></svg>
       <div class="sec-title">Droit</div>
-      <svg width="50" height="50" viewBox="0 0 200 200" style="flex-shrink:0;">
-        <g filter="url(#flank-droit-dro)"><g stroke="#FF9D3D" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="86" y="52" width="46" height="26" rx="3" transform="rotate(-35 109 65)"/>
-          <line x1="97" y1="83" x2="127" y2="45"/>
-          <line x1="118" y1="90" x2="150" y2="122" stroke-width="4"/>
-          <line x1="60" y1="150" x2="150" y2="150"/>
-          <line x1="70" y1="150" x2="70" y2="130"/>
-          <line x1="140" y1="150" x2="140" y2="130"/>
-        </g></g>
-      </svg>
+      <svg class="subj-flank" width="50" height="50" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M32 11v37M18 19h28M32 13l-18 10M32 13l18 10M14 23l-7 15h14L14 23Zm36 0-7 15h14L50 23ZM22 52h20M26 48v4m12-4v4"/></g></svg>
     </div>
     <p class="sec-sub" style="margin-left:auto;margin-right:auto;">Bienvenue ! Tu trouveras ici toutes les ressources n&eacute;cessaires pour progresser en Droit.</p>
   </div>
@@ -571,7 +551,7 @@ footer summary:hover{color:var(--level-neon);}
     <div class="theme-head-wrap"><div class="theme-head">
       <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
       <div class="theme-bignum" aria-hidden="true">05</div>
-      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><span>5</span></div></div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 9h25l9 9v37H15zM40 9v10h9M22 29h18m-18 8h18m-18 8h10"/><path d="m34 49 5 5 11-12"/></g></svg></div></div>
       <div class="theme-head-txt">
         <div class="theme-label">Th&egrave;me 5 &middot; Chapitres 01 &agrave; 02</div>
         <h2 class="theme-title">Quel est le rôle du contrat&nbsp;?</h2>
@@ -608,7 +588,7 @@ footer summary:hover{color:var(--level-neon);}
     <div class="theme-head-wrap"><div class="theme-head">
       <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
       <div class="theme-bignum" aria-hidden="true">06</div>
-      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><span>6</span></div></div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M32 8 50 15v13c0 13-8 22-18 28-10-6-18-15-18-28V15l18-7Z"/><path d="M32 18v15m0 9v1"/><circle cx="32" cy="42" r="1"/></g></svg></div></div>
       <div class="theme-head-txt">
         <div class="theme-label">Th&egrave;me 6 &middot; Chapitres 03 &agrave; 05</div>
         <h2 class="theme-title">Qu'est-ce qu'être responsable&nbsp;?</h2>
@@ -656,7 +636,7 @@ footer summary:hover{color:var(--level-neon);}
     <div class="theme-head-wrap"><div class="theme-head">
       <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
       <div class="theme-bignum" aria-hidden="true">07</div>
-      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><span>7</span></div></div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="22" width="44" height="31" rx="4"/><path d="M23 22v-6a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v6M10 34h44m-27 0v5h10v-5"/></g></svg></div></div>
       <div class="theme-head-txt">
         <div class="theme-label">Th&egrave;me 7 &middot; Chapitres 06 &agrave; 08</div>
         <h2 class="theme-title">Comment le droit encadre-t-il le travail salarié&nbsp;?</h2>
@@ -704,7 +684,7 @@ footer summary:hover{color:var(--level-neon);}
     <div class="theme-head-wrap"><div class="theme-head">
       <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
       <div class="theme-bignum" aria-hidden="true">08</div>
-      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><span>8</span></div></div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 54V31l13 7V26l13 8V15h18v39H10Z"/><path d="M18 47h5m6 0h5m9-22h5m-5 8h5m-5 8h5"/><path d="m14 20 8-8 7 5"/></g></svg></div></div>
       <div class="theme-head-txt">
         <div class="theme-label">Th&egrave;me 8 &middot; Chapitres 09 &agrave; 12</div>
         <h2 class="theme-title">Dans quel cadre et comment entreprendre&nbsp;?</h2>

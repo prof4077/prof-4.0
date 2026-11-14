@@ -334,7 +334,8 @@ footer summary:hover{color:var(--level-neon);}
 .theme-hex{width:56px;height:56px;clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   background:linear-gradient(150deg, color-mix(in srgb, var(--subj) 70%, white), var(--subj) 55%, color-mix(in srgb, var(--subj) 70%, black));
   display:flex;align-items:center;justify-content:center;}
-.theme-hex span{font-family:'Orbitron',sans-serif;font-weight:900;font-size:22px;color:#04160a;}
+.theme-ico{width:32px;height:32px;color:#04160a;}
+.subj-flank{flex-shrink:0;color:var(--subj);filter:drop-shadow(0 0 7px color-mix(in srgb, var(--subj) 70%, transparent));}
 .theme-head-txt{position:relative;z-index:2;max-width:calc(100% - 300px);}
 .theme-label{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:2.5px;text-transform:uppercase;
   color:color-mix(in srgb, var(--subj) 65%, white);}
@@ -347,7 +348,8 @@ footer summary:hover{color:var(--level-neon);}
   .theme-bignum{display:none;}
   .theme-head-txt{max-width:none;}
   .theme-deco{opacity:.35;}
-  .theme-hex span{font-size:18px;}
+  .theme-ico{width:26px;height:26px;}
+  .subj-flank{width:40px;height:40px;}
   .theme-chip-txt{max-width:220px;}
   .theme-block{scroll-margin-top:190px;}
 }
@@ -532,39 +534,9 @@ footer summary:hover{color:var(--level-neon);}
   <div class="sec-head" style="text-align:center;">
     <div class="sec-num" style="color:#7C6FFF;">Terminale</div>
     <div style="display:flex;align-items:center;justify-content:center;gap:20px;">
-      <svg width="50" height="50" viewBox="0 0 200 200" style="flex-shrink:0;">
-        <defs><filter id="flank-sdgn-msg" x="-60%" y="-60%" width="220%" height="220%">
-          <feGaussianBlur stdDeviation="3" result="b"/>
-          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter></defs>
-        <g filter="url(#flank-sdgn-msg)"><g stroke="#7C6FFF" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="76" y="76" width="48" height="48" rx="4" stroke-width="2.5"/>
-          <circle cx="100" cy="100" r="10" stroke-width="2"/>
-          <line x1="88" y1="76" x2="88" y2="60"/>
-          <line x1="112" y1="76" x2="112" y2="60"/>
-          <line x1="88" y1="124" x2="88" y2="140"/>
-          <line x1="112" y1="124" x2="112" y2="140"/>
-          <line x1="76" y1="88" x2="60" y2="88"/>
-          <line x1="76" y1="112" x2="60" y2="112"/>
-          <line x1="124" y1="88" x2="140" y2="88"/>
-          <line x1="124" y1="112" x2="140" y2="112"/>
-        </g></g>
-      </svg>
+      <svg class="subj-flank" width="50" height="50" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 54V21l11 6V17l12 7V12h18v42H10Z"/><path d="M18 54V43h8v11m6-25h5m-5 8h5m-5 8h5m7-18h4m-4 8h4m-4 8h4"/><path d="M7 54h50"/></g></svg>
       <div class="sec-title">MSGN</div>
-      <svg width="50" height="50" viewBox="0 0 200 200" style="flex-shrink:0;">
-        <g filter="url(#flank-sdgn-msg)"><g stroke="#7C6FFF" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="76" y="76" width="48" height="48" rx="4" stroke-width="2.5"/>
-          <circle cx="100" cy="100" r="10" stroke-width="2"/>
-          <line x1="88" y1="76" x2="88" y2="60"/>
-          <line x1="112" y1="76" x2="112" y2="60"/>
-          <line x1="88" y1="124" x2="88" y2="140"/>
-          <line x1="112" y1="124" x2="112" y2="140"/>
-          <line x1="76" y1="88" x2="60" y2="88"/>
-          <line x1="76" y1="112" x2="60" y2="112"/>
-          <line x1="124" y1="88" x2="140" y2="88"/>
-          <line x1="124" y1="112" x2="140" y2="112"/>
-        </g></g>
-      </svg>
+      <svg class="subj-flank" width="50" height="50" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 54V21l11 6V17l12 7V12h18v42H10Z"/><path d="M18 54V43h8v11m6-25h5m-5 8h5m-5 8h5m7-18h4m-4 8h4m-4 8h4"/><path d="M7 54h50"/></g></svg>
     </div>
     <p class="sec-sub" style="margin-left:auto;margin-right:auto;">Bienvenue ! Tu trouveras ici toutes les ressources n&eacute;cessaires pour progresser en MSGN.</p>
   </div>
@@ -578,7 +550,7 @@ footer summary:hover{color:var(--level-neon);}
     <div class="theme-head-wrap"><div class="theme-head">
       <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
       <div class="theme-bignum" aria-hidden="true">01</div>
-      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><span>1</span></div></div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 54V31l14 8V27l13 8V15h21v39H8Z"/><path d="M17 47h5m7 0h5m9-22h5m-5 8h5m-5 8h5"/><circle cx="22" cy="18" r="5"/></g></svg></div></div>
       <div class="theme-head-txt">
         <div class="theme-label">Th&egrave;me 1 &middot; Chapitres 01 &agrave; 06</div>
         <h2 class="theme-title">Les organisations et l'activité de production de biens et de services</h2>
@@ -659,7 +631,7 @@ footer summary:hover{color:var(--level-neon);}
     <div class="theme-head-wrap"><div class="theme-head">
       <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
       <div class="theme-bignum" aria-hidden="true">02</div>
-      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><span>2</span></div></div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="21" cy="20" r="7"/><circle cx="43" cy="20" r="7"/><path d="M7 53v-5a14 14 0 0 1 28 0v5M29 53v-5a14 14 0 0 1 28 0v5M21 34h22"/></g></svg></div></div>
       <div class="theme-head-txt">
         <div class="theme-label">Th&egrave;me 2 &middot; Chapitres 07 &agrave; 09</div>
         <h2 class="theme-title">Les organisations et les acteurs</h2>
@@ -707,7 +679,7 @@ footer summary:hover{color:var(--level-neon);}
     <div class="theme-head-wrap"><div class="theme-head">
       <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
       <div class="theme-bignum" aria-hidden="true">03</div>
-      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><span>3</span></div></div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="8"/><circle cx="12" cy="17" r="5"/><circle cx="52" cy="17" r="5"/><circle cx="12" cy="48" r="5"/><circle cx="52" cy="48" r="5"/><path d="m17 20 9 7m12 0 9-7M17 45l9-8m12 0 9 8"/></g></svg></div></div>
       <div class="theme-head-txt">
         <div class="theme-label">Th&egrave;me 3 &middot; Chapitres 10 &agrave; 13</div>
         <h2 class="theme-title">Les organisations et la société</h2>

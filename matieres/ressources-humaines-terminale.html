@@ -334,7 +334,8 @@ footer summary:hover{color:var(--level-neon);}
 .theme-hex{width:56px;height:56px;clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   background:linear-gradient(150deg, color-mix(in srgb, var(--subj) 70%, white), var(--subj) 55%, color-mix(in srgb, var(--subj) 70%, black));
   display:flex;align-items:center;justify-content:center;}
-.theme-hex span{font-family:'Orbitron',sans-serif;font-weight:900;font-size:22px;color:#04160a;}
+.theme-ico{width:32px;height:32px;color:#04160a;}
+.subj-flank{flex-shrink:0;color:var(--subj);filter:drop-shadow(0 0 7px color-mix(in srgb, var(--subj) 70%, transparent));}
 .theme-head-txt{position:relative;z-index:2;max-width:calc(100% - 300px);}
 .theme-label{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:2.5px;text-transform:uppercase;
   color:color-mix(in srgb, var(--subj) 65%, white);}
@@ -347,7 +348,8 @@ footer summary:hover{color:var(--level-neon);}
   .theme-bignum{display:none;}
   .theme-head-txt{max-width:none;}
   .theme-deco{opacity:.35;}
-  .theme-hex span{font-size:18px;}
+  .theme-ico{width:26px;height:26px;}
+  .subj-flank{width:40px;height:40px;}
   .theme-chip-txt{max-width:220px;}
   .theme-block{scroll-margin-top:190px;}
 }
@@ -532,29 +534,9 @@ footer summary:hover{color:var(--level-neon);}
   <div class="sec-head" style="text-align:center;">
     <div class="sec-num" style="color:#9C4F9E;">Terminale</div>
     <div style="display:flex;align-items:center;justify-content:center;gap:20px;">
-      <svg width="50" height="50" viewBox="0 0 200 200" style="flex-shrink:0;">
-        <defs><filter id="flank-rh-res" x="-60%" y="-60%" width="220%" height="220%">
-          <feGaussianBlur stdDeviation="3" result="b"/>
-          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter></defs>
-        <g filter="url(#flank-rh-res)"><g stroke="#9C4F9E" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="72" cy="76" r="16"/>
-          <path d="M46,132 Q46,102 72,102 Q98,102 98,132" stroke-width="2.5"/>
-          <circle cx="128" cy="76" r="16"/>
-          <path d="M102,132 Q102,102 128,102 Q154,102 154,132" stroke-width="2.5"/>
-          <line x1="88" y1="90" x2="112" y2="90" stroke-width="2" stroke-dasharray="2 5"/>
-        </g></g>
-      </svg>
+      <svg class="subj-flank" width="50" height="50" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="21" cy="21" r="7"/><circle cx="43" cy="21" r="7"/><path d="M8 49c0-9 5-15 13-15s13 6 13 15v5H8zm22 5v-5c0-7 4-13 12-13s14 6 14 14v4H30Z"/><path d="M30 28h4"/></g></svg>
       <div class="sec-title">Ressources Humaines</div>
-      <svg width="50" height="50" viewBox="0 0 200 200" style="flex-shrink:0;">
-        <g filter="url(#flank-rh-res)"><g stroke="#9C4F9E" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="72" cy="76" r="16"/>
-          <path d="M46,132 Q46,102 72,102 Q98,102 98,132" stroke-width="2.5"/>
-          <circle cx="128" cy="76" r="16"/>
-          <path d="M102,132 Q102,102 128,102 Q154,102 154,132" stroke-width="2.5"/>
-          <line x1="88" y1="90" x2="112" y2="90" stroke-width="2" stroke-dasharray="2 5"/>
-        </g></g>
-      </svg>
+      <svg class="subj-flank" width="50" height="50" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="21" cy="21" r="7"/><circle cx="43" cy="21" r="7"/><path d="M8 49c0-9 5-15 13-15s13 6 13 15v5H8zm22 5v-5c0-7 4-13 12-13s14 6 14 14v4H30Z"/><path d="M30 28h4"/></g></svg>
     </div>
     <p class="sec-sub" style="margin-left:auto;margin-right:auto;">Bienvenue ! Tu trouveras ici toutes les ressources n&eacute;cessaires pour progresser en Ressources Humaines.</p>
   </div>
@@ -568,7 +550,7 @@ footer summary:hover{color:var(--level-neon);}
     <div class="theme-head-wrap"><div class="theme-head">
       <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
       <div class="theme-bignum" aria-hidden="true">01</div>
-      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><span>1</span></div></div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="20" r="10"/><path d="M12 54v-5a20 20 0 0 1 40 0v5M23 35l9 8 9-8M32 43v11"/><path d="m28 17 3 3 6-7"/></g></svg></div></div>
       <div class="theme-head-txt">
         <div class="theme-label">Th&egrave;me 1 &middot; Chapitres 01 &agrave; 04</div>
         <h2 class="theme-title">Les compétences au service de l'organisation et l'organisation au service du développement des compétences</h2>
@@ -631,7 +613,7 @@ footer summary:hover{color:var(--level-neon);}
     <div class="theme-head-wrap"><div class="theme-head">
       <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
       <div class="theme-bignum" aria-hidden="true">02</div>
-      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><span>2</span></div></div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M32 53S9 39 9 24a12 12 0 0 1 23-5 12 12 0 0 1 23 5c0 15-23 29-23 29Z"/><path d="M18 32h9l4-8 6 17 4-9h7"/></g></svg></div></div>
       <div class="theme-head-txt">
         <div class="theme-label">Th&egrave;me 2 &middot; Chapitres 05 &agrave; 08</div>
         <h2 class="theme-title">Des facteurs de motivation et de satisfaction&nbsp;: qualité de vie au travail et rémunération</h2>
@@ -694,7 +676,7 @@ footer summary:hover{color:var(--level-neon);}
     <div class="theme-head-wrap"><div class="theme-head">
       <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
       <div class="theme-bignum" aria-hidden="true">03</div>
-      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><span>3</span></div></div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="6"/><circle cx="46" cy="18" r="6"/><circle cx="32" cy="43" r="6"/><path d="M22 22 29 37m13-15-7 15M24 18h16M9 53c1-6 4-9 9-9m37 9c-1-6-4-9-9-9m-24 9h20"/></g></svg></div></div>
       <div class="theme-head-txt">
         <div class="theme-label">Th&egrave;me 3 &middot; Chapitres 09 &agrave; 11</div>
         <h2 class="theme-title">La recherche de cohésion, un levier d'amélioration des relations de travail et du climat social</h2>

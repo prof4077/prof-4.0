@@ -334,7 +334,8 @@ footer summary:hover{color:var(--level-neon);}
 .theme-hex{width:56px;height:56px;clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   background:linear-gradient(150deg, color-mix(in srgb, var(--subj) 70%, white), var(--subj) 55%, color-mix(in srgb, var(--subj) 70%, black));
   display:flex;align-items:center;justify-content:center;}
-.theme-hex span{font-family:'Orbitron',sans-serif;font-weight:900;font-size:22px;color:#04160a;}
+.theme-ico{width:32px;height:32px;color:#04160a;}
+.subj-flank{flex-shrink:0;color:var(--subj);filter:drop-shadow(0 0 7px color-mix(in srgb, var(--subj) 70%, transparent));}
 .theme-head-txt{position:relative;z-index:2;max-width:calc(100% - 300px);}
 .theme-label{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:2.5px;text-transform:uppercase;
   color:color-mix(in srgb, var(--subj) 65%, white);}
@@ -347,7 +348,8 @@ footer summary:hover{color:var(--level-neon);}
   .theme-bignum{display:none;}
   .theme-head-txt{max-width:none;}
   .theme-deco{opacity:.35;}
-  .theme-hex span{font-size:18px;}
+  .theme-ico{width:26px;height:26px;}
+  .subj-flank{width:40px;height:40px;}
   .theme-chip-txt{max-width:220px;}
   .theme-block{scroll-margin-top:190px;}
 }
@@ -532,33 +534,9 @@ footer summary:hover{color:var(--level-neon);}
   <div class="sec-head" style="text-align:center;">
     <div class="sec-num" style="color:#4CD97B;">Terminale</div>
     <div style="display:flex;align-items:center;justify-content:center;gap:20px;">
-      <svg width="50" height="50" viewBox="0 0 200 200" style="flex-shrink:0;">
-        <defs><filter id="flank-economie-eco" x="-60%" y="-60%" width="220%" height="220%">
-          <feGaussianBlur stdDeviation="3" result="b"/>
-          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter></defs>
-        <g filter="url(#flank-economie-eco)"><g stroke="#4CD97B" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="52" y1="140" x2="52" y2="150"/>
-          <line x1="52" y1="150" x2="150" y2="150"/>
-          <rect x="62" y="118" width="14" height="32" stroke-width="2"/>
-          <rect x="90" y="98" width="14" height="52" stroke-width="2"/>
-          <rect x="118" y="70" width="14" height="80" stroke-width="2"/>
-          <polyline points="62,110 97,86 125,96 148,58" stroke-width="3"/>
-          <polyline points="134,58 148,58 148,72" stroke-width="3"/>
-        </g></g>
-      </svg>
+      <svg class="subj-flank" width="50" height="50" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 53h47M14 49V34h9v15m8 0V25h9v24m8 0V16h9v33"/><path d="m13 27 13-9 10 4 16-13m-8 0h8v8"/><circle cx="26" cy="18" r="2"/><circle cx="36" cy="22" r="2"/></g></svg>
       <div class="sec-title">Économie</div>
-      <svg width="50" height="50" viewBox="0 0 200 200" style="flex-shrink:0;">
-        <g filter="url(#flank-economie-eco)"><g stroke="#4CD97B" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="52" y1="140" x2="52" y2="150"/>
-          <line x1="52" y1="150" x2="150" y2="150"/>
-          <rect x="62" y="118" width="14" height="32" stroke-width="2"/>
-          <rect x="90" y="98" width="14" height="52" stroke-width="2"/>
-          <rect x="118" y="70" width="14" height="80" stroke-width="2"/>
-          <polyline points="62,110 97,86 125,96 148,58" stroke-width="3"/>
-          <polyline points="134,58 148,58 148,72" stroke-width="3"/>
-        </g></g>
-      </svg>
+      <svg class="subj-flank" width="50" height="50" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 53h47M14 49V34h9v15m8 0V25h9v24m8 0V16h9v33"/><path d="m13 27 13-9 10 4 16-13m-8 0h8v8"/><circle cx="26" cy="18" r="2"/><circle cx="36" cy="22" r="2"/></g></svg>
     </div>
     <p class="sec-sub" style="margin-left:auto;margin-right:auto;">Bienvenue ! Tu trouveras ici toutes les ressources n&eacute;cessaires pour progresser en Économie.</p>
   </div>
@@ -573,7 +551,7 @@ footer summary:hover{color:var(--level-neon);}
     <div class="theme-head-wrap"><div class="theme-head">
       <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
       <div class="theme-bignum" aria-hidden="true">06</div>
-      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><span>6</span></div></div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 24 24-14 24 14H8ZM12 53h40M16 26v24m11-24v24m11-24v24m11-24v24"/><path d="M25 16h14"/></g></svg></div></div>
       <div class="theme-head-txt">
         <div class="theme-label">Th&egrave;me 6 &middot; Chapitres 01 &agrave; 04</div>
         <h2 class="theme-title">Comment l'État peut-il intervenir dans l'économie&nbsp;?</h2>
@@ -632,7 +610,7 @@ footer summary:hover{color:var(--level-neon);}
     <div class="theme-head-wrap"><div class="theme-head">
       <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
       <div class="theme-bignum" aria-hidden="true">07</div>
-      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><span>7</span></div></div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="20" cy="21" r="6"/><circle cx="44" cy="21" r="6"/><path d="M8 51v-5a12 12 0 0 1 24 0v5m0 0v-5a12 12 0 0 1 24 0v5M21 38h22"/><path d="M30 33h5m-5 6h5"/></g></svg></div></div>
       <div class="theme-head-txt">
         <div class="theme-label">Th&egrave;me 7 &middot; Chapitres 05 &agrave; 07</div>
         <h2 class="theme-title">Quelle est l'influence de l'État sur l'évolution de l'emploi et du chômage&nbsp;?</h2>
@@ -680,7 +658,7 @@ footer summary:hover{color:var(--level-neon);}
     <div class="theme-head-wrap"><div class="theme-head">
       <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
       <div class="theme-bignum" aria-hidden="true">08</div>
-      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><span>8</span></div></div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="23"/><path d="M9 32h46M32 9c8 7 12 15 12 23S40 48 32 55c-8-7-12-15-12-23S24 16 32 9Z"/><path d="m14 19-5 1 2 5m39 20 5-1-2-5"/></g></svg></div></div>
       <div class="theme-head-txt">
         <div class="theme-label">Th&egrave;me 8 &middot; Chapitres 08 &agrave; 10</div>
         <h2 class="theme-title">Comment organiser le commerce international dans un contexte d'ouverture des échanges&nbsp;?</h2>
@@ -728,7 +706,7 @@ footer summary:hover{color:var(--level-neon);}
     <div class="theme-head-wrap"><div class="theme-head">
       <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
       <div class="theme-bignum" aria-hidden="true">09</div>
-      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><span>9</span></div></div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 53h45M15 48V37h8v11m9 0V28h8v20m9 0V18h8v30"/><path d="M17 28c1-10 9-15 21-15-1 11-7 18-19 18m2-2 13-12"/></g></svg></div></div>
       <div class="theme-head-txt">
         <div class="theme-label">Th&egrave;me 9 &middot; Chapitres 11 &agrave; 12</div>
         <h2 class="theme-title">Comment concilier la croissance économique et le développement durable&nbsp;?</h2>
