@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>L'Atelier — Jeu Économie 1ère STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#4CD97B;--eco-dim:#2A8E4C;--bg:#050806;--panel:#0a120c;--panel2:#0d1710;--line:#173322;--txt:#EEF3EC;--muted:#7C9483;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(76,217,123,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(76,217,123,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#12201a;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070c09;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(76,217,123,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#04160a;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#04160a;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#102016;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#12201a;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#04160a;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#07110c;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 3) n'a pas besoin d'être touché.
+   Jauges : treso (€), prod (kg par heure), climat (0-100), rep (0-100).
+   ===================================================================== */
+const N = ' ';
+const eur = n => Math.round(n).toLocaleString('fr-FR') + N + '€';
+const VENTES = 10000;
+const income = s => 100 * (s.prod - 4);              // encaissement de fin d'acte, selon la productivité
+
+const GAME = {
+  title: 'L\'Atelier',
+  brand: 'L\'<span>ATELIER</span>',
+  storeKey: 'atelierFins',
+  backLink: '../../matieres/economie-1ere.html',
+  footer: 'Économie 1re STMG, thème 2',
+  start: s => Object.assign(s, { treso: 3000, prod: 10, climat: 60, rep: 50, va: 4000, ci: 6000 }),
+  hud: [
+    { k: 'treso',  label: 'Trésorerie',    short: 'Trésorerie',   show: s => eur(s.treso),          pct: s => s.treso / 60, low: s => s.treso < 600, unit: N + '€' },
+    { k: 'prod',   label: 'Productivité',  short: 'Productivité', show: s => s.prod + N + 'kg/h',   pct: s => s.prod * 4,   low: s => s.prod < 14,   unit: N + 'kg/h' },
+    { k: 'climat', label: 'Climat social', short: 'Climat',       show: s => Math.round(s.climat),  pct: s => s.climat,     low: s => s.climat < 40, clamp: true },
+    { k: 'rep',    label: 'Réputation',    short: 'Réputation',   show: s => Math.round(s.rep),     pct: s => s.rep,        low: s => s.rep < 35,    clamp: true }
+  ],
+  fail: s => s.treso <= 0 ? 'rideau' : null,          // vérifié à chaque étape, sauf au dernier acte
+  lock: (s, cost) => cost >= s.treso ? 'Trésorerie insuffisante.' : null,
+  bilan: s => [['Trésorerie', eur(s.treso)], ['Productivité', s.prod + N + 'kg par heure'], ['Climat social', Math.round(s.climat) + ' / 100'], ['Réputation', Math.round(s.rep) + ' / 100']],
+
+  characters: {
+    karim:  { name: 'Karim',       role: 'ton oncle, propriétaire', color: '#FF9D3D', body: '#B86A1F', hair: '#1c1c22', acc: 'box' },
+    samira: { name: 'Samira',      role: 'ouvrière, 20 ans de maison', color: '#FF8AD1', body: '#B8508F', hair: '#3a2418', acc: 'bun' },
+    leo:    { name: 'Léo',         role: 'jeune salarié',           color: '#5B8FFF', body: '#3D62B8', hair: '#5a4630', acc: 'cap' },
+    brun:   { name: 'Mme Brun',    role: 'comptable',               color: '#B9A6FF', body: '#5b4c9a', hair: '#8a8f96', acc: 'clip' },
+    sacha:  { name: 'Sacha Morel', role: 'acheteur chez TeaMax',    color: '#FF5C7A', body: '#3a3f4a', hair: '#5a4630', acc: 'tie' },
+    roche:  { name: 'Mme Roche',   role: 'adjointe à la mairie',    color: '#FFC64F', body: '#3a3f4a', hair: '#7a2f2f', acc: 'tie' },
+    faure:  { name: 'M. Faure',    role: 'contrôleur de l\'Urssaf', color: '#5FB8B0', body: '#2f5b57', hair: '#1c1c22', acc: 'clip' },
+    narr:   { name: 'L\'Atelier',  role: '',                        color: '#4CD97B' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Produire', sub: 'Trois salariés, une vieille marmite, et une commande géante.',
+    steps: [
+      { t: 'say', who: 'karim', text: `Nour, ma nièce préférée${N}! Je pars un an au pays. L'atelier, c'est toi maintenant. Samira et Léo connaissent le métier. Toi, tu décides.` },
+      { t: 'say', who: 'sacha', text: `Bonjour. TeaMax ouvre trois boutiques. Il me faut le double de perles de tapioca, chaque semaine, dès le mois prochain. Vous pouvez suivre${N}? Sinon, je vais voir ailleurs.` },
+      { t: 'say', who: 'samira', text: `Le double${N}? À trois, avec la marmite, on sort 10${N}kg à l'heure. Soit on est plus nombreux, soit on s'équipe, soit on y passe nos soirées. À toi de voir.` },
+      { t: 'choice', id: 'moyen', prompt: `Comment produire deux fois plus${N}?`, options: [
+        { id: 'interim', label: 'Embaucher deux intérimaires', cost: 1200, desc: 'Plus de bras autour de la marmite.', fx: { treso: -1200, climat: 5 },
+          after: [{ who: 'samira', text: `À cinq, on tient la cadence. Mais chacun sort toujours autant qu'avant${N}: on est juste plus nombreux.` }] },
+        { id: 'machine', label: 'Acheter une machine à rouler les perles', cost: 2500, desc: 'Elle roule en une heure ce qu\'une personne fait en une matinée.', fx: { treso: -2500, prod: 8, climat: -5 }, set: { machine: true },
+          after: [{ who: 'leo', text: `Elle est énorme. Et rapide. Dis… elle fait mon travail, là. Tu comptes me garder${N}?` }] },
+        { id: 'hsup', label: 'Demander des heures supplémentaires', cost: 600, desc: 'La même équipe, plus longtemps.', fx: { treso: -600, climat: -12, prod: -1 },
+          after: [{ who: 'samira', text: `Onze heures debout. À 20${N}h, on rate une perle sur trois. On produit plus… mais chaque heure rend moins.` }] } ] },
+      { t: 'say', if: s => s.flags.machine, who: 'samira', text: `Ta machine, personne ne sait la régler. Le vendeur propose une formation de trois jours. Sinon, il y a la notice. En allemand.` },
+      { t: 'say', if: s => !s.flags.machine, who: 'samira', text: `Léo roule deux fois moins vite que moi. Si tu me libères trois jours, je lui apprends mes gestes. Vingt ans de métier, ça se transmet.` },
+      { t: 'choice', id: 'formation', prompt: s => s.flags.machine ? `Former Samira à la machine${N}?` : `Former Léo au savoir-faire de Samira${N}?`, options: [
+        { id: 'oui', label: 'Oui, on forme', cost: 400, desc: 'Trois jours sans produire, payés.', fx: { treso: -400, prod: 4, climat: 8 }, set: { forme: true },
+          after: s => s.flags.machine ? [{ who: 'samira', text: `Maintenant je la règle les yeux fermés. Elle tourne à plein régime. La machine sans moi, c'était de la ferraille. Moi sans elle, c'était lent.` }]
+                                      : [{ who: 'leo', text: `Elle m'a montré le coup de poignet. Je roule presque aussi vite qu'elle maintenant. Ça, aucune machine ne me l'aurait appris.` }] },
+        { id: 'non', label: 'Non, on se débrouille', desc: 'Pas le temps, pas l\'argent.', fx: s => s.flags.machine ? { prod: -3, treso: -300 } : {},
+          after: s => s.flags.machine ? [{ who: 'leo', text: `Elle est encore en panne. Troisième fois cette semaine. On a perdu 300${N}€ de pâte.` }]
+                                      : [{ who: 'samira', text: `Comme tu veux. Mais le jour où je pars à la retraite, mon savoir-faire part avec moi.` }] } ] },
+      { t: 'event', who: 'sacha', text: s => `Première livraison reçue. ${s.prod >= 18 ? 'Dans les temps, et même en avance.' : s.prod >= 13 ? 'Tout juste dans les temps.' : 'En retard, mais on fera avec.'} Voici votre paiement.`, fx: s => ({ treso: income(s) }) },
+      { t: 'say', who: 'leo', text: `J'ai une idée. On perd un temps fou à se croiser et à chercher les bons de commande. Si on range les postes dans l'ordre et qu'on suit les commandes sur un logiciel, on gagne des heures. Ça coûte 200${N}€.` },
+      { t: 'choice', id: 'orga', prompt: `L'idée de Léo${N}?`, options: [
+        { id: 'oui', label: 'On réorganise', cost: 200, desc: 'Les postes en ligne, les commandes sur écran.', fx: { treso: -200, prod: 3 }, set: { orga: true },
+          after: [{ who: 'samira', text: `Je n'y croyais pas. Mais on sait enfin qui a commandé quoi, et on ne se marche plus dessus. Mêmes bras, même matériel, et on sort plus.` }] },
+        { id: 'non', label: 'On garde nos habitudes', desc: 'Ça marche depuis vingt ans.', fx: { climat: 2 },
+          after: [{ who: 'leo', text: `OK… C'était juste une idée.` }] } ] }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Mesurer', sub: 'Qu\'est-ce que l\'atelier a vraiment créé ?',
+    steps: [
+      { t: 'say', who: 'karim', text: `Nour${N}! Je viens de voir le relevé${N}: 10${N}000${N}€ de ventes ce mois-ci${N}! On est riches${N}! Distribue, fais-toi plaisir, augmente tout le monde${N}!` },
+      { t: 'say', who: 'brun', text: `Avant de distribuer quoi que ce soit, regardez la pile à gauche. Manioc${N}: 3${N}500${N}€. Électricité et gaz${N}: 1${N}500${N}€. Emballages${N}: 1${N}000${N}€. Tout ça, vous l'avez acheté à d'autres pour pouvoir produire.` },
+      { t: 'qty', id: 'enveloppe', prompt: 'Quelle somme peux-tu partager ce mois-ci ?', min: 2000, max: 10000, step: 500, def: 7000,
+        show: n => eur(n),
+        info: (s, n) => `Ventes du mois${N}: <b>${eur(VENTES)}</b><br>Factures des fournisseurs à régler${N}: <b>${eur(s.ci)}</b>`,
+        resolve: (s, n) => n > s.va + 500
+          ? { band: 'trop', fx: { treso: -Math.round((n - s.va) * 0.3) }, after: [
+              { who: 'brun', text: `Vous avez partagé ${eur(n)}. Mais ${eur(s.ci)} appartenaient déjà à vos fournisseurs. Le marchand de manioc a appelé trois fois. J'ai dû puiser dans la réserve pour le payer.` },
+              { who: 'brun', text: `Ce que l'atelier a vraiment créé, c'est ${eur(VENTES)} de ventes moins ${eur(s.ci)} d'achats${N}: ${eur(s.va)}. Pas un euro de plus.` }] }
+          : n < s.va - 500
+          ? { band: 'peu', fx: { climat: -5 }, after: [
+              { who: 'leo', text: `On a doublé la production et il n'y a presque rien à partager${N}? Sérieusement${N}?` },
+              { who: 'brun', text: `Vous avez été trop prudente. Une fois les fournisseurs payés, il restait ${eur(s.va)} créés par l'atelier.` }] }
+          : { band: 'juste', fx: { climat: 3 }, after: [
+              { who: 'brun', text: `${eur(VENTES)} de ventes, moins ${eur(s.ci)} achetés à d'autres${N}: il reste ${eur(s.va)}. Vous avez visé juste${N}: voilà ce que l'atelier a réellement créé.` }] } },
+      { t: 'say', who: 'brun', text: `Une piste pour créer davantage${N}: le manioc standard coûte 800${N}€ de moins par mois que le premium. Les perles sont un peu moins fermes.` },
+      { t: 'choice', id: 'manioc', prompt: `Quel manioc${N}?`, options: [
+        { id: 'premium', label: 'Garder le manioc premium', desc: 'La recette qui a fait la réputation de Karim.',
+          after: [{ who: 'samira', text: `Tant mieux. Avec du bon manioc, je fais des bonnes perles.` }] },
+        { id: 'standard', label: 'Passer au manioc standard', desc: '800 € d\'achats en moins chaque mois.', fx: { rep: -10 }, do: s => { s.ci -= 800; s.va += 800; },
+          after: [{ who: 'sacha', text: `Vos perles ont changé, non${N}? Mes clients l'ont remarqué. Moi aussi.` }] } ] },
+      /* --- scène PIB / IDH --- */
+      { t: 'say', who: 'roche', text: s => `Bonjour${N}! Je prépare le bilan économique du quartier. J'additionne ce que chaque entreprise a créé cette année${N}: TeaMax 310${N}000${N}€, Boba Factory 240${N}000${N}€, les commerces de la rue 150${N}000${N}€… et votre atelier, ${eur(s.va * 12)}.` },
+      { t: 'say', who: 'roche', text: s => `Total${N}: ${eur(700000 + s.va * 12)}. C'est la richesse produite par le quartier, 6${N}% de plus que l'an dernier. Et je retombe sur le même chiffre en additionnant les revenus des habitants, ou leurs dépenses. Divisé par 2${N}000 habitants${N}: ${eur((700000 + s.va * 12) / 2000)} chacun.` },
+      { t: 'say', who: 'roche', text: `Sur le papier, nous sommes le quartier le plus riche de la ville. Pourtant… le médecin le plus proche est à 40 minutes. Un élève sur quatre quitte l'école sans diplôme. Le quartier des Tilleuls produit moins que nous, mais on y vit deux ans de plus.` },
+      { t: 'say', who: 'roche', text: `La mairie a une enveloppe à investir ici, et je consulte les chefs d'entreprise. Votre avis compte.` },
+      { t: 'choice', id: 'pib', prompt: `Que doit financer la mairie${N}?`, options: [
+        { id: 'zone', label: 'Agrandir la zone commerciale', desc: 'Plus de boutiques, plus de clients, plus de production.', fx: { treso: 400 },
+          after: [{ who: 'roche', text: `C'est noté. Le chiffre du quartier va encore grimper l'an prochain.` },
+                  { who: 'leo', text: `Super pour les commandes. Mais ma petite sœur n'a toujours pas de médecin, et son collège tombe en ruine.` }] },
+        { id: 'sante', label: 'Une maison de santé et du soutien scolaire', desc: 'Ça ne produit rien qui se vende.', fx: { rep: 8, climat: 5 },
+          after: [{ who: 'roche', text: `C'est noté. Ça ne fera pas bouger notre chiffre de production… mais on mesurera autre chose${N}: la santé et les études des habitants.` },
+                  { who: 'samira', text: `Un médecin dans le quartier${N}? Tu ne sais pas ce que ça change pour nous.` }] },
+        { id: 'mix', label: 'Moitié-moitié', desc: 'Un peu des deux.', fx: { treso: 150, rep: 4 },
+          after: [{ who: 'roche', text: `Un compromis. On produira un peu plus et on vivra un peu mieux.` }] } ] },
+      { t: 'say', who: 'roche', text: `Dernière chose${N}: pour la fête du quartier, pourriez-vous offrir 50${N}kg de perles et ouvrir l'atelier aux familles, une journée${N}? Gratuitement, bien sûr.` },
+      { t: 'choice', id: 'fete', prompt: `La demande de la mairie${N}?`, options: [
+        { id: 'offrir', label: 'J\'offre les perles et la journée', desc: 'Sans rien facturer.', fx: { treso: -300, rep: 12 },
+          after: [{ who: 'narr', text: `Deux cents visiteurs, des enfants les mains dans la pâte. Ce jour-là, l'atelier a produit quelque chose qui ne s'est pas vendu.` }] },
+        { id: 'facturer', label: 'D\'accord, mais je facture', desc: 'Un travail, ça se paie.', fx: { treso: 300, rep: -3 },
+          after: [{ who: 'roche', text: `Ah. Très bien. Envoyez la facture à la mairie.` }] },
+        { id: 'refuser', label: 'Je refuse', desc: 'Pas le temps.', fx: { rep: -6 },
+          after: [{ who: 'roche', text: `Dommage. Karim, lui, ne refusait jamais.` }] } ] },
+      { t: 'event', who: 'sacha', text: `Livraisons du trimestre reçues. Voici votre règlement.`, fx: s => ({ treso: income(s) }) }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Partager', sub: 'La richesse est créée. Reste à savoir qui en reçoit quoi.',
+    steps: [
+      { t: 'say', who: 'brun', text: s => `L'atelier crée ${eur(s.va)} par mois. Trois parts à servir${N}: les salariés pour leur travail, Karim parce que l'atelier lui appartient, et l'État. Commencez par les salaires.` },
+      { t: 'say', who: 'samira', text: `On a suivi la cadence, on a tout donné pour TeaMax. J'espère que tu t'en souviendras.` },
+      { t: 'qty', id: 'part', prompt: 'Quelle part de la richesse créée pour les salaires ?', min: 50, max: 80, step: 5, def: 65,
+        show: n => n + N + '%',
+        info: (s, n) => `Salaires${N}: <b>${eur(s.va * n / 100)}</b><br>Reste pour l'État, Karim et l'atelier${N}: <b>${eur(s.va * (100 - n) / 100)}</b>`,
+        resolve: (s, n) => n < 60
+          ? { band: 'bas', fx: { climat: -20, treso: 600 }, after: [{ who: 'leo', text: `On a doublé la production et nos salaires n'ont pas bougé. C'est Karim qui encaisse depuis sa terrasse, c'est ça${N}?` }] }
+          : n > 70
+          ? { band: 'haut', fx: { climat: 10, treso: -400 }, after: [{ who: 'samira', text: `Ça, c'est une vraie augmentation. Merci, Nour.` }, { who: 'karim', text: `Dis donc… il ne reste presque rien pour moi, ni pour réparer la marmite. C'est MON atelier, quand même.` }] }
+          : { band: 'milieu', fx: { climat: 3, treso: 200 }, after: [{ who: 'samira', text: `Une petite augmentation. C'est honnête.` }] } },
+      { t: 'say', who: 'samira', text: `Pour mes heures sup du mois… Si tu les déclares, tu paies 250${N}€ de cotisations en plus. Sinon, tu me donnes l'enveloppe de la main à la main, et ça ne coûte rien à personne. Karim faisait parfois ça.` },
+      { t: 'choice', id: 'heures', prompt: `Les heures supplémentaires de Samira${N}?`, options: [
+        { id: 'declarer', label: 'Je les déclare', cost: 250, desc: '250 € de cotisations sociales en plus.', fx: { treso: -250 },
+          after: [{ who: 'brun', text: `C'est sur la fiche de paie. Ces cotisations ne disparaissent pas${N}: elles financent sa retraite, son assurance maladie, son chômage.` }] },
+        { id: 'noir', label: 'De la main à la main', desc: 'Ni vu ni connu.', set: { noir: true },
+          after: [{ who: 'brun', text: `Je n'ai rien vu, je ne veux rien savoir.` }] } ] },
+      { t: 'event', if: s => !s.flags.noir, who: 'narr', text: `Un mardi soir, la marmite déborde${N}: Samira se brûle la main. Trois semaines d'arrêt. L'assurance maladie paie ses soins et lui verse un revenu pendant son absence. Tout était déclaré.`, fx: { climat: 5 } },
+      { t: 'event', if: s => s.flags.noir, who: 'narr', text: `Un mardi soir, pendant ses heures non déclarées, la marmite déborde${N}: Samira se brûle la main. Officiellement, elle n'était pas au travail. Pas d'accident du travail reconnu, pas d'indemnités. Tu paies ses soins de ta poche.`, fx: { climat: -15, treso: -500 } },
+      { t: 'say', who: 'brun', text: `Une fois les salaires, les cotisations et les impôts payés, il reste un peu d'argent. À vous de dire où il va.` },
+      { t: 'choice', id: 'reste', prompt: `Que fais-tu de ce qui reste${N}?`, options: [
+        { id: 'reinvestir', label: 'Le réinvestir dans l\'atelier', desc: 'Une seconde marmite, plus grande.', fx: { prod: 3 },
+          after: [{ who: 'leo', text: `Deux marmites${N}! On va enfin arrêter de faire la queue pour cuire.` }] },
+        { id: 'karim', label: 'Le verser à Karim', desc: 'C\'est le propriétaire, après tout.', fx: { climat: -3 },
+          after: [{ who: 'karim', text: `Ah${N}! Voilà ma nièce préférée. J'ai mis mon argent dans cet atelier il y a vingt ans, il est normal qu'il me rapporte.` }] } ] },
+      { t: 'event', who: 'sacha', text: `Livraisons du trimestre reçues. Voici votre règlement.`, fx: s => ({ treso: income(s) }) }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Le bilan de l\'année', sub: 'Karim rentre dans une semaine.', final: true,
+    steps: [
+      { t: 'event', if: s => s.flags.noir, who: 'faure', text: `Urssaf, contrôle. J'ai ici une déclaration d'accident… et aucune heure supplémentaire sur les fiches de paie. Travail dissimulé${N}: rappel de cotisations et amende, 2${N}000${N}€.`, fx: { treso: -2000, rep: -15 } },
+      { t: 'say', if: s => s.climat < 40, who: 'leo', text: `On a voté ce matin. Demain, on ne roule pas une seule perle. On veut notre part de ce qu'on a produit.` },
+      { t: 'event', if: s => s.prod >= 18, who: 'sacha', text: `Vous livrez vite et bien. TeaMax vous confie ses dix boutiques. Voici l'acompte.`, fx: { treso: 1500 } },
+      { t: 'say', if: s => s.prod >= 14 && s.prod < 18, who: 'sacha', text: `Vous tenez la cadence, sans plus. Je prolonge de six mois. On verra ensuite.` },
+      { t: 'say', if: s => s.prod < 14, who: 'sacha', text: `Désolé. Votre atelier est trop lent pour nous. J'ai trouvé un fournisseur qui sort le double à l'heure. C'est notre dernière commande.` },
+      { t: 'say', who: 'brun', text: `Avant le retour de Karim, regardez la fiche de paie de Samira, ligne par ligne${N}:
+        <span class="pay"><span>Salaire brut</span><b>2${N}000${N}€</b><span>Cotisations sociales</span><b>− 440${N}€</b><span>Salaire net</span><b>1${N}560${N}€</b><span>Impôt sur le revenu</span><b>− 60${N}€</b><span>Aide au logement reçue</span><b>+ 120${N}€</b><span class="tot">Ce dont elle dispose vraiment</span><b class="tot">1${N}620${N}€</b></span>
+        <small>Chiffres simplifiés.</small>` },
+      { t: 'say', who: 'karim', text: `Me voilà rentré${N}! Alors, ma nièce${N}: qu'as-tu fait de mon atelier${N}?` }
+    ] }
+  ],
+
+  /* ------------------------------ FINS (ordre de priorité) ------------------------------ */
+  endings: [
+    { id: 'rideau', when: s => s.treso <= 0, title: 'Rideau baissé', stamp: 'Faillite', color: '#FF5C6A',
+      text: `La caisse est vide. Les fournisseurs ne livrent plus, la marmite refroidit. Karim rentre plus tôt que prévu, et pas pour te féliciter.` },
+    { id: 'redressee', when: s => s.flags.noir, title: 'Redressée par l\'Urssaf', stamp: 'Travail dissimulé', color: '#FF5C6A',
+      text: `Tu voulais économiser 250${N}€. Tu en as perdu dix fois plus, et Samira s'est retrouvée blessée sans protection. Les cotisations n'étaient pas de l'argent perdu.` },
+    { id: 'greve', when: s => s.climat < 40, title: 'L\'atelier en grève', stamp: 'Production arrêtée', color: '#FFC64F',
+      text: `Les marmites sont froides et les banderoles sont sorties. Tu as créé de la richesse… mais ceux qui l'ont produite estiment ne pas en avoir vu la couleur.` },
+    { id: 'modele', when: s => s.prod >= 18 && s.climat >= 65, title: 'L\'atelier modèle', stamp: 'Bravo', color: '#4CD97B',
+      text: `Tu produis vite, bien, et l'équipe te suit. Karim fait le tour de l'atelier sans dire un mot, puis te tend les clés${N}: «${N}Garde-les.${N}»` },
+    { id: 'depassee', when: s => s.prod < 14, title: 'Dépassée', stamp: 'Contrat perdu', color: '#FFC64F',
+      text: `L'atelier tourne comme il y a vingt ans. Le problème, c'est que les concurrents, eux, ont changé. TeaMax est parti chez plus rapide.` },
+    { id: 'tourne', when: s => true, title: 'Ça tourne', stamp: 'Correct', color: '#7C9483',
+      text: `L'atelier est debout, les commandes partent, l'équipe est là. Rien d'héroïque, mais Karim retrouve son affaire en bon état.` }
+  ],
+
+  /* ------------------------------ DÉBRIEF (h = choix du joueur) ------------------------------ */
+  debrief: [
+    { act: 1, needs: ['moyen', 'formation', 'orga'], title: 'Acte 1 — Produire', text: (h, s) => {
+        const m = h.moyen === 'machine' ? 'Tu as acheté une machine : tu as misé sur le <em>capital</em> plutôt que sur le <em>travail</em>. Cet achat est un <em>investissement</em>. La peur de Léo d\'être remplacé, c\'est la <em>substitution</em> du capital au travail.'
+              : h.moyen === 'interim' ? 'Tu as embauché : tu as ajouté du <em>travail</em>, sans <em>investissement</em> en <em>capital</em>. Tu as produit plus, mais chaque heure rendait autant qu\'avant. Une machine aurait remplacé des bras : c\'est la <em>substitution</em>.'
+              : 'Tu as allongé les journées : plus de <em>travail</em>, sans <em>investissement</em> en <em>capital</em>. Résultat, chaque heure rendait moins. Une machine aurait remplacé des heures : c\'est la <em>substitution</em>.';
+        const f = h.formation === 'oui' ? (s.flags.machine ? 'Samira formée, la machine a donné toute sa mesure : machine et savoir-faire sont <em>complémentaires</em>.' : 'En formant Léo, tu as fait grandir le savoir-faire de l\'équipe.')
+              : (s.flags.machine ? 'Sans formation, ta machine tombait en panne : machine et savoir-faire sont <em>complémentaires</em>.' : 'Sans formation, le savoir-faire de Samira est resté dans ses seules mains.');
+        const o = h.orga === 'oui' ? 'La réorganisation de Léo a fait gagner du temps sans un bras ni une machine de plus.' : 'La réorganisation de Léo aurait fait gagner du temps sans un bras ni une machine de plus.';
+        return `Pour produire, on combine des <em>facteurs de production</em>. ${m} ${f} Ce savoir-faire porte un nom : le <em>capital humain</em>. Le manioc est une <em>ressource naturelle</em>, le logiciel de commandes de l\'<em>information</em>. ${o} Sortir plus de kilos par heure travaillée, c\'est augmenter la <em>productivité du travail</em> : ce sont des <em>gains de productivité</em>.`; } },
+    { act: 2, needs: ['enveloppe', 'manioc', 'pib', 'fete'], title: 'Acte 2 — Mesurer', text: (h, s) => {
+        const e = h.enveloppe === 'trop' ? `Tu as voulu partager ${eur(h.enveloppev)}, mais une partie appartenait à tes fournisseurs.` : h.enveloppe === 'peu' ? `Tu n\'as partagé que ${eur(h.enveloppev)} : tu avais sous-estimé ce que l\'atelier crée.` : 'Tu as vu juste sur la somme à partager.';
+        const p = h.pib === 'zone' ? 'Tu as choisi d\'augmenter la production du quartier : le PIB montera, mais pas forcément la santé ni les diplômes.'
+              : h.pib === 'sante' ? 'Tu as choisi la santé et l\'école : cela ne gonfle pas le PIB, mais cela améliore la vie des habitants.' : 'Tu as coupé la poire en deux entre produire plus et vivre mieux.';
+        const f = h.fete === 'offrir' ? 'Tes perles offertes à la fête étaient une <em>production non marchande</em> : réelle, mais sans prix, donc difficile à compter.' : 'Les perles que la mairie te demandait gratuitement auraient été une <em>production non marchande</em> : réelle, mais sans prix.';
+        return `${e} Les ventes ne sont pas la richesse créée : il faut retirer les <em>consommations intermédiaires</em> (manioc, énergie, emballages). Ce qui reste est la <em>valeur ajoutée</em>. Mme Roche a additionné les valeurs ajoutées du quartier : à l\'échelle d\'un pays, ce total s\'appelle le <em>PIB</em>. Il se calcule de trois façons (par la production, par les revenus, par les dépenses), et son évolution d\'une année sur l\'autre est la <em>croissance</em>. Divisé par la population, on obtient le <em>PIB par habitant</em>. Mais un quartier riche où l\'on vit moins longtemps montre sa limite : l\'<em>IDH</em> (indice de développement humain) ajoute au revenu la santé et l\'éducation. ${p} ${f}`; } },
+    { act: 3, needs: ['part', 'heures', 'reste'], title: 'Acte 3 — Partager', text: (h, s) => {
+        const pa = h.part === 'bas' ? `Avec ${h.partv} % pour les salaires, l\'équipe s\'est sentie oubliée.` : h.part === 'haut' ? `Avec ${h.partv} % pour les salaires, il ne restait presque rien pour le propriétaire ni pour investir.` : `Avec ${h.partv} % pour les salaires, tu as cherché l\'équilibre.`;
+        const he = h.heures === 'noir' ? 'En payant Samira de la main à la main, tu as supprimé ses cotisations… et sa protection le jour de l\'accident.' : 'En déclarant les heures de Samira, tu as payé des cotisations… qui l\'ont protégée le jour de l\'accident.';
+        const r = h.reste === 'karim' ? 'Ce que tu as versé à Karim rémunère le propriétaire.' : 'En réinvestissant, tu as renoncé à rémunérer davantage le propriétaire.';
+        return `C\'est le <em>partage de la valeur ajoutée</em>. ${pa} Les salaires sont des <em>revenus du travail</em> ; la part de Karim, propriétaire, est un <em>revenu du capital</em>. ${r} Un artisan qui travaille seul dans sa propre affaire est à la fois le travailleur et le propriétaire : il touche un <em>revenu mixte</em>. Ensemble, ce sont les <em>revenus primaires</em>. ${he} <em>Cotisations sociales</em> et <em>impôts</em> forment les <em>prélèvements obligatoires</em> : ils financent la <em>dépense publique</em> (soins, retraites, écoles).`; } },
+    { act: 4, needs: ['reste'], finalOnly: true, title: 'Acte 4 — Le bilan', text: (h, s) =>
+        `La fiche de paie de Samira résume tout : son salaire est un revenu primaire. On en retire les prélèvements obligatoires (cotisations, <em>impôt sur le revenu</em>), on y ajoute les aides qu\'elle reçoit, et on obtient son <em>revenu disponible</em> : ce qu\'elle peut réellement dépenser ou épargner. C\'est ainsi que l\'État <em>redistribue</em> une partie des revenus.` }
+  ],
+  vocab: ['Facteurs de production', 'Travail', 'Capital', 'Capital humain', 'Ressources naturelles', 'Information', 'Investissement', 'Substitution / complémentarité', 'Productivité', 'Gains de productivité', 'Consommations intermédiaires', 'Valeur ajoutée', 'PIB', 'PIB par habitant', 'Croissance', 'IDH', 'Production non marchande', 'Partage de la valeur ajoutée', 'Revenus primaires', 'Revenus du travail, du capital, mixtes', 'Cotisations sociales', 'Impôts', 'Prélèvements obligatoires', 'Dépense publique', 'Revenu disponible']
+};
+let H = {};   // historique des choix (lu par le débrief)
+
+/* =====================================================================
+   2. DÉCOR — dessin de l'atelier (évolue avec les choix).
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  let extra = '';
+  if (S.flags.machine) extra += `<g transform="translate(206,112)"><rect x="0" y="0" width="74" height="50" rx="4" fill="#101820" stroke="#5B8FFF" stroke-width="1.5"/><circle cx="20" cy="22" r="11" fill="none" stroke="#5B8FFF" stroke-width="2" stroke-dasharray="4 4"/><circle cx="52" cy="22" r="11" fill="none" stroke="#5B8FFF" stroke-width="2" stroke-dasharray="4 4"/><rect x="8" y="40" width="58" height="5" fill="#5B8FFF" opacity=".6"/><circle cx="66" cy="8" r="2.5" fill="${S.flags.forme ? '#4CD97B' : '#FF5C6A'}"/></g>`;
+  if (S.flags.orga) extra += `<g transform="translate(296,70)"><rect x="0" y="0" width="46" height="30" rx="2" fill="#07110c" stroke="#4CD97B" stroke-width="1.5"/><path d="M6,22 L14,14 L22,18 L32,8 L40,12" fill="none" stroke="#4CD97B" stroke-width="1.5"/></g>`;
+  if (H.reste === 'reinvestir') extra += `<g transform="translate(292,128)"><path d="M0,0 L44,0 L38,34 L6,34 Z" fill="#141018" stroke="#FF9D3D" stroke-width="1.5"/></g>`;
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="L'atelier de perles de tapioca">
+    <rect width="360" height="200" fill="#070c09"/>
+    <rect x="0" y="0" width="360" height="162" fill="#0a120c"/>
+    <g stroke="#173322" stroke-width="1"><line x1="0" y1="40" x2="360" y2="40"/><line x1="90" y1="0" x2="90" y2="40"/><line x1="180" y1="0" x2="180" y2="40"/><line x1="270" y1="0" x2="270" y2="40"/></g>
+    <rect x="112" y="10" width="136" height="20" fill="#07110c" stroke="#4CD97B" stroke-width="1"/><text x="180" y="24" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="10" fill="#4CD97B">ATELIER KARIM</text>
+    <g transform="translate(14,58)" fill="#1a140c" stroke="#B8862B" stroke-width="1"><rect x="0" y="0" width="22" height="26" rx="5"/><rect x="26" y="4" width="22" height="22" rx="5"/><rect x="12" y="-20" width="22" height="22" rx="5"/></g>
+    <g transform="translate(138,108)"><path d="M0,0 L56,0 L48,46 L8,46 Z" fill="#141018" stroke="#FF9D3D" stroke-width="1.5"/><rect x="-5" y="-5" width="66" height="6" rx="3" fill="#FF9D3D" opacity=".7"/><path d="M14,-10 Q10,-20 16,-28 M28,-10 Q24,-22 30,-32 M42,-10 Q38,-20 44,-28" stroke="#7C9483" stroke-width="1.5" fill="none" opacity=".6"/></g>
+    ${extra}
+    <rect x="0" y="162" width="360" height="38" fill="#080d0a"/><line x1="0" y1="162" x2="360" y2="162" stroke="#173322" stroke-width="1.5"/>`;
+};
+
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] += v;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      frame(st.who, `<div class="box">${whoTag(st.who)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${o.label}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        applyFx(fx);
+        pushAfter(val(o.after, S)); next();
+      });
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="${st.step || 1}" value="${st.def}" aria-label="${st.prompt}">
+        <div class="range-l"><span>${st.show(st.min)}</span><span>${st.show(st.max)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        applyFx(res.fx); pushAfter(res.after); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p></div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">Tu as utilisé ces notions pour diriger. Voici comment on les appelle en économie.</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour aller au bout de l'année.</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">Économie · 1re STMG · Thème 2</div>
+      <h1>${GAME.brand.toUpperCase().replace('<SPAN>', '<span>').replace('</SPAN>', '</span>')}</h1>
+      <p class="lead">Ton oncle Karim te confie son atelier de perles de tapioca pour un an. Trois salariés, une vieille marmite, et un client qui veut le double. Produire, compter, partager${N}: tout repose sur toi.</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">4 actes · 15 minutes · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

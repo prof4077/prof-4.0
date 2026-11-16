@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>La Publication — Jeu Droit Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#FF9D3D;--eco-dim:#B86A1F;--bg:#080604;--panel:#120e09;--panel2:#17110a;--line:#3a2a14;--txt:#EEF3EC;--muted:#9a8e7c;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(255,157,61,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(255,157,61,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#20170d;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(255,157,61,.5);background:rgba(255,157,61,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#0b0805;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(255,157,61,.09), rgba(18,14,9,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#1a0e02;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#1a0e02;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#20170d;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#20170d;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#1a0e02;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#110c07;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#110c07;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#110c07;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.clause{display:block;margin:8px 0 0;padding:8px 12px;border-left:3px solid var(--eco);background:#110c07;font-size:14px;line-height:1.45;color:var(--txt);}
+.clause b{color:var(--eco);}
+.plead-h{margin:-4px 0 12px;color:var(--muted);font-size:14px;}
+.opt.arg[aria-pressed="true"]{border-color:var(--eco);background:rgba(255,157,61,.12);}
+.arg-n{font-family:'Orbitron',sans-serif;font-weight:800;color:var(--eco);min-width:14px;text-align:right;}
+.verdict{display:inline-block;margin:10px 0 0;padding:3px 10px;font-family:'Orbitron',sans-serif;font-weight:800;font-size:10px;letter-spacing:1px;text-transform:uppercase;border:1px solid;}
+.verdict.tient{color:#4CD97B;border-color:#4CD97B;}
+.verdict.tombe{color:#FF5C6A;border-color:#FF5C6A;}
+.robe-next{margin:22px 0 4px;padding:14px 16px;border:1px dashed var(--eco);font-size:15px;line-height:1.5;}
+.robe-next b{color:var(--eco);}
+.deb .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0 12px;font-size:14px;}
+.deb .two ul{margin:6px 0 0 18px;}
+.deb .two li{margin-bottom:4px;}
+@media (max-width:420px){.deb .two{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 3) n'a pas besoin d'être touché.
+   Une affaire, deux robes : robe a = avocat d'Inès Marchal (après son licenciement),
+                             robe b = avocat de Batiflex (consulté avant toute décision).
+   Jauges : dossier (solidité du dossier, 0-100), conf (confiance du client, 0-100),
+            frais (frais engagés par le client, €), mois (durée de l'affaire).
+   Montants : salaire brut d'Inès 2 200 € ; barème prud'homal (entreprise de 11 salariés et plus) :
+   1 an d'ancienneté = 1 à 2 mois, 2 ans = 3 à 3,5 mois ; licenciement nul = 6 mois au moins.
+   ===================================================================== */
+const N = ' ';
+const DROIT = '#FF9D3D';
+const SAL = 2200;
+const eur = n => Math.round(n).toLocaleString('fr-FR') + N + '€';
+const CLAUSES = `<span class="clause"><b>Article 6 — Mobilité.</b> La salariée accepte d'être mutée dans tout établissement actuel ou futur de la société.</span>
+  <span class="clause"><b>Article 9 — Non-concurrence.</b> Pendant deux ans après son départ, la salariée s'interdit de travailler pour une entreprise concurrente en Auvergne-Rhône-Alpes.</span>`;
+const LETTRE = `<span class="clause"><b>Lettre de licenciement.</b> Nous vous licencions pour faute grave, pour deux motifs${N}: 1) vos propos publics dénigrant la société sur un réseau social${N}; 2) votre refus d'être mutée à Lille, en application de l'article 6 de votre contrat. Votre départ est immédiat, sans préavis ni indemnité.</span>`;
+const LAB = {
+  a1: 'On l\'a licenciée pour avoir exprimé une opinion : le licenciement est nul', a2: 'La clause de mobilité ne définit aucune zone : son refus n\'était pas fautif',
+  a3: 'Sa première année de « prestataire » était un vrai emploi salarié', a4: 'Batiflex n\'avait pas le droit de lire son profil', a5: 'Sa clause de non-concurrence est nulle',
+  a6: 'Le fichier clients n\'est pas dans la lettre : on ne peut pas le lui reprocher',
+  b1: 'Sa publication dénigrait l\'entreprise', b2: 'Elle a envoyé le fichier clients sur sa messagerie personnelle', b3: 'Son refus de mutation était fautif',
+  b4: 'La procédure de licenciement a été respectée', b5: 'Pendant un an, elle était prestataire indépendante', b6: 'Sa clause de non-concurrence l\'empêche de rejoindre un concurrent'
+};
+
+const GAME = {
+  title: 'La Publication',
+  brand: 'LA <span>PUBLICATION</span>',
+  storeKey: 'laPublicationFins',
+  backLink: '../../matieres/droit-terminale.html',
+  footer: 'Droit Terminale STMG, thème 7',
+  kicker: 'Droit · Terminale STMG · Thème 7',
+  pitch: `Inès Marchal refuse d'être mutée à Lille${N}: elle élève seule sa fille. Le soir même, elle publie sur son profil que chez Batiflex, «${N}quand tu refuses une mutation, on te fait comprendre que tu n'as plus ta place${N}». Critique ou dénigrement${N}? Licenciement justifié ou abusif${N}? Une salariée, un employeur. Tu vas être les deux avocats.`,
+  meta: '2 robes · 15 minutes chacune',
+  start: s => Object.assign(s, { dossier: 20, conf: 60, frais: 0, mois: 0, stop: null, res: null }),
+  hud: [
+    { k: 'dossier', label: 'Dossier',   short: 'Dossier',   show: s => Math.round(s.dossier), pct: s => s.dossier,     low: s => s.dossier < 30, clamp: true },
+    { k: 'conf',    label: 'Confiance', short: 'Confiance', show: s => Math.round(s.conf),    pct: s => s.conf,        low: s => s.conf < 35, clamp: true },
+    { k: 'frais',   label: 'Frais',     short: 'Frais',     show: s => eur(s.frais),          pct: s => s.frais / 20,  low: s => s.frais > 1500, inv: true, unit: N + '€' },
+    { k: 'mois',    label: 'Durée',     short: 'Durée',     show: s => s.mois + N + 'mois',   pct: s => s.mois * 7,    low: s => false, inv: true, unit: N + 'mois' }
+  ],
+  fail: s => s.stop || (s.conf <= 15 ? 'congedie' : null),
+  lock: (s, cost) => null,
+  bilan: s => [['Dossier', Math.round(s.dossier) + ' / 100'], ['Confiance du client', Math.round(s.conf) + ' / 100'], ['Frais engagés', eur(s.frais)], ['Durée de l\'affaire', s.mois + N + 'mois']],
+
+  characters: {
+    ines:    { name: 'Inès Marchal', role: 'assistante commerciale',            color: '#FF8AD1', body: '#B8508F', hair: '#3a2418', acc: 'bun' },
+    perrin:  { name: 'Mme Perrin',   role: 'DRH de Batiflex',                   color: '#5B8FFF', body: '#3D62B8', hair: '#c9a24a', acc: 'clip' },
+    garnier: { name: 'Me Garnier',   role: 'associée de ton cabinet',           color: '#B9A6FF', body: '#1c1c22', hair: '#8a8f96', acc: 'tie' },
+    kessler: { name: 'Me Kessler',   role: 'avocat de Batiflex',                color: '#5FB8B0', body: '#1c1c22', hair: '#1c1c22', acc: 'tie' },
+    riviere: { name: 'Me Rivière',   role: 'avocate d\'Inès Marchal',           color: '#FFC64F', body: '#1c1c22', hair: '#7a2f2f', acc: 'tie' },
+    ds:      { name: 'M. Ndiaye',    role: 'délégué syndical chez Batiflex',    color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'cap' },
+    hamel:   { name: 'M. Hamel',     role: 'conseiller prud\'homal, élu des salariés', color: '#FF9D3D', body: '#1c1c22', hair: '#c9c9c9', acc: 'clip' },
+    narr:    { name: 'Toi',          role: '',                                  color: '#FF9D3D' }
+  },
+
+  robes: {
+  /* =========================== ROBE A : INÈS MARCHAL =========================== */
+  a: {
+    label: 'L\'avocat d\'Inès Marchal', sub: 'La salariée licenciée pour faute grave, du jour au lendemain.',
+    teaser: `Tu as défendu Inès. Passe de l'autre côté${N}: Batiflex te consulte avant de prendre sa décision. Cette fois, tu peux peut-être éviter le procès.`,
+    acts: [
+    { num: 1, title: 'Le rendez-vous', sub: 'Inès Marchal a reçu sa lettre de licenciement ce matin.',
+      steps: [
+        { t: 'say', who: 'ines', text: `Trois ans chez Batiflex, dont une année comme «${N}prestataire${N}», parce que c'était plus simple pour eux. On a voulu m'envoyer à Lille. J'élève seule ma fille, j'ai dit non. Le soir, j'ai écrit sur mon profil ce que je pensais. Quinze jours après, cette lettre.` },
+        { t: 'say', who: 'garnier', text: `Lis d'abord ce qu'on lui reproche. Ce qui n'est pas dans cette lettre, Batiflex ne pourra pas le lui reprocher plus tard.${LETTRE}Et voici deux articles de son contrat.${CLAUSES}` },
+        { t: 'choice', id: 'post', prompt: `Sa publication${N}?`, options: [
+          { id: 'capture', label: 'Lui demander une capture complète, commentaires compris', desc: 'Les mots exacts, et tout ce qu\'il y a autour.', fx: { dossier: 12 }, set: { capture: true },
+            after: [{ who: 'ines', text: `Voilà. Mon message, et dessous les commentaires. Un ami a écrit «${N}tous des pourris là-dedans${N}». Pas moi${N}! J'ai même répondu que je n'étais pas d'accord.` },
+                    { who: 'garnier', text: `Elle critique une décision de son employeur, sans insulte. Le commentaire injurieux est d'un tiers. Si Batiflex a recadré la capture pour le lui attribuer, on le prouvera.` }] },
+          { id: 'souvenir', label: 'Lui faire résumer ce qu\'elle a écrit', desc: 'Elle s\'en souvient bien.', fx: {},
+            after: [{ who: 'ines', text: `J'ai dit que la direction mettait la pression. Il y avait peut-être des commentaires un peu durs dessous, je ne sais plus.` }] } ] },
+        { t: 'choice', id: 'freelance', prompt: `Son année de «${N}prestataire${N}»${N}?`, options: [
+          { id: 'preuves', label: 'Réunir le badge, les plannings, les courriels de son chef', desc: 'Comment travaillait-elle vraiment ?', fx: { dossier: 15 }, set: { requalif: true },
+            after: [{ who: 'garnier', text: `«${N}Tu es là à 8${N}h${N}30 demain, réunion d'équipe.${N}» Des horaires imposés, un chef qui donne des ordres et contrôle son travail, un badge. Ce n'était pas une prestataire. C'était une salariée.` }] },
+          { id: 'non', label: 'Laisser de côté : c\'est du passé', desc: 'Elle a signé ces factures.', fx: {},
+            after: [{ who: 'garnier', text: `Ce passé compte. L'indemnité dépend de l'ancienneté, et une année de plus peut tout changer.` }] } ] },
+        { t: 'choice', id: 'clause', prompt: `L'article 6, la clause de mobilité${N}?`, options: [
+          { id: 'lire', label: 'La relire mot à mot', desc: '« Tout établissement actuel ou futur ».', fx: { dossier: 8 }, set: { clauseLue: true },
+            after: [{ who: 'garnier', text: `Exactement. Une clause de mobilité doit dire où le salarié peut être envoyé. «${N}Tout établissement actuel ou futur${N}»${N}: Inès ne pouvait pas savoir où elle risquait d'aller. Ça ne tient pas.` }] },
+          { id: 'non', label: 'Elle l\'a signée, inutile d\'y revenir', desc: 'C\'est son contrat.', fx: {},
+            after: [{ who: 'garnier', text: `Signée, oui. Valable, c'est une autre question.` }] } ] }
+      ] },
+    { num: 2, title: 'La stratégie', sub: 'Inès a besoin de travailler. Vite.',
+      steps: [
+        { t: 'event', who: 'ines', text: `Bonne nouvelle${N}: Matéo, un concurrent, me propose un poste. Mais il y a l'article 9 de mon contrat. Je n'ai pas le droit, si${N}?`, fx: { mois: 1 } },
+        { t: 'choice', id: 'concurrence', prompt: `Peut-elle accepter le poste chez Matéo${N}?`, options: [
+          { id: 'accepter', label: 'Oui : cette clause ne prévoit aucune compensation financière', desc: 'Elle ne peut pas lui interdire de travailler gratuitement.', fx: { conf: 10, dossier: 3 },
+            after: [{ who: 'garnier', text: `Exact. Une clause de non-concurrence doit être limitée dans le temps et l'espace, et surtout payée${N}: on ne peut pas empêcher quelqu'un de gagner sa vie sans le compenser. Celle-ci est nulle.` },
+                    { who: 'ines', text: `Je commence lundi. Je peux respirer.` }] },
+          { id: 'refuser', label: 'Non, par prudence : il vaut mieux respecter la clause', desc: 'On ne sait jamais.', fx: { conf: -8 }, set: { renonce: true },
+            after: [{ who: 'ines', text: `Je refuse un poste alors que je n'ai plus de salaire${N}? Bon. Si vous le dites.` }] } ] },
+        { t: 'choice', id: 'strategie', prompt: `Sur quoi bâtir la défense d'Inès${N}?`, options: [
+          { id: 'nullite', label: 'Demander l\'annulation : on l\'a sanctionnée pour une opinion', desc: 'Le plus ambitieux.', fx: { dossier: 5 },
+            after: [{ who: 'garnier', text: `Un salarié peut critiquer son employeur, tant qu'il ne l'injurie pas et ne le diffame pas. Licencier pour une critique, c'est porter atteinte à une liberté fondamentale${N}: le licenciement est nul, et le plafond d'indemnité ne s'applique plus.` }] },
+          { id: 'cause', label: 'Contester les motifs : ni faute grave, ni cause réelle', desc: 'Plus classique.', fx: { dossier: 3 },
+            after: [{ who: 'garnier', text: `Un licenciement doit reposer sur une cause réelle et sérieuse${N}: des faits exacts, assez graves. Sinon, l'indemnité suit un barème fixé selon l'ancienneté.` }] },
+          { id: 'negocier', label: 'Chercher d\'abord un arrangement', desc: 'Elle veut tourner la page.', fx: { conf: 4 },
+            after: [{ who: 'garnier', text: `L'audience de conciliation est faite pour ça. Mais on négocie mieux avec un dossier solide.` }] } ] }
+      ] },
+    { num: 3, title: 'La conciliation', sub: 'Conseil de prud\'hommes, bureau de conciliation.',
+      steps: [
+        { t: 'event', who: 'hamel', text: `Nous sommes deux${N}: un conseiller élu par les salariés, une conseillère élue par les employeurs. Avant tout jugement, nous cherchons un accord. Maître Kessler, Batiflex a-t-il une proposition${N}?`, fx: { mois: 3, frais: 300 } },
+        { t: 'say', who: 'kessler', text: s => `Batiflex maintient la faute grave. Pour clore le dossier, elle propose ${eur(s.dossier >= 50 ? 2 * SAL : SAL)}. Et nous avons découvert qu'avant de partir, Mme Marchal a transféré le fichier clients sur sa messagerie personnelle.` },
+        { t: 'choice', id: 'offre', prompt: `La proposition de Batiflex${N}?`, options: [
+          { id: 'accepter', label: 'Conseiller d\'accepter', desc: 'Une somme tout de suite, et c\'est fini.', do: s => { s.stop = 'accord'; s.montant = s.dossier >= 50 ? 2 * SAL : SAL; },
+            after: [{ who: 'ines', text: `Je préfère tourner la page.` }] },
+          { id: 'contre', label: 'Exiger 6 mois de salaire', desc: 'Ce qu\'elle obtiendrait si le licenciement était annulé.',
+            do: s => { if (s.dossier >= 60) { s.stop = 'accordplus'; s.montant = 6 * SAL; } },
+            after: s => s.stop ? [{ who: 'kessler', text: `Ma cliente a vu la capture complète. Elle accepte six mois de salaire.` }] : [{ who: 'kessler', text: `Six mois${N}? Avec ce dossier${N}? Nous plaiderons.` }] },
+          { id: 'refuser', label: 'Refuser : le conseil jugera', desc: 'Elle veut que la faute grave tombe.', fx: { conf: 3 },
+            after: [{ who: 'ines', text: `Je ne veux pas qu'on écrive «${N}faute grave${N}» sur mon nom.` }] },
+          { id: 'signer', label: 'Accepter au nom de ta cliente, sans la consulter', desc: 'Elle a besoin d\'argent.', fx: { conf: -60 },
+            after: [{ who: 'ines', text: `Vous avez accepté pour moi${N}? Sans me demander${N}? Je change d'avocat.` }, { who: 'garnier', text: `L'avocat conseille, le client décide. Toujours.` }] } ] }
+      ] },
+    { num: 4, title: 'L\'audience', sub: 'Conseil de prud\'hommes, bureau de jugement.', final: true,
+      steps: [
+        { t: 'event', who: 'hamel', text: `Quatre conseillers, deux élus des salariés, deux des employeurs. Maître Kessler a plaidé la faute grave et le fichier clients. Maître, pour Mme Marchal.`, fx: { mois: 8, frais: 900 } },
+        { t: 'plead', id: 'plaid', adv: 'kessler', prompt: `Que plaides-tu pour Inès${N}?`, args: [
+          { id: 'a1', label: LAB.a1, desc: `La critique publiée`, pts: 3, ok: s => s.flags.capture,
+            yes: `Je reconnais que l'injure provient d'un commentaire d'un tiers. Le message de Mme Marchal lui-même ne contient aucune insulte.`,
+            no: `Nous produisons la capture${N}: on y lit «${N}tous des pourris là-dedans${N}». C'est du dénigrement, pas une opinion.` },
+          { id: 'a2', label: LAB.a2, desc: `L'article 6`, pts: 2, ok: s => s.flags.clauseLue,
+            yes: `Je n'insisterai pas sur la clause de mobilité.`,
+            no: `Mme Marchal a signé l'article 6. Elle a refusé de l'appliquer. Où est le problème${N}?` },
+          { id: 'a3', label: LAB.a3, desc: `Le badge, les plannings`, pts: 1, ok: s => s.flags.requalif,
+            yes: `Les plannings et les courriels sont là, je ne peux pas le contester.`,
+            no: `Mme Marchal facturait ses prestations. Rien ne prouve qu'elle recevait des ordres.` },
+          { id: 'a4', label: LAB.a4, desc: `Son profil`, pts: 0, ok: s => false,
+            no: `Son profil était public. Ce qu'on publie à la vue de tous, l'employeur peut le lire comme n'importe qui.` },
+          { id: 'a5', label: LAB.a5, desc: `L'article 9`, pts: 1, ok: s => s.flags.renonce,
+            yes: `La clause n'était pas rémunérée, c'est exact. Et Mme Marchal a renoncé à un poste à cause d'elle.`,
+            no: `Admettons. Mme Marchal travaille chez Matéo depuis trois mois${N}: cette clause ne lui a rien coûté.` },
+          { id: 'a6', label: LAB.a6, desc: `Le reproche de dernière minute`, pts: 1, ok: s => true,
+            yes: `Ce grief ne figure pas dans la lettre, c'est exact. Je le retire.` } ],
+          resolve: (s, score, ids) => {
+            if (ids.includes('a1') && s.flags.capture) { s.montant = 6 * SAL + (ids.includes('a5') && s.flags.renonce ? SAL : 0);
+              return { do: s => { s.res = 'nul'; }, fx: { conf: 20 }, after: [{ who: 'hamel', text: `Le conseil, après en avoir délibéré${N}: Mme Marchal a été licenciée, en partie, pour avoir exprimé une critique sans abus. Le licenciement porte atteinte à sa liberté d'expression${N}: il est nul. Batiflex lui versera ${eur(s.montant)}, et elle pourra demander sa réintégration.` }] }; }
+            if (ids.includes('a2') && s.flags.clauseLue) { const anc = ids.includes('a3') && s.flags.requalif; s.montant = (anc ? 3.5 : 2) * SAL + 2 * SAL;
+              return { do: s => { s.res = 'sanscause'; s.anc = anc; }, fx: { conf: 10 }, after: [{ who: 'hamel', text: `Le conseil${N}: la clause de mobilité, imprécise, ne pouvait pas être imposée. Le licenciement est sans cause réelle et sérieuse. ${anc ? 'Sa première année est requalifiée en contrat de travail : avec deux ans d\'ancienneté, ' : 'Avec un an d\'ancienneté, '}le barème permet ${anc ? '3 à 3,5' : '1 à 2'} mois de salaire${N}: le conseil accorde le maximum, plus le préavis. Total${N}: ${eur(s.montant)}.` }] }; }
+            return { do: s => { s.res = 'perdu'; }, fx: { conf: -20, frais: 600 }, after: [{ who: 'hamel', text: `Le conseil${N}: la faute grave est retenue. Mme Marchal est déboutée de ses demandes.` }] };
+          } },
+        { t: 'say', who: 'ines', text: s => s.res === 'nul' ? `«${N}Nul${N}». Ce qu'on m'a reproché n'a jamais existé. C'est ça que je voulais entendre.` : s.res === 'sanscause' ? `Ce n'était pas une faute. C'est écrit, maintenant.` : `Faute grave… Je vais devoir l'expliquer à chaque entretien d'embauche.` }
+      ] }
+    ],
+    endings: [
+      { id: 'congedie', cut: true, when: s => s.conf <= 15, title: 'Dessaisi', stamp: 'Cliente partie', color: '#FF5C6A',
+        text: `Inès a repris son dossier. Tu as décidé à sa place, et c'est la seule chose qu'un avocat ne doit jamais faire.` },
+      { id: 'accord', when: s => s.stop === 'accord', title: 'L\'accord', stamp: 'Conciliation', color: '#5FB8B0',
+        text: s => `Inès touche ${eur(s.montant)} et tourne la page. La faute grave n'est jamais jugée${N}: elle reste dans le dossier, mais pas dans un jugement.` },
+      { id: 'accordplus', when: s => s.stop === 'accordplus', title: 'Le bon accord', stamp: 'Conciliation gagnante', color: '#4CD97B',
+        text: `Face à la capture complète, Batiflex a préféré payer six mois de salaire plutôt que risquer un jugement de nullité. Tu as gagné sans plaider.` },
+      { id: 'nul', when: s => s.res === 'nul', title: 'Licenciement annulé', stamp: 'Bravo', color: '#4CD97B',
+        text: s => `Critiquer n'est pas dénigrer. Le licenciement est nul, le barème ne s'applique pas, et Inès obtient ${eur(s.montant)}, avec le droit de revenir travailler chez Batiflex si elle le souhaite.` },
+      { id: 'sanscause', when: s => s.res === 'sanscause', title: 'Sans cause réelle et sérieuse', stamp: 'Licenciement abusif', color: '#FFC64F',
+        text: s => `La clause de mobilité ne tenait pas. Inès obtient ${eur(s.montant)}, dans les limites du barème. ${s.anc ? 'Faire reconnaître sa première année a fait grimper l\'indemnité.' : 'Avec une année d\'ancienneté de plus, elle aurait touché davantage.'}` },
+      { id: 'perdu', when: s => true, title: 'Faute grave confirmée', stamp: 'Déboutée', color: '#FF5C6A',
+        text: `Sans la capture complète ni la lecture de la clause, la version de Batiflex l'a emporté. Inès part sans indemnité.` }
+    ],
+    debrief: [
+      { act: 1, needs: ['post', 'freelance', 'clause'], title: 'Acte 1 — Le rendez-vous', text: (h, s) =>
+          `Le <em>contrat de travail</em> se reconnaît au <em>lien de subordination</em> : travailler sous l\'autorité d\'un employeur qui donne des ordres, contrôle et peut sanctionner. Peu importe le nom donné au contrat : un « prestataire » qui reçoit des horaires et des ordres est un salarié. ${h.freelance === 'preuves' ? 'Tes preuves permettaient de requalifier son contrat d\'entreprise (prestation de service) en contrat de travail.' : 'Sans preuves, son contrat d\'entreprise (prestation de service) restait tel quel.'} Le <em>CDI</em> contient des <em>clauses générales</em> (période d\'essai, lieu, horaires, durée, rémunération, qualification, missions) et parfois des <em>clauses spécifiques</em> : <em>mobilité</em>, <em>non-concurrence</em>, <em>télétravail</em>. Une clause de mobilité doit définir précisément sa zone ; ${h.clause === 'lire' ? 'tu as vu que celle-ci ne le faisait pas.' : 'celle-ci ne le faisait pas.'}` },
+      { act: 2, needs: ['concurrence', 'strategie'], title: 'Acte 2 — La stratégie', text: (h, s) =>
+          `Une <em>clause de non-concurrence</em> n\'est valable que si elle est limitée dans le temps et l\'espace, justifiée par les intérêts de l\'entreprise et compensée financièrement. ${h.concurrence === 'accepter' ? 'Tu as vu que celle-ci était nulle.' : 'Par prudence, tu as fait renoncer Inès à un emploi qu\'elle pouvait accepter.'} Un <em>licenciement pour motif personnel</em> exige une <em>cause réelle et sérieuse</em> : des faits exacts, objectifs, assez graves. Le salarié garde ses <em>libertés individuelles</em>, que l\'employeur ne peut restreindre que si c\'est justifié et proportionné : <em>liberté d\'expression</em> (critiquer sans injurier), limitée par le <em>devoir de loyauté</em>, et <em>respect de la vie privée</em>. Un licenciement qui porte atteinte à une liberté fondamentale est nul.` },
+      { act: 3, needs: ['offre'], title: 'Acte 3 — La conciliation', text: (h, s) =>
+          `Le <em>conseil de prud\'hommes</em> juge les litiges entre employeurs et salariés. Il est paritaire : la moitié de ses membres est élue par les salariés, l\'autre par les employeurs. Il commence toujours par tenter une conciliation. La lettre de licenciement fixe les limites du litige : l\'employeur ne peut pas ajouter de nouveaux reproches ensuite.` },
+      { act: 4, needs: ['plaid'], finalOnly: true, title: 'Acte 4 — L\'audience', text: (h, s) =>
+          `Si le licenciement est sans cause réelle et sérieuse, l\'indemnité suit un barème fixé selon l\'ancienneté (dans une entreprise de 11 salariés et plus : 1 à 2 mois de salaire pour 1 an, 3 à 3,5 mois pour 2 ans). S\'il est nul, le barème ne s\'applique pas : au moins 6 mois de salaire, et le droit d\'être réintégré. Le contrat peut aussi prendre fin par <em>démission</em> (à l\'initiative du salarié), par <em>rupture conventionnelle individuelle</em> (d\'un commun accord, homologuée par l\'administration) ou <em>collective</em> (par accord d\'entreprise), ou par <em>licenciement pour motif économique</em> (suppression ou transformation de poste liée à des difficultés économiques ou à une réorganisation).` }
+    ]
+  },
+
+  /* =========================== ROBE B : BATIFLEX =========================== */
+  b: {
+    label: 'L\'avocat de Batiflex', sub: 'L\'employeur, qui te consulte avant de décider quoi faire d\'Inès.',
+    teaser: `Tu as défendu Batiflex. Passe de l'autre côté${N}: Inès Marchal vient de recevoir sa lettre de licenciement pour faute grave.`,
+    acts: [
+    { num: 1, title: 'Les faits', sub: 'Mme Perrin, DRH de Batiflex, est dans ton bureau.',
+      steps: [
+        { t: 'say', who: 'perrin', text: `Elle refuse Lille, et le soir même elle nous traîne dans la boue sur internet. Le directeur veut un licenciement pour faute grave, immédiat. J'ai déjà préparé la lettre. Je voulais juste votre avis avant de l'envoyer.` },
+        { t: 'say', who: 'garnier', text: `Bien qu'elle soit venue avant. Une lettre envoyée ne se rattrape pas${N}: elle fixera tout le procès. Voici le contrat.${CLAUSES}Commence par vérifier les faits, un par un.` },
+        { t: 'choice', id: 'post', prompt: `La publication d'Inès${N}?`, options: [
+          { id: 'lire', label: 'Lire la publication entière, commentaires compris', desc: 'Pas seulement la capture du directeur.', fx: { dossier: 8 }, set: { lu: true },
+            after: [{ who: 'garnier', text: `Son message critique la décision de mutation, sans insulte. Le «${N}tous des pourris${N}», c'est un ami à elle, dans les commentaires. Et elle lui a répondu qu'elle n'était pas d'accord. Le directeur a recadré la capture.` }] },
+          { id: 'extrait', label: 'Se fier à la capture envoyée par le directeur', desc: 'On y lit « tous des pourris ».', fx: { conf: 4 }, set: { extrait: true },
+            after: [{ who: 'perrin', text: `Vous voyez${N}? «${N}Tous des pourris.${N}» On ne peut pas laisser passer ça.` }] } ] },
+        { t: 'choice', id: 'clause', prompt: `L'article 6, la clause de mobilité${N}?`, options: [
+          { id: 'lire', label: 'La relire mot à mot', desc: '« Tout établissement actuel ou futur ».', fx: { dossier: 8 }, set: { clauseB: true },
+            after: [{ who: 'garnier', text: `Elle ne définit aucune zone. Un juge l'écartera. Fonder un licenciement sur le refus d'appliquer cette clause, c'est construire sur du sable.` }] },
+          { id: 'non', label: 'Elle l\'a signée, c\'est suffisant', desc: 'Le contrat fait foi.', fx: { conf: 3 },
+            after: [{ who: 'perrin', text: `Elle a signé. Elle doit l'appliquer.` }] } ] },
+        { t: 'choice', id: 'freelance', prompt: `Son année de «${N}prestataire${N}»${N}?`, options: [
+          { id: 'verifier', label: 'Demander comment elle travaillait vraiment', desc: 'Horaires, chef, badge ?', fx: { dossier: 5 }, set: { freelanceB: true },
+            after: [{ who: 'perrin', text: `Comme les autres, en fait. Badge, horaires, réunions d'équipe. On la payait sur facture, c'est tout.` },
+                    { who: 'garnier', text: `Alors c'était une salariée, et son ancienneté remonte à trois ans. Un juge requalifiera.` }] },
+          { id: 'non', label: 'Inutile : elle facturait ses prestations', desc: 'C\'était un autre contrat.', fx: {},
+            after: [{ who: 'perrin', text: `C'était il y a longtemps.` }] } ] },
+        { t: 'choice', id: 'audit', prompt: `Le directeur soupçonne Inès d'avoir emporté des données. Que fais-tu${N}?`, options: [
+          { id: 'pro', label: 'Faire vérifier sa messagerie professionnelle, sans ouvrir ce qui est marqué « personnel »', desc: 'Ce qui est professionnel est présumé tel.', fx: { dossier: 10 }, set: { auditOk: true },
+            after: [{ who: 'perrin', text: `Le 3 mars, elle a transféré tout le fichier clients sur son adresse personnelle. La veille de son entretien avec un concurrent.` },
+                    { who: 'garnier', text: `Voilà un vrai manquement à son devoir de loyauté. Et la preuve a été obtenue loyalement.` }] },
+          { id: 'tout', label: 'Tout lire, y compris le dossier « personnel »', desc: 'C\'est l\'ordinateur de l\'entreprise.', fx: { dossier: 2 }, set: { auditIllegal: true },
+            after: [{ who: 'perrin', text: `On a trouvé le transfert du fichier clients… dans un message rangé dans son dossier «${N}personnel${N}».` },
+                    { who: 'garnier', text: `Ce qu'un salarié marque comme personnel relève de sa vie privée, même au travail. Une preuve obtenue ainsi risque d'être écartée.` }] },
+          { id: 'rien', label: 'Ne rien regarder', desc: 'Pas de soupçon sans preuve.', fx: {},
+            after: [{ who: 'garnier', text: `Prudent. Tu ne sauras pas ce qui s'est passé.` }] } ] }
+      ] },
+    { num: 2, title: 'Le climat', sub: 'Dans l\'entreprise, la tension monte.',
+      steps: [
+        { t: 'event', who: 'perrin', text: `Pendant qu'on décide, le poste d'Inès doit être tenu. Le service commercial ne peut pas attendre.`, fx: { mois: 1 } },
+        { t: 'choice', id: 'remplacement', prompt: `Comment pourvoir le poste${N}?`, options: [
+          { id: 'cdi', label: 'Recruter en CDI : le poste est permanent', desc: 'Prendre le temps de bien recruter.', fx: { dossier: 5 },
+            after: [{ who: 'garnier', text: `C'est la règle${N}: un emploi durable et normal de l'entreprise se pourvoit en CDI.` }] },
+          { id: 'cdd', label: 'Un CDD d\'un an, qu\'on renouvellera', desc: 'Pour garder de la souplesse.', fx: { dossier: -5 },
+            after: [{ who: 'garnier', text: `Un CDD ne peut pas servir à pourvoir durablement un emploi permanent. Seulement pour un remplacement, un surcroît temporaire d'activité, une saison. Sinon, il sera requalifié en CDI.` }] },
+          { id: 'saison', label: 'Un contrat saisonnier, pour l\'été', desc: 'Le moins cher.', fx: { dossier: -5 },
+            after: [{ who: 'garnier', text: `Saisonnier${N}? Pour un poste commercial ouvert toute l'année${N}? Ce contrat est réservé aux tâches qui reviennent chaque année aux mêmes saisons, comme les vendanges ou le tourisme.` }] } ] },
+        { t: 'event', who: 'ds', text: `Délégué syndical. Douze salariés cessent le travail aujourd'hui, toute la journée, pour soutenir Inès et dénoncer les mutations forcées. Nous demandons à être reçus.`, fx: { conf: -4 } },
+        { t: 'choice', id: 'greve', prompt: `Face à la grève${N}?`, options: [
+          { id: 'retenue', label: 'Retenir une journée de salaire aux grévistes, et rien d\'autre', desc: 'Pas de travail, pas de salaire.', fx: { dossier: 3 },
+            after: [{ who: 'garnier', text: `C'est permis${N}: la retenue doit être exactement proportionnelle à l'arrêt. Rien de plus.` }] },
+          { id: 'sanction', label: 'Envoyer un avertissement aux meneurs', desc: 'Pour l\'exemple.', fx: { dossier: -10 }, set: { greveFaute: true },
+            after: [{ who: 'garnier', text: `On ne sanctionne pas un salarié pour avoir fait grève. Cet avertissement est nul, et il vient de transformer un conflit en guerre.` }] },
+          { id: 'interim', label: 'Faire venir des intérimaires pour remplacer les grévistes', desc: 'Que les livraisons continuent.', fx: { dossier: -10 }, set: { greveFaute: true },
+            after: [{ who: 'garnier', text: `Interdit${N}: on ne peut pas recourir à l'intérim, ni à un CDD, pour remplacer des grévistes. L'inspection du travail sera là demain.` }] },
+          { id: 'cse', label: 'Recevoir le délégué syndical et réunir le CSE', desc: 'Écouter avant de décider.', fx: { dossier: 8, conf: -3 },
+            after: [{ who: 'ds', text: `Merci de nous recevoir. Les salariés veulent juste que les mutations soient expliquées, et discutées.` },
+                    { who: 'garnier', text: `Les représentants du personnel sont là pour ça. Le climat se détend.` }] } ] }
+      ] },
+    { num: 3, title: 'La décision', sub: 'Mme Perrin attend ta recommandation.',
+      steps: [
+        { t: 'say', who: 'garnier', text: s => `Résumons ce que tu sais. ${s.flags.lu ? 'La publication est une critique, sans insulte.' : 'Tu n\'as vu que la capture du directeur.'} ${s.flags.clauseB ? 'La clause de mobilité ne tient pas.' : ''} ${s.flags.auditOk ? 'Le transfert du fichier clients est un vrai manquement, prouvé loyalement.' : s.flags.auditIllegal ? 'Le transfert du fichier clients est prouvé, mais par une preuve fragile.' : ''} Maintenant, choisis.` },
+        { t: 'choice', id: 'decision', prompt: `Que recommandes-tu à Batiflex${N}?`, options: [
+          { id: 'proximite', label: 'Renoncer à Lille et lui proposer l\'agence de Villeurbanne, à 8 km', desc: 'Et ne pas sanctionner la publication.', fx: { conf: -5 },
+            do: s => { if (!s.flags.greveFaute) s.stop = 'apaise'; else s.flags.motifPost = true; },
+            after: s => s.stop ? [{ who: 'perrin', text: `Elle accepte Villeurbanne. Elle a même retiré sa publication. Le directeur râle, mais on évite un procès.` }] : [{ who: 'perrin', text: `Elle refuse${N}: «${N}Après ce que vous avez fait aux grévistes${N}». Le directeur a envoyé la lettre de faute grave lui-même.` }] },
+          { id: 'rc', label: 'Lui proposer une rupture conventionnelle', desc: 'Se séparer d\'un commun accord, avec une indemnité.', fx: { frais: 400 },
+            do: s => { if (!s.flags.greveFaute) s.stop = 'rupture'; else s.flags.motifPost = true; },
+            after: s => s.stop ? [{ who: 'perrin', text: `Elle accepte. Les deux parties signent, l'administration homologue. Elle part avec son indemnité, et nous sans procès.` }] : [{ who: 'perrin', text: `Elle refuse de discuter après l'affaire des grévistes. Le directeur a envoyé la lettre de faute grave lui-même.` }] },
+          { id: 'post', label: 'Licencier pour faute grave : la publication et le refus de mutation', desc: 'La lettre de la DRH, telle quelle.', fx: { conf: 8 }, set: { motifPost: true },
+            after: [{ who: 'perrin', text: `Enfin. La lettre part ce soir.` }] },
+          { id: 'mobilite', label: 'Licencier pour le seul refus de mutation', desc: 'Laisser la publication de côté.', fx: { conf: 4 }, set: { motifMob: true },
+            after: [{ who: 'garnier', text: s => s.flags.clauseB ? `Avec cette clause${N}? Tu sais qu'elle ne tient pas.` : `C'est plus prudent que la publication. Encore faut-il que la clause soit valable.` }] },
+          { id: 'loyaute', label: 'Licencier pour déloyauté : le fichier clients', desc: 'Le seul vrai manquement.', lock: s => (s.flags.auditOk || s.flags.auditIllegal) ? null : 'Tu n\'as aucun élément sur ce point.', fx: { conf: 4 }, set: { motifLoyaute: true },
+            after: [{ who: 'garnier', text: `La lettre ne mentionnera que ce motif. C'est lui, et lui seul, qu'on défendra.` }] } ] },
+        { t: 'say', if: s => !s.stop, who: 'riviere', text: `Conciliation devant le conseil de prud'hommes. Ma cliente conteste son licenciement. Pour clore l'affaire, elle accepte ${eur(3 * SAL)}.` },
+        { t: 'choice', if: s => !s.stop, id: 'offreB', prompt: `La proposition de l'avocate d'Inès${N}?`, options: [
+          { id: 'accepter', label: 'Conseiller d\'accepter', desc: 'Trois mois de salaire, et c\'est fini.', do: s => { s.stop = 'accord'; },
+            after: [{ who: 'perrin', text: `Trois mois de salaire pour ne plus en entendre parler. Soit.` }] },
+          { id: 'contre', label: 'Contre-proposer deux mois', desc: 'Le dossier de Batiflex n\'est pas si faible.',
+            do: s => { if (s.dossier >= 55) s.stop = 'accordplus'; },
+            after: s => s.stop ? [{ who: 'riviere', text: `Ma cliente a vu votre dossier. Elle accepte deux mois.` }] : [{ who: 'riviere', text: `Deux mois${N}? Nous plaiderons.` }] },
+          { id: 'refuser', label: 'Refuser : le conseil jugera', desc: 'Le directeur veut gagner.', fx: { conf: 3 },
+            after: [{ who: 'perrin', text: `Le directeur ne veut pas payer un centime.` }] },
+          { id: 'signer', label: 'Accepter au nom de ton client, sans le consulter', desc: 'C\'est raisonnable.', fx: { conf: -60 },
+            after: [{ who: 'perrin', text: `Vous avez engagé Batiflex sans nous demander${N}? Le directeur vous retire le dossier.` }, { who: 'garnier', text: `L'avocat conseille, le client décide. Toujours.` }] } ] }
+      ] },
+    { num: 4, title: 'L\'audience', sub: 'Conseil de prud\'hommes, bureau de jugement.', final: true,
+      steps: [
+        { t: 'event', who: 'hamel', text: `Quatre conseillers, deux élus des salariés, deux des employeurs. Maître Rivière a plaidé que le licenciement était injustifié. Maître, pour Batiflex.`, fx: { mois: 8, frais: 900 } },
+        { t: 'plead', id: 'plaid', adv: 'riviere', prompt: `Que plaides-tu pour Batiflex${N}?`, args: [
+          { id: 'b1', label: LAB.b1, desc: `« Tous des pourris »`, pts: 0, ok: s => false,
+            no: `Voici la capture complète. «${N}Tous des pourris${N}» est le commentaire d'un tiers. Le message de ma cliente critique une mutation, sans une insulte. Batiflex a sanctionné une opinion.` },
+          { id: 'b2', label: LAB.b2, desc: `Le 3 mars`, pts: 3, ok: s => s.flags.motifLoyaute && s.flags.auditOk,
+            yes: `Ma cliente reconnaît ce transfert. Elle dit qu'elle voulait garder ses contacts.`,
+            no: s => !s.flags.motifLoyaute ? `Ce reproche ne figure pas dans la lettre de licenciement. Il ne peut pas être invoqué aujourd'hui.` : `Cette preuve a été trouvée dans un dossier marqué «${N}personnel${N}». Elle a été obtenue en violant la vie privée de ma cliente.` },
+          { id: 'b3', label: LAB.b3, desc: `L'article 6`, pts: 0, ok: s => false,
+            no: `«${N}Tout établissement actuel ou futur${N}»${N}: cette clause ne définit aucune zone. Elle ne pouvait pas être imposée.` },
+          { id: 'b4', label: LAB.b4, desc: `Entretien, délais, lettre`, pts: 1, ok: s => true,
+            yes: `Je ne conteste pas la procédure.` },
+          { id: 'b5', label: LAB.b5, desc: `L'année sur facture`, pts: 0, ok: s => false,
+            no: `Un badge, des horaires imposés, un chef qui donnait des ordres. C'était une salariée, et son ancienneté remonte à trois ans.` },
+          { id: 'b6', label: LAB.b6, desc: `L'article 9`, pts: 0, ok: s => false,
+            no: `Une clause de non-concurrence qui ne prévoit aucune contrepartie financière est nulle. Ma cliente travaille chez Matéo, et c'est son droit.` } ],
+          resolve: (s, score, ids) => {
+            if (s.flags.motifPost) { s.montant = 6 * SAL;
+              return { do: s => { s.res = 'nul'; }, fx: { conf: -25, frais: 6 * SAL }, after: [{ who: 'hamel', text: `Le conseil${N}: la lettre reproche à Mme Marchal une critique exprimée sans abus. Le licenciement porte atteinte à sa liberté d'expression${N}: il est nul. Batiflex versera ${eur(s.montant)}, et Mme Marchal pourra demander sa réintégration.` }] }; }
+            if (ids.includes('b2') && s.flags.motifLoyaute && s.flags.auditOk) return { do: s => { s.res = 'gain'; }, fx: { conf: 20 }, after: [{ who: 'hamel', text: `Le conseil${N}: transférer le fichier clients sur une messagerie personnelle avant de rejoindre un concurrent constitue un manquement au devoir de loyauté. Le licenciement repose sur une cause réelle et sérieuse. Mme Marchal est déboutée.` }] };
+            s.montant = (ids.includes('b4') ? 3 : 3.5) * SAL + 2 * SAL;
+            return { do: s => { s.res = 'sanscause'; }, fx: { conf: -10, frais: s.montant }, after: [{ who: 'hamel', text: `Le conseil${N}: le licenciement est sans cause réelle et sérieuse. Avec deux ans d'ancienneté, le barème prévoit 3 à 3,5 mois de salaire. Batiflex versera ${eur(s.montant)}, préavis compris.` }] };
+          } },
+        { t: 'say', who: 'perrin', text: s => s.res === 'gain' ? `Le directeur est soulagé. Et moi, j'ai retenu la leçon${N}: une lettre, ça se relit.` : s.res === 'nul' ? `Nul${N}? Et elle peut revenir travailler ici${N}? Le directeur n'aurait jamais dû envoyer cette lettre.` : `On paie. Avec une seule bonne raison, on aurait gagné.` }
+      ] }
+    ],
+    endings: [
+      { id: 'congedie', cut: true, when: s => s.conf <= 15, title: 'Dessaisi', stamp: 'Client parti', color: '#FF5C6A',
+        text: `Batiflex a repris son dossier. L'avocat conseille, le client décide${N}: tu as inversé les rôles.` },
+      { id: 'apaise', when: s => s.stop === 'apaise', title: 'Le conflit désamorcé', stamp: 'Bravo', color: '#4CD97B',
+        text: `Une mutation à 8${N}km au lieu de 700, une critique laissée sans sanction${N}: Inès reste, les salariés se calment, et personne ne va aux prud'hommes. Le meilleur conseil, parfois, c'est de ne pas licencier.` },
+      { id: 'rupture', when: s => s.stop === 'rupture', title: 'La séparation négociée', stamp: 'Rupture conventionnelle', color: '#4CD97B',
+        text: `Inès et Batiflex se séparent d'un commun accord, avec une indemnité et l'aval de l'administration. Pas de faute, pas de procès, pas de risque d'annulation.` },
+      { id: 'accord', when: s => s.stop === 'accord', title: 'L\'accord', stamp: 'Conciliation', color: '#5FB8B0',
+        text: `Trois mois de salaire pour clore le dossier. Moins qu'un licenciement nul, plus qu'un licenciement bien préparé.` },
+      { id: 'accordplus', when: s => s.stop === 'accordplus', title: 'Le bon accord', stamp: 'Conciliation gagnante', color: '#4CD97B',
+        text: `Ton dossier a convaincu l'autre camp${N}: deux mois de salaire, et l'affaire est close.` },
+      { id: 'gain', when: s => s.res === 'gain', title: 'Licenciement justifié', stamp: 'Cause réelle et sérieuse', color: '#4CD97B',
+        text: `Tu as écarté les mauvais motifs et gardé le seul vrai, prouvé loyalement. Le conseil t'a suivi.` },
+      { id: 'sanscause', when: s => s.res === 'sanscause', title: 'Sans cause réelle et sérieuse', stamp: 'Licenciement abusif', color: '#FFC64F',
+        text: s => `Le motif retenu ne tenait pas. Batiflex paie ${eur(s.montant)}, dans les limites du barème.` },
+      { id: 'nul', when: s => s.res === 'nul', title: 'Licenciement annulé', stamp: 'Atteinte à une liberté', color: '#FF5C6A',
+        text: s => `La lettre sanctionnait une opinion. Le licenciement est nul${N}: ${eur(s.montant)} au moins, et Inès peut revenir travailler. Une seule phrase dans la lettre a suffi.` }
+    ],
+    debrief: [
+      { act: 1, needs: ['post', 'clause', 'freelance', 'audit'], title: 'Acte 1 — Les faits', text: (h, s) =>
+          `L\'employeur dispose d\'un <em>pouvoir de direction</em> (organiser le travail, donner des ordres), d\'un <em>pouvoir réglementaire</em> (fixer les règles de l\'entreprise dans le <em>règlement intérieur</em>) et d\'un <em>pouvoir disciplinaire</em> (sanctionner une faute, de l\'avertissement au licenciement). Mais il doit respecter les <em>libertés individuelles</em> du salarié : <em>liberté d\'expression</em>, qui permet la critique sans injure, et <em>respect de la vie privée</em>, même sur son lieu de travail. ${h.audit === 'tout' ? 'En ouvrant le dossier « personnel », tu as franchi cette limite.' : h.audit === 'pro' ? 'En t\'en tenant à la messagerie professionnelle, tu l\'as respectée.' : ''} En contrepartie, le salarié doit un <em>devoir de loyauté</em> à son employeur.` },
+      { act: 2, needs: ['remplacement', 'greve'], title: 'Acte 2 — Le climat', text: (h, s) =>
+          `Le <em>CDI</em> est la forme normale du contrat de travail. Les autres formes sont des exceptions encadrées : le <em>CDD</em> (remplacement, surcroît temporaire d\'activité), le <em>contrat saisonnier</em>, le <em>contrat de travail temporaire</em> (intérim, par une agence), le <em>CDI de chantier</em> (conclu pour la durée d\'un chantier ou d\'une opération). Côté libertés collectives : le <em>droit de grève</em> permet de cesser collectivement le travail pour des revendications professionnelles ; l\'employeur peut retenir le salaire, pas sanctionner ni remplacer les grévistes. La <em>liberté syndicale</em> s\'exerce par le <em>délégué syndical</em>, qui négocie, et le <em>comité social et économique</em> (CSE), qui représente les salariés.` },
+      { act: 3, needs: ['decision'], title: 'Acte 3 — La décision', text: (h, s) =>
+          `Plusieurs voies de rupture existaient. La <em>rupture conventionnelle individuelle</em> : une séparation d\'un commun accord, homologuée par l\'administration. Le <em>licenciement pour motif personnel</em>, qui doit reposer sur une <em>cause réelle et sérieuse</em>. Le <em>licenciement pour motif économique</em>, lié à des difficultés ou une réorganisation, et non à la personne. La <em>démission</em>, à l\'initiative du salarié. La <em>rupture conventionnelle collective</em>, par accord d\'entreprise. ${h.decision === 'proximite' || h.decision === 'rc' ? 'Tu as cherché à éviter le conflit.' : 'Tu as choisi le licenciement : la lettre fixe désormais les limites du litige.'} Ces règles viennent de la loi, mais aussi de la <em>négociation collective</em> entre <em>partenaires sociaux</em> (syndicats et employeurs), qui aboutit aux <em>conventions collectives</em>.` },
+      { act: 4, needs: ['plaid'], finalOnly: true, title: 'Acte 4 — L\'audience', text: (h, s) =>
+          `Le conseil de prud\'hommes, paritaire, juge les litiges du travail. Il contrôle le motif : un licenciement sans cause réelle et sérieuse est indemnisé selon un barème lié à l\'ancienneté ; un licenciement qui porte atteinte à une liberté fondamentale est nul (au moins 6 mois de salaire, et droit à réintégration). L\'ancienneté elle-même dépend de la nature du contrat : un faux <em>contrat d\'entreprise</em> (prestation de service) sera requalifié en contrat de travail.` }
+    ]
+  }
+  },
+
+  /* ------------------------------ DÉBRIEF CROISÉ (les deux robes jouées) ------------------------------ */
+  croise: (Ha, Hb) => {
+    const liste = ids => (ids || []).map(i => `<li>${LAB[i]}</li>`).join('');
+    return `<div class="deb"><h3>Ce que tu as plaidé</h3><div class="two"><div><b>Pour Inès</b><ul>${liste(Ha.plaid) || '<li>Affaire réglée avant l\'audience</li>'}</ul></div><div><b>Pour Batiflex</b><ul>${liste(Hb.plaid) || '<li>Affaire réglée avant l\'audience</li>'}</ul></div></div>
+      <p>En robe 1, tu héritais d\'une lettre déjà envoyée : ses deux motifs étaient fragiles, et c\'est elle qui fixait tout le procès. En robe 2, tu pouvais encore la changer. La même capture recadrée faisait croire à une insulte ; lue en entier, c\'était une critique. La même clause de mobilité, signée, ne valait rien. Et le seul vrai reproche, le fichier clients, ne servait à Batiflex que s\'il figurait dans la lettre et avait été prouvé loyalement.</p>
+      <p>Dans la réalité, un même avocat ne peut jamais défendre les deux parties d\'une affaire : ce serait un <em>conflit d\'intérêts</em>.</p></div>`;
+  },
+  vocab: ['Contrat de travail', 'Lien de subordination', 'Pouvoir de direction', 'Pouvoir réglementaire, règlement intérieur', 'Pouvoir disciplinaire', 'Contrat d\'entreprise', 'Négociation collective, convention collective', 'Partenaires sociaux', 'CDI', 'Clauses générales', 'Clause de mobilité', 'Clause de non-concurrence', 'Télétravail', 'CDD', 'CDI de chantier', 'Contrat saisonnier', 'Contrat de travail temporaire', 'Démission', 'Licenciement pour motif personnel', 'Cause réelle et sérieuse', 'Rupture conventionnelle individuelle / collective', 'Licenciement pour motif économique', 'Liberté d\'expression, devoir de loyauté', 'Respect de la vie privée', 'Droit de grève', 'Liberté syndicale', 'Comité social et économique', 'Délégué syndical']
+};
+GAME.acts = GAME.robes.a.acts; GAME.endings = GAME.robes.a.endings; GAME.debrief = GAME.robes.a.debrief;
+let H = {};   // historique des choix (lu par le débrief)
+
+/* =====================================================================
+   2. DÉCOR — le cabinet d'avocats, puis le conseil de prud'hommes.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  if (act.final) return `<svg viewBox="0 0 360 200" role="img" aria-label="Le conseil de prud'hommes">
+    <rect width="360" height="200" fill="#0b0805"/><rect x="0" y="0" width="360" height="162" fill="#120e09"/>
+    <g fill="none" stroke="#3a2a14" stroke-width="1.5"><rect x="130" y="20" width="24" height="142"/><rect x="306" y="20" width="24" height="142"/></g>
+    <g transform="translate(230,34)" stroke="${DROIT}" stroke-width="2" fill="none"><line x1="0" y1="0" x2="0" y2="42"/><line x1="-30" y1="8" x2="30" y2="8"/><path d="M-30,8 L-40,30 L-20,30 Z"/><path d="M30,8 L20,30 L40,30 Z"/><line x1="-12" y1="42" x2="12" y2="42"/></g>
+    <rect x="160" y="104" width="140" height="58" fill="#17110a" stroke="${DROIT}" stroke-width="1.5"/><rect x="152" y="98" width="156" height="8" fill="${DROIT}" opacity=".7"/>
+    <g fill="${DROIT}" opacity=".55"><circle cx="182" cy="92" r="5"/><circle cx="214" cy="92" r="5"/><circle cx="246" cy="92" r="5"/><circle cx="278" cy="92" r="5"/></g>
+    <text x="230" y="138" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="8.5" fill="#9a8e7c">CONSEIL DE PRUD'HOMMES</text>
+    <rect x="0" y="162" width="360" height="38" fill="#0d0a06"/><line x1="0" y1="162" x2="360" y2="162" stroke="#3a2a14" stroke-width="1.5"/>`;
+  const piles = Math.max(1, Math.min(6, Math.round(S.dossier / 15)));
+  let dos = ''; for (let i = 0; i < piles; i++) dos += `<rect x="${204 + (i % 2) * 4}" y="${110 - i * 7}" width="52" height="6" fill="#17110a" stroke="${DROIT}" stroke-width="1.2"/>`;
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Le cabinet d'avocats">
+    <rect width="360" height="200" fill="#0b0805"/><rect x="0" y="0" width="360" height="162" fill="#120e09"/>
+    <g fill="#110c07" stroke="#3a2a14" stroke-width="1.5"><rect x="280" y="24" width="64" height="100"/><line x1="280" y1="58" x2="344" y2="58"/><line x1="280" y1="92" x2="344" y2="92"/></g>
+    <g fill="${DROIT}" opacity=".55"><rect x="286" y="30" width="6" height="26"/><rect x="294" y="34" width="6" height="22"/><rect x="302" y="30" width="6" height="26"/><rect x="288" y="64" width="6" height="26"/><rect x="298" y="66" width="6" height="24"/><rect x="306" y="62" width="6" height="28"/></g>
+    <g transform="translate(140,30)"><rect x="0" y="0" width="54" height="40" rx="3" fill="#110c07" stroke="#5B8FFF" stroke-width="1.5"/><rect x="6" y="6" width="42" height="6" fill="#5B8FFF" opacity=".5"/><rect x="6" y="16" width="30" height="4" fill="#EEF3EC" opacity=".4"/><rect x="6" y="24" width="36" height="4" fill="#EEF3EC" opacity=".4"/></g>
+    <text x="140" y="88" font-family="Orbitron,sans-serif" font-weight="800" font-size="8.5" fill="#5a4526">${S.robe === 'b' ? 'BATIFLEX — CONSEIL' : 'MARCHAL c/ BATIFLEX'}</text>
+    ${dos}
+    <g transform="translate(150,118)"><rect x="0" y="0" width="130" height="10" fill="#17110a" stroke="${DROIT}" stroke-width="1.5"/><rect x="8" y="10" width="8" height="34" fill="#17110a" stroke="${DROIT}"/><rect x="114" y="10" width="8" height="34" fill="#17110a" stroke="${DROIT}"/></g>
+    <rect x="0" y="162" width="360" height="38" fill="#0d0a06"/><line x1="0" y1="162" x2="360" y2="162" stroke="#3a2a14" stroke-width="1.5"/>`;
+};
+
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, tag: l.tag, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  let robe = null;
+  function startGame(r) {
+    if (typeof r === 'string') robe = r;
+    const R = GAME.robes[robe];
+    GAME.acts = R.acts; GAME.endings = R.endings; GAME.debrief = R.debrief;
+    S = { flags: {}, robe }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      frame(st.who, `<div class="box">${whoTag(st.who)}${st.tag ? `<span class="verdict ${st.tag}">${st.tag === 'tient' ? 'Ton argument tient' : 'Ton argument tombe'}</span>` : ''}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'plead') {
+      lastDeltas = [];
+      let pick = [];
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="plead-h">Choisis tes trois arguments.</p><div class="opts">${st.args.map((a, i) => `<button class="opt arg" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${a.label}</span><span class="arg-n"></span></div><div class="opt-d">${val(a.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go" disabled>Plaider ▸</button></div></div>`);
+      const go = document.getElementById('go');
+      app.querySelectorAll('.arg').forEach(b => b.onclick = () => {
+        const i = +b.dataset.i;
+        pick = pick.includes(i) ? pick.filter(x => x !== i) : pick.length < 3 ? pick.concat(i) : pick;
+        app.querySelectorAll('.arg').forEach(x => { const k = pick.indexOf(+x.dataset.i); x.setAttribute('aria-pressed', k >= 0); x.querySelector('.arg-n').textContent = k >= 0 ? k + 1 : ''; });
+        go.disabled = pick.length !== 3;
+      });
+      go.onclick = () => {
+        const chosen = pick.map(i => st.args[i]);
+        H[st.id] = chosen.map(a => a.id);
+        let score = 0;
+        const lines = [];
+        chosen.forEach(a => {
+          const ok = a.ok(S); score += ok ? a.pts : 0;
+          lines.push({ who: 'narr', text: `«${N}${a.plaid || a.label}${N}»` });
+          lines.push({ who: st.adv, text: val(ok ? a.yes : a.no, S), tag: ok ? 'tient' : 'tombe' });
+        });
+        H[st.id + 'Score'] = score;
+        const res = st.resolve(S, score, chosen.map(a => a.id));
+        if (res.do) res.do(S);
+        const verdict = (res.after || []).slice();
+        if (verdict.length) verdict[0] = { t: 'event', who: verdict[0].who, text: verdict[0].text, fx: res.fx };   // les jauges bougent quand le juge parle
+        else applyFx(res.fx);
+        pushAfter(lines.concat(verdict)); next();
+      };
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="${st.step || 1}" value="${st.def}" aria-label="${st.prompt}">
+        <div class="range-l"><span>${st.show(st.min)}</span><span>${st.show(st.max)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(robe + ':' + e.id);
+    try { localStorage.setItem(GAME.storeKey + '_' + robe, JSON.stringify(H)); } catch (err) {}
+    const autre = robe === 'a' ? 'b' : 'a';
+    let Hautre = null; try { Hautre = JSON.parse(localStorage.getItem(GAME.storeKey + '_' + autre) || 'null'); } catch (err) {}
+    const croise = Hautre && GAME.croise ? GAME.croise(robe === 'a' ? H : Hautre, robe === 'a' ? Hautre : H) : '';
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">Tu as appliqué ces règles sans les nommer. Voici comment on les appelle en droit.</p>${deb}` : ''}
+      ${forced && e.cut ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour aller jusqu'au jugement.</p>` : ''}
+      ${croise ? `<div class="deb-t">Les deux robes</div><p class="deb-s">Tu as défendu les deux camps de la même affaire. Voici ce que chacun a fait des mêmes faits.</p>${croise}` : `<div class="robe-next"><b>Et de l'autre côté${N}?</b> ${GAME.robes[autre].teaser}</div>`}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="swap">Changer de robe ▸</button><button class="btn ghost" id="again">Rejouer cette robe</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.robes.a.endings.length + GAME.robes.b.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = () => startGame(robe);
+    document.getElementById('swap').onclick = () => startGame(autre);
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get();
+    const robeBtn = r => { const R = GAME.robes[r], n = found.filter(x => x.startsWith(r + ':')).length;
+      return `<button class="opt robe" data-r="${r}"><div class="opt-t"><span>${R.label}</span>${n ? `<span class="opt-c">${n} fin${n > 1 ? 's' : ''}</span>` : ''}</div><div class="opt-d">${R.sub}</div></button>`; };
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <div class="prompt">Choisis ta robe</div>
+      <div class="opts">${robeBtn('a')}${robeBtn('b')}</div>
+      <p class="found">${GAME.meta} · ${GAME.robes.a.endings.length + GAME.robes.b.endings.length} fins possibles${found.length ? ` · ${found.length} découverte${found.length > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    app.querySelectorAll('.robe').forEach(b => b.onclick = () => startGame(b.dataset.r));
+  }
+  home();
+})();
+</script>
+</body>
+</html>

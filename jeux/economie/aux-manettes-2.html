@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Aux Manettes 2 — Jeu Économie Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#4CD97B;--eco-dim:#2A8E4C;--bg:#050806;--panel:#0a120c;--panel2:#0d1710;--line:#173322;--txt:#EEF3EC;--muted:#7C9483;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(76,217,123,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(76,217,123,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#12201a;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070c09;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(76,217,123,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#04160a;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#04160a;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#102016;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#12201a;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#04160a;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#07110c;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#07110c;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#07110c;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#07110c;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(76,217,123,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#07110c;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 3) n'a pas besoin d'être touché.
+   Jauges : croiss (croissance, % par an), chom (chômage, % des actifs),
+            deficit (% du PIB), ineg (inégalités, 0-100 : plus c'est haut, plus l'écart est grand).
+   Une option de choix peut porter :
+     chain : les deux lignes de conséquences affichées case par case ({ good: [...], bad: [...] })
+     voix  : les trois réactions affichées ensuite
+   ===================================================================== */
+const N = ' ';
+const pc = n => (Math.round(n * 10) / 10).toLocaleString('fr-FR') + N + '%';
+const sg = n => (n > 0 ? '+' : n < 0 ? '−' : '') + (Math.abs(Math.round(n * 10) / 10)).toLocaleString('fr-FR') + N + '%';
+const V = (sorel, drak, nom, hab) => [{ who: 'sorel', text: sorel }, { who: 'drak', text: drak }, { nom, text: hab }];
+const F = (sorel, nom1, t1, nom2, t2) => [{ who: 'sorel', text: sorel }, { nom: nom1, text: t1 }, { nom: nom2, text: t2 }];
+function cycle(x) {                                                               // la courbe de l'activité, avec la position de Valmont
+  const y = v => 74 - 30 * Math.sin(v / 140 * Math.PI);
+  let d = ''; for (let v = 0; v <= 280; v += 7) d += (v ? 'L' : 'M') + (10 + v) + ',' + y(v).toFixed(1) + ' ';
+  const lab = (t, lx, ly) => `<text x="${lx}" y="${ly}" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11" fill="#7C9483">${t}</text>`;
+  return `<span class="pyr"><svg viewBox="0 0 300 140" role="img" aria-label="Le cycle de l'activité économique">
+    <line x1="10" y1="74" x2="290" y2="74" stroke="#173322" stroke-width="1" stroke-dasharray="4 4"/>
+    <path d="${d}" fill="none" stroke="#4CD97B" stroke-width="2.5"/>
+    ${lab('Expansion', 40, 30)}${lab('Crise', 82, 36)}${lab('Récession', 124, 106)}${lab('Dépression', 220, 126)}${lab('Reprise', 268, 100)}
+    <circle cx="${10 + x}" cy="${y(x).toFixed(1)}" r="7" fill="#FF5C6A" stroke="#EEF3EC" stroke-width="2"/>
+    <text x="${Math.min(250, Math.max(50, 10 + x))}" y="${y(x) < 60 ? y(x) + 24 : y(x) - 13}" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#EEF3EC">VALMONT</text>
+  </svg></span>`;
+}
+const FAMILLES = `<span class="pay"><span>Mme Kaya, caissière</span><b>1${N}400${N}€</b><span>Mme Lenoir, retraitée</span><b>1${N}300${N}€</b><span>M. Vidal, maçon, deux enfants</span><b>2${N}000${N}€</b><span>Mme Castel, dirigeante</span><b>12${N}000${N}€</b></span>`;
+
+const GAME = {
+  title: 'Aux Manettes 2',
+  brand: 'AUX <span>MANETTES 2</span>',
+  storeKey: 'auxManettes2Fins',
+  backLink: '../../matieres/economie-terminale.html',
+  footer: 'Économie Terminale STMG, thème 6 (2/2)',
+  kicker: 'Économie · Terminale STMG · Thème 6 (2/2)',
+  pitch: `Tout allait bien à Valmont. Puis les commandes se sont effondrées. Les usines ferment, le chômage grimpe, et tout le pays se tourne vers toi. Relancer ou serrer la ceinture${N}? Aider qui, et avec l'argent de qui${N}? Les élections sont dans trois ans.`,
+  meta: '5 actes · 20 minutes',
+  start: s => Object.assign(s, { croiss: 1.8, chom: 7, deficit: 2.5, ineg: 55 }),
+  hud: [
+    { k: 'croiss',  label: 'Croissance', short: 'Croissance', show: s => sg(s.croiss),      pct: s => (s.croiss + 4) * 13, low: s => s.croiss < 0, unit: N + 'pt' },
+    { k: 'chom',    label: 'Chômage',    short: 'Chômage',    show: s => pc(s.chom),        pct: s => s.chom * 7,          low: s => s.chom >= 10, unit: N + 'pt', inv: true },
+    { k: 'deficit', label: 'Déficit',    short: 'Déficit',    show: s => pc(s.deficit),     pct: s => s.deficit * 16,      low: s => s.deficit > 3, unit: N + 'pt', inv: true },
+    { k: 'ineg',    label: 'Inégalités', short: 'Inégalités', show: s => Math.round(s.ineg), pct: s => s.ineg,             low: s => s.ineg >= 65, clamp: true, inv: true }
+  ],
+  fail: s => null,
+  lock: (s, cost) => null,
+  bilan: s => [['Croissance', sg(s.croiss) + ' par an'], ['Chômage', pc(s.chom)], ['Déficit', pc(s.deficit) + ' du PIB'], ['Inégalités', Math.round(s.ineg) + ' / 100']],
+
+  characters: {
+    arel:     { name: 'Mme Arel',     role: 'Présidente de Valmont',              color: '#B9A6FF', body: '#3a3f4a', hair: '#8a8f96', acc: 'tie' },
+    sorel:    { name: 'Mme Sorel',    role: 'ta conseillère',                     color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'clip' },
+    drak:     { name: 'M. Drak',      role: 'chef de l\'opposition',              color: '#FF5C7A', body: '#1c1c22', hair: '#7a2f2f', acc: 'tie' },
+    vanrijn:  { name: 'M. Van Rijn',  role: 'commissaire européen',               color: '#5B8FFF', body: '#3D62B8', hair: '#c9c9c9', acc: 'tie' },
+    hoffmann: { name: 'Mme Hoffmann', role: 'présidente de la banque centrale européenne', color: '#FFC64F', body: '#8a5a22', hair: '#c9a24a', acc: 'clip' },
+    narr:     { name: 'Toi',          role: '',                                   color: '#4CD97B' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'La récession', sub: 'Lundi, 7 h. Les chiffres du trimestre viennent de tomber.',
+    steps: [
+      { t: 'say', who: 'sorel', text: `${cycle(66)}Voici où nous étions hier. L'activité ne monte jamais en ligne droite${N}: elle grimpe, se retourne, redescend, puis repart. Nous étions tout en haut de la vague.` },
+      { t: 'event', who: 'sorel', text: `${cycle(140)}Et voici ce matin. Notre premier client étranger a annulé ses commandes. Les usines tournent au ralenti, elles licencient, les licenciés dépensent moins, et les commerces licencient à leur tour. La production recule. Et comme l'État encaisse moins d'impôts, le déficit se creuse tout seul.`, fx: { croiss: -3.8, chom: 2, deficit: 1, ineg: 4 } },
+      { t: 'say', who: 'arel', text: `Les Valmontois attendent une réponse ce soir, à 20${N}h. Vous tenez le budget de l'État. Qu'est-ce qu'on fait${N}?` },
+      { t: 'choice', id: 'budget', prompt: `Quelle réponse à la récession${N}?`, options: [
+        { id: 'depenses', label: 'Je lance de grands travaux', desc: 'Routes, écoles, hôpitaux : l\'État commande.', fx: { croiss: 1.8, chom: -1.2, deficit: 1.5 },
+          chain: { good: ['L\'État passe des commandes', 'Les entreprises embauchent', 'Des salaires sont versés', 'Les ménages consomment', 'D\'autres entreprises produisent plus'], bad: ['Dépenses de l\'État en hausse', 'Déficit creusé', 'Dette en hausse'] },
+          voix: V(`Chaque euro dépensé par l'État devient le salaire de quelqu'un, qui le dépense à son tour. L'effet se propage. Mais c'est de l'argent emprunté.`, `Vous creusez un trou pour en reboucher un autre${N}!`, 'M. Vidal, maçon', `Le chantier du lycée a démarré. Mon patron m'a repris, et il cherche deux gars de plus.`) },
+        { id: 'impots', label: 'Je baisse les impôts des ménages', desc: 'Plus d\'argent dans les poches, tout de suite.', fx: { croiss: 1.2, chom: -0.7, deficit: 1.2 },
+          chain: { good: ['Impôts en baisse', 'Revenu des ménages en hausse', 'Consommation en hausse', 'Les entreprises produisent plus'], bad: ['Une partie est mise de côté', 'Une partie achète des produits importés', 'Recettes de l\'État en baisse', 'Déficit creusé'] },
+          voix: V(`C'est rapide et populaire. Mais vous ne décidez pas de ce que les gens font de cet argent${N}: une partie ne retournera jamais dans nos entreprises.`, `Un cadeau à crédit. Qui paiera la note${N}?`, 'Mme Kaya, caissière', `J'ai eu 40${N}€ de plus par mois. Je les garde, on ne sait jamais${N}: mon magasin parle de licencier.`) },
+        { id: 'rigueur', label: 'Je réduis les dépenses pour tenir les comptes', desc: 'Un État sérieux ne dépense pas ce qu\'il n\'a pas.', fx: { croiss: -1.2, chom: 1.2, deficit: -0.8, ineg: 4 },
+          chain: { good: ['Dépenses de l\'État en baisse', 'Déficit réduit', 'Les prêteurs sont rassurés'], bad: ['Moins de commandes publiques', 'Les entreprises licencient', 'La consommation recule encore', 'La récession s\'aggrave', 'Les recettes d\'impôts baissent aussi'] },
+          voix: V(`Vous avez freiné une voiture déjà à l'arrêt. Et comme l'activité recule, vos recettes fondent${N}: le déficit baisse moins que prévu.`, `Le pays brûle et le ministre range ses classeurs.`, 'M. Vidal, maçon', `Le chantier du lycée est annulé. Licencié vendredi.`) },
+        { id: 'rien', label: 'Je ne change rien et j\'attends', desc: 'La vague finira par repartir.', fx: { croiss: -0.3, chom: 0.5 },
+          chain: { good: ['Aucune dépense nouvelle', 'Les allocations chômage amortissent un peu le choc'], bad: ['Aucun soutien à l\'activité', 'Les licenciements continuent', 'La récession dure'] },
+          voix: V(`Tout n'est pas perdu${N}: les allocations versées aux chômeurs soutiennent un peu la consommation, sans que vous ayez rien décidé. Mais c'est mince.`, `Le ministre a un plan${N}: attendre.`, 'Mme Kaya, caissière', `Ils ont dit à la télé que ça repartirait. Ils n'ont pas dit quand.`) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Tu n\'es pas seul', sub: 'Valmont partage sa monnaie avec dix-neuf autres pays. Et quelques règles.',
+    steps: [
+      { t: 'say', if: s => s.deficit > 3, who: 'vanrijn', text: s => `Bruxelles, Commission européenne. Votre déficit atteint ${pc(s.deficit)} de votre richesse nationale. Les pays de la zone euro se sont engagés à ne pas dépasser 3${N}%, et 60${N}% pour la dette. Quand l'un de nous s'endette trop, c'est notre monnaie commune qui est fragilisée. J'attends votre réponse.` },
+      { t: 'choice', if: s => s.deficit > 3, id: 'europe', prompt: `Que réponds-tu à la Commission européenne${N}?`, options: [
+        { id: 'plan', label: 'Je m\'engage à revenir sous 3 % en trois ans', desc: 'Un calendrier précis, après la crise.', fx: {}, set: { plan: true },
+          chain: { good: ['Engagement daté et crédible', 'La Commission accorde un délai', 'Les prêteurs restent confiants', 'Valmont emprunte à bon prix'], bad: ['Il faudra tenir parole', 'Des économies à faire dans deux ans'] },
+          voix: V(`Vous gagnez du temps sans casser la relance. Mais ce que vous ne coupez pas aujourd'hui, vous l'avez promis pour demain.`, `Le ministre prend ses ordres à Bruxelles${N}!`, 'M. Van Rijn', `C'est noté. Je vérifierai chaque année.`) },
+        { id: 'coupes', label: 'Je coupe tout de suite dans les dépenses', desc: 'Retour sous 3 % dès cette année.', fx: { croiss: -1, chom: 0.8, deficit: -1.2, ineg: 2 },
+          chain: { good: ['Dépenses réduites sur-le-champ', 'Déficit en baisse', 'Règle européenne respectée'], bad: ['Commandes publiques annulées', 'Nouveaux licenciements', 'La récession repart'] },
+          voix: V(`Vous êtes en règle. Vous avez aussi retiré le soutien à l'activité au pire moment.`, `Il sacrifie les Valmontois pour une signature à Bruxelles.`, 'M. Vidal, maçon', `Ils ont arrêté le chantier à mi-hauteur. Les murs sont là, sans toit.`) },
+        { id: 'ignorer', label: 'Je refuse : Valmont décide seul de son budget', desc: 'Pas de leçon à recevoir.', fx: { deficit: 0.4 }, set: { ignorer: true },
+          chain: { good: ['Aucune coupe', 'La relance continue', 'Applaudissements à la tribune'], bad: ['Procédure européenne ouverte', 'Les prêteurs s\'inquiètent', 'Ils exigent des intérêts plus élevés', 'Emprunter coûte plus cher'] },
+          voix: V(`Vous avez gagné la soirée et perdu la confiance de ceux qui nous prêtent. Chaque emprunt nous coûtera désormais plus cher.`, `Pour une fois qu'il tient tête à quelqu'un, c'est au mauvais moment.`, 'M. Van Rijn', `Vous avez signé ces règles. J'ouvre une procédure.`) } ] },
+      { t: 'say', if: s => s.deficit <= 3, who: 'vanrijn', text: s => `Bruxelles, Commission européenne. Votre déficit est à ${pc(s.deficit)}, sous la limite de 3${N}% que les pays de la zone euro se sont fixée. Vous êtes l'un des rares à la respecter en pleine crise. Mais à quel prix pour votre économie${N}? Cela, ce n'est pas mon affaire.` },
+      { t: 'say', who: 'narr', text: `Il me reste une arme${N}: le crédit. Si emprunter coûtait moins cher, les entreprises investiraient et les ménages achèteraient. «${N}Sorel, baissez les taux d'intérêt.${N}»` },
+      { t: 'say', who: 'sorel', text: `Je ne peux pas. Vous non plus. Depuis que Valmont a adopté l'euro, le taux d'intérêt de base se décide à Francfort, à la banque centrale européenne. Pour vingt pays à la fois. Et elle ne reçoit d'ordre d'aucun gouvernement.` },
+      { t: 'choice', id: 'bce', prompt: `Face à la banque centrale européenne${N}?`, options: [
+        { id: 'pression', label: 'Je l\'attaque publiquement', desc: '« Francfort étrangle Valmont ! »', fx: {},
+          chain: { good: ['Gros titres dans la presse', 'Applaudissements à Valmont'], bad: ['La banque centrale est indépendante', 'Elle ne change rien', 'Les autres pays s\'agacent'] },
+          voix: [{ who: 'sorel', text: `Vous avez crié dans une pièce insonorisée. Son indépendance est faite précisément pour ça.` }, { who: 'drak', text: `Quand ça va mal, c'est toujours la faute de Francfort.` }, { who: 'hoffmann', text: `Je ne commente pas les déclarations des ministres. Mon mandat, c'est la stabilité des prix dans toute la zone.` }] },
+        { id: 'coordonner', label: 'Je propose aux autres ministres de relancer ensemble', desc: 'Si chacun soutient son économie, tous en profitent.', fx: { croiss: 0.3 },
+          chain: { good: ['Plusieurs pays relancent en même temps', 'Leurs habitants achètent davantage', 'Y compris des produits de Valmont', 'Nos usines reçoivent des commandes'], bad: ['Chaque pays doit accepter de s\'endetter un peu'] },
+          voix: [{ who: 'sorel', text: `Bien vu. Seul, une partie de votre relance part chez les voisins. À plusieurs, elle vous revient.` }, { who: 'drak', text: `Des sommets, des photos de famille, et après${N}?` }, { who: 'hoffmann', text: `Les budgets sont votre affaire, la monnaie est la mienne. Si vous vous coordonnez, mon travail sera plus simple.` }] },
+        { id: 'attendre', label: 'J\'attends sa décision', desc: 'Ce n\'est pas mon rôle.', fx: {},
+          chain: { good: ['Aucune tension avec Francfort'], bad: ['Aucune influence sur la décision'] },
+          voix: [{ who: 'sorel', text: `C'est honnête${N}: sur la monnaie, vous êtes spectateur.` }, { who: 'drak', text: `Un ministre qui attend. Encore.` }, { who: 'hoffmann', text: `Je décide en regardant vingt pays, pas un seul.` }] } ] },
+      { t: 'say', who: 'hoffmann', text: `Voici ma décision. Dans l'ensemble de la zone euro, les prix n'augmentent presque plus et l'activité ralentit partout. Je baisse donc notre taux d'intérêt. Si les prix s'étaient emballés, j'aurais fait l'inverse, quoi qu'en pense Valmont.` },
+      { t: 'chain', solo: true, chain: { good: ['Taux de la banque centrale en baisse', 'Les banques empruntent moins cher', 'Elles prêtent moins cher', 'Ménages et entreprises empruntent', 'Investissements et achats repartent'], bad: ['Si le crédit devient trop abondant', 'Trop d\'argent pour trop peu de produits', 'Les prix montent'] }, fx: { croiss: 0.6, chom: -0.3 } },
+      { t: 'say', who: 'sorel', text: `Vous voyez${N}? La décision a aidé Valmont, mais elle n'a pas été prise pour Valmont. Le jour où nous irons mal et les dix-neuf autres bien, elle ne viendra pas.`, _after: true }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Soigner ou reconstruire', sub: 'Un an après le choc. Il faut choisir entre l\'urgence et l\'avenir.',
+    steps: [
+      { t: 'say', who: 'sorel', text: `Deux décisions aujourd'hui. La première pour les six prochains mois. La seconde pour les dix prochaines années. Ne les confondez pas${N}: la première soulage, la seconde transforme.` },
+      { t: 'choice', id: 'court', prompt: `Pour les six prochains mois${N}?`, options: [
+        { id: 'prime', label: 'Une prime de 500 € aux ménages modestes', desc: 'Ils la dépenseront tout de suite.', fx: { croiss: 0.8, deficit: 0.4, ineg: -3 },
+          chain: { good: ['Prime versée aux plus modestes', 'Ils la dépensent presque entièrement', 'Les commerces vendent plus', 'Ils recommandent aux usines'], bad: ['Dépense en hausse', 'Effet qui s\'arrête quand la prime est dépensée'] },
+          voix: V(`Vous agissez du côté des clients${N}: vous leur donnez de quoi acheter. C'est efficace vite, et ça ne dure pas.`, `Un chèque avant les élections. Quelle surprise.`, 'Mme Kaya, caissière', `J'ai remplacé le frigo. Le vendeur m'a dit que j'étais la dixième de la journée.`) },
+        { id: 'tva', label: 'Une baisse de la TVA pendant un an', desc: 'Tout coûte un peu moins cher.', fx: { croiss: 0.5, deficit: 0.6 },
+          chain: { good: ['Taxe sur les achats réduite', 'Les prix devraient baisser', 'Les ménages achètent plus'], bad: ['Des commerçants gardent la différence', 'Les prix baissent peu', 'Grosse perte de recettes pour l\'État'] },
+          voix: V(`Vous comptiez sur les commerçants pour répercuter la baisse. Beaucoup ont préféré reconstituer leurs marges.`, `Des milliards envolés pour dix centimes sur une baguette.`, 'Mme Lenoir, retraitée', `Mon panier coûte pareil. Peut-être un euro de moins, je n'ai pas bien vu.`) },
+        { id: 'charges', label: 'Une baisse des cotisations payées par les entreprises', desc: 'Embaucher coûte moins cher.', fx: { croiss: 0.4, chom: -0.6, deficit: 0.5 },
+          chain: { good: ['Chaque salarié coûte moins cher', 'Les entreprises gardent plus d\'argent', 'Elles embauchent ou baissent leurs prix'], bad: ['Si les clients manquent, elles n\'embauchent pas', 'Certaines gardent simplement la différence', 'Recettes en baisse'] },
+          voix: V(`Vous agissez du côté des entreprises${N}: vous les aidez à produire. Ça marche si elles ont des clients. Sinon, elles encaissent et attendent.`, `Un cadeau aux patrons, sans rien demander en échange.`, 'Mme Castel, dirigeante', `J'ai gardé deux salariés que j'allais licencier. Embaucher${N}? Remplissez mon carnet de commandes d'abord.`) },
+        { id: 'rien', label: 'Rien de plus', desc: 'Les caisses sont assez vides.', fx: {},
+          chain: { good: ['Aucune dépense nouvelle'], bad: ['Aucun coup de pouce', 'La reprise attendra'] },
+          voix: V(`Les comptes vous remercient. Les six prochains mois seront longs.`, `Rien. C'est tout un programme.`, 'Mme Kaya, caissière', `On attend. On a l'habitude.`) } ] },
+      { t: 'choice', id: 'long', prompt: `Et pour les dix prochaines années${N}?`, options: [
+        { id: 'savoir', label: 'J\'investis dans la recherche, les universités et la formation', desc: 'Aucun effet visible avant longtemps.', fx: { croiss: 0.2, deficit: 0.4 }, set: { savoir: true },
+          chain: { good: ['Plus de chercheurs et de diplômés', 'Davantage d\'inventions', 'Produits nouveaux, méthodes plus efficaces', 'Entreprises plus fortes face à l\'étranger', 'Croissance durable'], bad: ['Dépense immédiate', 'Résultats dans dix ans', 'Rien à montrer avant les élections'] },
+          voix: V(`Vous changez ce que le pays sait faire, pas seulement ce qu'il dépense. C'est lent, invisible, et c'est ce qui dure.`, `Les Valmontois ont faim aujourd'hui, et il leur promet des laboratoires.`, 'Mme Castel, dirigeante', `Dans cinq ans, j'aurai enfin des ingénieurs à recruter ici. Si je tiens jusque-là.`) },
+        { id: 'concurrence', label: 'J\'ouvre à la concurrence les secteurs protégés', desc: 'Taxis, pharmacies, énergie : fini les chasses gardées.', fx: { croiss: 0.3 }, set: { conc: true },
+          chain: { good: ['De nouveaux vendeurs peuvent s\'installer', 'Ils se disputent les clients', 'Les prix baissent', 'Les ménages ont plus à dépenser ailleurs'], bad: ['Les professions protégées perdent leurs revenus', 'Grèves et blocages'] },
+          voix: V(`Ça ne coûte rien à l'État, et ça change durablement les prix. Mais ceux qui y perdent sont peu nombreux, organisés, et très en colère.`, `Il s'attaque aux petits pour épargner les gros.`, 'M. Okoro, chauffeur de taxi', `J'ai payé ma licence 80${N}000${N}€. Maintenant n'importe qui peut rouler. Qui me rembourse${N}?`) },
+        { id: 'rien', label: 'Ce n\'est pas le moment de réformer', desc: 'On verra après la crise.', fx: {},
+          chain: { good: ['Aucun conflit', 'Aucune dépense'], bad: ['Les faiblesses du pays restent les mêmes', 'La prochaine crise le trouvera au même point'] },
+          voix: V(`Vous soignez la fièvre sans toucher à la maladie. À la prochaine vague, nous serons aussi fragiles.`, `Aucune vision. Aucune.`, 'Mme Castel, dirigeante', `Rien ne change, donc. Je vais regarder ce que proposent nos voisins.`) } ] },
+      { t: 'event', if: s => s.flags.plan, who: 'vanrijn', text: `Le délai que je vous avais accordé touche à sa fin. Vous aviez promis des économies${N}: je les attends dans le prochain budget.`, fx: { deficit: -0.8, croiss: -0.3 } }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Qui paie, qui reçoit ?', sub: 'La crise n\'a pas frappé tout le monde de la même façon.',
+    steps: [
+      { t: 'say', who: 'sorel', text: `Il faut maintenant trouver de l'argent, et décider à qui l'État vient en aide. Pour que vous voyiez ce que vos décisions changent, je suis quatre foyers. Voici ce qu'ils gagnent par mois${N}: ${FAMILLES}` },
+      { t: 'choice', id: 'impot', prompt: `Il faut de nouvelles recettes. Quel impôt${N}?`, options: [
+        { id: 'tva', label: 'Deux points de plus sur la TVA', desc: 'Le même taux pour tout le monde, sur chaque achat.', fx: { deficit: -1, croiss: -0.3, ineg: 6 },
+          chain: { good: ['Tout le monde paie', 'Recettes importantes et rapides', 'Déficit réduit'], bad: ['Les ménages modestes dépensent tout leur revenu', 'Ils paient la taxe sur la totalité', 'Les plus aisés épargnent une partie', 'L\'effort pèse plus lourd sur les petits revenus'] },
+          voix: F(`Le taux est le même pour tous, mais pas l'effort. Regardez ce que la hausse représente pour chacune.`, 'Mme Kaya, 1 400 €', `Je dépense tout ce que je gagne. Ça me coûte 28${N}€ par mois${N}: 2${N}% de mon salaire.`, 'Mme Castel, 12 000 €', `Je dépense 5${N}000${N}€ par mois, le reste est placé. Ça me coûte 100${N}€${N}: moins de 1${N}% de mon revenu.`) },
+        { id: 'progressif', label: 'Un impôt sur le revenu dont le taux monte avec le revenu', desc: 'Rien en bas, beaucoup en haut.', fx: { deficit: -1, croiss: -0.2, ineg: -8 },
+          chain: { good: ['Taux nul sur les petits revenus', 'Taux élevé sur les hauts revenus', 'L\'effort suit les moyens de chacun', 'Écarts de revenus réduits'], bad: ['Les plus aisés menacent de partir', 'Moins d\'intérêt à gagner davantage'] },
+          voix: F(`Ici, plus on gagne, plus la part prélevée est grande. Ce n'est pas seulement la somme qui augmente${N}: c'est le pourcentage.`, 'Mme Kaya, 1 400 €', `Je ne paie rien. Zéro. Ça me change.`, 'Mme Castel, 12 000 €', `On me prend 2${N}400${N}€ par mois, un cinquième de ce que je gagne. Mon comptable m'a parlé d'un pays voisin.`) },
+        { id: 'flat', label: 'Un impôt sur le revenu à taux unique de 15 %', desc: 'Simple : tout le monde paie la même part.', fx: { deficit: -0.6, ineg: 3 },
+          chain: { good: ['Même pourcentage pour tous', 'Impôt simple à comprendre', 'Les hauts revenus restent'], bad: ['15 % d\'un petit salaire, c\'est le budget des courses', '15 % d\'un gros, c\'est un peu moins d\'épargne', 'Écarts de niveau de vie inchangés ou creusés'] },
+          voix: F(`Chacun donne la même part. Mais ce qu'il reste après n'a pas du tout le même poids dans une vie.`, 'Mme Kaya, 1 400 €', `210${N}€ en moins. C'est ma semaine de courses.`, 'Mme Castel, 12 000 €', `1${N}800${N}€. Franchement, je m'attendais à pire.`) } ] },
+      { t: 'say', who: 'sorel', text: `Le chômage a explosé. Aujourd'hui, Valmont n'aide que ceux qui avaient cotisé assez longtemps avant de perdre leur emploi. Les jeunes qui n'ont jamais travaillé, les indépendants ruinés${N}: rien.` },
+      { t: 'choice', id: 'protection', prompt: `Qui l'État protège-t-il${N}?`, options: [
+        { id: 'assurance', label: 'Ceux qui ont cotisé, et eux seuls', desc: 'On reçoit parce qu\'on a payé.', fx: { deficit: 0.2, ineg: 4 },
+          chain: { good: ['Chaque salarié cotise', 'Celui qui perd son emploi est indemnisé', 'Selon ce qu\'il a versé'], bad: ['Ceux qui n\'ont jamais cotisé n\'ont rien', 'Jeunes et précaires sans ressources'] },
+          voix: F(`C'est le principe d'une assurance${N}: on se couvre contre un risque en payant d'avance. Qui n'a pas payé n'est pas couvert.`, 'M. Vidal, maçon licencié', `Quinze ans de cotisations. Je touche 60${N}% de mon salaire le temps de retrouver un chantier.`, 'Léa, 22 ans, sans emploi', `Je n'ai jamais eu de contrat. Donc je n'ai droit à rien. Je dors chez ma mère.`) },
+        { id: 'assistance', label: 'Tous ceux qui n\'ont rien, financé par l\'impôt', desc: 'On reçoit parce qu\'on en a besoin.', fx: { deficit: 0.5, ineg: -7 },
+          chain: { good: ['Un revenu minimum pour qui n\'a rien', 'Sans avoir cotisé', 'Personne ne tombe à zéro'], bad: ['Financé par l\'impôt de tous', 'Dépense en hausse', 'Certains dénoncent « l\'assistanat »'] },
+          voix: F(`Ici, ce n'est plus une assurance${N}: c'est la solidarité du pays envers ceux qui sont démunis, payée par l'impôt.`, 'Léa, 22 ans, sans emploi', `550${N}€ par mois. Ce n'est pas une vie, mais je peux payer le bus pour mes entretiens.`, 'M. Vidal, maçon licencié', `Moi j'ai cotisé quinze ans. Elle, jamais. Je ne dis pas que c'est mal… mais je le remarque.`) },
+        { id: 'deux', label: 'Les deux : l\'assurance pour ceux qui ont cotisé, un minimum pour les autres', desc: 'Deux filets, l\'un au-dessus de l\'autre.', fx: { deficit: 0.8, ineg: -9 },
+          chain: { good: ['Les cotisants gardent une part de leur salaire', 'Les autres ont un minimum', 'Personne n\'est oublié'], bad: ['Deux systèmes à financer', 'Cotisations et impôts en hausse'] },
+          voix: F(`Vous combinez les deux logiques${N}: on reçoit parce qu'on a payé, et, à défaut, parce qu'on en a besoin. C'est le plus protecteur et le plus cher.`, 'M. Vidal, maçon licencié', `Mes droits sont respectés. Ça me va.`, 'Léa, 22 ans, sans emploi', `Je ne suis plus invisible. C'est déjà ça.`) } ] },
+      { t: 'choice', id: 'famille', prompt: `Dernière question${N}: les aides aux familles avec enfants${N}?`, options: [
+        { id: 'tous', label: 'La même aide pour toutes les familles', desc: '150 € par enfant, quel que soit le revenu.', fx: { deficit: 0.3, ineg: -1 },
+          chain: { good: ['Chaque enfant ouvre le même droit', 'Les foyers sans enfant financent ceux qui en ont', 'Élever un enfant coûte moins cher à tous'], bad: ['Les familles aisées touchent autant que les autres', 'L\'écart entre riches et pauvres ne bouge presque pas'] },
+          voix: F(`L'argent va de ceux qui n'ont pas d'enfant vers ceux qui en ont, sans regarder le revenu. On compense une charge, on ne réduit pas les écarts.`, 'M. Vidal, deux enfants', `300${N}€ par mois. Ça paie la cantine et les chaussures.`, 'Mme Castel, trois enfants', `450${N}€. Je ne vais pas refuser, mais je n'en avais pas besoin.`) },
+        { id: 'modestes', label: 'Une aide réservée aux revenus modestes', desc: '250 € par enfant, sous 2 500 € de revenu.', fx: { deficit: 0.2, ineg: -5 },
+          chain: { good: ['Aide concentrée sur ceux qui en ont besoin', 'L\'argent va des plus aisés vers les plus modestes', 'Écarts de niveau de vie réduits'], bad: ['Juste au-dessus du seuil, on n\'a rien', 'Les familles aisées ne reçoivent plus rien'] },
+          voix: F(`L'argent va du haut de l'échelle vers le bas. Cette fois, vous réduisez les écarts. Mais il y a toujours quelqu'un juste au-dessus du seuil.`, 'M. Vidal, deux enfants', `500${N}€ par mois. Ma femme a pu reprendre une formation.`, 'Mme Castel, trois enfants', `Plus rien. Je paie pour les enfants des autres, et les miens ne comptent pas.`) },
+        { id: 'rien', label: 'Aucune aide', desc: 'Avoir des enfants est un choix personnel.', fx: { ineg: 2 },
+          chain: { good: ['Aucune dépense'], bad: ['Les familles modestes s\'appauvrissent', 'Des enfants grandissent dans la gêne'] },
+          voix: F(`Budget intact. Mais un enfant pauvre aujourd'hui, c'est souvent un adulte en difficulté dans vingt ans.`, 'M. Vidal, deux enfants', `On a supprimé le club de foot du petit. Puis la cantine.`, 'Mme Castel, trois enfants', `Pour moi, ça ne change rien.`) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 5 ------------------------------ */
+  { num: 5, title: 'Les élections', sub: 'Trois ans après le choc. Les Valmontois votent dimanche.', final: true,
+    steps: [
+      { t: 'event', who: 'sorel', text: s => `${cycle(262)}La vague est repartie, comme toujours. ${s.flags.savoir ? 'Et vos laboratoires commencent à produire : deux usines ont ouvert autour de l\'université. ' : ''}${s.flags.conc ? 'Les prix ont baissé dans les secteurs que vous avez ouverts. ' : ''}Avec l'activité, les impôts rentrent mieux${N}: le déficit se referme en partie tout seul.`,
+        fx: s => { const g = 2.2 + (s.flags.savoir ? 0.9 : 0) + (s.flags.conc ? 0.4 : 0); const c = s.croiss + g; return { croiss: g, chom: -Math.round(g * 4) / 10, deficit: c >= 2 ? -0.8 : c >= 0.5 ? -0.4 : 0 }; } },
+      { t: 'event', if: s => s.flags.ignorer && s.deficit > 3, who: 'vanrijn', text: `Trois ans que vous ignorez vos engagements. Les prêteurs ne vous font plus confiance, et moi non plus. La Commission place le budget de Valmont sous surveillance${N}: chaque dépense devra désormais m'être soumise.`, fx: { deficit: 0.3 } },
+      { t: 'say', who: 'drak', text: s => s.chom >= 10 ? `Un Valmontois sur dix sans emploi. Voilà le bilan. Dimanche, sanctionnez-le${N}!` : s.deficit > 3.5 ? `Il a acheté la reprise à crédit, et ce sont vos enfants qui rembourseront. Dimanche, sanctionnez-le${N}!` : s.ineg >= 60 ? `La reprise${N}? Pour qui${N}? Regardez autour de vous. Dimanche, sanctionnez-le${N}!` : `Soit. Les chiffres ne sont pas mauvais. Mais tout le monde aurait fait pareil. Dimanche, changez quand même${N}!` },
+      { t: 'say', who: 'arel', text: `Les bureaux de vote ferment dans une heure. Quoi qu'il arrive, vous avez tenu la barre dans la tempête. Voyons ce que les Valmontois en pensent.` }
+    ] }
+  ],
+
+  /* ------------------------------ FINS (ordre de priorité) ------------------------------ */
+  endings: [
+    { id: 'tutelle', when: s => s.deficit >= 5.5 || (s.flags.ignorer && s.deficit > 3), title: 'Sous surveillance', stamp: 'Budget contrôlé', color: '#FF5C6A',
+      text: `Tu as relancé sans compter, et sans tenir parole. Les prêteurs exigent des taux très élevés, et Bruxelles valide désormais chaque ligne du budget. Valmont a perdu une partie de sa liberté.` },
+    { id: 'depression', when: s => s.croiss < 0, title: 'La dépression', stamp: 'Trois ans de recul', color: '#FF5C6A',
+      text: `Tu as serré la vis en pleine tempête. Chaque coupe a fait reculer l'activité, donc les recettes, donc appelé de nouvelles coupes. Les comptes sont presque propres. Le pays, lui, est à l'arrêt.` },
+    { id: 'rue', when: s => s.ineg >= 68 || s.chom >= 11, title: 'Dans la rue', stamp: 'Colère sociale', color: '#FFC64F',
+      text: `La reprise est là, dans les statistiques. Dans les quartiers, on ne l'a pas vue. Trop de chômeurs, trop d'écarts${N}: les Valmontois ont voté avec leurs pieds, sur les ronds-points.` },
+    { id: 'reelu', when: s => s.croiss >= 2 && s.chom <= 8 && s.deficit <= 3.5 && s.ineg <= 55, title: 'Réélection', stamp: 'Bravo', color: '#4CD97B',
+      text: `Tu as soutenu l'activité quand elle s'effondrait, préparé l'avenir, tenu tes engagements et partagé l'effort. La Présidente est réélue, et te garde. M.${N}Drak réclame un recomptage.` },
+    { id: 'credit', when: s => s.croiss >= 2 && s.deficit > 3.5, title: 'La relance à crédit', stamp: 'Reprise fragile', color: '#FFC64F',
+      text: `La croissance est revenue, et tout le monde t'applaudit. Mais tu l'as financée en empruntant, et la facture reste entière. Ton successeur héritera d'une économie repartie et de caisses vides.` },
+    { id: 'sortie', when: s => true, title: 'Sortie de crise', stamp: 'Correct', color: '#7C9483',
+      text: `Valmont a traversé la tempête sans couler. La reprise est timide, les avis sont partagés, et l'élection s'est jouée à quelques voix. Personne ne fait mieux du premier coup.` }
+  ],
+
+  /* ------------------------------ DÉBRIEF (h = choix du joueur) ------------------------------ */
+  debrief: [
+    { act: 1, needs: ['budget'], title: 'Acte 1 — La récession', text: (h, s) => {
+        const b = h.budget === 'depenses' ? 'En lançant de grands travaux, tu as mené une politique de relance par la dépense publique.' : h.budget === 'impots' ? 'En baissant les impôts, tu as mené une politique de relance par les recettes.' : h.budget === 'rigueur' ? 'En réduisant les dépenses en pleine récession, tu as mené une politique de rigueur : elle allait dans le même sens que la crise, au lieu de la contrer.' : 'En n\'agissant pas, tu as laissé jouer seuls les amortisseurs automatiques (allocations chômage, baisse des impôts perçus).';
+        return `L\'activité économique connaît des <em>fluctuations</em> qui forment des <em>cycles</em> : une phase d\'<em>expansion</em>, un retournement (la <em>crise</em>), une <em>récession</em> (la production recule), parfois une <em>dépression</em> (récession longue et profonde), puis la reprise. L\'État peut chercher à lisser ces vagues par une <em>politique contracyclique</em> : soutenir l\'activité quand elle recule, la freiner quand elle s\'emballe. Son premier outil est la <em>politique budgétaire</em> : jouer sur les dépenses et les recettes de l\'État. ${b}`; },
+      chain: () => ({ good: ['Politique budgétaire de relance', 'Demande en hausse', 'Production en hausse', 'Emploi en hausse'], bad: ['Déficit public', 'Dette publique'] }) },
+    { act: 2, needs: ['bce'], title: 'Acte 2 — Tu n\'es pas seul', text: (h, s) => {
+        const e = h.europe === 'plan' ? 'Tu as négocié un délai avec la Commission.' : h.europe === 'coupes' ? 'Tu as choisi de revenir immédiatement dans les règles.' : h.europe === 'ignorer' ? 'Tu as refusé les règles, au prix de la confiance des prêteurs.' : 'Ton déficit respectait déjà la limite.';
+        return `Dans la zone euro, les États gardent leur budget mais acceptent des règles communes : les <em>critères européens</em> limitent le <em>déficit</em> à 3 % du PIB et la dette à 60 %. ${e} Le second grand outil, la <em>politique monétaire</em>, ne leur appartient plus : la <em>politique monétaire européenne</em> est conduite par la Banque centrale européenne, indépendante, dont l\'objectif premier est la stabilité des prix. Son instrument est le taux d\'intérêt directeur : en le baissant, elle rend le crédit moins cher et soutient l\'activité ; en le montant, elle la freine pour contenir la hausse des prix. Un pays seul ne peut donc plus ajuster la monnaie à sa propre situation.`; },
+      chain: () => ({ good: ['Baisse du taux directeur', 'Crédit moins cher', 'Investissement et consommation en hausse', 'Croissance'], bad: ['Crédit trop abondant', 'Inflation'] }) },
+    { act: 3, needs: ['court', 'long'], title: 'Acte 3 — Soigner ou reconstruire', text: (h, s) => {
+        const c = h.court === 'prime' || h.court === 'tva' ? 'Ta mesure d\'urgence agissait sur la demande : elle donnait aux ménages de quoi acheter.' : h.court === 'charges' ? 'Ta mesure d\'urgence agissait sur l\'offre : elle réduisait les coûts des entreprises.' : 'Tu n\'as pris aucune mesure d\'urgence.';
+        const l = h.long === 'savoir' ? 'En misant sur la recherche et la formation, tu as investi dans l\'<em>économie de la connaissance</em>.' : h.long === 'concurrence' ? 'En ouvrant des secteurs protégés, tu as mené une <em>politique de la concurrence</em>.' : 'Tu n\'as engagé aucune réforme de fond.';
+        return `Deux distinctions à retenir. D\'abord la durée : une politique <em>conjoncturelle</em> répond à la situation du moment (quelques mois) ; une politique <em>structurelle</em> transforme durablement le fonctionnement de l\'économie (des années). Ensuite la cible : une <em>politique de demande</em> soutient les achats des ménages et les commandes ; une <em>politique d\'offre</em> améliore les conditions de production des entreprises. ${c} ${l} L\'<em>économie de la connaissance</em> (recherche, innovation, formation) et les <em>politiques de la concurrence</em> sont des politiques structurelles.`; },
+      chain: () => ({ good: ['Politique de demande', 'Les ménages achètent plus', 'Les entreprises produisent plus'], bad: ['Politique d\'offre', 'Les entreprises produisent à moindre coût', 'Elles embauchent si elles ont des clients'] }) },
+    { act: 4, needs: ['impot', 'protection', 'famille'], title: 'Acte 4 — Qui paie, qui reçoit ?', text: (h, s) => {
+        const i = h.impot === 'progressif' ? 'Ton impôt était <em>progressif</em> : son taux augmentait avec le revenu.' : h.impot === 'tva' ? 'Ta hausse de TVA était proportionnelle à la dépense : elle pèse davantage sur les petits revenus, qui consomment tout ce qu\'ils gagnent.' : 'Ton impôt à taux unique était proportionnel : la même part pour tous, donc non <em>progressif</em>.';
+        const p = h.protection === 'assurance' ? 'Tu as retenu la seule logique d\'<em>assurance</em>.' : h.protection === 'assistance' ? 'Tu as retenu la logique d\'<em>assistance</em>.' : 'Tu as combiné <em>assurance</em> et <em>assistance</em>.';
+        const f = h.famille === 'tous' ? 'Ton aide identique pour toutes les familles relevait de la <em>redistribution horizontale</em>.' : h.famille === 'modestes' ? 'Ton aide réservée aux revenus modestes relevait de la <em>redistribution verticale</em>.' : 'Tu n\'as versé aucune aide aux familles.';
+        return `L\'État finance ses dépenses par les <em>impôts</em> et les <em>cotisations sociales</em> (prélevées sur les salaires), et par l\'emprunt. Un prélèvement est <em>progressif</em> quand son taux monte avec le revenu. ${i} Face aux <em>inégalités</em>, la <em>protection sociale</em> couvre les risques sociaux (maladie, vieillesse, chômage, charges de famille) selon deux logiques : l\'<em>assurance</em> (on reçoit parce qu\'on a cotisé) et l\'<em>assistance</em> (on reçoit parce qu\'on en a besoin, financé par l\'impôt). ${p} La <em>redistribution horizontale</em> va de ceux qui ne subissent pas un risque vers ceux qui le subissent, sans regarder le revenu (des sans-enfants vers les familles, des bien-portants vers les malades). La <em>redistribution verticale</em> va des hauts revenus vers les bas. ${f}`; },
+      chain: () => ({ good: ['Redistribution verticale', 'Des hauts revenus vers les bas', 'Inégalités réduites'], bad: ['Redistribution horizontale', 'Des non-exposés vers les exposés au risque', 'Risque couvert, écarts inchangés'] }) },
+    { act: 5, needs: ['famille'], finalOnly: true, title: 'Acte 5 — Les élections', text: (h, s) =>
+        `Aucune de tes décisions n\'était gratuite. Relancer soutient l\'emploi mais creuse le déficit. La rigueur assainit les comptes mais aggrave la récession. Les réformes de fond paient tard. La redistribution réduit les écarts mais peut décourager ou faire fuir. Et dans la zone euro, une partie des manettes n\'est plus à Valmont. C\'est cela, les marges de manœuvre d\'un État : réelles, mais limitées.` }
+  ],
+  vocab: ['Fluctuations et cycles', 'Expansion', 'Crise', 'Récession', 'Dépression', 'Politique contracyclique', 'Politique budgétaire', 'Politique monétaire', 'Politique monétaire européenne', 'Critères européens de déficit', 'Politique conjoncturelle / structurelle', 'Politique d\'offre / de demande', 'Politiques de la concurrence', 'Économie de la connaissance', 'Inégalités', 'Impôts et cotisations sociales', 'Progressivité', 'Protection sociale', 'Assurance / assistance', 'Redistribution horizontale / verticale']
+};
+let H = {};   // historique des choix (lu par le débrief)
+
+/* =====================================================================
+   2. DÉCOR — le bureau du ministre, avec vue sur Valmont (les usines s'éteignent ou repartent).
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const sky = S.croiss >= 1 ? '#4CD97B' : S.croiss >= 0 ? '#7C9483' : '#FF5C6A';
+  const smoke = S.croiss >= 0 ? `<path d="M171,44 Q167,36 173,30 M219,52 Q215,44 221,38" stroke="#7C9483" stroke-width="1.5" fill="none" opacity=".7"/>` : '';
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Le bureau du ministre">
+    <rect width="360" height="200" fill="#070c09"/><rect x="0" y="0" width="360" height="162" fill="#0a120c"/>
+    <rect x="130" y="22" width="150" height="86" fill="#07110c" stroke="#173322" stroke-width="2"/>
+    <g fill="#0d1710" stroke="${sky}" stroke-width="1.2" opacity=".9"><rect x="140" y="62" width="18" height="46"/><rect x="162" y="46" width="22" height="62"/><rect x="188" y="70" width="16" height="38"/><rect x="208" y="54" width="24" height="54"/><rect x="236" y="74" width="16" height="34"/><rect x="256" y="60" width="16" height="48"/></g>${smoke}
+    <line x1="205" y1="22" x2="205" y2="108" stroke="#173322" stroke-width="1.5"/>
+    <g transform="translate(296,30)"><line x1="0" y1="0" x2="0" y2="132" stroke="#7C9483" stroke-width="2"/><path d="M0,2 L30,2 L30,22 L0,22 Z" fill="#07110c" stroke="#4CD97B" stroke-width="1.5"/><circle cx="15" cy="12" r="5" fill="none" stroke="#4CD97B" stroke-width="1.5"/></g>
+    <g transform="translate(334,30)"><line x1="0" y1="0" x2="0" y2="132" stroke="#7C9483" stroke-width="2"/><path d="M0,2 L24,2 L24,22 L0,22 Z" fill="#07110c" stroke="#5B8FFF" stroke-width="1.5"/><circle cx="12" cy="12" r="5" fill="none" stroke="#FFC64F" stroke-width="1.5" stroke-dasharray="1.5 2.4"/></g>
+    <g transform="translate(150,122)"><rect x="0" y="0" width="130" height="10" fill="#141018" stroke="#B9A6FF" stroke-width="1.5"/><rect x="8" y="10" width="8" height="30" fill="#141018" stroke="#B9A6FF"/><rect x="114" y="10" width="8" height="30" fill="#141018" stroke="#B9A6FF"/><rect x="40" y="-10" width="26" height="10" fill="#07110c" stroke="#EEF3EC" stroke-width="1"/><rect x="74" y="-6" width="30" height="6" fill="#07110c" stroke="#EEF3EC" stroke-width="1"/></g>
+    <rect x="0" y="162" width="360" height="38" fill="#080d0a"/><line x1="0" y1="162" x2="360" y2="162" stroke="#173322" stroke-width="1.5"/>`;
+};
+
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      frame(st.who, `<div class="box">${whoTag(st.who)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="${st.step || 1}" value="${st.def}" aria-label="${st.prompt}">
+        <div class="range-l"><span>${st.show(st.min)}</span><span>${st.show(st.max)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        applyFx(res.fx); pushAfter(res.after); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">Tu as utilisé ces notions pour diriger. Voici comment on les appelle en économie.</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour aller au bout de l'année.</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

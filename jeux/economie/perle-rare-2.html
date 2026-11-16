@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Perle Rare 2 — Jeu Économie 1ère STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#4CD97B;--eco-dim:#2A8E4C;--bg:#050806;--panel:#0a120c;--panel2:#0d1710;--line:#173322;--txt:#EEF3EC;--muted:#7C9483;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(76,217,123,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(76,217,123,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#12201a;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070c09;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(76,217,123,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#04160a;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#04160a;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#102016;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#12201a;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#04160a;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#07110c;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#07110c;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.hud{grid-template-columns:repeat(5,minmax(0,1fr));}
+@media (max-width:420px){.hud{gap:4px;}.g{padding:6px 5px 7px;}.g-v{font-size:11px;}.g-l{font-size:8.2px;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 3) n'a pas besoin d'être touché.
+   Jauges : reuni (€ réunis pour le projet), reserve (€ gardés en caisse), mens (€ à rembourser par mois),
+            controle (% de l'entreprise que tu gardes), conf (confiance des financeurs, 0-100).
+   ===================================================================== */
+const N = ' ';
+const eur = n => Math.round(n).toLocaleString('fr-FR') + N + '€';
+const keur = n => (Math.round(n / 100) / 10).toLocaleString('fr-FR') + N + 'k€';
+const BUT = 40000;
+const manque = s => Math.max(0, BUT - s.reuni);
+const taux = s => s.apport >= 5000 ? 4 : 6;
+const MENS = { 15000: { 4: 280, 6: 290 }, 30000: { 4: 550, 6: 580 } };            // mensualités sur 5 ans
+const bonsLeves = s => s.conf >= 60 ? 10000 : s.conf >= 48 ? 6000 : 3000;          // ce que les clients acceptent de prêter
+const rallonge = s => Math.ceil(manque(s) / 500) * 500;
+
+const GAME = {
+  title: 'Perle Rare 2',
+  brand: 'PERLE <span>RARE 2</span>',
+  storeKey: 'perleRare2Fins',
+  backLink: '../../matieres/economie-1ere.html',
+  footer: 'Économie 1re STMG, thème 4',
+  kicker: 'Économie · 1re STMG · Thème 4',
+  pitch: `Ton stand de bubble tea cartonne. Un local se libère en plein centre-ville${N}: l'occasion d'ouvrir une vraie boutique. Il te faut 40${N}000${N}€. Tu en as 8${N}000. Trouve le reste… et assume la façon dont tu l'as trouvé.`,
+  meta: '4 actes · 15 minutes',
+  start: s => Object.assign(s, { reuni: 0, reserve: 8000, mens: 0, controle: 100, conf: 50, apport: 0, bons: 0, pret: 0 }),
+  hud: [
+    { k: 'reuni',    label: 'Financement réuni', short: 'Réuni',     show: s => keur(s.reuni),          pct: s => s.reuni / 400,   low: s => false, unit: N + '€' },
+    { k: 'reserve',  label: 'Réserve',           short: 'Réserve',   show: s => keur(s.reserve),        pct: s => s.reserve / 80,  low: s => s.reserve < 1000, unit: N + '€' },
+    { k: 'mens',     label: 'Mensualités',       short: 'Traites',   show: s => eur(s.mens),            pct: s => s.mens / 6,      low: s => s.mens > 350, unit: N + '€ par mois' },
+    { k: 'controle', label: 'Contrôle',          short: 'Contrôle',  show: s => s.controle + N + '%',   pct: s => s.controle,      low: s => s.controle < 51, unit: N + '%' },
+    { k: 'conf',     label: 'Confiance',         short: 'Confiance', show: s => Math.round(s.conf),     pct: s => s.conf,          low: s => s.conf < 40, clamp: true }
+  ],
+  fail: s => s.check && s.reuni < BUT ? 'abandon' : null,
+  lock: (s, cost) => null,
+  bilan: s => [['Financement réuni', eur(s.reuni)], ['Réserve', eur(s.reserve)], ['Mensualités', eur(s.mens) + ' par mois'], ['Contrôle', s.controle + N + '%']],
+
+  characters: {
+    lin:     { name: 'Mamie Lin',  role: 'ta voisine de marché',   color: '#FFC64F', body: '#8a5a22', hair: '#c9c9c9', acc: 'bun' },
+    leo:     { name: 'Léo',        role: 'client fidèle',          color: '#5B8FFF', body: '#3D62B8', hair: '#5a4630', acc: 'cap' },
+    karim:   { name: 'Karim',      role: 'patron de l\'atelier de perles', color: '#FF9D3D', body: '#B86A1F', hair: '#1c1c22', acc: 'box' },
+    vasseur: { name: 'M. Vasseur', role: 'banquier',               color: '#B9A6FF', body: '#3a3f4a', hair: '#1c1c22', acc: 'tie' },
+    ines:    { name: 'Inès',       role: 'cliente depuis le premier jour', color: '#FF8AD1', body: '#B8508F', hair: '#3a2418', acc: '' },
+    roche:   { name: 'Mme Roche',  role: 'adjointe à la mairie',   color: '#5FB8B0', body: '#2f5b57', hair: '#7a2f2f', acc: 'clip' },
+    narr:    { name: 'Toi',        role: '',                       color: '#4CD97B' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Qui a de l\'argent ?', sub: 'Un local, un devis, et un gros trou à combler.',
+    steps: [
+      { t: 'say', who: 'roche', text: `Le local de l'ancienne librairie se libère. Plein centre, grande vitrine. La mairie préférerait un commerce du quartier plutôt qu'une chaîne. Vous avez un mois pour monter votre dossier.` },
+      { t: 'say', who: 'narr', text: `J'ai fait faire les devis. Ça pique${N}:
+        <span class="pay"><span>Entrée dans le local et travaux</span><b>22${N}000${N}€</b><span>Machines et comptoir</span><b>12${N}000${N}€</b><span>Stock de départ, enseigne</span><b>6${N}000${N}€</b><span class="tot">Il me faut</span><b class="tot">40${N}000${N}€</b><span>Ce que le stand a mis de côté</span><b>8${N}000${N}€</b></span>` },
+      { t: 'say', who: 'lin', text: `Ne compte pas sur moi, hélas${N}! Depuis la retraite, je dépense plus que je ne gagne. C'est mon fils qui m'avance les fins de mois.` },
+      { t: 'say', who: 'leo', text: `Moi, j'ai 4${N}000${N}€ qui dorment sur mon livret. Mais te les prêter directement… Si ta boutique coule, je perds tout. À la banque, au moins, ils sont en sécurité.` },
+      { t: 'say', who: 'karim', text: `L'atelier tourne bien, j'ai des bénéfices dont je ne sais pas quoi faire. Ton projet m'intéresse. Va d'abord voir ta banque, on en reparle après.` },
+      { t: 'choice', id: 'demande', prompt: `À qui parles-tu de ton projet en premier${N}?`, options: [
+        { id: 'lin', label: 'À Mamie Lin', desc: 'Elle connaît le commerce depuis quarante ans.', fx: { conf: -3 },
+          after: [{ who: 'lin', text: `Des conseils, je t'en donne tant que tu veux. De l'argent, je n'en ai pas${N}: il m'en manque à moi aussi${N}!` }] },
+        { id: 'leo', label: 'À Léo', desc: 'Il a de l\'argent de côté.',
+          after: [{ who: 'leo', text: `J'y crois, à ta boutique. Mais mes économies, c'est ma sécurité. Trouve un moyen pour que je ne risque pas tout, et on verra.` }] },
+        { id: 'karim', label: 'À Karim', desc: 'Son atelier dégage des bénéfices.', fx: { conf: 3 },
+          after: [{ who: 'karim', text: `Tu as raison de venir me voir${N}: moi, j'ai plus d'argent que de projets. Toi, c'est l'inverse.` }] } ] },
+      { t: 'say', who: 'narr', text: `Première piste, la plus simple${N}: mes 8${N}000${N}€. Si je les mets dans le projet, je ne dois rien à personne. Mais c'est aussi ma seule réserve si le stand a un pépin.` },
+      { t: 'qty', id: 'apport', prompt: 'Sur tes 8 000 €, combien engages-tu dans la boutique ?', min: 0, max: 8000, step: 1000, def: 4000,
+        show: n => eur(n),
+        info: (s, n) => `Dans le projet${N}: <b>${eur(n)}</b> sur 40${N}000${N}€<br>Gardé en réserve${N}: <b>${eur(8000 - n)}</b>`,
+        resolve: (s, n) => { const base = { do: s => { s.apport = n; }, fx: { reuni: n, reserve: -n } };
+          return n >= 7000 ? Object.assign(base, { band: 'tout', fx: { reuni: n, reserve: -n, conf: 6 }, after: [{ who: 'karim', text: `Tu mets tout ton argent sur la table${N}? Ça montre que tu y crois. Mais il te manque encore ${eur(BUT - n)}, et tu n'as plus de filet.` }] })
+               : n <= 2000 ? Object.assign(base, { band: 'peu', fx: { reuni: n, reserve: -n, conf: -6 }, after: [{ who: 'karim', text: `Tu veux que les autres risquent leur argent, mais pas le tien${N}? Ça ne va pas rassurer grand monde.` }] })
+               : Object.assign(base, { band: 'milieu', fx: { reuni: n, reserve: -n, conf: 2 }, after: [{ who: 'lin', text: `Une part dans le projet, une part de côté. C'est ce que j'aurais fait.` }] }); } },
+      { t: 'event', if: s => s.reserve >= 1500, who: 'narr', text: `Jeudi, en plein rush${N}: la machine à sceller du stand rend l'âme. 1${N}500${N}€ de réparation. Je les sors de ma réserve et je rouvre le lendemain.`, fx: { reserve: -1500 }, set: { panneOk: true } },
+      { t: 'event', if: s => !s.flags.panneOk, who: 'narr', text: `Jeudi, en plein rush${N}: la machine à sceller du stand rend l'âme. 1${N}500${N}€ de réparation, et ma réserve ne suffit pas. Je reprends l'argent sur le projet, et le stand reste fermé une semaine.`, fx: s => ({ reuni: -(1500 - s.reserve), reserve: -s.reserve, conf: -8 }) }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'La banque', sub: 'Rendez-vous à 9 h. Chemise repassée, dossier sous le bras.',
+    steps: [
+      { t: 'say', who: 'vasseur', text: s => `Voyons votre dossier. Trois ans de comptes du stand, c'est sérieux. Vous apportez ${eur(s.apport)} de votre poche. ${s.apport >= 5000 ? `C'est un bel effort${N}: je peux vous proposer un taux de 4${N}%.` : s.apport > 2000 ? `C'est un peu juste${N}: ce sera 6${N}%.` : `C'est très peu. Je ne prêterai pas plus de 15${N}000${N}€, et à 6${N}%.`}` },
+      { t: 'choice', id: 'emprunt', prompt: `Combien empruntes-tu à la banque${N}?`, options: [
+        { id: 'rien', label: 'Rien', desc: 'Pas de dettes, pas de comptes à rendre.',
+          after: s => [{ who: 'vasseur', text: `C'est votre droit. Mais il vous manque ${eur(manque(s))}, et je doute que vos économies y suffisent un jour.` }] },
+        { id: 'p15', label: 'Emprunter 15 000 €', desc: s => `${eur(MENS[15000][taux(s)])} par mois pendant cinq ans.`, fx: s => ({ reuni: 15000, mens: MENS[15000][taux(s)] }), do: s => { s.pret = 15000; },
+          after: [{ who: 'vasseur', text: `Raisonnable. Signez ici, ici, et là.` }] },
+        { id: 'p30', label: 'Emprunter 30 000 €', desc: s => `${eur(MENS[30000][taux(s)])} par mois pendant cinq ans.`, lock: s => s.apport <= 2000 ? 'M. Vasseur refuse : ton apport est trop faible.' : null, fx: s => ({ reuni: 30000, mens: MENS[30000][taux(s)], conf: -5 }), do: s => { s.pret = 30000; },
+          after: [{ who: 'vasseur', text: `C'est une grosse somme pour un stand. Il faudra vendre beaucoup de bubble teas, tous les mois, sans exception.` }] } ] },
+      { t: 'say', who: 'narr', text: s => s.pret ? `Avant de partir, une question me brûle les lèvres${N}: «${N}Cet argent que vous me prêtez… c'est celui de Léo${N}? Celui qui dort sur son livret${N}?${N}»` : `Avant de partir, une question me brûle les lèvres${N}: «${N}Si j'avais emprunté… vous m'auriez prêté l'argent de Léo${N}? Celui qui dort sur son livret${N}?${N}»` },
+      { t: 'say', who: 'vasseur', text: s => { const p = s.pret || 15000; return `${s.pret ? 'Regardez mon écran. Je tape le montant, je valide.' : 'Regardez mon écran, je vous montre ce qui se serait passé.'}
+        <span class="pay tick"><span></span><b>Avant</b><b>Après</b><span>Compte Perle Rare</span><b>0${N}€</b><b>${eur(p)}</b><span>Livret de Léo</span><b>4${N}000${N}€</b><b>4${N}000${N}€</b></span>
+        Le livret de Léo n'a pas bougé d'un centime. Ces ${eur(p)} n'existaient nulle part il y a dix secondes${N}: ${s.pret ? 'je viens de les créer' : 'je les aurais créés'} en vous accordant le crédit.`; } },
+      { t: 'say', who: 'vasseur', text: `Et à chaque mensualité remboursée, cet argent disparaît comme il est venu. Voilà pourquoi je ne prête pas à n'importe qui${N}: si vous ne remboursez pas, c'est ma banque qui perd. Pas Léo. Lui, il nous confie ses économies justement pour ne pas porter ce risque.` },
+      { t: 'say', if: s => s.pret, who: 'vasseur', text: `Dernier point. Pour me couvrir, je vous demande une caution personnelle${N}: si la boutique ne paie plus, c'est vous qui payez, sur vos biens. Sans caution, le prêt me coûte plus cher… et à vous aussi.` },
+      { t: 'choice', if: s => s.pret, id: 'caution', prompt: `Signer la caution personnelle${N}?`, options: [
+        { id: 'oui', label: 'Je signe', desc: 'Si la boutique coule, je rembourse sur mes biens.', fx: { conf: 8 },
+          after: [{ who: 'vasseur', text: `Vous vous engagez personnellement. Pour un banquier, c'est le meilleur des signaux.` }] },
+        { id: 'non', label: 'Je refuse', desc: 'La boutique, oui. Mon appartement, non.', fx: { mens: 30, conf: -4 },
+          after: [{ who: 'vasseur', text: `Je comprends. Mais je prends plus de risque${N}: ce sera 30${N}€ de plus par mois.` }] } ] }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Sans la banque', sub: 'Il existe d\'autres façons de trouver de l\'argent. Aucune n\'est gratuite.',
+    steps: [
+      { t: 'say', who: 'karim', text: `Alors, ce rendez-vous${N}? Écoute ma proposition${N}: je ne te prête rien. Je deviens ton associé. Je mets de l'argent, et en échange une part de la boutique est à moi${N}: une part des bénéfices, et une voix dans les décisions. Rien à rembourser, jamais.` },
+      { t: 'choice', id: 'karim', prompt: `Faire entrer Karim dans la boutique${N}?`, options: [
+        { id: 'p30', label: '12 000 € contre 30 % de la boutique', desc: 'Il devient associé. Tu restes majoritaire.', fx: { reuni: 12000, controle: -30 },
+          after: [{ who: 'karim', text: `Associés${N}! Tu gardes la main. Mais 30${N}% des bénéfices sont pour moi, et je donnerai mon avis.` }] },
+        { id: 'p55', label: '24 000 € contre 55 % de la boutique', desc: 'Beaucoup d\'argent. Mais il devient majoritaire.', fx: { reuni: 24000, controle: -55 },
+          after: [{ who: 'karim', text: `Marché conclu. Avec 55${N}%, tu comprends bien que le dernier mot, maintenant, c'est moi.` }] },
+        { id: 'non', label: 'Refuser', desc: 'La boutique reste 100 % à toi.',
+          after: [{ who: 'karim', text: `Dommage. Tu préfères tenir la barre sans partage, je respecte.` }] } ] },
+      { t: 'say', who: 'ines', text: `Il paraît que tu cherches de l'argent pour la boutique${N}? On est plein de clients à vouloir t'aider. Pourquoi tu ne nous empruntes pas directement, à nous${N}? Sans passer par la banque.` },
+      { t: 'say', who: 'narr', text: `L'idée fait son chemin${N}: des «${N}bons Perle Rare${N}». Chaque client me prête 100${N}€ contre un bon signé. Dans deux ans, je rembourse le bon avec un supplément. À moi de les convaincre${N}: aucun banquier ne vérifie mon dossier à leur place.` },
+      { t: 'choice', id: 'bons', prompt: `Émettre des bons Perle Rare${N}?`, options: [
+        { id: 'b108', label: 'Oui, remboursés 108 € dans deux ans', desc: 'Un petit supplément pour les prêteurs.', fx: s => ({ reuni: bonsLeves(s) }), do: s => { s.bons = bonsLeves(s); s.du = s.bons * 1.08; },
+          after: s => [{ who: 'ines', text: `${s.bons >= 10000 ? `Tout est parti en trois jours${N}! Les gens ont confiance en toi.` : s.bons >= 6000 ? `Ça s'est bien vendu. Certains hésitent encore.` : `Honnêtement… peu de gens ont suivi. Ils ont peur de ne jamais revoir leur argent.`} Tu as récolté ${eur(s.bons)}.` }] },
+        { id: 'b112', label: 'Oui, remboursés 112 € dans deux ans', desc: 'Plus généreux, donc plus de prêteurs.', fx: s => ({ reuni: bonsLeves(s) + 3000 }), do: s => { s.bons = bonsLeves(s) + 3000; s.du = s.bons * 1.12; },
+          after: s => [{ who: 'ines', text: `À 112${N}€, même les prudents ont signé. Tu as récolté ${eur(s.bons)}. Mais dans deux ans, il faudra en rendre ${eur(s.bons * 1.12)}.` }] },
+        { id: 'non', label: 'Non', desc: 'Je ne veux rien devoir à mes clients.',
+          after: [{ who: 'ines', text: `Comme tu veux. On viendra quand même boire nos thés.` }] } ] },
+      { t: 'say', if: s => s.bons, who: 'ines', text: s => `Dis, j'ai besoin d'argent pour mes vacances. J'ai revendu mon bon à M.${N}Diallo. ${s.conf >= 55 ? `Il me l'a pris à 103${N}€${N}: tout le monde pense que tu rembourseras sans problème.` : `Il ne m'en a donné que 90${N}€${N}: il dit que ta boutique, ce n'est pas gagné.`}` },
+      { t: 'say', if: s => s.bons, who: 'narr', text: `Je n'ai pas touché un euro dans cet échange. Mon bon a juste changé de mains, et son prix dit ce que les gens pensent de ma boutique.` },
+      { t: 'say', who: 'roche', text: `TeaMax fait la même chose que vous, en mille fois plus grand. Pour ouvrir ses boutiques, il a vendu des parts de l'entreprise à des milliers d'inconnus, et il leur a aussi emprunté. Ces parts et ces reconnaissances de dette se revendent chaque jour à la Bourse.` },
+      { t: 'say', if: s => manque(s) > 0, who: 'roche', text: s => `Le propriétaire veut une réponse demain. Où en êtes-vous${N}? … ${eur(s.reuni)} sur 40${N}000. Il vous manque ${eur(manque(s))}.` },
+      { t: 'choice', if: s => manque(s) > 0, id: 'boucler', prompt: s => `Il manque ${eur(manque(s))}. Que fais-tu${N}?`, options: [
+        { id: 'reserve', label: 'Je vide ma réserve', desc: s => `Il te reste ${eur(s.reserve)} de côté.`, lock: s => s.reserve < manque(s) ? 'Ta réserve ne suffit pas.' : null, fx: s => ({ reserve: -manque(s), reuni: manque(s) }),
+          after: [{ who: 'narr', text: `Le compte y est. Mais ma réserve a fondu${N}: plus le droit au moindre pépin.` }] },
+        { id: 'rallonge', label: 'Je demande une rallonge à M. Vasseur', desc: s => `${eur(rallonge(s))} de plus, soit ${eur(rallonge(s) / 50)} par mois.`, lock: s => rallonge(s) > 8000 ? 'M. Vasseur refuse : la somme est trop importante.' : s.conf < 42 ? 'M. Vasseur refuse : ton dossier ne le rassure pas.' : null, fx: s => ({ reuni: rallonge(s), mens: rallonge(s) / 50 }),
+          after: [{ who: 'vasseur', text: `Accordé. Mais c'est la dernière fois${N}: vos mensualités commencent à peser lourd.` }] },
+        { id: 'renoncer', label: 'Je renonce au local', desc: 'Trop cher, trop risqué.',
+          after: [{ who: 'roche', text: `Je comprends. Je préviens le propriétaire.` }] } ] },
+      { t: 'event', if: s => manque(s) === 0, who: 'narr', text: s => `40${N}000${N}€. Le compte y est${N}! Je signe le bail, les mains un peu moites.${s.reuni > BUT ? ` Les ${eur(s.reuni - BUT)} en trop rejoignent ma réserve.` : ''}`, do: s => { s.surplus = s.reuni - BUT; }, fx: s => s.reuni > BUT ? { reserve: s.reuni - BUT, reuni: BUT - s.reuni } : {} },
+      { t: 'event', who: 'roche', text: s => manque(s) === 0 ? `Félicitations. La mairie est ravie. Rendez-vous à l'inauguration${N}!` : `Le propriétaire a signé ce matin avec une chaîne de cafés. Je suis désolée.`, do: s => { s.check = true; } }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Un an après l\'ouverture', sub: 'L\'enseigne est allumée. Les factures aussi.', final: true,
+    steps: [
+      { t: 'say', who: 'narr', text: s => `La boutique tourne. Un mois normal, elle dégage 900${N}€ une fois tout payé${s.mens ? `, avant les ${eur(s.mens)} de mensualités` : ''}.` },
+      { t: 'say', if: s => s.controle < 100 && s.controle >= 51, who: 'karim', text: `Belle année${N}! Voici ma part des bénéfices, comme convenu. Et si tu veux mon avis, il faudrait ouvrir le dimanche. Mais c'est toi qui décides.` },
+      { t: 'say', if: s => s.controle < 51, who: 'karim', text: `J'ai bien réfléchi. On arrête le thé au jasmin, ça ne rapporte pas assez. On passe au café à emporter. Et on ouvre le dimanche. Ce n'est pas une question${N}: j'ai 55${N}%.` },
+      { t: 'say', if: s => s.bons, who: 'ines', text: s => `Tout le monde adore la boutique${N}! Par contre, n'oublie pas${N}: dans un an, tu nous dois ${eur(s.du)} pour les bons.` },
+      { t: 'say', who: 'roche', text: `Mauvaise nouvelle${N}: la rue sera en travaux pendant deux mois. Plus de trottoir devant votre vitrine.` },
+      { t: 'event', if: s => s.mens > 350 && s.reserve < 6 * s.mens, who: 'narr', text: s => `Deux mois presque sans clients. Mais les ${eur(s.mens)} de mensualités, eux, tombent quand même. Ma réserve n'y suffit pas. M.${N}Vasseur a appelé deux fois ce matin.`, fx: s => ({ reserve: -s.reserve, conf: -20 }), set: { etrangle: true, choc: true } },
+      { t: 'event', if: s => !s.flags.choc && s.mens > 0, who: 'narr', text: s => `Deux mois presque sans clients. Les ${eur(s.mens)} de mensualités tombent quand même, mais ${s.mens <= 350 ? 'elles restent légères' : 'ma réserve encaisse le choc'}. Je serre les dents et ça passe.`, fx: s => ({ reserve: -Math.min(s.reserve, 2 * s.mens) }), set: { choc: true } },
+      { t: 'event', if: s => !s.flags.choc, who: 'narr', text: `Deux mois presque sans clients. Mais je n'ai aucune mensualité à payer${N}: personne ne m'appelle, personne ne me presse. J'attends la fin des travaux.` },
+      { t: 'say', who: 'lin', text: `Alors, cette boutique${N}? Raconte-moi tout. Et sers-moi un thé, tant que tu y es.` }
+    ] }
+  ],
+
+  /* ------------------------------ FINS (ordre de priorité) ------------------------------ */
+  endings: [
+    { id: 'abandon', when: s => s.reuni < BUT, title: 'Projet abandonné', stamp: 'Local perdu', color: '#FF5C6A',
+      text: `Tu n'as pas réuni les 40${N}000${N}€. Le local est parti, et tu retournes à ton stand. Un projet sans financement reste une idée.` },
+    { id: 'etrangle', when: s => s.flags.etrangle, title: 'La boutique étranglée', stamp: 'Trop de dettes', color: '#FF5C6A',
+      text: `Tu as beaucoup emprunté sans garder de marge. Au premier mauvais mois, les mensualités ont tout avalé. La banque réclame son dû, et la boutique est à vendre.` },
+    { id: 'karim', when: s => s.controle < 51, title: 'Chez Karim, désormais', stamp: 'Contrôle perdu', color: '#FFC64F',
+      text: `La boutique est ouverte, sans un euro de dette. Mais ce n'est plus vraiment la tienne${N}: Karim décide de la carte, des horaires et du reste. Tu sers du café.` },
+    { id: 'fragile', when: s => s.reserve < 1000, title: 'Sur le fil', stamp: 'Aucune marge', color: '#FFC64F',
+      text: `Tu as ouvert, et tu tiens. Mais il ne te reste rien de côté${N}: la prochaine panne, le prochain mauvais mois, et tout peut basculer.` },
+    { id: 'solide', when: s => s.controle >= 70 && s.mens <= 350 && s.reserve >= 2000, title: 'Montage solide', stamp: 'Bravo', color: '#4CD97B',
+      text: `Un peu de ton argent, un peu de celui des autres, des mensualités que tu peux porter et une réserve intacte. Tu as gardé la main, et la boutique a de l'avenir.` },
+    { id: 'tient', when: s => true, title: 'Ça tient', stamp: 'Correct', color: '#7C9483',
+      text: `La boutique est ouverte et elle traverse les mauvais mois. Le montage n'est pas parfait, mais il tient debout.` }
+  ],
+
+  /* ------------------------------ DÉBRIEF (h = choix du joueur) ------------------------------ */
+  debrief: [
+    { act: 1, needs: ['demande', 'apport'], title: 'Acte 1 — Qui a de l\'argent ?', text: (h, s) => {
+        const a = h.apport === 'tout' ? `Tu as engagé ${eur(h.apportv)}, presque toute ta caisse : un gros autofinancement, mais plus de filet.` : h.apport === 'peu' ? `Tu n\'as engagé que ${eur(h.apportv)} : peu d\'autofinancement, ce qui a inquiété ceux à qui tu demandais de l\'argent.` : `Tu as engagé ${eur(h.apportv)} et gardé le reste en réserve.`;
+        return `Ton projet coûtait plus que ce que tu avais : tu étais un <em>agent à besoin de financement</em>, comme Mamie Lin qui dépense plus qu\'elle ne gagne. Léo et Karim, eux, gagnent plus qu\'ils ne dépensent : ce sont des <em>agents à capacité de financement</em>. Tout l\'enjeu est de faire passer l\'argent des seconds vers les premiers. Utiliser ses propres économies s\'appelle l\'<em>autofinancement</em> (financement interne). ${a} Avec 8 000 € pour un projet de 40 000 €, il ne pouvait pas suffire : il fallait un <em>financement externe</em>.`; } },
+    { act: 2, needs: ['emprunt'], title: 'Acte 2 — La banque', text: (h, s) => {
+        const e = h.emprunt === 'rien' ? 'Tu as refusé l\'<em>emprunt</em> : pas d\'intérêts à payer, mais un gros trou à combler autrement.' : `Tu as contracté un <em>emprunt</em> de ${eur(s.pret)} : tu dois le rembourser chaque mois, avec des intérêts.`;
+        const c = h.caution === 'oui' ? 'En signant la caution, tu as réduit le risque du banquier, d\'où de meilleures conditions.' : h.caution === 'non' ? 'En refusant la caution, tu as laissé plus de risque à la banque, qui te l\'a fait payer.' : '';
+        return `${e} Passer par une banque, c\'est le <em>financement indirect</em> : la banque se place entre ceux qui ont de l\'argent (Léo) et ceux qui en cherchent (toi). Léo ne te connaît pas et ne prend aucun risque : c\'est la <em>banque qui prend en charge le risque</em> de ne pas être remboursée. ${c} Et l\'écran de M. Vasseur montre le plus surprenant : la banque ne t\'a pas donné l\'argent de Léo. En accordant un crédit, elle crée de la monnaie : c\'est la <em>création monétaire</em>. Cette monnaie est détruite au fil des remboursements.`; } },
+    { act: 3, needs: ['karim', 'bons'], title: 'Acte 3 — Sans la banque', text: (h, s) => {
+        const k = h.karim === 'non' ? 'Tu as refusé de vendre une part de la boutique à Karim : cette part aurait été une <em>action</em>.' : `La part de la boutique vendue à Karim est une <em>action</em> : elle donne droit à une part des bénéfices et à une voix dans les décisions${h.karim === 'p55' ? ', et avec 55 % il a pris le pouvoir' : ''}. Tu n\'as rien à lui rembourser.`;
+        const b = h.bons === 'non' ? 'Tu n\'as pas émis de bons : ils auraient été des <em>obligations</em>, des reconnaissances de dette.' : `Tes bons Perle Rare sont des <em>obligations</em> : des reconnaissances de dette, à rembourser avec un supplément (l\'intérêt). Tu as levé ${eur(s.bons)}, parce que les prêteurs te faisaient plus ou moins confiance : ici, ce sont eux qui portent le risque.`;
+        return `Trouver de l\'argent sans intermédiaire, directement auprès de ceux qui en ont, c\'est le <em>financement direct</em>. ${k} ${b} Actions et obligations sont des <em>titres financiers</em>. Pour celui qui les détient, ce sont des <em>actifs financiers</em> : une richesse qu\'il peut revendre, comme Inès. Le lieu où ces titres s\'émettent et se revendent est le <em>marché financier</em> (la Bourse). En réalité, seules les grandes entreprises comme TeaMax y ont accès : une petite boutique n\'émet pas d\'obligations, tes bons sont une version miniature pour comprendre le principe.`; } },
+    { act: 4, needs: ['karim'], finalOnly: true, title: 'Acte 4 — Le bilan', text: (h, s) =>
+        `Chaque source d\'argent a son prix. L\'autofinancement ne coûte rien mais vide la réserve. L\'emprunt laisse le pouvoir mais impose des mensualités, même les mauvais mois. Les actions ne se remboursent pas mais font partager les bénéfices et les décisions. Banques et marchés financiers se complètent : la plupart des entreprises combinent plusieurs sources.` }
+  ],
+  vocab: ['Agents à besoin de financement', 'Agents à capacité de financement', 'Autofinancement', 'Financement externe', 'Emprunt', 'Financement indirect', 'Banques', 'Prise en charge du risque', 'Création monétaire', 'Financement direct', 'Marché financier', 'Titres financiers', 'Actions', 'Obligations', 'Actifs financiers']
+};
+let H = {};   // historique des choix (lu par le débrief)
+
+/* =====================================================================
+   2. DÉCOR — le local, vide puis ouvert.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const open = act.num === 4;
+  const fill = Math.max(0, Math.min(1, S.reuni / BUT));
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Le local de la future boutique">
+    <rect width="360" height="200" fill="#070c09"/>
+    <rect x="0" y="0" width="360" height="162" fill="#0a120c"/>
+    <rect x="120" y="22" width="220" height="140" fill="#0d1610" stroke="#173322" stroke-width="2"/>
+    <rect x="132" y="30" width="196" height="24" fill="#07110c" stroke="${open ? '#4CD97B' : '#173322'}" stroke-width="1.5"/>
+    <text x="230" y="47" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="12" fill="${open ? '#4CD97B' : '#3a5a47'}">${open ? 'PERLE RARE' : 'LOCAL À LOUER'}</text>
+    <rect x="132" y="64" width="130" height="86" fill="${open ? '#0f1f16' : '#07110c'}" stroke="${open ? '#4CD97B' : '#173322'}" stroke-width="1.5"/>
+    <rect x="276" y="64" width="52" height="98" fill="#07110c" stroke="${open ? '#4CD97B' : '#173322'}" stroke-width="1.5"/><circle cx="284" cy="116" r="2" fill="#7C9483"/>
+    ${open ? `<g transform="translate(150,96)"><rect x="0" y="34" width="94" height="20" fill="#141018" stroke="#FF8AD1" stroke-width="1.2"/><path d="M12,8 L28,8 L25,32 L15,32 Z" fill="#141018" stroke="#FFC64F" stroke-width="1.3"/><circle cx="18" cy="27" r="2" fill="#FFC64F"/><circle cx="23" cy="24" r="2" fill="#FFC64F"/><path d="M44,8 L60,8 L57,32 L47,32 Z" fill="#141018" stroke="#4CD97B" stroke-width="1.3"/><circle cx="50" cy="27" r="2" fill="#4CD97B"/><path d="M76,8 L92,8 L89,32 L79,32 Z" fill="#141018" stroke="#FF8AD1" stroke-width="1.3"/><circle cx="84" cy="26" r="2" fill="#FF8AD1"/></g>`
+           : `<rect x="146" y="124" width="102" height="10" fill="#050806" stroke="#173322"/><rect x="146" y="124" width="${(102 * fill).toFixed(1)}" height="10" fill="#4CD97B" opacity=".85"/><text x="197" y="116" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11" fill="#7C9483">${Math.round(fill * 100)} % du financement</text>`}
+    <rect x="0" y="162" width="360" height="38" fill="#080d0a"/><line x1="0" y1="162" x2="360" y2="162" stroke="#173322" stroke-width="1.5"/>`;
+};
+
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] += v;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      frame(st.who, `<div class="box">${whoTag(st.who)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${o.label}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        applyFx(fx);
+        pushAfter(val(o.after, S)); next();
+      });
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="${st.step || 1}" value="${st.def}" aria-label="${st.prompt}">
+        <div class="range-l"><span>${st.show(st.min)}</span><span>${st.show(st.max)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        applyFx(res.fx); pushAfter(res.after); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p></div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">Tu as utilisé ces notions pour diriger. Voici comment on les appelle en économie.</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour aller au bout de l'année.</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

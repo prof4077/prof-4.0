@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Aux Manettes 3 — Jeu Économie Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#4CD97B;--eco-dim:#2A8E4C;--bg:#050806;--panel:#0a120c;--panel2:#0d1710;--line:#173322;--txt:#EEF3EC;--muted:#7C9483;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(76,217,123,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(76,217,123,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#12201a;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070c09;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(76,217,123,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#04160a;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#04160a;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#102016;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#12201a;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#04160a;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#07110c;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#07110c;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#07110c;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#07110c;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(76,217,123,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#07110c;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.leg.vil{display:grid;grid-template-columns:1fr auto;gap:4px 10px;margin:8px 6px 2px;font-size:13px;}
+.leg.vil i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;}
+.leg.vil b{font-family:'Rajdhani',sans-serif;font-size:15px;text-align:right;}
+.pyr .pay{margin:8px 6px 2px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 3) n'a pas besoin d'être touché.
+   Valmont est réduit à 100 habitants en âge de travailler :
+     emp (ont un emploi), cho (cherchent un emploi), ina (n'en cherchent pas) — toujours 100 au total.
+     sous = parmi ceux qui ont un emploi, ceux qui travaillent moins qu'ils ne voudraient.
+   Autres jauges : cout (milliards d'euros engagés), climat (climat social, 0-100).
+   Une option de choix peut porter chain (conséquences case par case) et voix (trois réactions).
+   ===================================================================== */
+const N = ' ';
+const pc = n => (Math.round(n * 10) / 10).toLocaleString('fr-FR') + N + '%';
+const tchom = s => s.cho / (s.emp + s.cho) * 100;                                  // taux de chômage
+const V = (sorel, drak, nom, hab) => [{ who: 'sorel', text: sorel }, { who: 'drak', text: drak }, { nom, text: hab }];
+function village(s, note) {                                                        // les 100 habitants, un point chacun
+  let dots = '';
+  for (let i = 0; i < 100; i++) {
+    const x = 16 + (i % 20) * 14, y = 14 + Math.floor(i / 20) * 15;
+    const t = i < s.sous ? 'sous' : i < s.emp ? 'emp' : i < s.emp + s.cho ? 'cho' : i < s.emp + s.cho + (s.stage || 0) ? 'stage' : 'ina';
+    dots += t === 'emp' ? `<circle cx="${x}" cy="${y}" r="5" fill="#4CD97B"/>` : t === 'sous' ? `<circle cx="${x}" cy="${y}" r="4" fill="none" stroke="#4CD97B" stroke-width="2"/>`
+          : t === 'cho' ? `<circle cx="${x}" cy="${y}" r="5" fill="#FF5C6A"/>` : t === 'stage' ? `<circle cx="${x}" cy="${y}" r="4" fill="none" stroke="#FFC64F" stroke-width="2"/>` : `<circle cx="${x}" cy="${y}" r="5" fill="#3a4a40"/>`;
+  }
+  return `<span class="pyr"><svg viewBox="0 0 300 92" role="img" aria-label="Les 100 habitants de Valmont en âge de travailler">${dots}</svg>
+    <span class="leg vil"><span><i style="background:#4CD97B"></i>Ont un emploi${s.sous ? ` (dont ${s.sous} à temps partiel subi, en creux)` : ''}</span><b>${s.emp}</b><span><i style="background:#FF5C6A"></i>Cherchent un emploi</span><b>${s.cho}</b><span><i style="background:#3a4a40"></i>N'en cherchent pas${s.stage ? ` (dont ${s.stage} en stage, en jaune)` : ''}</span><b>${s.ina}</b></span>${note || ''}</span>`;
+}
+const calculs = s => `<span class="pay"><span>Chômeurs ÷ (emplois + chômeurs)</span><b>${s.cho} ÷ ${s.emp + s.cho} = ${pc(tchom(s))}</b><span>Personnes en emploi ÷ 100 habitants</span><b>${s.emp}${N}%</b><span>(Emplois + chômeurs) ÷ 100 habitants</span><b>${s.emp + s.cho}${N}%</b></span>`;
+
+const GAME = {
+  title: 'Aux Manettes 3',
+  brand: 'AUX <span>MANETTES 3</span>',
+  storeKey: 'auxManettes3Fins',
+  backLink: '../../matieres/economie-terminale.html',
+  footer: 'Économie Terminale STMG, thème 7',
+  kicker: 'Économie · Terminale STMG · Thème 7',
+  pitch: `La Présidente de Valmont te nomme ministre du Travail. Sa consigne tient en une phrase${N}: «${N}Faites baisser le chômage avant les élections.${N}» Tu vas découvrir qu'il existe deux façons d'y arriver${N}: créer des emplois… ou changer la façon de compter.`,
+  meta: '5 actes · 20 minutes',
+  start: s => Object.assign(s, { emp: 63, cho: 7, ina: 30, sous: 5, stage: 0, cout: 0, climat: 55 }),
+  hud: [
+    { k: 'cho',    label: 'Chômeurs',            short: 'Chômage',      show: s => pc(tchom(s)),        pct: s => tchom(s) * 6, low: s => tchom(s) >= 10, inv: true },
+    { k: 'emp',    label: 'Personnes en emploi', short: 'Taux d\'emploi', show: s => s.emp + N + '%',   pct: s => (s.emp - 50) * 4, low: s => s.emp < 62 },
+    { k: 'cout',   label: 'Coût',                short: 'Coût',         show: s => s.cout + N + 'Md€',  pct: s => s.cout * 6,   low: s => s.cout > 12, inv: true, unit: N + 'Md€' },
+    { k: 'climat', label: 'Climat social',       short: 'Climat',       show: s => Math.round(s.climat), pct: s => s.climat,    low: s => s.climat < 35, clamp: true }
+  ],
+  norm: s => { if (s.cho < 3) { const d = 3 - s.cho; s.cho = 3; s.emp -= d; } },   // il reste toujours un peu de chômage de passage
+  fail: s => s.climat <= 20 ? 'greve' : null,
+  lock: (s, cost) => null,
+  bilan: s => [['Taux de chômage', pc(tchom(s))], ['Taux d\'emploi', s.emp + N + '%'], ['Temps partiel subi', s.sous + ' personnes sur 100'], ['Climat social', Math.round(s.climat) + ' / 100']],
+
+  characters: {
+    arel:    { name: 'Mme Arel',    role: 'Présidente de Valmont',     color: '#B9A6FF', body: '#3a3f4a', hair: '#8a8f96', acc: 'tie' },
+    sorel:   { name: 'Mme Sorel',   role: 'ta conseillère',            color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'clip' },
+    drak:    { name: 'M. Drak',     role: 'chef de l\'opposition',     color: '#FF5C7A', body: '#1c1c22', hair: '#7a2f2f', acc: 'tie' },
+    leveque: { name: 'Mme Lévêque', role: 'ta directrice de cabinet',  color: '#FFC64F', body: '#8a5a22', hair: '#c9a24a', acc: 'tie' },
+    garnier: { name: 'M. Garnier',  role: 'patron dans le bâtiment',   color: '#FF9D3D', body: '#B86A1F', hair: '#5a4630', acc: 'box' },
+    tran:    { name: 'Mme Tran',    role: 'dirigeante d\'une usine',   color: '#5B8FFF', body: '#3D62B8', hair: '#1c1c22', acc: 'clip' },
+    samia:   { name: 'Samia',       role: 'vendeuse, 12 heures par semaine', color: '#FF8AD1', body: '#B8508F', hair: '#3a2418', acc: 'bun' },
+    narr:    { name: 'Toi',         role: '',                          color: '#4CD97B' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Compter', sub: 'Avant de faire baisser un chiffre, encore faut-il savoir ce qu\'il mesure.',
+    steps: [
+      { t: 'say', who: 'arel', text: `Je vous confie le ministère du Travail. Les élections sont dans deux ans, et les Valmontois ne me parleront que d'une chose${N}: le chômage. Faites-le baisser.` },
+      { t: 'say', who: 'drak', text: `Regardez les chiffres en face${N}! Sur cent Valmontois en âge de travailler, trente-sept n'ont pas d'emploi. Trente-sept${N}! Et le gouvernement ose parler de 10${N}% de chômage${N}?` },
+      { t: 'say', who: 'sorel', text: s => `${village(s)}Il ne ment pas, et nous non plus. Voici Valmont ramené à cent habitants en âge de travailler. Trente-sept n'ont pas d'emploi, c'est exact. Mais trente d'entre eux n'en cherchent pas${N}: des étudiants, des parents au foyer, des gens qui ont renoncé. Seuls sept en cherchent un.` },
+      { t: 'say', who: 'sorel', text: s => `Tout dépend de ce qu'on divise, et par quoi. Avec les mêmes cent personnes, on obtient trois chiffres${N}: ${calculs(s)}Le premier est celui que tout le monde cite. Retenez les deux autres${N}: vous allez en avoir besoin.` },
+      { t: 'say', who: 'samia', text: `Excusez-moi, on m'a dit de venir vous voir. Je travaille douze heures par semaine dans un magasin. J'en voudrais trente-cinq, je n'arrive pas à vivre. On m'a répondu que je n'étais pas chômeuse, puisque j'ai un emploi. Alors je suis quoi${N}?` },
+      { t: 'say', who: 'sorel', text: `Elle est dans vos soixante-trois. Cinq personnes sur cent sont dans son cas${N}: elles ont un emploi, donc elles font monter les bons chiffres, mais elles voudraient travailler davantage. Aucun des trois calculs ne les montre.` },
+      { t: 'say', who: 'leveque', text: `J'ai une solution pour faire baisser le chômage en trois mois, sans dépenser un euro. Un${N}: on raye des listes ceux qui manquent un rendez-vous. Deux${N}: on envoie les autres en stage, ils ne seront plus comptés comme chercheurs d'emploi.` },
+      { t: 'choice', id: 'chiffre', prompt: `La proposition de ta directrice de cabinet${N}?`, options: [
+        { id: 'radier', label: 'D\'accord, on fait baisser le chiffre', desc: 'Radiations et stages, dès lundi.', fx: { cho: -3, ina: 3, climat: -5 }, set: { maquille: true }, do: s => { s.stage = 2; },
+          chain: { good: ['Trois chômeurs sortent des listes', 'Ils ne sont plus comptés', 'Le taux de chômage baisse', 'Bons titres dans la presse'], bad: ['Aucun emploi créé', 'Autant de personnes au travail qu\'avant', 'Les mêmes sont toujours sans emploi', 'Le chiffre ne dit plus la vérité'] },
+          voix: V(`Regardez votre deuxième chiffre${N}: il n'a pas bougé d'un point. Vous n'avez pas réduit le chômage, vous avez réduit le nombre de gens qu'on appelle chômeurs.`, `Tiens, tiens. Un miracle statistique. Je vais regarder ça de très près.`, 'M. Petit, radié', `J'ai raté un rendez-vous parce que mon bus était en panne. Je ne suis plus chômeur, paraît-il. Je n'ai toujours pas de travail.`) },
+        { id: 'refuser', label: 'Non : je veux des emplois, pas un meilleur chiffre', desc: 'Le chômage restera à 10 % pour l\'instant.', fx: { climat: 2 },
+          chain: { good: ['Le chiffre reste fidèle à la réalité', 'On sait qui il faut aider'], bad: ['Aucune bonne nouvelle à annoncer', 'La Présidente s\'impatiente'] },
+          voix: V(`Vous vous compliquez la vie, et vous avez raison. Désormais, surveillez le deuxième chiffre${N}: lui ne se maquille pas.`, `10${N}%, encore 10${N}%. Ce ministre ne fait rien.`, 'Mme Lévêque', `Comme vous voudrez. Mais dans trois mois, la Présidente vous demandera des résultats.`) },
+        { id: 'publier', label: 'Non, et je publie les trois chiffres, plus le temps partiel subi', desc: 'Tout sur la table, même ce qui fâche.', fx: { climat: 4 }, set: { transparent: true },
+          chain: { good: ['Tous les chiffres sont publics', 'Chacun voit qui est sans emploi, et qui en manque', 'Impossible de tricher ensuite'], bad: ['Le tableau paraît plus sombre', 'L\'opposition a de quoi attaquer'] },
+          voix: V(`C'est courageux. Vous venez de vous interdire le maquillage, à vous et à vos successeurs.`, `Il avoue${N}: cinq Valmontois sur cent n'ont que des miettes d'emploi${N}!`, 'Samia', `Pour la première fois, je suis dans un tableau. C'est bête, mais ça compte.`) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Pourquoi ils n\'embauchent pas', sub: 'Deux patrons dans ton bureau. Deux problèmes qui n\'ont rien à voir.',
+    steps: [
+      { t: 'say', who: 'garnier', text: `Vous voulez que j'embauche${N}? J'ai les meilleurs maçons de la région, et plus un chantier en vue. Je ne recrute pas pour aujourd'hui, je recrute pour les commandes que j'attends dans six mois. Et je n'en attends aucune.` },
+      { t: 'say', who: 'tran', text: `Moi, c'est l'inverse. Mes carnets sont pleins. J'ai trente postes de soudeurs ouverts depuis un an. Je reçois des candidats tous les jours${N}: aucun n'a la formation. Je refuse des commandes faute de bras.` },
+      { t: 'say', who: 'sorel', text: `Deux chômages différents. Chez M.${N}Garnier, il manque des clients${N}: quand l'activité repartira, il réembauchera. C'est l'affaire du ministre de l'Économie. Chez Mme${N}Tran, il y a des postes et des chômeurs, mais ils ne se correspondent pas. Ça, la reprise ne le réglera pas. C'est votre affaire.` },
+      { t: 'say', who: 'sorel', text: `Vous tenez trois leviers${N}: le salaire le plus bas qu'on ait le droit de verser, les règles du contrat de travail, et la négociation entre syndicats et patrons. Aucun n'a qu'un seul effet.` },
+      { t: 'choice', id: 'smic', prompt: `Le salaire minimum${N}?`, options: [
+        { id: 'hausse', label: 'Je l\'augmente de 5 %', desc: 'Les plus bas salaires gagnent plus.', fx: { emp: -1, cho: 1, climat: 8 },
+          chain: { good: ['Les bas salaires augmentent', 'Ces ménages dépensent tout', 'La consommation monte', 'Des commandes pour les entreprises'], bad: ['Un débutant coûte plus cher', 'Certains patrons renoncent à embaucher', 'Les moins qualifiés restent à la porte'] },
+          voix: V(`Les deux effets existent et se combattent. Aujourd'hui, à Valmont, le second l'emporte de peu${N}: les commandes manquent déjà.`, `Démagogie${N}! Il augmente les salaires d'entreprises qui n'ont plus de clients.`, 'Samia', `Douze heures mieux payées, c'est toujours douze heures. Mais merci.`) },
+        { id: 'gel', label: 'Je ne le touche pas', desc: 'Ni hausse, ni baisse.', fx: { climat: -4 },
+          chain: { good: ['Le coût d\'une embauche ne bouge pas', 'Aucun emploi détruit'], bad: ['Les prix montent, pas les bas salaires', 'Leur niveau de vie recule'] },
+          voix: V(`Vous n'avez rien cassé. Vous n'avez rien réparé non plus.`, `Les petits salaires attendront. Comme toujours.`, 'Samia', `Le loyer a augmenté, lui.`) },
+        { id: 'jeunes', label: 'Je crée un salaire réduit pour les moins de 25 ans', desc: '20 % de moins que le minimum.', fx: { emp: 2, cho: -2, sous: 1, climat: -8 },
+          chain: { good: ['Un jeune coûte moins cher à embaucher', 'Des patrons tentent leur chance', 'Des jeunes entrent dans l\'emploi'], bad: ['À travail égal, salaire inférieur', 'Certains remplacent un salarié plus âgé par un jeune', 'Colère dans les lycées et les universités'] },
+          voix: V(`Vous avez ouvert une porte à des jeunes qui restaient dehors. Vous avez aussi créé des salariés à prix réduit, et tout le monde l'a compris.`, `Une génération soldée${N}!`, 'Léo, 21 ans', `J'ai enfin un contrat. Je fais le même travail que mon collègue de 30 ans, pour un cinquième de moins.`) } ] },
+      { t: 'choice', id: 'regles', prompt: `Les règles du contrat de travail${N}?`, options: [
+        { id: 'flex', label: 'Je facilite les licenciements et les contrats courts', desc: 'Embaucher devient moins risqué.', fx: { emp: 2, cho: -2, sous: 3, climat: -8 },
+          chain: { good: ['Se séparer d\'un salarié devient simple', 'Embaucher fait moins peur', 'Les patrons recrutent plus volontiers'], bad: ['Les contrats sont courts', 'Les salariés peuvent être remerciés vite', 'Emplois plus nombreux mais plus fragiles'] },
+          voix: V(`Le chiffre s'améliore, c'est indéniable. Regardez maintenant combien de ces emplois sont des temps partiels ou des contrats de trois semaines.`, `Il fabrique des emplois jetables.`, 'Samia', `J'ai trouvé un deuxième contrat. Neuf heures, le samedi. Ça fait vingt et une, en deux endroits.`) },
+        { id: 'proteger', label: 'Je renforce la protection des salariés', desc: 'Licencier devient plus long et plus coûteux.', fx: { emp: -1, cho: 1, climat: 5 },
+          chain: { good: ['Les salariés en place sont mieux protégés', 'Moins de licenciements brutaux'], bad: ['Embaucher engage pour longtemps', 'Les patrons hésitent', 'Ceux qui sont dehors ont plus de mal à entrer'] },
+          voix: V(`Vous avez protégé ceux qui ont un emploi. Ceux qui n'en ont pas trouveront la porte un peu plus lourde.`, `Encore des contraintes sur nos entreprises${N}!`, 'M. Garnier', `Si je ne peux plus me séparer de quelqu'un quand les chantiers s'arrêtent, je n'embauche pas quand ils reprennent. C'est mathématique.`) },
+        { id: 'rien', label: 'Je ne change rien', desc: 'Les règles actuelles sont un équilibre.', fx: {},
+          chain: { good: ['Stabilité pour tous'], bad: ['Aucun effet sur l\'embauche'] },
+          voix: V(`Parfois, ne pas toucher à un équilibre est une décision.`, `L'immobilisme, version ministère du Travail.`, 'M. Garnier', `Au moins, je sais à quoi m'en tenir.`) } ] },
+      { t: 'say', who: 'sorel', text: `Dernier dossier. Dans le bâtiment, syndicats et représentants des patrons ont négocié pendant trois mois. Ils ont signé un accord${N}: 3${N}% d'augmentation et une prime de chantier. Il ne s'applique qu'aux entreprises dont le patron a signé. Vous pouvez le rendre obligatoire pour tout le secteur.` },
+      { t: 'choice', id: 'branche', prompt: `L'accord du bâtiment${N}?`, options: [
+        { id: 'etendre', label: 'Je le rends obligatoire dans tout le secteur', desc: 'Les mêmes règles pour toutes les entreprises du bâtiment.', fx: { climat: 6 },
+          chain: { good: ['Tous les salariés du secteur en bénéficient', 'Aucune entreprise ne peut casser les prix sur les salaires', 'La négociation sort renforcée'], bad: ['Les plus petites entreprises ont du mal à suivre'] },
+          voix: V(`Ce ne sont pas vos règles, ce sont les leurs${N}: vous leur avez simplement donné force de loi. C'est souvent mieux accepté.`, `Le ministre impose à tous ce que quelques-uns ont signé.`, 'M. Garnier', `Ça me coûte. Mais au moins, mon concurrent d'en face paiera ses gars comme moi.`) },
+        { id: 'libre', label: 'Je le laisse facultatif', desc: 'Chaque entreprise décide.', fx: { climat: -4 },
+          chain: { good: ['Liberté pour chaque entreprise'], bad: ['Certaines appliquent l\'accord, d\'autres non', 'Celles qui paient moins remportent les marchés', 'Les autres finissent par s\'aligner vers le bas'] },
+          voix: V(`Trois mois de négociation pour un accord que chacun peut ignorer. La prochaine fois, ils ne négocieront pas${N}: ils feront grève.`, `Il laisse faire, et il appelle ça gouverner.`, 'M. Garnier', `J'applique l'accord, mon concurrent non. Devinez qui a eu le dernier chantier.`) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'L\'État employeur', sub: 'Le premier employeur de Valmont, c\'est toi.',
+    steps: [
+      { t: 'say', who: 'arel', text: `Les hôpitaux manquent d'aides-soignants, les collèges de surveillants. Et vous avez des chômeurs. Certains ministres me disent d'embaucher. D'autres, de confier le ménage et les cantines à des entreprises. D'autres encore, de laisser partir les retraités sans les remplacer. Tranchez.` },
+      { t: 'choice', id: 'public', prompt: `Les emplois de l'État${N}?`, options: [
+        { id: 'recruter', label: 'Je recrute dans les hôpitaux et les écoles', desc: 'Des agents payés par l\'État.', fx: { emp: 2, cho: -2, cout: 3, climat: 5 },
+          chain: { good: ['L\'État embauche directement', 'Des chômeurs retrouvent un emploi', 'Hôpitaux et écoles fonctionnent mieux'], bad: ['Salaires à verser chaque année', 'Pendant toute une carrière', 'Dépense durable pour l\'État'] },
+          voix: V(`C'est le levier le plus direct que vous ayez${N}: vous décidez, et l'emploi existe. Mais vous ne pourrez pas revenir dessus avant quarante ans.`, `Il achète la baisse du chômage avec nos impôts.`, 'Mme Diop, aide-soignante', `On était deux pour trente lits. On est quatre. Je rentre chez moi sans pleurer, maintenant.`) },
+        { id: 'externaliser', label: 'Je confie le ménage et les cantines à des entreprises privées', desc: 'L\'État paie une facture au lieu de salaires.', fx: { cout: -1, sous: 2, climat: -5 },
+          chain: { good: ['L\'État ne gère plus ces tâches', 'Sa dépense baisse un peu', 'Les emplois existent toujours'], bad: ['Ils passent dans des entreprises privées', 'Contrats plus courts, horaires morcelés', 'Salaires souvent plus bas'] },
+          voix: V(`Le nombre d'emplois n'a pas changé${N}: ils ont changé d'employeur. Et pas toujours en mieux pour ceux qui les occupent.`, `Il brade le service public au moins offrant.`, 'Mme Diop, agent de cantine', `Même cantine, mêmes enfants. Nouveau patron, vingt heures au lieu de trente.`) },
+        { id: 'non', label: 'Je ne remplace pas ceux qui partent à la retraite', desc: 'Moins d\'agents, moins de dépenses.', fx: { emp: -1, cho: 1, cout: -2, climat: -6 },
+          chain: { good: ['Moins de salaires à verser', 'Dépense de l\'État en baisse'], bad: ['Des postes disparaissent', 'Moins d\'embauches pour les jeunes', 'Services publics débordés'] },
+          voix: V(`Les comptes s'allègent. Les files d'attente s'allongent. Et vous avez supprimé des emplois de vos propres mains.`, `Le ministre du Travail détruit du travail. Il fallait y penser.`, 'Mme Diop, aide-soignante', `Ma collègue est partie en juin. Personne n'est venu. Je fais ses lits et les miens.`) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Dix milliards', sub: 'Une enveloppe, deux façons de la dépenser.',
+    steps: [
+      { t: 'say', who: 'sorel', text: `La Présidente vous accorde dix milliards pour l'emploi. Vous pouvez soutenir ceux qui n'ont plus de travail${N}: allocations, départs anticipés pour les plus âgés. Ou les ramener vers l'emploi${N}: former des soudeurs pour Mme${N}Tran, accompagner les recherches, aider les patrons à embaucher. Le premier usage soulage tout de suite. Le second agit lentement.` },
+      { t: 'qty', id: 'enveloppe', prompt: 'Sur dix milliards, combien pour ramener les chômeurs vers l\'emploi ?', min: 0, max: 10, step: 1, def: 5,
+        show: n => n + N + 'Md€',
+        info: (s, n) => `Formation, accompagnement, aides à l'embauche${N}: <b>${n}${N}Md€</b><br>Allocations et départs anticipés${N}: <b>${10 - n}${N}Md€</b>`,
+        resolve: (s, n) => n >= 7 ? { band: 'actif', fx: { emp: 3, cho: -3, cout: 10, climat: -6 },
+            chain: { good: ['Des chômeurs sont formés aux métiers qui recrutent', 'Leurs compétences correspondent aux postes', 'Mme Tran trouve ses soudeurs', 'Des emplois durables'], bad: ['Allocations réduites', 'Ceux qui ne retrouvent rien s\'appauvrissent', 'Résultats visibles dans un an seulement'] },
+            voix: V(`Vous avez attaqué le chômage qui ne se règle pas tout seul. Mais vous avez laissé peu de chose à ceux qui attendent.`, `Il coupe les vivres aux chômeurs pour financer des stages.`, 'Mme Tran', `Douze soudeurs formés en huit mois. J'ai rouvert la ligne numéro 3.`) }
+          : n <= 3 ? { band: 'passif', fx: { cho: -1, ina: 1, cout: 10, climat: 6 },
+            chain: { good: ['Les chômeurs gardent un revenu', 'Ils continuent de consommer', 'Les plus âgés partent plus tôt'], bad: ['Personne n\'est mieux formé qu\'avant', 'Les postes de Mme Tran restent vides', 'Ceux qui partent plus tôt ne sont plus comptés, mais ne travaillent pas'] },
+            voix: V(`Vous avez protégé les gens, pas leur retour au travail. Et regardez${N}: un chômeur de moins, parce qu'il a cessé de chercher. Pas parce qu'il a trouvé.`, `Dix milliards pour payer les gens à attendre.`, 'M. Petit, 59 ans', `On m'a proposé de partir trois ans plus tôt. J'ai dit oui. Je ne cherche plus, donc je ne compte plus.`) }
+          : { band: 'mixte', fx: { emp: 2, cho: -2, cout: 10, climat: 2 },
+            chain: { good: ['Les chômeurs gardent un revenu correct', 'Une partie d\'entre eux est formée', 'Certains retrouvent un emploi durable'], bad: ['Trop peu de formations pour tous les postes vacants', 'Mme Tran cherche encore des soudeurs'] },
+            voix: V(`Vous avez tenu les deux bouts${N}: un revenu pendant qu'on cherche, et de quoi chercher mieux. Aucun des deux à fond.`, `Un peu de tout, beaucoup de rien.`, 'Mme Tran', `J'ai eu six soudeurs sur trente. C'est un début.`) } }
+    ] },
+
+  /* ------------------------------ ACTE 5 ------------------------------ */
+  { num: 5, title: 'Les chiffres du trimestre', sub: 'Publication officielle, en direct, devant la presse.', final: true,
+    steps: [
+      { t: 'say', who: 'sorel', text: s => `${village(s)}Voici Valmont aujourd'hui, toujours ramené à cent habitants. ${calculs(s)}` },
+      { t: 'event', if: s => s.flags.maquille, who: 'drak', text: s => `Le ministre se félicite d'un chômage à ${pc(tchom(s))}. Je lui pose une seule question${N}: combien de Valmontois ont un emploi${N}? ${s.emp} sur cent. Il y a deux ans${N}: 63. Où sont passés les chômeurs${N}? Rayés. Parqués en stage. Voilà la méthode.`, fx: { climat: -10 } },
+      { t: 'say', if: s => !s.flags.maquille && s.emp > 63, who: 'drak', text: s => `${s.emp} Valmontois sur cent au travail, contre 63 il y a deux ans. Soit. J'aurais préféré que ce soit grâce à nous.` },
+      { t: 'say', if: s => !s.flags.maquille && s.emp <= 63, who: 'drak', text: s => `${s.emp} Valmontois sur cent au travail. Il y a deux ans${N}: 63. Deux ans pour rien.` },
+      { t: 'say', if: s => s.sous >= 9, who: 'samia', text: `Vous vous souvenez de moi${N}? J'ai trois contrats maintenant. Vingt-six heures en tout, dans trois magasins, avec deux heures de bus entre chaque. Dans vos chiffres, je suis une réussite.` },
+      { t: 'say', if: s => s.sous < 9, who: 'samia', text: s => s.emp >= 66 ? `Vous vous souvenez de moi${N}? Mon magasin m'a passée à trente heures. Ce n'est pas encore trente-cinq, mais je paie mon loyer.` : `Vous vous souvenez de moi${N}? Toujours douze heures. Toujours pas chômeuse, paraît-il.` },
+      { t: 'say', who: 'arel', text: `J'ai vos chiffres, et j'ai entendu la salle. Voici ce que j'en retiens.` }
+    ] }
+  ],
+
+  /* ------------------------------ FINS (ordre de priorité) ------------------------------ */
+  endings: [
+    { id: 'greve', when: s => s.climat <= 20, title: 'Grève générale', stamp: 'Pays à l\'arrêt', color: '#FF5C6A',
+      text: `Trains, écoles, usines${N}: tout est bloqué. À force de décisions prises contre les salariés, tu as perdu ceux sans qui rien ne tourne. La Présidente annonce ton remplacement au journal de 20${N}h.` },
+    { id: 'maquille', when: s => s.flags.maquille && s.emp <= 65, title: 'Le chiffre maquillé', stamp: 'Statistique truquée', color: '#FF5C6A',
+      text: `Le taux de chômage a baissé. Le nombre de Valmontois au travail, presque pas. Tu as changé la façon de compter, pas la réalité, et tout le pays l'a compris en une conférence de presse.` },
+    { id: 'pauvres', when: s => s.sous >= 9, title: 'Les travailleurs pauvres', stamp: 'Emplois en miettes', color: '#FFC64F',
+      text: `Presque tout le monde a un emploi. Beaucoup en ont deux ou trois, de quelques heures, mal payés, jamais sûrs. Les chiffres sont excellents. Les fins de mois, non.` },
+    { id: 'masse', when: s => tchom(s) >= 11 || s.emp <= 61, title: 'Chômage de masse', stamp: 'Rien n\'a pris', color: '#FF5C6A',
+      text: `Deux ans de ministère, et davantage de Valmontois sans travail qu'à ton arrivée. Tes décisions ont protégé ceux qui avaient déjà un emploi, et fermé la porte aux autres.` },
+    { id: 'plein', when: s => tchom(s) <= 6 && s.emp >= 67 && s.climat >= 45, title: 'Plein emploi', stamp: 'Bravo', color: '#4CD97B',
+      text: `Presque tous ceux qui cherchent un emploi en trouvent un, et de vrais emplois. Il reste quelques chômeurs, le temps de passer d'un poste à l'autre${N}: c'est normal. La Présidente fait campagne sur ton bilan.` },
+    { id: 'honorable', when: s => true, title: 'Mandat honorable', stamp: 'Correct', color: '#7C9483',
+      text: `Le chômage a un peu reculé, sans miracle et sans tricherie majeure. Tu as appris qu'aucun levier n'a un seul effet, et que le chiffre le plus cité n'est pas toujours le plus parlant.` }
+  ],
+
+  /* ------------------------------ DÉBRIEF (h = choix du joueur) ------------------------------ */
+  debrief: [
+    { act: 1, needs: ['chiffre'], title: 'Acte 1 — Compter', text: (h, s) => {
+        const c = h.chiffre === 'radier' ? 'En radiant des chômeurs et en les envoyant en stage, tu les as fait passer chez les inactifs : le taux de chômage a baissé, pas le taux d\'emploi.' : h.chiffre === 'publier' ? 'En publiant tous les chiffres, tu as montré que le taux de chômage seul ne suffit pas.' : 'En refusant de toucher aux listes, tu as gardé un taux de chômage fidèle à la réalité.';
+        return `La <em>population active</em> regroupe ceux qui ont un emploi et ceux qui en cherchent un (les chômeurs). Les autres forment la <em>population inactive</em> : étudiants, retraités, personnes au foyer. Le <em>taux d\'activité</em> = actifs ÷ population en âge de travailler. Le <em>taux de chômage</em> = chômeurs ÷ population active. Le <em>taux d\'emploi</em> = personnes en emploi ÷ population en âge de travailler. ${c} Samia, elle, était en <em>sous-emploi</em> : elle a un emploi mais travaille moins qu\'elle ne le souhaite.`; },
+      chain: () => ({ good: ['Chômeurs', '÷ population active', '= taux de chômage'], bad: ['Personnes en emploi', '÷ population en âge de travailler', '= taux d\'emploi'] }) },
+    { act: 2, needs: ['smic', 'regles', 'branche'], title: 'Acte 2 — Pourquoi ils n\'embauchent pas', text: (h, s) => {
+        const sm = h.smic === 'hausse' ? 'En relevant le <em>salaire minimum</em>, tu as soutenu la consommation mais renchéri l\'embauche des moins qualifiés.' : h.smic === 'jeunes' ? 'Avec un <em>salaire minimum</em> réduit pour les jeunes, tu as abaissé le coût de leur embauche, au prix d\'une inégalité de traitement.' : 'En gelant le <em>salaire minimum</em>, tu n\'as joué ni sur le coût du travail ni sur le pouvoir d\'achat.';
+        const r = h.regles === 'flex' ? 'En assouplissant les règles, tu as réduit les <em>contraintes légales</em> : plus d\'embauches, plus de précarité.' : h.regles === 'proteger' ? 'En renforçant les <em>contraintes légales</em>, tu as protégé les salariés en place et freiné les embauches.' : 'Tu as laissé les <em>contraintes légales</em> en l\'état.';
+        const b = h.branche === 'etendre' ? 'En étendant l\'accord du bâtiment, tu en as fait une <em>contrainte conventionnelle</em> pour tout le secteur.' : 'En laissant l\'accord facultatif, tu as affaibli la <em>négociation salariale</em>.';
+        return `Attention au vocabulaire : ce sont les entreprises qui <em>demandent du travail</em> (elles font des <em>offres d\'emploi</em>) et les personnes qui <em>offrent leur travail</em> (elles font des <em>demandes d\'emploi</em>). M. Garnier illustre le <em>chômage conjoncturel</em> : il vient d\'une activité trop faible ; les entreprises embauchent selon la <em>demande anticipée</em>, c\'est-à-dire les ventes qu\'elles prévoient. Mme Tran illustre le <em>chômage structurel</em> : des postes et des chômeurs existent, mais ne se correspondent pas (formation, règles, coût du travail). ${sm} ${r} ${b}`; },
+      chain: () => ({ good: ['Demande anticipée faible', 'Peu d\'offres d\'emploi', 'Chômage conjoncturel'], bad: ['Postes et chômeurs ne se correspondent pas', 'Offres d\'emploi non pourvues', 'Chômage structurel'] }) },
+    { act: 3, needs: ['public'], title: 'Acte 3 — L\'État employeur', text: (h, s) => {
+        const p = h.public === 'recruter' ? 'En recrutant, tu as créé de l\'<em>emploi public</em>.' : h.public === 'externaliser' ? 'En confiant ménage et cantines à des entreprises, tu as choisi l\'<em>externalisation</em>.' : 'En ne remplaçant pas les départs, tu as réduit l\'<em>emploi public</em>.';
+        return `L\'État est lui-même un employeur : l\'<em>emploi public</em> (hôpitaux, écoles, administrations) pèse lourd dans l\'emploi total. ${p} L\'<em>externalisation</em> consiste à faire réaliser par des entreprises privées des tâches que l\'État assurait lui-même : l\'emploi ne disparaît pas, il change d\'employeur et de conditions.`; } },
+    { act: 4, needs: ['enveloppe'], title: 'Acte 4 — Dix milliards', text: (h, s) => {
+        const e = h.enveloppe === 'actif' ? `Avec ${h.enveloppev} milliards pour le retour à l\'emploi, tu as privilégié les politiques actives.` : h.enveloppe === 'passif' ? `Avec seulement ${h.enveloppev} milliard${h.enveloppev > 1 ? 's' : ''} pour le retour à l\'emploi, tu as privilégié les politiques passives.` : `Avec ${h.enveloppev} milliards pour le retour à l\'emploi, tu as partagé l\'effort entre les deux.`;
+        return `Les <em>politiques passives</em> rendent le chômage supportable : elles indemnisent les chômeurs ou réduisent le nombre d\'actifs (départs anticipés). Les <em>politiques actives</em> cherchent à ramener vers l\'emploi : formation, accompagnement, aides à l\'embauche, emplois aidés. ${e} On parle de <em>plein emploi</em> quand presque tous ceux qui cherchent un emploi en trouvent un : il reste un peu de chômage, le temps de passer d\'un poste à l\'autre.`; },
+      chain: () => ({ good: ['Politiques actives', 'Formation et accompagnement', 'Retour à l\'emploi'], bad: ['Politiques passives', 'Indemnisation, départs anticipés', 'Revenu maintenu, pas d\'emploi créé'] }) },
+    { act: 5, needs: ['enveloppe'], finalOnly: true, title: 'Acte 5 — Les chiffres du trimestre', text: (h, s) =>
+        `Un seul chiffre ne dit jamais tout. Le taux de chômage peut baisser parce que des gens trouvent un emploi, ou parce qu\'ils cessent d\'en chercher. Le taux d\'emploi peut monter avec des emplois solides, ou avec des miettes. Pour juger une politique de l\'emploi, il faut regarder ensemble le taux de chômage, le taux d\'emploi et le sous-emploi.` }
+  ],
+  vocab: ['Population active / inactive', 'Taux d\'activité', 'Taux de chômage', 'Taux d\'emploi', 'Sous-emploi', 'Plein emploi', 'Demande de travail / offre d\'emploi', 'Offre de travail / demande d\'emploi', 'Chômage conjoncturel', 'Demande anticipée', 'Chômage structurel', 'Salaire minimum', 'Négociations salariales', 'Contraintes légales et conventionnelles', 'Emploi public', 'Externalisation', 'Politiques actives', 'Politiques passives']
+};
+let H = {};   // historique des choix (lu par le débrief)
+
+/* =====================================================================
+   2. DÉCOR — le ministère du Travail : la file d'attente devant le guichet raccourcit ou s'allonge.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  let file = '';
+  for (let i = 0; i < Math.min(12, S.cho); i++) file += `<g transform="translate(${150 + i * 15},128)"><circle cx="0" cy="0" r="5" fill="#FF5C6A" opacity=".85"/><rect x="-4" y="6" width="8" height="18" rx="3" fill="#FF5C6A" opacity=".6"/></g>`;
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Le ministère du Travail">
+    <rect width="360" height="200" fill="#070c09"/><rect x="0" y="0" width="360" height="162" fill="#0a120c"/>
+    <rect x="132" y="24" width="196" height="26" fill="#07110c" stroke="#4CD97B" stroke-width="1.5"/><text x="230" y="42" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="11" fill="#4CD97B">AGENCE POUR L'EMPLOI</text>
+    <text x="230" y="76" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="13" fill="#7C9483">${S.emp} sur 100 ont un emploi</text>
+    <rect x="132" y="86" width="196" height="8" fill="#07110c" stroke="#173322"/><rect x="132" y="86" width="${(196 * S.emp / 100).toFixed(0)}" height="8" fill="#4CD97B" opacity=".8"/>
+    ${file}
+    <rect x="0" y="162" width="360" height="38" fill="#080d0a"/><line x1="0" y1="162" x2="360" y2="162" stroke="#173322" stroke-width="1.5"/>`;
+};
+
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      frame(st.who, `<div class="box">${whoTag(st.who)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="${st.step || 1}" value="${st.def}" aria-label="${st.prompt}">
+        <div class="range-l"><span>${st.show(st.min)}</span><span>${st.show(st.max)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">Tu as utilisé ces notions pour diriger. Voici comment on les appelle en économie.</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour aller au bout de l'année.</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

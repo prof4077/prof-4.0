@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>La Cuisine — Jeu Droit Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#FF9D3D;--eco-dim:#B86A1F;--bg:#080604;--panel:#120e09;--panel2:#17110a;--line:#3a2a14;--txt:#EEF3EC;--muted:#9a8e7c;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(255,157,61,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(255,157,61,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#20170d;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(255,157,61,.5);background:rgba(255,157,61,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#0b0805;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(255,157,61,.09), rgba(18,14,9,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#1a0e02;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#1a0e02;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#20170d;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#20170d;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#1a0e02;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#110c07;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#110c07;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#110c07;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.clause{display:block;margin:8px 0 0;padding:8px 12px;border-left:3px solid var(--eco);background:#110c07;font-size:14px;line-height:1.45;color:var(--txt);}
+.clause b{color:var(--eco);}
+.plead-h{margin:-4px 0 12px;color:var(--muted);font-size:14px;}
+.opt.arg[aria-pressed="true"]{border-color:var(--eco);background:rgba(255,157,61,.12);}
+.arg-n{font-family:'Orbitron',sans-serif;font-weight:800;color:var(--eco);min-width:14px;text-align:right;}
+.verdict{display:inline-block;margin:10px 0 0;padding:3px 10px;font-family:'Orbitron',sans-serif;font-weight:800;font-size:10px;letter-spacing:1px;text-transform:uppercase;border:1px solid;}
+.verdict.tient{color:#4CD97B;border-color:#4CD97B;}
+.verdict.tombe{color:#FF5C6A;border-color:#FF5C6A;}
+.robe-next{margin:22px 0 4px;padding:14px 16px;border:1px dashed var(--eco);font-size:15px;line-height:1.5;}
+.robe-next b{color:var(--eco);}
+.deb .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0 12px;font-size:14px;}
+.deb .two ul{margin:6px 0 0 18px;}
+.deb .two li{margin-bottom:4px;}
+@media (max-width:420px){.deb .two{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 3) n'a pas besoin d'être touché.
+   Une affaire, deux robes : robe a = avocat de Mme Benali, robe b = avocat de Cuisines Prestige.
+   Jauges : dossier (solidité du dossier, 0-100), conf (confiance du client, 0-100),
+            frais (frais engagés par le client, €), mois (durée de l'affaire).
+   Étape « plead » : le joueur choisit 3 arguments sur 6 ; chacun tient (ok) ou tombe selon le dossier constitué.
+   ===================================================================== */
+const N = ' ';
+const DROIT = '#FF9D3D';
+const eur = n => Math.round(n).toLocaleString('fr-FR') + N + '€';
+const CONTRAT = `<span class="pay"><span>Cuisine équipée, posée</span><b>12${N}000${N}€</b><span>Acompte, versé dix jours après la signature</span><b>3${N}000${N}€</b><span>Solde, à payer à la pose</span><b>9${N}000${N}€</b></span>
+  <span class="clause"><b>Article 4.</b> Le délai de livraison est donné à titre indicatif. Le vendeur ne saurait être tenu responsable d'un retard.</span>
+  <span class="clause"><b>Article 7.</b> L'acompte reste acquis au vendeur en cas d'annulation par le client.</span>
+  <span class="clause"><b>Article 9.</b> Tout retard de paiement entraîne une pénalité de 10${N}% du solde par mois de retard.</span>`;
+const LAB = {
+  a1: 'Elle n\'a jamais reçu le formulaire : elle se rétracte', a2: 'La cuisine n\'est pas conforme : elle pouvait suspendre son paiement', a3: 'L\'article 4 est une clause abusive',
+  a4: 'La pénalité de 10 % par mois est excessive', a5: 'Le retard de trois mois mérite réparation', a6: 'Le commercial l\'a piégée : le contrat est nul',
+  b1: 'Le contrat s\'impose : le solde est dû', b2: 'Retenir 9 000 € pour un défaut à 800 € est disproportionné', b3: 'Nous avons proposé deux fois de réparer',
+  b4: 'Le formulaire a été remis : plus de rétractation possible', b5: 'La pénalité de 10 % est due, elle est au contrat', b6: 'Le retard vient de notre fournisseur'
+};
+
+const GAME = {
+  title: 'La Cuisine',
+  brand: 'LA <span>CUISINE</span>',
+  storeKey: 'laCuisineFins',
+  backLink: '../../matieres/droit-terminale.html',
+  footer: 'Droit Terminale STMG, thème 5',
+  kicker: 'Droit · Terminale STMG · Thème 5',
+  pitch: `Un commercial sonne chez Mme Benali. Une heure plus tard, elle a signé pour une cuisine à 12${N}000${N}€. Elle arrive trois mois en retard, avec un plan de travail fissuré. Mme Benali refuse de payer le solde, Cuisines Prestige l'attaque. Deux clients, deux avocats. Tu vas être les deux.`,
+  meta: '2 robes · 15 minutes chacune',
+  start: s => Object.assign(s, { dossier: 20, conf: 60, frais: 0, mois: 0, stop: null, res: null }),
+  hud: [
+    { k: 'dossier', label: 'Dossier',   short: 'Dossier',   show: s => Math.round(s.dossier), pct: s => s.dossier,     low: s => s.dossier < 30, clamp: true },
+    { k: 'conf',    label: 'Confiance', short: 'Confiance', show: s => Math.round(s.conf),    pct: s => s.conf,        low: s => s.conf < 35, clamp: true },
+    { k: 'frais',   label: 'Frais',     short: 'Frais',     show: s => eur(s.frais),          pct: s => s.frais / 15,  low: s => s.frais > 1200, inv: true, unit: N + '€' },
+    { k: 'mois',    label: 'Durée',     short: 'Durée',     show: s => s.mois + N + 'mois',   pct: s => s.mois * 8,    low: s => false, inv: true, unit: N + 'mois' }
+  ],
+  fail: s => s.stop || (s.conf <= 15 ? 'congedie' : null),
+  lock: (s, cost) => null,
+  bilan: s => [['Dossier', Math.round(s.dossier) + ' / 100'], ['Confiance du client', Math.round(s.conf) + ' / 100'], ['Frais engagés', eur(s.frais)], ['Durée de l\'affaire', s.mois + N + 'mois']],
+
+  characters: {
+    benali:   { name: 'Mme Benali',   role: 'infirmière, cliente de Cuisines Prestige', color: '#FF8AD1', body: '#B8508F', hair: '#3a2418', acc: 'bun' },
+    delmas:   { name: 'M. Delmas',    role: 'gérant de Cuisines Prestige',             color: '#5B8FFF', body: '#3D62B8', hair: '#5a4630', acc: 'box' },
+    garnier:  { name: 'Me Garnier',   role: 'associée de ton cabinet',                 color: '#B9A6FF', body: '#1c1c22', hair: '#8a8f96', acc: 'tie' },
+    kessler:  { name: 'Me Kessler',   role: 'avocat de Cuisines Prestige',             color: '#5FB8B0', body: '#1c1c22', hair: '#1c1c22', acc: 'tie' },
+    riviere:  { name: 'Me Rivière',   role: 'avocate de Mme Benali',                   color: '#FFC64F', body: '#1c1c22', hair: '#7a2f2f', acc: 'tie' },
+    vasquez:  { name: 'M. Vasquez',   role: 'expert judiciaire',                       color: '#4CD97B', body: '#2f7a4a', hair: '#c9c9c9', acc: 'clip' },
+    juge:     { name: 'Mme Delacroix', role: 'juge au tribunal judiciaire',            color: '#FF9D3D', body: '#1c1c22', hair: '#c9a24a', acc: 'clip' },
+    narr:     { name: 'Toi',          role: '',                                        color: '#FF9D3D' }
+  },
+
+  robes: {
+  /* =========================== ROBE A : MME BENALI =========================== */
+  a: {
+    label: 'L\'avocat de Mme Benali', sub: 'La cliente qui refuse de payer une cuisine livrée en retard et abîmée.',
+    teaser: `Tu as défendu Mme Benali. Passe de l'autre côté de la barre${N}: Cuisines Prestige est une petite entreprise de six salariés, et 9${N}000${N}€ d'impayés peuvent la couler.`,
+    acts: [
+    { num: 1, title: 'Le rendez-vous', sub: 'Mme Benali est dans ton bureau, un dossier sous le bras.',
+      steps: [
+        { t: 'say', who: 'benali', text: `Le commercial est venu chez moi un mardi soir. Il m'a dit que la promotion s'arrêtait le lendemain. J'ai signé dans mon salon. La cuisine devait arriver en mars, elle est arrivée en juin. Le plan de travail est fendu sur toute la longueur. Alors je ne paie pas le reste, et maintenant ils me menacent du tribunal.` },
+        { t: 'say', who: 'garnier', text: `Voici ce qu'elle a signé. Lis bien les articles 4, 7 et 9.${CONTRAT}Avant toute stratégie, des pièces. Ce que tu ne demandes pas aujourd'hui, tu ne l'auras pas le jour de l'audience.` },
+        { t: 'choice', id: 'verif', prompt: `Le formulaire de rétractation${N}?`, options: [
+          { id: 'verifier', label: 'Lui demander de retrouver tous les papiers du jour de la signature', desc: 'Même ceux qu\'elle croit sans importance.', fx: { dossier: 5 }, set: { verif: true },
+            after: [{ who: 'benali', text: `Tout est dans ce tiroir… Ah. Le voilà, le formulaire de rétractation, avec la date du jour. Il me l'avait laissé, en fait.` },
+                    { who: 'garnier', text: `Donc elle a été informée de son droit de changer d'avis. Elle avait quatorze jours. Ils sont passés depuis longtemps. Une piste de moins, mais au moins tu ne la plaideras pas pour rien.` }] },
+          { id: 'croire', label: 'La croire : elle dit n\'avoir rien reçu', desc: 'Inutile de la vexer.', fx: { conf: 5 },
+            after: [{ who: 'benali', text: `Rien du tout, j'en suis certaine. Il est reparti avec tous les papiers.` }] } ] },
+        { t: 'choice', id: 'preuves', prompt: `Le plan de travail fendu${N}?`, options: [
+          { id: 'constat', label: 'Faire constater par un commissaire de justice', desc: '300 €, mais incontestable.', fx: { dossier: 20, frais: 300 }, set: { constat: true, preuve: true },
+            after: [{ who: 'garnier', text: `Ce qu'un commissaire de justice constate fait foi. Personne ne pourra dire qu'elle a abîmé le plan elle-même.` }] },
+          { id: 'photos', label: 'Lui demander ses photos datées', desc: 'Gratuit.', fx: { dossier: 8 }, set: { photos: true, preuve: true },
+            after: [{ who: 'garnier', text: `C'est mieux que rien. Mais ce sont ses photos à elle${N}: l'autre camp dira qu'elle a pu fendre le plan après la pose.` }] },
+          { id: 'rien', label: 'Pas la peine : la fissure se voit', desc: 'Le juge la croira.', fx: { conf: -3 },
+            after: [{ who: 'garnier', text: `Le juge ne viendra pas dans sa cuisine. Ce qui n'est pas prouvé n'existe pas.` }] } ] },
+        { t: 'choice', id: 'mails', prompt: `Ses échanges avec Cuisines Prestige${N}?`, options: [
+          { id: 'tout', label: 'Lui demander tous ses courriels, même ceux qu\'elle n\'a pas lus', desc: 'Tout, dans l\'ordre.', fx: { dossier: 10 }, set: { mails: true },
+            after: [{ who: 'benali', text: `En mars, ils m'écrivent que le retard vient «${N}de leur fournisseur de plans de travail${N}». Et en juillet… deux messages où ils proposent de venir remplacer le plan. Je n'ai pas répondu. Je ne voulais plus les voir chez moi.` },
+                    { who: 'garnier', text: `Le premier est une bonne nouvelle pour nous. Les deux autres, beaucoup moins. Si nous ne les avions pas trouvés, l'avocat de Prestige les aurait sortis à l'audience.` }] },
+          { id: 'rien', label: 'Elle vous racontera, c\'est suffisant', desc: 'Inutile de tout éplucher.', fx: {},
+            after: [{ who: 'benali', text: `Il n'y a rien d'important dans ces courriels, de toute façon.` }] } ] },
+        { t: 'choice', if: s => s.flags.mails, id: 'remplacement', prompt: `Prestige propose de remplacer le plan. Que conseilles-tu${N}?`, options: [
+          { id: 'accepter', label: 'Accepter le remplacement, par écrit, tout de suite', desc: 'Même si elle n\'en a pas envie.', fx: { conf: -5, dossier: 10 }, set: { bonneFoi: true },
+            after: [{ who: 'benali', text: `Bon. S'il le faut… Mais je reste dans la cuisine pendant qu'ils travaillent.` },
+                    { who: 'garnier', text: `Un contrat s'exécute de bonne foi, des deux côtés. Laisser l'autre réparer, c'en fait partie. Et un juge regarde toujours qui a fait des efforts.` }] },
+          { id: 'refuser', label: 'Respecter son choix : elle ne veut plus d\'eux', desc: 'C\'est sa maison.', fx: { conf: 5 },
+            after: [{ who: 'garnier', text: `C'est humain. Mais tu as entre les mains deux propositions de réparation restées sans réponse. L'autre camp a les mêmes.` }] } ] }
+      ] },
+    { num: 2, title: 'La stratégie', sub: 'Trois pistes. Une seule sera la bonne.',
+      steps: [
+        { t: 'event', who: 'garnier', text: `Un mois a passé. Il faut choisir une ligne. Défaire le contrat, en demander l'annulation, ou le garder mais suspendre le paiement tant que Prestige n'a pas tenu sa part.`, fx: { mois: 1 } },
+        { t: 'choice', id: 'strategie', prompt: `Quelle stratégie pour Mme Benali${N}?`, options: [
+          { id: 'retract', label: 'Se rétracter : annuler la vente purement et simplement', desc: 'Vente conclue chez elle, hors d\'un magasin.', lock: s => s.flags.verif ? 'Le formulaire a été remis : le délai de 14 jours est expiré.' : null, set: { retract: true },
+            after: [{ who: 'garnier', text: `C'est la piste la plus radicale. Mais tout repose sur un fait${N}: qu'elle n'ait jamais reçu le formulaire. Tu en es certain${N}?` }] },
+          { id: 'nullite', label: 'Faire annuler le contrat : on l\'a poussée à signer', desc: '« La promotion s\'arrête demain. »', fx: { dossier: -5 }, set: { nullite: true },
+            after: [{ who: 'garnier', text: `Pour annuler un contrat, il faut un vrai vice${N}: un mensonge, une manœuvre, une pression qui a faussé son choix. Insister pour vendre, ce n'est pas tromper. C'est fragile.` }] },
+          { id: 'exception', label: 'Garder le contrat, mais suspendre le solde tant que le plan n\'est pas remplacé', desc: 'Tu ne paies pas tant que je n\'ai pas ce que j\'ai acheté.', fx: { conf: 3, dossier: 5 }, set: { exception: true },
+            after: [{ who: 'garnier', text: `Un contractant peut refuser d'exécuter sa part si l'autre n'exécute pas la sienne, à condition que le manquement soit assez grave. Reste à savoir si un plan fendu justifie de retenir 9${N}000${N}€.` }] } ] },
+        { t: 'choice', id: 'demeure', prompt: `Comment exiger de Prestige qu'il répare et indemnise le retard${N}?`, options: [
+          { id: 'lettre', label: 'Une mise en demeure en recommandé', desc: 'Délai de quinze jours, exigences précises.', fx: { dossier: 10, frais: 50 }, set: { demeure: true },
+            after: [{ who: 'garnier', text: `Parfait. Sans mise en demeure, pas de dommages et intérêts pour le retard. Et le recommandé prouve la date.` }] },
+          { id: 'email', label: 'Un courriel ferme', desc: 'Plus rapide.', fx: { dossier: 4 }, set: { demeureMail: true },
+            after: [{ who: 'garnier', text: `Ça peut valoir mise en demeure, s'il est assez clair. Mais il faudra prouver qu'il a été reçu.` }] },
+          { id: 'rien', label: 'Rien : on attend qu\'ils attaquent', desc: 'Pourquoi leur écrire ?', fx: { dossier: -5 },
+            after: [{ who: 'garnier', text: `Alors ne compte pas obtenir un euro pour le retard${N}: tu ne les auras jamais mis en demeure.` }] } ] }
+      ] },
+    { num: 3, title: 'Les clauses', sub: 'La réponse de Cuisines Prestige vient d\'arriver.',
+      steps: [
+        { t: 'event', who: 'kessler', text: `Ma cliente réclame le solde de 9${N}000${N}€, et 3${N}600${N}€ de pénalités au titre de l'article 9. Pour le retard, l'article 4 est clair${N}: le délai était indicatif et exclut toute responsabilité. Il est d'ailleurs dû à notre fournisseur, pas à nous.`, fx: { mois: 2, conf: -4 } },
+        { t: 'say', who: 'garnier', text: `Trois réponses à lui faire. Un${N}: son fournisseur, Mme Benali ne l'a jamais rencontré. Le contrat qui la lie, c'est celui avec Prestige${N}; ce que Prestige a signé avec d'autres ne la concerne pas. Deux${N}: une clause qui permet à un professionnel d'échapper à toute responsabilité envers un consommateur est abusive${N}: elle est réputée n'avoir jamais existé. Trois${N}: une pénalité prévue au contrat, le juge peut la réduire si elle est manifestement excessive.` },
+        { t: 'say', who: 'kessler', text: `Ma cliente préfère éviter un procès. Proposition${N}: Prestige remplace le plan de travail à ses frais et renonce à toute pénalité. Mme Benali paie le solde de 9${N}000${N}€. Réponse sous huit jours.` },
+        { t: 'choice', id: 'offre', prompt: `La proposition de Cuisines Prestige${N}?`, options: [
+          { id: 'accepter', label: 'Conseiller d\'accepter', desc: 'Plan neuf, pas de pénalités, pas de procès.', do: s => { s.stop = 'accord'; },
+            after: [{ who: 'benali', text: `Pas un euro pour mes trois mois sans cuisine… Mais plus de courriers, plus de tribunal. D'accord.` }] },
+          { id: 'contre', label: 'Accepter, à condition d\'obtenir 1 500 € pour le retard', desc: 'Un vrai geste, pas seulement une réparation.',
+            do: s => { if (s.dossier >= 50) s.stop = 'accordplus'; else s.flags.contreRefus = true; },
+            after: s => s.stop ? [{ who: 'kessler', text: `Mon client a regardé votre dossier. Il accepte les 1${N}500${N}€.` }] : [{ who: 'kessler', text: `1${N}500${N}€${N}? Avec ce dossier${N}? Nous nous verrons au tribunal.` }] },
+          { id: 'refuser', label: 'Refuser : on va au tribunal', desc: 'Elle veut que le juge tranche.', fx: { conf: 3 },
+            after: [{ who: 'benali', text: `Oui. Je veux qu'un juge leur dise ce qu'ils m'ont fait.` }] },
+          { id: 'signer', label: 'Accepter au nom de ta cliente, sans la consulter', desc: 'La proposition est trop bonne pour attendre.', fx: { conf: -60 },
+            after: [{ who: 'benali', text: `Vous avez accepté QUOI${N}? Sans m'appeler${N}? C'est mon argent et ma cuisine. Rendez-moi mon dossier.` },
+                    { who: 'garnier', text: `Un avocat conseille. C'est le client qui décide. Tu viens de l'apprendre de la pire façon.` }] } ] }
+      ] },
+    { num: 4, title: 'L\'audience', sub: 'Tribunal judiciaire, chambre civile, 14 h.', final: true,
+      steps: [
+        { t: 'event', who: 'juge', text: `Affaire Cuisines Prestige contre Mme Benali. Le demandeur réclame le solde du prix et des pénalités. Maître Kessler, vous avez la parole.`, fx: { mois: 6, frais: 900 } },
+        { t: 'say', who: 'kessler', text: `Le contrat a été librement signé. Il tient lieu de loi entre les parties. Mme Benali utilise sa cuisine depuis des mois et refuse de la payer. Nous demandons 9${N}000${N}€ et l'application de l'article 9.` },
+        { t: 'plead', id: 'plaid', adv: 'kessler', prompt: `À toi. Que plaides-tu pour Mme Benali${N}?`, args: [
+          { id: 'a1', label: LAB.a1, desc: `Changer d'avis après la signature`, pts: 0, ok: s => false,
+            no: `Je produis le formulaire de rétractation, daté du jour de la signature, que ma cliente a remis à Mme Benali. Le délai de quatorze jours est expiré depuis huit mois.` },
+          { id: 'a2', label: LAB.a2, desc: `Ne pas payer tant que ce n'est pas réparé`, pts: 2, ok: s => s.flags.preuve && s.flags.bonneFoi,
+            yes: `Je reconnais que le plan était fendu… et que Mme Benali a fini par accepter qu'on le remplace. Je n'irai pas plus loin sur ce point.`,
+            no: s => !s.flags.preuve ? `Un plan fendu${N}? Où est la preuve${N}? Rien au dossier ne montre l'état de la cuisine le jour de la pose.` : `Prestige a proposé deux fois de remplacer ce plan. Mme Benali n'a jamais répondu. On ne peut pas refuser la réparation et retenir le prix en même temps.` },
+          { id: 'a3', label: LAB.a3, desc: `Le retard « sans responsabilité »`, pts: 1, ok: s => true,
+            yes: `Je n'insisterai pas sur l'article 4. Ma cliente reverra ses contrats.` },
+          { id: 'a4', label: LAB.a4, desc: `3 600 € de pénalités`, pts: 1, ok: s => true,
+            yes: `Je laisse le tribunal apprécier le montant de la pénalité.` },
+          { id: 'a5', label: LAB.a5, desc: `Trois mois sans cuisine`, pts: 1, ok: s => (s.flags.demeure || s.flags.demeureMail) && s.flags.mails,
+            yes: `Le courriel de mars où ma cliente reconnaît le retard… je ne peux pas le contester.`,
+            no: s => !(s.flags.demeure || s.flags.demeureMail) ? `Mme Benali n'a jamais mis ma cliente en demeure. Sans mise en demeure, pas de dommages et intérêts pour retard.` : `Quel retard${N}? Rien au dossier ne prouve la date promise ni la date de livraison.` },
+          { id: 'a6', label: LAB.a6, desc: `La promotion « jusqu'à demain »`, pts: 0, ok: s => false,
+            no: `Un commercial qui parle d'une promotion, c'est un commercial. Où est le mensonge${N}? Où est la manœuvre${N}? Mme Benali a signé en connaissance de cause.` } ],
+          resolve: (s, score, ids) => score >= 4
+            ? { do: s => { s.res = 'gain'; }, fx: { conf: 20, dossier: 10 }, after: [{ who: 'juge', text: `Le tribunal, après en avoir délibéré${N}: l'article 4 est réputé non écrit. Cuisines Prestige remplacera le plan de travail à ses frais. Le solde sera payé une fois le plan remplacé, diminué de ${ids.includes('a5') ? '1' + N + '500' : '800'}${N}€. ${ids.includes('a4') ? 'La pénalité de l\'article 9 est ramenée à zéro.' : 'La pénalité est écartée, faute de retard fautif.'}` }] }
+            : score >= 2
+            ? { do: s => { s.res = 'partiel'; }, fx: { conf: 5 }, after: [{ who: 'juge', text: `Le tribunal${N}: Mme Benali paiera le solde de 9${N}000${N}€. ${ids.includes('a4') ? 'La pénalité de l\'article 9 est manifestement excessive : elle est réduite à 300 €.' : 'La pénalité est maintenue.'} ${ids.includes('a3') ? 'L\'article 4 est réputé non écrit.' : ''} Prestige remplacera le plan de travail.` }] }
+            : { do: s => { s.res = 'perdu'; }, fx: { conf: -20, frais: 600 }, after: [{ who: 'juge', text: `Le tribunal${N}: Mme Benali est condamnée à payer le solde de 9${N}000${N}€, la pénalité prévue à l'article 9, et 600${N}€ pour les frais de procédure de Cuisines Prestige.` }] } },
+        { t: 'say', who: 'benali', text: s => s.res === 'gain' ? `Un plan neuf, et moins à payer. Merci, Maître. Vraiment.` : s.res === 'partiel' ? `Je paie, mais pas tout ce qu'ils voulaient. C'est déjà ça.` : `Je vais devoir payer plus que si j'avais accepté leur proposition. Pourquoi on ne l'a pas fait${N}?` }
+      ] }
+    ],
+    endings: [
+      { id: 'congedie', cut: true, when: s => s.conf <= 15, title: 'Dessaisi', stamp: 'Cliente partie', color: '#FF5C6A',
+        text: `Mme Benali a repris son dossier et confié l'affaire à un autre cabinet. Un avocat conseille son client${N}; il ne décide pas à sa place, et il ne le perd pas en route.` },
+      { id: 'accord', when: s => s.stop === 'accord', title: 'L\'accord', stamp: 'Transaction', color: '#5FB8B0',
+        text: `Pas de procès. Un plan neuf, pas de pénalités, le solde payé. Mme Benali n'a rien obtenu pour ses trois mois sans cuisine, mais elle n'a pris aucun risque.` },
+      { id: 'accordplus', when: s => s.stop === 'accordplus', title: 'Le bon accord', stamp: 'Transaction gagnante', color: '#4CD97B',
+        text: `Ton dossier était assez solide pour que Prestige préfère payer que plaider. Plan neuf, pas de pénalités, et 1${N}500${N}€ pour le retard. Le meilleur procès est parfois celui qui n'a pas lieu.` },
+      { id: 'gain', when: s => s.res === 'gain', title: 'Gain de cause', stamp: 'Bravo', color: '#4CD97B',
+        text: `Le juge t'a suivi${N}: la clause d'irresponsabilité est tombée, la pénalité aussi, le plan sera remplacé et le prix réduit. Tu avais les bonnes pièces, et tu les as mises au service des bons arguments.` },
+      { id: 'partiel', when: s => s.res === 'partiel', title: 'Gain partiel', stamp: 'Demi-victoire', color: '#FFC64F',
+        text: `Mme Benali paie le solde, mais le juge a écarté ce que les clauses avaient d'excessif. Une partie de tes arguments a tenu. Une autre manquait de preuves.` },
+      { id: 'perdu', when: s => true, title: 'Débouté', stamp: 'Cause perdue', color: '#FF5C6A',
+        text: `Le juge a donné raison à Prestige. Tes arguments n'avaient pas les pièces pour tenir, ou visaient une piste fermée. Mme Benali paie plus que ce qu'on lui proposait à l'amiable.` }
+    ],
+    debrief: [
+      { act: 1, needs: ['verif', 'preuves', 'mails'], title: 'Acte 1 — Le rendez-vous', text: (h, s) =>
+          `Un <em>contrat</em> est un accord de volontés qui crée des obligations entre ses <em>parties</em>. Ici, l\'un est un <em>professionnel</em>, l\'autre une <em>consommatrice</em>, ce qui déclenche des règles protectrices. Mme Benali est <em>débitrice</em> du prix et <em>créancière</em> de la cuisine ; Prestige, l\'inverse. Avant de signer, le professionnel doit une <em>obligation d\'information</em> : il doit dire au client ce qui compte, dont son <em>droit de rétractation</em> (quatorze jours pour changer d\'avis, sans motif, quand on achète hors d\'un magasin). ${h.verif === 'verifier' ? 'En vérifiant, tu as découvert qu\'elle avait été informée.' : 'Sans vérifier, tu ignorais qu\'elle avait bien été informée.'}` },
+      { act: 2, needs: ['strategie', 'demeure'], title: 'Acte 2 — La stratégie', text: (h, s) =>
+          `Un contrat n\'est valable que si les <em>conditions de validité</em> sont réunies : le <em>consentement</em> (une <em>offre</em> rencontre une <em>acceptation</em>, sans vice), la <em>capacité</em> de chaque partie, et un <em>contenu</em> licite et certain (l\'objet). Sans elles, il encourt la <em>nullité</em>. ${h.strategie === 'nullite' ? 'Tu as tenté cette voie : elle exige un vrai vice du consentement, comme une tromperie.' : ''} La <em>nullité relative</em> protège un intérêt privé (un consentement vicié) et seule la personne protégée peut l\'invoquer ; la <em>nullité absolue</em> protège l\'intérêt général (un contenu illicite) et toute personne intéressée peut l\'invoquer. ${h.strategie === 'exception' ? 'Tu as choisi l\'<em>exception d\'inexécution</em> :' : 'L\'<em>exception d\'inexécution</em> était l\'autre voie :'} refuser d\'exécuter sa part tant que l\'autre n\'exécute pas la sienne, si le manquement est suffisamment grave. ${h.demeure === 'lettre' ? 'Ta lettre recommandée était une <em>mise en demeure</em>' : 'La <em>mise en demeure</em>'} : une interpellation officielle d\'exécuter, préalable aux dommages et intérêts pour retard.` },
+      { act: 3, needs: ['offre'], title: 'Acte 3 — Les clauses', text: (h, s) =>
+          `Les <em>clauses</em> sont les stipulations du contrat. La <em>liberté contractuelle</em> permet de les choisir, la <em>force obligatoire</em> oblige à les respecter, et la <em>bonne foi</em> s\'impose de la négociation à l\'exécution. L\'<em>effet relatif</em> veut qu\'un contrat ne lie que ses parties : le fournisseur de Prestige est un tiers pour Mme Benali. Une <em>clause abusive</em> crée un déséquilibre significatif au détriment du consommateur : elle est réputée non écrite (l\'article 4). Une <em>clause pénale</em> fixe d\'avance l\'indemnité due en cas d\'inexécution : le juge peut la réduire si elle est manifestement excessive (l\'article 9). ${h.offre === 'refuser' || (h.offre === 'contre' && !s.stop) ? 'Tu as choisi de laisser le juge trancher.' : 'Tu as choisi un accord, qui met fin au litige sans juge.'}` },
+      { act: 4, needs: ['plaid'], finalOnly: true, title: 'Acte 4 — L\'audience', text: (h, s) =>
+          `Prestige s\'était engagée à livrer et poser une cuisine conforme, à une date donnée : une <em>obligation de résultat</em>, dont elle ne s\'exonère qu\'en prouvant une cause extérieure, pas en accusant son fournisseur. Une <em>obligation de moyens</em>, à l\'inverse, oblige seulement à faire de son mieux. Faute d\'<em>exécution</em> conforme, plusieurs sanctions de l\'<em>inexécution</em> existent : l\'exception d\'inexécution, l\'exécution forcée, la réduction du prix, les dommages et intérêts, ou la <em>résolution</em> du contrat (il est anéanti, chacun rend ce qu\'il a reçu). Pour un contrat qui s\'exécute dans la durée, comme un abonnement, on parle de <em>résiliation</em> : il cesse pour l\'avenir.` }
+    ]
+  },
+
+  /* =========================== ROBE B : CUISINES PRESTIGE =========================== */
+  b: {
+    label: 'L\'avocat de Cuisines Prestige', sub: 'La petite entreprise qui attend 9 000 € d\'une cliente qui ne paie pas.',
+    teaser: `Tu as défendu Cuisines Prestige. Passe de l'autre côté de la barre${N}: Mme Benali a attendu trois mois une cuisine qui est arrivée abîmée.`,
+    acts: [
+    { num: 1, title: 'Le rendez-vous', sub: 'M. Delmas, gérant de Cuisines Prestige, est dans ton bureau.',
+      steps: [
+        { t: 'say', who: 'delmas', text: `Six salariés, et 9${N}000${N}€ qui ne rentrent pas. Elle cuisine dans ma cuisine depuis quatre mois et elle ne paie pas. Oui, le plan de travail est fendu. Oui, on a eu du retard, à cause de mon fournisseur. Mais on a proposé de tout réparer. Moi, je veux mon argent.` },
+        { t: 'say', who: 'garnier', text: `Voici le contrat. C'est ton client qui l'a rédigé.${CONTRAT}Les articles 4, 7 et 9, l'avocate adverse va les lire aussi. Commence par vérifier ce que ton client peut prouver.` },
+        { t: 'choice', id: 'double', prompt: `Le formulaire de rétractation${N}?`, options: [
+          { id: 'verifier', label: 'Demander le double du bon de commande et l\'accusé de réception', desc: 'Signé de la main de la cliente ?', fx: { dossier: 10 }, set: { double: true },
+            after: [{ who: 'delmas', text: `Le voilà. «${N}Reçu le formulaire de rétractation${N}», signé par Mme Benali, le jour de la commande.` },
+                    { who: 'garnier', text: `Précieux. C'est au professionnel de prouver qu'il a informé son client. Toi, tu peux.` }] },
+          { id: 'confiance', label: 'Le croire : « On le laisse toujours »', desc: 'Il connaît son métier.', fx: { conf: 4 },
+            after: [{ who: 'delmas', text: `Toujours. Je ne vois pas pourquoi on en parle.` }] } ] },
+        { t: 'choice', id: 'expertise', prompt: `Le plan de travail fendu${N}?`, options: [
+          { id: 'expertise', label: 'Faire expertiser la cuisine', desc: '300 €, pour savoir exactement ce qui ne va pas.', fx: { dossier: 12, frais: 300 }, set: { expertise: true },
+            after: [{ who: 'vasquez', text: `Le plan est fendu d'origine, un défaut du fournisseur. Tout le reste est conforme. Valeur du plan${N}: 800${N}€.` },
+                    { who: 'garnier', text: `Mauvaise nouvelle et bonne nouvelle. Le défaut est bien chez vous. Mais il pèse 800${N}€, pas 9${N}000.` }] },
+          { id: 'accuser', label: 'Soutenir que la cliente l\'a abîmé', desc: 'Rien ne prouve le contraire.', fx: { dossier: -10 }, set: { accuse: true },
+            after: [{ who: 'garnier', text: `Sans preuve, c'est un pari. Et si elle a fait constater la fissure, il se retournera contre nous.` }] },
+          { id: 'rien', label: 'Rien : la fissure est secondaire', desc: 'L\'essentiel est l\'impayé.', fx: {},
+            after: [{ who: 'garnier', text: `L'avocate adverse ne la trouvera pas secondaire.` }] } ] },
+        { t: 'choice', id: 'echanges', prompt: `Les échanges avec la cliente${N}?`, options: [
+          { id: 'retrouver', label: 'Retrouver tous les courriels envoyés à Mme Benali', desc: 'Dans l\'ordre.', fx: { dossier: 10 }, set: { offre: true },
+            after: [{ who: 'delmas', text: `Juillet${N}: deux propositions de remplacer le plan, sans réponse. Et… en mars, celui où on lui écrit que le retard vient de notre fournisseur.` },
+                    { who: 'garnier', text: `Les deux premiers sont de l'or. Le troisième, l'avocate adverse s'en servira pour prouver le retard. Un dossier contient toujours les deux.` }] },
+          { id: 'rien', label: 'Pas la peine', desc: 'Le contrat suffit.', fx: {},
+            after: [{ who: 'delmas', text: `On lui a écrit, oui, plusieurs fois. Je ne sais plus trop quoi.` }] } ] }
+      ] },
+    { num: 2, title: 'La stratégie', sub: 'Obtenir le paiement, ou reprendre la cuisine ?',
+      steps: [
+        { t: 'event', who: 'garnier', text: `Un mois a passé. Deux voies. Exiger l'exécution du contrat, c'est-à-dire le paiement. Ou demander au juge de le détruire${N}: la résolution. Chacun rend alors ce qu'il a reçu.`, fx: { mois: 1 } },
+        { t: 'choice', id: 'strategieB', prompt: `Quelle stratégie pour Cuisines Prestige${N}?`, options: [
+          { id: 'execution', label: 'Exiger le paiement du solde', desc: 'Le contrat doit être exécuté.', fx: { dossier: 5 },
+            after: [{ who: 'garnier', text: `C'est la voie naturelle. Prépare-toi à entendre parler du plan fendu.` }] },
+          { id: 'resolution', label: 'Demander la résolution : reprendre la cuisine', desc: 'Puisqu\'elle ne paie pas.', fx: { conf: -8 }, set: { resolution: true },
+            after: [{ who: 'delmas', text: `Reprendre une cuisine découpée sur mesure, posée depuis quatre mois${N}? Je ne pourrai jamais la revendre. Et je devrai lui rendre ses 3${N}000${N}€${N}!` },
+                    { who: 'garnier', text: `C'est le prix de la résolution${N}: on revient au point de départ, pour les deux.` }] } ] },
+        { t: 'choice', id: 'demeureB', prompt: `Avant d'assigner${N}?`, options: [
+          { id: 'lettre', label: 'Une mise en demeure de payer, en recommandé', desc: 'Délai de quinze jours.', fx: { dossier: 10, frais: 50 }, set: { demeureB: true },
+            after: [{ who: 'garnier', text: `Indispensable si tu veux réclamer la pénalité${N}: elle ne court qu'après une mise en demeure.` }] },
+          { id: 'relances', label: 'Des relances téléphoniques', desc: 'Plus aimable.', fx: { dossier: 2 },
+            after: [{ who: 'garnier', text: `Aimable, et sans aucune trace écrite.` }] },
+          { id: 'direct', label: 'Assigner directement', desc: 'Assez attendu.', fx: { dossier: -3 },
+            after: [{ who: 'garnier', text: `Le juge aimera savoir si tu as d'abord demandé.` }] } ] }
+      ] },
+    { num: 3, title: 'La clause', sub: 'La lettre de l\'avocate adverse vient d\'arriver.',
+      steps: [
+        { t: 'event', who: 'riviere', text: `Ma cliente conteste devoir quoi que ce soit en l'état. Le plan est fendu, la cuisine est arrivée trois mois en retard, l'article 4 est une clause abusive et l'article 9 est excessif. Elle n'exclut pas de se rétracter.`, fx: { mois: 2, conf: -4 } },
+        { t: 'say', who: 'garnier', text: `Soyons lucides. L'article 4, qui dégage ton client de tout retard, ne tiendra pas${N}: face à un consommateur, c'est une clause abusive. L'article 9 tiendra peut-être, mais le juge peut réduire une pénalité excessive, et elle ne court qu'après une mise en demeure. Quant à la rétractation, tout dépend du formulaire.` },
+        { t: 'choice', id: 'penale', prompt: `Que réclames-tu au titre de l'article 9${N}?`, options: [
+          { id: 'exiger', label: 'La pénalité entière : 3 600 €', desc: 'C\'est écrit au contrat.', fx: { conf: 5 }, set: { penaleFull: true },
+            after: [{ who: 'delmas', text: `Voilà${N}! Enfin quelqu'un qui me défend.` }] },
+          { id: 'moderer', label: 'Seulement des intérêts de retard raisonnables', desc: 'Moins, mais plus sûr.', fx: { dossier: 5, conf: -3 },
+            after: [{ who: 'garnier', text: `Tu réclames moins, mais tu réclames ce que le juge accordera.` }] } ] },
+        { t: 'say', who: 'riviere', text: `Proposition de ma cliente${N}: elle paie le solde de 9${N}000${N}€ dès que Prestige aura remplacé le plan à ses frais. En échange, Prestige renonce à toute pénalité. Réponse sous huit jours.` },
+        { t: 'choice', id: 'offreB', prompt: `La proposition de Mme Benali${N}?`, options: [
+          { id: 'accepter', label: 'Conseiller d\'accepter', desc: '9 000 € encaissés, un plan à remplacer.', do: s => { s.stop = 'accord'; },
+            after: [{ who: 'delmas', text: `Un plan à 800${N}€ et pas de pénalités… mais mes 9${N}000${N}€ dans un mois. D'accord.` }] },
+          { id: 'contre', label: 'Accepter, si elle rembourse 300 € de frais de relance', desc: 'Un petit geste en retour.',
+            do: s => { if (s.dossier >= 50) s.stop = 'accordplus'; },
+            after: s => s.stop ? [{ who: 'riviere', text: `Ma cliente a regardé votre dossier. Elle accepte les 300${N}€.` }] : [{ who: 'riviere', text: `300${N}€${N}? Avec ce dossier${N}? Nous nous verrons au tribunal.` }] },
+          { id: 'refuser', label: 'Refuser : on va au tribunal', desc: 'Il veut la pénalité.', fx: { conf: 3 },
+            after: [{ who: 'delmas', text: `Qu'un juge lui dise qu'un contrat, ça se paie.` }] },
+          { id: 'signer', label: 'Accepter au nom de ton client, sans le consulter', desc: 'La proposition est raisonnable.', fx: { conf: -60 },
+            after: [{ who: 'delmas', text: `Vous avez renoncé à MA pénalité sans m'appeler${N}? Je reprends mon dossier.` },
+                    { who: 'garnier', text: `Un avocat conseille. C'est le client qui décide. Tu viens de l'apprendre de la pire façon.` }] } ] }
+      ] },
+    { num: 4, title: 'L\'audience', sub: 'Tribunal judiciaire, chambre civile, 14 h.', final: true,
+      steps: [
+        { t: 'event', who: 'juge', text: `Affaire Cuisines Prestige contre Mme Benali. Maître Rivière, pour la défenderesse, vous avez la parole en premier.`, fx: { mois: 6, frais: 900 } },
+        { t: 'say', who: 'riviere', text: `Ma cliente a attendu trois mois une cuisine qui est arrivée abîmée. L'article 4 est abusif, l'article 9 excessif. Elle était en droit de suspendre son paiement tant que Prestige n'avait pas exécuté sa part.` },
+        { t: 'plead', id: 'plaid', adv: 'riviere', prompt: `À toi. Que plaides-tu pour Cuisines Prestige${N}?`, args: [
+          { id: 'b1', label: LAB.b1, desc: `Ce qui est signé doit être payé`, pts: 1, ok: s => true,
+            yes: `Personne ne conteste le contrat. Encore fallait-il que Prestige l'exécute correctement.` },
+          { id: 'b2', label: LAB.b2, desc: `Un défaut à 800 €, une retenue de 9 000 €`, pts: 2, ok: s => s.flags.expertise,
+            yes: `L'expertise est là. Je reconnais que le défaut porte sur le plan seul.`,
+            no: `Un défaut à 800${N}€${N}? Qui le dit${N}? Rien au dossier ne chiffre ce qui ne va pas dans cette cuisine.` },
+          { id: 'b3', label: LAB.b3, desc: `Les courriels de juillet`, pts: 2, ok: s => s.flags.offre,
+            yes: `Ma cliente… n'a pas répondu à ces propositions, c'est exact.`,
+            no: `Des propositions de réparation${N}? Je n'en vois aucune trace au dossier.` },
+          { id: 'b4', label: LAB.b4, desc: `L'accusé de réception signé`, pts: 1, ok: s => s.flags.double,
+            yes: `Ma cliente renonce à toute rétractation.`,
+            no: `Prouvez-le. C'est au professionnel de prouver qu'il a informé le consommateur, pas l'inverse.` },
+          { id: 'b5', label: LAB.b5, desc: `3 600 € réclamés`, pts: 0, ok: s => false,
+            no: s => s.flags.demeureB ? `3${N}600${N}€ de pénalités pour un plan à 800${N}€${N}: c'est manifestement excessif, et le juge peut la réduire.` : `Une pénalité ne court qu'après une mise en demeure. Ma cliente n'en a jamais reçu.` },
+          { id: 'b6', label: LAB.b6, desc: `Le fournisseur de plans de travail`, pts: 0, ok: s => false,
+            no: `Ma cliente n'a jamais signé avec ce fournisseur. Prestige s'est engagée à livrer une cuisine conforme à une date. Ses problèmes avec ses propres fournisseurs ne la concernent pas.` } ],
+          resolve: (s, score, ids) => {
+            const sc = score - (s.flags.accuse ? 1 : 0);
+            if (s.flags.resolution) return sc >= 3 && s.flags.demeureB
+              ? { do: s => { s.res = 'resolution'; }, fx: { conf: -5 }, after: [{ who: 'juge', text: `Le tribunal prononce la résolution du contrat. Mme Benali restituera la cuisine, Cuisines Prestige restituera l'acompte de 3${N}000${N}€.` }] }
+              : { do: s => { s.res = 'perdu'; }, fx: { conf: -20, frais: 600 }, after: [{ who: 'juge', text: `Le tribunal refuse la résolution${N}: le manquement de Mme Benali n'est pas assez grave au regard de ceux de Prestige. Prestige remplacera le plan et versera 600${N}€ pour les frais de procédure.` }] };
+            return sc >= 4
+              ? { do: s => { s.res = 'paye'; }, fx: { conf: 20, dossier: 10 }, after: [{ who: 'juge', text: `Le tribunal, après en avoir délibéré${N}: le défaut, limité au plan de travail, ne justifiait pas de retenir la totalité du prix. Mme Benali paiera le solde de 9${N}000${N}€, avec intérêts. Prestige remplacera le plan. ${ids.includes('b5') ? 'La pénalité de l\'article 9 est réduite à 300 €.' : 'Aucune pénalité n\'est due.'}` }] }
+              : sc >= 2
+              ? { do: s => { s.res = 'partiel'; }, fx: { conf: 5 }, after: [{ who: 'juge', text: `Le tribunal${N}: Mme Benali paiera le solde, diminué de 1${N}500${N}€ pour le retard et le défaut. L'article 4 est réputé non écrit. Aucune pénalité n'est due.` }] }
+              : { do: s => { s.res = 'perdu'; }, fx: { conf: -20, frais: 600 }, after: [{ who: 'juge', text: `Le tribunal${N}: Mme Benali pouvait suspendre son paiement tant que la cuisine n'était pas conforme. Prestige remplacera le plan, versera 1${N}500${N}€ pour le retard, et 600${N}€ pour les frais de procédure. Le solde ne sera dû qu'ensuite.` }] };
+          } },
+        { t: 'say', who: 'delmas', text: s => s.res === 'paye' ? `Mes 9${N}000${N}€. Enfin. Je vais quand même revoir mes contrats.` : s.res === 'resolution' ? `Une cuisine d'occasion invendable, et 3${N}000${N}€ à rendre. On a gagné, paraît-il.` : s.res === 'partiel' ? `Moins que prévu, mais l'entreprise tiendra.` : `Ils me proposaient 9${N}000${N}€ à l'amiable. Pourquoi on ne les a pas pris${N}?` }
+      ] }
+    ],
+    endings: [
+      { id: 'congedie', cut: true, when: s => s.conf <= 15, title: 'Dessaisi', stamp: 'Client parti', color: '#FF5C6A',
+        text: `M. Delmas a repris son dossier et l'a confié à un autre cabinet. Un avocat conseille son client${N}; il ne le perd pas en route.` },
+      { id: 'accord', when: s => s.stop === 'accord', title: 'L\'accord', stamp: 'Transaction', color: '#5FB8B0',
+        text: `Prestige encaisse ses 9${N}000${N}€ dans un mois, sans procès ni aléa. Elle renonce à la pénalité et remplace un plan à 800${N}€. Pour une entreprise de six salariés, la trésorerie compte plus qu'une victoire de principe.` },
+      { id: 'accordplus', when: s => s.stop === 'accordplus', title: 'Le bon accord', stamp: 'Transaction gagnante', color: '#4CD97B',
+        text: `Ton dossier a convaincu l'autre camp de transiger à tes conditions. Le solde, les frais de relance, et pas de procès.` },
+      { id: 'resolution', when: s => s.res === 'resolution', title: 'La cuisine reprise', stamp: 'Victoire amère', color: '#FFC64F',
+        text: `Le juge a détruit le contrat, comme tu le demandais. Prestige récupère une cuisine découpée sur mesure, invendable, et rend 3${N}000${N}€. Gagner n'est pas toujours obtenir ce qu'on voulait.` },
+      { id: 'paye', when: s => s.res === 'paye', title: 'Gain de cause', stamp: 'Bravo', color: '#4CD97B',
+        text: `Le juge a reconnu que retenir tout le prix pour un défaut limité était disproportionné, et que ton client avait proposé de réparer. Mme Benali paie. Tu as gagné avec les faits, pas avec les clauses.` },
+      { id: 'partiel', when: s => s.res === 'partiel', title: 'Gain partiel', stamp: 'Demi-victoire', color: '#FFC64F',
+        text: `Le solde est dû, diminué d'une indemnité pour le retard. Les clauses rédigées par ton client ne l'ont pas protégé autant qu'il le croyait.` },
+      { id: 'perdu', when: s => true, title: 'Débouté', stamp: 'Cause perdue', color: '#FF5C6A',
+        text: `Le juge a donné raison à Mme Benali. Les clauses ne t'ont pas sauvé, et sans preuves, tes meilleurs arguments sont restés des affirmations.` }
+    ],
+    debrief: [
+      { act: 1, needs: ['double', 'expertise', 'echanges'], title: 'Acte 1 — Le rendez-vous', text: (h, s) =>
+          `Prestige est un <em>professionnel</em> face à une <em>consommatrice</em> : le droit de la consommation pèse sur elle. Il lui imposait une <em>obligation d\'information</em> avant la signature, dont l\'information sur le <em>droit de rétractation</em>, et c\'est à elle de prouver qu\'elle l\'a respectée. ${h.double === 'verifier' ? 'L\'accusé de réception signé était cette preuve.' : 'Sans l\'accusé de réception, tu n\'avais pas cette preuve.'} Dans ce <em>contrat</em>, chaque <em>partie</em> est à la fois <em>débitrice</em> et <em>créancière</em> : Prestige doit une cuisine conforme, Mme Benali doit le prix.` },
+      { act: 2, needs: ['strategieB', 'demeureB'], title: 'Acte 2 — La stratégie', text: (h, s) =>
+          `Face à l\'<em>inexécution</em> du débiteur, le créancier peut demander l\'<em>exécution</em> forcée, ou la <em>résolution</em> du contrat : il est anéanti, et chacun restitue ce qu\'il a reçu. ${h.strategieB === 'resolution' ? 'Tu as demandé la résolution, et découvert ce qu\'elle coûte à celui qui l\'obtient.' : 'Tu as demandé l\'exécution.'} Pour un contrat qui s\'exécute dans la durée, on parle de <em>résiliation</em>, qui ne vaut que pour l\'avenir. La <em>mise en demeure</em> interpelle officiellement le débiteur ; elle est notamment nécessaire pour que la pénalité coure.` },
+      { act: 3, needs: ['penale', 'offreB'], title: 'Acte 3 — La clause', text: (h, s) =>
+          `La <em>liberté contractuelle</em> a permis à Prestige de rédiger ses <em>clauses</em>, mais pas n\'importe lesquelles. La <em>clause abusive</em>, qui crée un déséquilibre significatif au détriment du consommateur, est réputée non écrite. La <em>clause pénale</em> fixe d\'avance une indemnité ; le juge peut la réduire si elle est manifestement excessive. ${h.penale === 'exiger' ? 'En réclamant la pénalité entière, tu as pris ce risque.' : 'En la modérant toi-même, tu as évité ce risque.'} Les contrats légalement formés ont une <em>force obligatoire</em> et doivent être exécutés de <em>bonne foi</em>.` },
+      { act: 4, needs: ['plaid'], finalOnly: true, title: 'Acte 4 — L\'audience', text: (h, s) =>
+          `Mme Benali invoquait l\'<em>exception d\'inexécution</em> : refuser de payer tant que la cuisine n\'est pas conforme. Le juge vérifie qu\'elle est proportionnée au manquement. Prestige devait une <em>obligation de résultat</em> : livrer une cuisine conforme, à temps. Accuser son fournisseur ne l\'en libère pas, à cause de l\'<em>effet relatif</em> des contrats : ce que Prestige a signé avec lui ne concerne pas sa cliente. Une <em>obligation de moyens</em> ne l\'aurait obligée qu\'à faire de son mieux.` }
+    ]
+  }
+  },
+
+  /* ------------------------------ DÉBRIEF CROISÉ (les deux robes jouées) ------------------------------ */
+  croise: (Ha, Hb) => {
+    const liste = ids => (ids || []).map(i => `<li>${LAB[i]}</li>`).join('');
+    return `<div class="deb"><h3>Ce que tu as plaidé</h3><div class="two"><div><b>Pour Mme Benali</b><ul>${liste(Ha.plaid) || '<li>Affaire réglée avant l\'audience</li>'}</ul></div><div><b>Pour Cuisines Prestige</b><ul>${liste(Hb.plaid) || '<li>Affaire réglée avant l\'audience</li>'}</ul></div></div>
+      <p>Les mêmes pièces ont servi les deux camps. Les courriels de juillet, où Prestige propose de remplacer le plan, prouvent sa <em>bonne foi</em> et affaiblissent l\'exception d\'inexécution de Mme Benali. Celui de mars, où Prestige reconnaît le retard, prouve le préjudice de Mme Benali. Le formulaire de rétractation ferme une piste à l\'une et protège l\'autre. Un bon avocat cherche d\'abord les pièces qui le gênent : l\'autre camp les trouvera de toute façon.</p>
+      <p>Dans la réalité, un même avocat ne peut jamais défendre les deux parties d\'une affaire : ce serait un <em>conflit d\'intérêts</em>.</p></div>`;
+  },
+  vocab: ['Contrat', 'Parties', 'Consommateur / professionnel', 'Débiteur / créancier', 'Obligation d\'information', 'Conditions de validité', 'Offre et acceptation', 'Droit de rétractation', 'Nullité relative / absolue', 'Liberté contractuelle', 'Force obligatoire', 'Effet relatif', 'Bonne foi', 'Clauses', 'Obligation de moyens / de résultat', 'Exécution / inexécution', 'Exception d\'inexécution', 'Mise en demeure', 'Résiliation / résolution', 'Clause pénale', 'Clause abusive']
+};
+GAME.acts = GAME.robes.a.acts; GAME.endings = GAME.robes.a.endings; GAME.debrief = GAME.robes.a.debrief;
+let H = {};   // historique des choix (lu par le débrief)
+
+/* =====================================================================
+   2. DÉCOR — le cabinet d'avocats, puis la salle d'audience.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  if (act.final) return `<svg viewBox="0 0 360 200" role="img" aria-label="La salle d'audience">
+    <rect width="360" height="200" fill="#0b0805"/><rect x="0" y="0" width="360" height="162" fill="#120e09"/>
+    <g fill="none" stroke="#3a2a14" stroke-width="1.5"><rect x="130" y="20" width="24" height="142"/><rect x="306" y="20" width="24" height="142"/></g>
+    <g transform="translate(230,34)" stroke="${DROIT}" stroke-width="2" fill="none"><line x1="0" y1="0" x2="0" y2="42"/><line x1="-30" y1="8" x2="30" y2="8"/><path d="M-30,8 L-40,30 L-20,30 Z"/><path d="M30,8 L20,30 L40,30 Z"/><line x1="-12" y1="42" x2="12" y2="42"/></g>
+    <rect x="166" y="104" width="128" height="58" fill="#17110a" stroke="${DROIT}" stroke-width="1.5"/><rect x="158" y="98" width="144" height="8" fill="${DROIT}" opacity=".7"/>
+    <text x="230" y="138" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#9a8e7c">TRIBUNAL JUDICIAIRE</text>
+    <rect x="0" y="162" width="360" height="38" fill="#0d0a06"/><line x1="0" y1="162" x2="360" y2="162" stroke="#3a2a14" stroke-width="1.5"/>`;
+  const piles = Math.max(1, Math.min(6, Math.round(S.dossier / 15)));
+  let dos = ''; for (let i = 0; i < piles; i++) dos += `<rect x="${204 + (i % 2) * 4}" y="${110 - i * 7}" width="52" height="6" fill="#17110a" stroke="${DROIT}" stroke-width="1.2"/>`;
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Le cabinet d'avocats">
+    <rect width="360" height="200" fill="#0b0805"/><rect x="0" y="0" width="360" height="162" fill="#120e09"/>
+    <g fill="#110c07" stroke="#3a2a14" stroke-width="1.5"><rect x="280" y="24" width="64" height="100"/><line x1="280" y1="58" x2="344" y2="58"/><line x1="280" y1="92" x2="344" y2="92"/></g>
+    <g fill="${DROIT}" opacity=".55"><rect x="286" y="30" width="6" height="26"/><rect x="294" y="34" width="6" height="22"/><rect x="302" y="30" width="6" height="26"/><rect x="288" y="64" width="6" height="26"/><rect x="298" y="66" width="6" height="24"/><rect x="306" y="62" width="6" height="28"/></g>
+    <text x="196" y="44" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#5a4526">${S.robe === 'b' ? 'PRESTIGE c/ BENALI' : 'BENALI — DÉFENSE'}</text>
+    ${dos}
+    <g transform="translate(150,118)"><rect x="0" y="0" width="130" height="10" fill="#17110a" stroke="${DROIT}" stroke-width="1.5"/><rect x="8" y="10" width="8" height="34" fill="#17110a" stroke="${DROIT}"/><rect x="114" y="10" width="8" height="34" fill="#17110a" stroke="${DROIT}"/></g>
+    <rect x="0" y="162" width="360" height="38" fill="#0d0a06"/><line x1="0" y1="162" x2="360" y2="162" stroke="#3a2a14" stroke-width="1.5"/>`;
+};
+
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, tag: l.tag, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  let robe = null;
+  function startGame(r) {
+    if (typeof r === 'string') robe = r;
+    const R = GAME.robes[robe];
+    GAME.acts = R.acts; GAME.endings = R.endings; GAME.debrief = R.debrief;
+    S = { flags: {}, robe }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      frame(st.who, `<div class="box">${whoTag(st.who)}${st.tag ? `<span class="verdict ${st.tag}">${st.tag === 'tient' ? 'Ton argument tient' : 'Ton argument tombe'}</span>` : ''}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'plead') {
+      lastDeltas = [];
+      let pick = [];
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="plead-h">Choisis tes trois arguments.</p><div class="opts">${st.args.map((a, i) => `<button class="opt arg" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${a.label}</span><span class="arg-n"></span></div><div class="opt-d">${val(a.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go" disabled>Plaider ▸</button></div></div>`);
+      const go = document.getElementById('go');
+      app.querySelectorAll('.arg').forEach(b => b.onclick = () => {
+        const i = +b.dataset.i;
+        pick = pick.includes(i) ? pick.filter(x => x !== i) : pick.length < 3 ? pick.concat(i) : pick;
+        app.querySelectorAll('.arg').forEach(x => { const k = pick.indexOf(+x.dataset.i); x.setAttribute('aria-pressed', k >= 0); x.querySelector('.arg-n').textContent = k >= 0 ? k + 1 : ''; });
+        go.disabled = pick.length !== 3;
+      });
+      go.onclick = () => {
+        const chosen = pick.map(i => st.args[i]);
+        H[st.id] = chosen.map(a => a.id);
+        let score = 0;
+        const lines = [];
+        chosen.forEach(a => {
+          const ok = a.ok(S); score += ok ? a.pts : 0;
+          lines.push({ who: 'narr', text: `«${N}${a.plaid || a.label}${N}»` });
+          lines.push({ who: st.adv, text: val(ok ? a.yes : a.no, S), tag: ok ? 'tient' : 'tombe' });
+        });
+        H[st.id + 'Score'] = score;
+        const res = st.resolve(S, score, chosen.map(a => a.id));
+        if (res.do) res.do(S);
+        const verdict = (res.after || []).slice();
+        if (verdict.length) verdict[0] = { t: 'event', who: verdict[0].who, text: verdict[0].text, fx: res.fx };   // les jauges bougent quand le juge parle
+        else applyFx(res.fx);
+        pushAfter(lines.concat(verdict)); next();
+      };
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="${st.step || 1}" value="${st.def}" aria-label="${st.prompt}">
+        <div class="range-l"><span>${st.show(st.min)}</span><span>${st.show(st.max)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(robe + ':' + e.id);
+    try { localStorage.setItem(GAME.storeKey + '_' + robe, JSON.stringify(H)); } catch (err) {}
+    const autre = robe === 'a' ? 'b' : 'a';
+    let Hautre = null; try { Hautre = JSON.parse(localStorage.getItem(GAME.storeKey + '_' + autre) || 'null'); } catch (err) {}
+    const croise = Hautre && GAME.croise ? GAME.croise(robe === 'a' ? H : Hautre, robe === 'a' ? Hautre : H) : '';
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">Tu as appliqué ces règles sans les nommer. Voici comment on les appelle en droit.</p>${deb}` : ''}
+      ${forced && e.cut ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour aller jusqu'au jugement.</p>` : ''}
+      ${croise ? `<div class="deb-t">Les deux robes</div><p class="deb-s">Tu as défendu les deux camps de la même affaire. Voici ce que chacun a fait des mêmes faits.</p>${croise}` : `<div class="robe-next"><b>Et de l'autre côté${N}?</b> ${GAME.robes[autre].teaser}</div>`}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="swap">Changer de robe ▸</button><button class="btn ghost" id="again">Rejouer cette robe</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.robes.a.endings.length + GAME.robes.b.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = () => startGame(robe);
+    document.getElementById('swap').onclick = () => startGame(autre);
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get();
+    const robeBtn = r => { const R = GAME.robes[r], n = found.filter(x => x.startsWith(r + ':')).length;
+      return `<button class="opt robe" data-r="${r}"><div class="opt-t"><span>${R.label}</span>${n ? `<span class="opt-c">${n} fin${n > 1 ? 's' : ''}</span>` : ''}</div><div class="opt-d">${R.sub}</div></button>`; };
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <div class="prompt">Choisis ta robe</div>
+      <div class="opts">${robeBtn('a')}${robeBtn('b')}</div>
+      <p class="found">${GAME.meta} · ${GAME.robes.a.endings.length + GAME.robes.b.endings.length} fins possibles${found.length ? ` · ${found.length} découverte${found.length > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    app.querySelectorAll('.robe').forEach(b => b.onclick = () => startGame(b.dataset.r));
+  }
+  home();
+})();
+</script>
+</body>
+</html>

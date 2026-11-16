@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Le Livreur — Jeu Droit Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#FF9D3D;--eco-dim:#B86A1F;--bg:#080604;--panel:#120e09;--panel2:#17110a;--line:#3a2a14;--txt:#EEF3EC;--muted:#9a8e7c;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(255,157,61,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(255,157,61,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#20170d;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(255,157,61,.5);background:rgba(255,157,61,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#0b0805;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(255,157,61,.09), rgba(18,14,9,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#1a0e02;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#1a0e02;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#20170d;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#20170d;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#1a0e02;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#110c07;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#110c07;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#110c07;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.clause{display:block;margin:8px 0 0;padding:8px 12px;border-left:3px solid var(--eco);background:#110c07;font-size:14px;line-height:1.45;color:var(--txt);}
+.clause b{color:var(--eco);}
+.plead-h{margin:-4px 0 12px;color:var(--muted);font-size:14px;}
+.opt.arg[aria-pressed="true"]{border-color:var(--eco);background:rgba(255,157,61,.12);}
+.arg-n{font-family:'Orbitron',sans-serif;font-weight:800;color:var(--eco);min-width:14px;text-align:right;}
+.verdict{display:inline-block;margin:10px 0 0;padding:3px 10px;font-family:'Orbitron',sans-serif;font-weight:800;font-size:10px;letter-spacing:1px;text-transform:uppercase;border:1px solid;}
+.verdict.tient{color:#4CD97B;border-color:#4CD97B;}
+.verdict.tombe{color:#FF5C6A;border-color:#FF5C6A;}
+.robe-next{margin:22px 0 4px;padding:14px 16px;border:1px dashed var(--eco);font-size:15px;line-height:1.5;}
+.robe-next b{color:var(--eco);}
+.deb .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0 12px;font-size:14px;}
+.deb .two ul{margin:6px 0 0 18px;}
+.deb .two li{margin-bottom:4px;}
+@media (max-width:420px){.deb .two{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 3) n'a pas besoin d'être touché.
+   Une affaire, deux robes : robe a = avocat de Mme Royer (la victime), robe b = avocat de Rapido (l'employeur du livreur).
+   Jauges : dossier (solidité du dossier, 0-100), conf (confiance du client, 0-100),
+            frais (frais engagés par le client, €), mois (durée de l'affaire).
+   Étape « plead » : le joueur choisit 3 arguments sur 6 ; chacun tient (ok) ou tombe selon le dossier constitué.
+   ===================================================================== */
+const N = ' ';
+const DROIT = '#FF9D3D';
+const eur = n => Math.round(n).toLocaleString('fr-FR') + N + '€';
+const LAB = {
+  a1: 'Théo conduisait : c\'est à lui de payer', a2: 'Rapido répond de son livreur, qui était en mission', a3: 'Rapido avait la garde du vélo : il répond du dommage',
+  a4: 'Le frein défaillant ne libère pas Rapido', a5: 'Le fabricant du frein doit réparer', a6: 'Tous ses préjudices doivent être réparés',
+  b1: 'Théo faisait une course personnelle', b2: 'La pluie était un cas de force majeure', b3: 'Mme Royer a commis une faute',
+  b4: 'Stopix doit nous rembourser : son frein était défectueux', b5: 'VéloPro doit nous garantir : sa clause à 500 € ne tient pas', b6: 'Tous les préjudices réclamés ne sont pas prouvés'
+};
+const indemnite = s => (s.flags.corporel ? 30000 : 18000) + (s.flags.factures ? 700 : 0) + (s.flags.moral ? 6000 : 0);   // ce que le juge peut accorder à Mme Royer
+
+const GAME = {
+  title: 'Le Livreur',
+  brand: 'LE <span>LIVREUR</span>',
+  storeKey: 'leLivreurFins',
+  backLink: '../../matieres/droit-terminale.html',
+  footer: 'Droit Terminale STMG, thème 6',
+  kicker: 'Droit · Terminale STMG · Thème 6',
+  pitch: `Un soir de pluie, le frein d'un vélo-cargo de livraison lâche dans une descente. Mme Royer, 68 ans, est renversée. Fracture du col du fémur. Qui doit réparer${N}? Le livreur, son employeur, le fabricant du frein, ou personne, si la victime a sa part de faute${N}? Deux clients, deux avocats. Tu vas être les deux.`,
+  meta: '2 robes · 15 minutes chacune',
+  start: s => Object.assign(s, { dossier: 20, conf: 60, frais: 0, mois: 0, stop: null, res: null }),
+  hud: [
+    { k: 'dossier', label: 'Dossier',   short: 'Dossier',   show: s => Math.round(s.dossier), pct: s => s.dossier,     low: s => s.dossier < 30, clamp: true },
+    { k: 'conf',    label: 'Confiance', short: 'Confiance', show: s => Math.round(s.conf),    pct: s => s.conf,        low: s => s.conf < 35, clamp: true },
+    { k: 'frais',   label: 'Frais',     short: 'Frais',     show: s => eur(s.frais),          pct: s => s.frais / 30,  low: s => s.frais > 2500, inv: true, unit: N + '€' },
+    { k: 'mois',    label: 'Durée',     short: 'Durée',     show: s => s.mois + N + 'mois',   pct: s => s.mois * 7,    low: s => false, inv: true, unit: N + 'mois' }
+  ],
+  fail: s => s.stop || (s.conf <= 15 ? 'congedie' : null),
+  lock: (s, cost) => null,
+  bilan: s => [['Dossier', Math.round(s.dossier) + ' / 100'], ['Confiance du client', Math.round(s.conf) + ' / 100'], ['Frais engagés', eur(s.frais)], ['Durée de l\'affaire', s.mois + N + 'mois']],
+
+  characters: {
+    royer:    { name: 'Mme Royer',    role: 'retraitée, la victime',            color: '#FF8AD1', body: '#B8508F', hair: '#d8d8d8', acc: 'bun' },
+    lefort:   { name: 'Mme Lefort',   role: 'gérante de Rapido',                color: '#5B8FFF', body: '#3D62B8', hair: '#3a2418', acc: 'box' },
+    theo:     { name: 'Théo',         role: 'livreur salarié de Rapido',        color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'cap' },
+    garnier:  { name: 'Me Garnier',   role: 'associée de ton cabinet',          color: '#B9A6FF', body: '#1c1c22', hair: '#8a8f96', acc: 'tie' },
+    fontaine: { name: 'Me Fontaine',  role: 'avocat de Rapido et de son assureur', color: '#5FB8B0', body: '#1c1c22', hair: '#c9c9c9', acc: 'tie' },
+    riviere:  { name: 'Me Rivière',   role: 'avocate de Mme Royer',             color: '#FFC64F', body: '#1c1c22', hair: '#7a2f2f', acc: 'tie' },
+    vasquez:  { name: 'M. Vasquez',   role: 'expert judiciaire',                color: '#4CD97B', body: '#2f7a4a', hair: '#c9c9c9', acc: 'clip' },
+    arnaud:   { name: 'M. Arnaud',    role: 'président de l\'association de pêche', color: '#5FB8B0', body: '#2f5b57', hair: '#5a4630', acc: 'cap' },
+    juge:     { name: 'Mme Delacroix', role: 'juge au tribunal judiciaire',     color: '#FF9D3D', body: '#1c1c22', hair: '#c9a24a', acc: 'clip' },
+    narr:     { name: 'Toi',          role: '',                                 color: '#FF9D3D' }
+  },
+
+  robes: {
+  /* =========================== ROBE A : MME ROYER =========================== */
+  a: {
+    label: 'L\'avocat de Mme Royer', sub: 'La victime : une hanche brisée, et la peur de sortir de chez elle.',
+    teaser: `Tu as défendu Mme Royer. Passe de l'autre côté de la barre${N}: Rapido est une petite entreprise de livraison, et son assureur menace de résilier son contrat.`,
+    acts: [
+    { num: 1, title: 'Le dommage', sub: 'Mme Royer te reçoit chez elle. Elle marche avec un déambulateur.',
+      steps: [
+        { t: 'say', who: 'royer', text: `Je traversais pour aller à la pharmacie. Le vélo est arrivé d'en haut, très vite, il n'a pas ralenti. Trois semaines d'hôpital, une prothèse de hanche, et six mois de rééducation. Mes lunettes et mon téléphone ont fini sous la roue. Et maintenant, je ne sors plus seule. J'ai peur.` },
+        { t: 'say', who: 'garnier', text: `Écoute bien ce qu'elle vient de te dire${N}: elle a perdu trois choses. Son corps, abîmé. Ses biens, détruits. Et quelque chose qui ne se voit pas${N}: sa tranquillité. Chacune peut être réparée en argent, à une condition${N}: la prouver. Ce que tu ne documentes pas n'existera pas pour le juge.` },
+        { t: 'choice', id: 'medical', prompt: `Sa blessure${N}?`, options: [
+          { id: 'expertise', label: 'Demander une expertise médicale complète', desc: 'Séquelles, durée de rééducation, besoin d\'aide à domicile.', fx: { dossier: 20, frais: 400 }, set: { corporel: true },
+            after: [{ who: 'garnier', text: `Le médecin expert chiffre tout${N}: les jours d'hôpital, la douleur, la boiterie qui restera, l'aide-ménagère dont elle aura besoin. C'est ce qui fera la plus grosse part de l'indemnisation.` }] },
+          { id: 'certificats', label: 'Les certificats de l\'hôpital suffiront', desc: 'Pas besoin de dépenser plus.', fx: { dossier: 6 },
+            after: [{ who: 'garnier', text: `Ils prouvent la fracture. Pas les séquelles, ni l'aide dont elle aura besoin dans cinq ans.` }] } ] },
+        { t: 'choice', id: 'materiel', prompt: `Ses lunettes et son téléphone${N}?`, options: [
+          { id: 'factures', label: 'Lui faire retrouver les factures', desc: 'Dans les tiroirs, dans ses courriels.', fx: { dossier: 5 }, set: { factures: true },
+            after: [{ who: 'royer', text: `Les lunettes, 420${N}€, il y a un an. Le téléphone, 280${N}€. Ma fille a tout retrouvé.` }] },
+          { id: 'estimer', label: 'Estimer à vue d\'œil', desc: '« Environ 700 € ».', fx: {},
+            after: [{ who: 'garnier', text: `«${N}Environ${N}», le juge n'aime pas.` }] } ] },
+        { t: 'choice', id: 'moral', prompt: `Sa peur de sortir${N}?`, options: [
+          { id: 'attestations', label: 'Recueillir le témoignage de sa fille et de son médecin traitant', desc: 'Sur ce qui a changé dans sa vie.', fx: { dossier: 8 }, set: { moral: true },
+            after: [{ who: 'royer', text: `Ma fille a écrit que je n'allais plus au club de bridge. C'est vrai. J'avais honte de le dire.` }] },
+          { id: 'rien', label: 'Le juge comprendra', desc: 'C\'est évident, après un tel choc.', fx: {},
+            after: [{ who: 'garnier', text: `Évident pour toi. Pour le juge, il faut des éléments.` }] } ] },
+        { t: 'choice', id: 'temoin', prompt: `L'accident lui-même${N}?`, options: [
+          { id: 'chercher', label: 'Chercher des témoins chez les commerçants de la rue', desc: 'Quelqu\'un a forcément vu.', fx: { dossier: 8 }, set: { temoin: true },
+            after: [{ who: 'garnier', text: `Le boulanger a tout vu. Bonne nouvelle${N}: le vélo n'a pas pu freiner, la roue avant est restée libre. Moins bonne${N}: Mme Royer traversait à vingt mètres du passage piéton, les yeux sur son téléphone.` }] },
+          { id: 'rien', label: 'Sa parole suffit', desc: 'C\'est elle la victime.', fx: { conf: 3 },
+            after: [{ who: 'royer', text: `J'étais sur le passage, j'en suis presque sûre.` }] } ] }
+      ] },
+    { num: 2, title: 'Qui attaquer ?', sub: 'Trois responsables possibles. Peut-être plus.',
+      steps: [
+        { t: 'event', who: 'garnier', text: `Un mois a passé. Voici ce qu'on sait. Théo, le livreur, est salarié de Rapido et faisait une livraison. Le vélo appartient à une société de location, VéloPro, mais c'est Rapido qui l'utilise tous les jours. Le frein a été fabriqué par Stopix. Contre qui agis-tu${N}?`, fx: { mois: 1 } },
+        { t: 'choice', id: 'cible', prompt: `Qui assigner${N}?`, options: [
+          { id: 'theo', label: 'Théo, le livreur : c\'est lui qui conduisait', desc: 'Le plus direct.', fx: { dossier: -10 }, set: { cibleTheo: true },
+            after: [{ who: 'garnier', text: `Il conduisait, mais pour le compte de Rapido, pendant sa mission. Dans ce cas, c'est l'employeur qui répond du salarié envers la victime, pas le salarié lui-même. Et Théo n'a pas les moyens de payer.` }] },
+          { id: 'rapido', label: 'Rapido : l\'employeur de Théo, qui utilisait le vélo', desc: 'Et son assureur paiera.', fx: { dossier: 10 }, set: { cibleRapido: true },
+            after: [{ who: 'garnier', text: `Bon choix. Rapido répond de son salarié, et du vélo qu'il utilise. Il est assuré pour ça.` }] },
+          { id: 'stopix', label: 'Stopix, le fabricant du frein', desc: 'Le vrai coupable, c\'est la pièce.', fx: { dossier: 4 }, set: { cibleStopix: true },
+            after: [{ who: 'garnier', text: `Possible${N}: un fabricant répond des défauts de ses produits, même sans faute. Mais il faudra prouver que le frein était défectueux.` }] },
+          { id: 'tous', label: 'Rapido et Stopix ensemble', desc: 'Plus de frais, plus de chances.', fx: { dossier: 12, frais: 300 }, set: { cibleRapido: true, cibleStopix: true },
+            after: [{ who: 'garnier', text: `Deux portes au lieu d'une. Si l'une se ferme, l'autre reste ouverte.` }] } ] },
+        { t: 'choice', id: 'expvelo', prompt: `Faire expertiser le vélo accidenté${N}?`, options: [
+          { id: 'oui', label: 'Oui, avant qu\'il soit réparé', desc: '300 €.', fx: { dossier: 8, frais: 300 }, set: { expVelo: true },
+            after: [{ who: 'vasquez', text: `Le frein avant présente un défaut de fabrication${N}: la pièce s'est rompue. Et sa plaquette n'avait pas été changée depuis huit mois.` }] },
+          { id: 'non', label: 'Non : tout le monde sait que le frein a lâché', desc: 'Inutile de payer.', fx: {},
+            after: [{ who: 'garnier', text: `Tout le monde le dit. Personne ne l'a prouvé.` }] } ] },
+        { t: 'choice', id: 'penal', prompt: `Porter plainte pour blessures involontaires${N}?`, options: [
+          { id: 'plainte', label: 'Oui, porter plainte', desc: 'Qu\'il y ait une sanction.', fx: { mois: 2, conf: -3 },
+            after: [{ who: 'garnier', text: `Le procureur a classé la plainte. Théo n'a commis aucune faute${N}: le frein a lâché. Le juge pénal punit une faute${N}; le juge civil, lui, répare un dommage, parfois même sans faute. Ce n'est pas la même question.` }] },
+          { id: 'civil', label: 'Non : rester devant le juge civil', desc: 'Ce qu\'elle veut, c\'est être indemnisée.', fx: {},
+            after: [{ who: 'royer', text: `Je ne veux pas que ce garçon aille en prison. Je veux pouvoir payer mon aide-ménagère.` }] } ] }
+      ] },
+    { num: 3, title: 'Les défenses', sub: 'L\'assureur de Rapido a pris un avocat.',
+      steps: [
+        { t: 'event', who: 'fontaine', text: `Rapido ne doit rien. Un${N}: il pleuvait à verse, le freinage était impossible${N}; c'est un cas de force majeure. Deux${N}: Mme Royer traversait hors du passage piéton en regardant son téléphone${N}; nous avons la vidéo de la caméra municipale. Trois${N}: si le frein a cassé, voyez son fabricant.`, fx: { mois: 2, conf: -4 } },
+        { t: 'say', who: 'garnier', text: `Reprenons. La pluie${N}: pour libérer quelqu'un, un événement doit être imprévisible, irrésistible et extérieur. Une averse en novembre ne l'est pas. Le frein${N}: c'est un défaut du vélo lui-même, pas un événement extérieur${N}; celui qui a la garde du vélo en répond quand même, quitte à se retourner ensuite contre le fabricant. La faute de Mme Royer, en revanche, c'est sérieux${N}: si elle est prouvée, elle peut réduire son indemnisation.` },
+        { t: 'choice', id: 'faute', prompt: `Face à la vidéo qui montre Mme Royer sur son téléphone${N}?`, options: [
+          { id: 'reconnaitre', label: 'Reconnaître les faits, et plaider qu\'ils ont peu compté', desc: 'Sur le passage ou pas, un vélo sans frein l\'aurait renversée.', fx: { dossier: 5, conf: -3 }, set: { honnete: true },
+            after: [{ who: 'garnier', text: `C'est la meilleure défense${N}: tu ne contestes pas l'évidence, tu en réduis la portée. Le juge appréciera.` }] },
+          { id: 'nier', label: 'Nier : elle était sur le passage', desc: 'C\'est ce qu\'elle dit.', fx: { conf: 4 }, set: { nier: true },
+            after: [{ who: 'garnier', text: `Contre une vidéo${N}? Tu risques de perdre plus que ce point${N}: ta crédibilité sur tout le reste.` }] } ] },
+        { t: 'say', who: 'fontaine', text: s => `L'assureur de Rapido préfère éviter un procès. Il propose ${eur(s.dossier >= 50 ? 24000 : 15000)} pour solde de tout compte. Mme Royer renonce à toute action. Réponse sous quinze jours.` },
+        { t: 'choice', id: 'offre', prompt: `La proposition de l'assureur${N}?`, options: [
+          { id: 'accepter', label: 'Conseiller d\'accepter', desc: 'L\'argent maintenant, sans risque.', do: s => { s.stop = 'accord'; s.montant = s.dossier >= 50 ? 24000 : 15000; },
+            after: [{ who: 'royer', text: `Je pourrai payer l'aide-ménagère dès le mois prochain. C'est ce qui compte.` }] },
+          { id: 'contre', label: 'Contre-proposer 32 000 €', desc: 'Le dossier vaut plus.',
+            do: s => { if (s.dossier >= 60) { s.stop = 'accordplus'; s.montant = 32000; } },
+            after: s => s.stop ? [{ who: 'fontaine', text: `L'assureur a relu l'expertise médicale. Il accepte 32${N}000${N}€.` }] : [{ who: 'fontaine', text: `32${N}000${N}€${N}? Avec ce dossier${N}? Nous verrons ce qu'en dit le tribunal.` }] },
+          { id: 'refuser', label: 'Refuser : le juge fixera le montant', desc: 'Elle veut que la responsabilité soit reconnue.', fx: { conf: 3 },
+            after: [{ who: 'royer', text: `Je veux qu'un juge dise que ce n'était pas ma faute.` }] },
+          { id: 'signer', label: 'Accepter au nom de ta cliente, sans la consulter', desc: 'Elle serait d\'accord, de toute façon.', fx: { conf: -60 },
+            after: [{ who: 'royer', text: `Vous avez signé pour moi${N}? Sans même m'appeler${N}? Rendez-moi mon dossier.` },
+                    { who: 'garnier', text: `L'avocat conseille, le client décide. Toujours.` }] } ] }
+      ] },
+    { num: 4, title: 'L\'audience', sub: 'Tribunal judiciaire, 9 h 30.', final: true,
+      steps: [
+        { t: 'event', who: 'juge', text: `Affaire Royer. La demanderesse réclame réparation de ses préjudices. Maître, vous avez la parole.`, fx: { mois: 7, frais: 1200 } },
+        { t: 'plead', id: 'plaid', adv: 'fontaine', prompt: `Que plaides-tu pour Mme Royer${N}?`, args: [
+          { id: 'a1', label: LAB.a1, desc: `Le conducteur`, pts: 0, ok: s => false,
+            no: `Théo agissait dans le cadre de sa mission, pour le compte de son employeur. Il n'a pas à répondre personnellement envers la victime. Mon confrère se trompe de responsable.` },
+          { id: 'a2', label: LAB.a2, desc: `L'employeur`, pts: 2, ok: s => s.flags.cibleRapido,
+            yes: `Rapido ne conteste pas que Théo était en livraison.`,
+            no: `Rapido${N}? Vous ne l'avez pas assigné. Le tribunal ne peut pas condamner quelqu'un qui n'est pas dans la cause.` },
+          { id: 'a3', label: LAB.a3, desc: `Celui qui utilise le vélo`, pts: 1, ok: s => s.flags.cibleRapido,
+            yes: `C'est exact, Rapido avait l'usage et le contrôle du vélo.`,
+            no: `Encore faudrait-il avoir assigné Rapido.` },
+          { id: 'a4', label: LAB.a4, desc: `Un défaut du vélo lui-même`, pts: 1, ok: s => s.flags.cibleRapido,
+            yes: `Je reconnais qu'un défaut du vélo lui-même ne libère pas celui qui l'utilise. Rapido se retournera contre le fabricant.`,
+            no: `Rapido n'est pas dans la cause.` },
+          { id: 'a5', label: LAB.a5, desc: `Stopix`, pts: 2, ok: s => s.flags.cibleStopix && s.flags.expVelo,
+            yes: `L'expertise est formelle${N}: la pièce était défectueuse. Stopix ne peut pas le contester.`,
+            no: s => !s.flags.cibleStopix ? `Stopix n'est pas dans la cause.` : `Quel défaut${N}? Aucune expertise du vélo n'a été faite avant sa réparation. Rien ne prouve que le frein était défectueux.` },
+          { id: 'a6', label: LAB.a6, desc: `Le corps, les biens, la peur`, pts: 1, ok: s => s.flags.corporel && (s.flags.factures || s.flags.moral),
+            yes: `Les préjudices sont documentés. Je n'en discute que le montant.`,
+            no: `Des séquelles, une souffrance${N}? Rien au dossier ne les établit, à part un certificat d'hospitalisation.` } ],
+          resolve: (s, score, ids) => {
+            const resp = (ids.includes('a2') || ids.includes('a3') || ids.includes('a4')) && s.flags.cibleRapido || (ids.includes('a5') && s.flags.cibleStopix && s.flags.expVelo);
+            const red = s.flags.nier ? 0.3 : s.flags.honnete ? 0.1 : 0.2;
+            const m = Math.round(indemnite(s) * (1 - red) / 100) * 100; s.montant = m;
+            if (resp && score >= 4) return { do: s => { s.res = 'gain'; }, fx: { conf: 20 }, after: [{ who: 'juge', text: `Le tribunal, après en avoir délibéré${N}: la responsabilité est établie. Mme Royer, en traversant hors du passage, a commis une faute qui a contribué à son dommage${N}: son indemnisation est réduite de ${Math.round(red * 100)}${N}%. Elle percevra ${eur(m)}.` }] };
+            if (resp && score >= 2) return { do: s => { s.res = 'partiel'; s.montant = Math.round(m * 0.7 / 100) * 100; }, fx: { conf: 5 }, after: [{ who: 'juge', text: `Le tribunal${N}: la responsabilité est établie, mais une partie des préjudices n'est pas démontrée et la victime a commis une faute. Mme Royer percevra ${eur(Math.round(m * 0.7 / 100) * 100)}.` }] };
+            return { do: s => { s.res = 'perdu'; }, fx: { conf: -20, frais: 800 }, after: [{ who: 'juge', text: `Le tribunal${N}: la demande, dirigée contre une personne qui n'en répond pas ou fondée sur des faits non prouvés, est rejetée. Mme Royer supportera les frais de la procédure.` }] };
+          } },
+        { t: 'say', who: 'royer', text: s => s.res === 'gain' ? `Je vais pouvoir payer l'aide-ménagère, et retourner au bridge en taxi. Merci.` : s.res === 'partiel' ? `Moins que ce que l'assureur me proposait, ou à peine plus. Je ne sais pas si ça valait un procès.` : `Rien. Après tout ça, rien. Et c'est moi qui paie les frais${N}?` }
+      ] }
+    ],
+    endings: [
+      { id: 'congedie', cut: true, when: s => s.conf <= 15, title: 'Dessaisi', stamp: 'Cliente partie', color: '#FF5C6A',
+        text: `Mme Royer a repris son dossier. Tu as décidé à sa place, et c'est la seule chose qu'un avocat ne doit jamais faire.` },
+      { id: 'accord', when: s => s.stop === 'accord', title: 'L\'accord avec l\'assureur', stamp: 'Transaction', color: '#5FB8B0',
+        text: s => `Mme Royer touche ${eur(s.montant)} dans un mois, sans procès ni aléa. Peut-être moins que ce qu'un juge lui aurait accordé${N}; peut-être plus. Elle a choisi la certitude.` },
+      { id: 'accordplus', when: s => s.stop === 'accordplus', title: 'Le bon accord', stamp: 'Transaction gagnante', color: '#4CD97B',
+        text: `Ton dossier médical était si complet que l'assureur a préféré payer 32${N}000${N}€ plutôt que plaider. Le meilleur procès est parfois celui qui n'a pas lieu.` },
+      { id: 'gain', when: s => s.res === 'gain', title: 'Indemnisée', stamp: 'Bravo', color: '#4CD97B',
+        text: s => `Tu as attaqué le bon responsable, prouvé chaque préjudice et reconnu ce qui ne pouvait pas être nié. Mme Royer obtient ${eur(s.montant)}, malgré sa part de faute.` },
+      { id: 'partiel', when: s => s.res === 'partiel', title: 'Indemnisation partielle', stamp: 'Demi-victoire', color: '#FFC64F',
+        text: s => `La responsabilité de Rapido est reconnue, mais une partie des préjudices manquait de preuves. Mme Royer obtient ${eur(s.montant)}.` },
+      { id: 'perdu', when: s => true, title: 'Déboutée', stamp: 'Demande rejetée', color: '#FF5C6A',
+        text: `Mme Royer a été blessée, personne ne le conteste. Mais tu as attaqué la mauvaise personne, ou sans les preuves nécessaires. Elle repart sans rien.` }
+    ],
+    debrief: [
+      { act: 1, needs: ['medical', 'materiel', 'moral'], title: 'Acte 1 — Le dommage', text: (h, s) =>
+          `La <em>responsabilité civile</em> oblige à réparer le dommage causé à autrui. Le <em>dommage</em> est l\'atteinte subie ; le <em>préjudice</em> en est la conséquence, que la <em>réparation</em> compense. Il peut être <em>corporel</em> (la hanche, la rééducation), <em>matériel</em> (les lunettes, le téléphone) ou <em>moral</em> (la peur, l\'isolement). ${h.medical === 'expertise' ? 'Ton expertise médicale a permis de chiffrer le préjudice corporel.' : 'Sans expertise, le préjudice corporel est resté mal mesuré.'} ${h.moral === 'attestations' ? 'Les témoignages ont rendu visible le préjudice moral.' : 'Le préjudice moral, faute d\'éléments, est resté invisible.'} En pratique, c\'est souvent l\'<em>assurance</em> du responsable qui paie.` },
+      { act: 2, needs: ['cible', 'penal'], title: 'Acte 2 — Qui attaquer ?', text: (h, s) =>
+          `Pour engager une responsabilité, il faut trois éléments : un <em>fait générateur</em> (une faute, une chose, une personne dont on répond), un <em>dommage</em>, et un <em>lien de causalité</em> entre les deux. Plusieurs fondements existaient. La <em>responsabilité du fait d\'autrui</em> : l\'employeur répond des dommages causés par son salarié dans ses fonctions ; le salarié, lui, n\'a pas à en répondre envers la victime. La <em>responsabilité du fait des choses</em> : celui qui a la garde d\'une chose (son usage, sa direction, son contrôle) répond du dommage qu\'elle cause, même sans faute. Le régime des <em>produits défectueux</em> : le fabricant répond des défauts de son produit, sans faute à prouver. ${h.cible === 'theo' ? 'En attaquant Théo, tu as visé le seul qui n\'en répondait pas.' : ''} Enfin, ${h.penal === 'plainte' ? 'ta plainte l\'a montré : ' : ''}la <em>responsabilité pénale</em> sanctionne une infraction, alors que la responsabilité civile répare un dommage.` },
+      { act: 3, needs: ['faute', 'offre'], title: 'Acte 3 — Les défenses', text: (h, s) =>
+          `Le responsable peut tenter une <em>exonération</em> en invoquant une <em>cause étrangère</em>. La <em>force majeure</em> exige un événement imprévisible, irrésistible et extérieur : une averse ne l\'est pas, un défaut du vélo lui-même non plus. Le <em>fait d\'un tiers</em> ne libère que s\'il présente ces mêmes caractères. La <em>faute de la victime</em>, elle, réduit l\'indemnisation, ou la supprime si elle présente les caractères de la force majeure. ${h.faute === 'reconnaitre' ? 'En reconnaissant la faute de ta cliente, tu as limité sa portée.' : 'En niant la faute filmée, tu as aggravé la réduction.'}` },
+      { act: 4, needs: ['plaid'], finalOnly: true, title: 'Acte 4 — L\'audience', text: (h, s) =>
+          `Certains dommages relèvent de <em>régimes spéciaux</em>. Si Théo avait conduit un scooter, la loi sur les <em>accidents de la circulation</em> s\'appliquait : un piéton est indemnisé presque automatiquement, et sa faute ne lui est opposée que si elle est inexcusable et cause exclusive de l\'accident (jamais avant 16 ans ni après 70 ans). Le <em>préjudice écologique</em>, l\'<em>accident du travail</em> et les produits défectueux ont aussi leurs règles propres. Le droit commun connaît encore la <em>responsabilité du fait personnel</em> (sa propre faute), la responsabilité du <em>fait des animaux</em> (le propriétaire d\'un chien qui mord) et la <em>ruine des bâtiments</em> (le propriétaire d\'un balcon qui s\'effondre).` }
+    ]
+  },
+
+  /* =========================== ROBE B : RAPIDO =========================== */
+  b: {
+    label: 'L\'avocat de Rapido', sub: 'L\'entreprise de livraison dont le vélo a renversé une passante.',
+    teaser: `Tu as défendu Rapido. Passe de l'autre côté de la barre${N}: Mme Royer, 68 ans, marche avec un déambulateur et n'ose plus sortir seule.`,
+    acts: [
+    { num: 1, title: 'Les faits', sub: 'Mme Lefort, gérante de Rapido, est dans ton bureau.',
+      steps: [
+        { t: 'say', who: 'lefort', text: `Douze livreurs, quinze vélos-cargos loués à VéloPro, qui doit les entretenir. Et maintenant une dame à l'hôpital, une avocate qui réclame 45${N}000${N}€, et mon assureur qui parle de résilier mon contrat. Le frein a lâché${N}! Ce n'est pas la faute de Théo, ni la mienne.` },
+        { t: 'choice', id: 'mission', prompt: `Que faisait Théo au moment de l'accident${N}?`, options: [
+          { id: 'gps', label: 'Vérifier l\'appli de livraison et le GPS', desc: 'Les faits d\'abord.', fx: { dossier: 5 }, set: { gps: true },
+            after: [{ who: 'garnier', text: `Commande n°4512, en cours de livraison. Théo travaillait. Rapido répond de lui envers la victime${N}: pas d'échappatoire de ce côté, autant le savoir maintenant.` }] },
+          { id: 'supposer', label: 'Soutenir qu\'il faisait peut-être une course personnelle', desc: 'Ça vaut la peine d\'essayer.', fx: { dossier: -5 }, set: { pari: true },
+            after: [{ who: 'lefort', text: `Il faisait peut-être un détour, je n'en sais rien. Si ça peut nous sortir de là…` }] } ] },
+        { t: 'choice', id: 'camera', prompt: `La caméra municipale au coin de la rue${N}?`, options: [
+          { id: 'obtenir', label: 'Demander les images', desc: 'Elles sont effacées au bout d\'un mois.', fx: { dossier: 12 }, set: { camera: true },
+            after: [{ who: 'garnier', text: `On voit tout. Le vélo ne ralentit pas${N}: le frein ne répond plus. Et Mme Royer traverse à vingt mètres du passage, la tête baissée sur son téléphone.` }] },
+          { id: 'non', label: 'Pas la peine', desc: 'Les faits sont connus.', fx: {},
+            after: [{ who: 'garnier', text: `Les images seront effacées dans quinze jours. Avec elles, peut-être ton meilleur argument.` }] } ] },
+        { t: 'choice', id: 'velo', prompt: `Le vélo accidenté${N}?`, options: [
+          { id: 'expertise', label: 'Faire expertiser le frein avant toute réparation', desc: '300 €.', fx: { dossier: 10, frais: 300 }, set: { expFrein: true },
+            after: [{ who: 'vasquez', text: `Défaut de fabrication de la pièce, signée Stopix. Et la plaquette n'avait pas été changée depuis huit mois, alors que le contrat de VéloPro prévoit une révision chaque mois.` }] },
+          { id: 'reparer', label: 'Le faire réparer pour qu\'il reprenne du service', desc: 'Un vélo à l\'arrêt coûte cher.', fx: { conf: 4 },
+            after: [{ who: 'garnier', text: `Pièce changée, preuve envolée. Personne ne pourra plus dire pourquoi ce frein a lâché.` }] } ] },
+        { t: 'choice', id: 'at', prompt: `Théo s'est foulé le poignet dans la chute${N}?`, options: [
+          { id: 'declarer', label: 'Déclarer l\'accident du travail', desc: 'Dans les 48 heures.', fx: { dossier: 5 }, set: { at: true },
+            after: [{ who: 'theo', text: `La Sécurité sociale prend en charge mes soins et me verse des indemnités pendant l'arrêt. Merci de ne pas m'avoir laissé tomber.` }] },
+          { id: 'non', label: 'Ne rien déclarer : une simple foulure', desc: 'Pas besoin d\'alourdir le dossier.', fx: {}, set: { noAT: true },
+            after: [{ who: 'theo', text: `Je dois payer mon kiné moi-même${N}? Je me suis blessé en travaillant pour vous${N}!` }] } ] }
+      ] },
+    { num: 2, title: 'La stratégie', sub: 'Qui, au bout du compte, va payer ?',
+      steps: [
+        { t: 'event', who: 'arnaud', text: `Association de pêche du canal. La batterie de votre vélo s'est éventrée dans le choc. Le liquide a coulé dans le caniveau, jusqu'au canal. Nous avons trouvé des poissons morts sur deux cents mètres. Nous demandons réparation, pour le canal lui-même.`, fx: { mois: 1 } },
+        { t: 'choice', id: 'eco', prompt: `La pollution du canal${N}?`, options: [
+          { id: 'depolluer', label: 'Faire dépolluer et réempoissonner à nos frais, tout de suite', desc: '1 500 €.', fx: { frais: 1500, dossier: 5 }, set: { eco: true },
+            after: [{ who: 'arnaud', text: `Le canal sera nettoyé avant le printemps. Nous retirons notre demande.` },
+                    { who: 'garnier', text: `Réparer directement la nature, c'est exactement ce que la loi préfère${N}: remettre en état, avant de payer.` }] },
+          { id: 'contester', label: 'Contester : quelques gouttes, et personne n\'a perdu d\'argent', desc: 'Un canal n\'est pas une victime.', fx: { conf: 3 }, set: { ecoContest: true },
+            after: [{ who: 'garnier', text: `La loi dit le contraire${N}: une atteinte à la nature elle-même se répare, même si personne n'a perdu d'argent. L'association a le droit d'agir.` }] } ] },
+        { t: 'say', who: 'garnier', text: `Face à Mme Royer, Rapido répondra presque sûrement${N}: c'est son livreur, et c'est lui qui utilisait le vélo. La vraie question est ailleurs${N}: Rapido peut-il ensuite se faire rembourser par ceux qui ont vraiment causé la panne${N}?` },
+        { t: 'choice', id: 'recours', prompt: `Contre qui Rapido se retourne-t-il${N}?`, options: [
+          { id: 'velopro', label: 'Contre VéloPro, qui devait entretenir le vélo', desc: 'Son contrat plafonne sa responsabilité à 500 €.', fx: { dossier: 6 }, set: { velopro: true },
+            after: [{ who: 'garnier', text: `Il faudra faire tomber cette clause. Un contrat d'entretien qui permet de ne pas entretenir, ça ne tient pas toujours.` }] },
+          { id: 'stopix', label: 'Contre Stopix, le fabricant du frein', desc: 'La pièce était défectueuse.', fx: { dossier: 6 }, set: { stopixB: true },
+            after: [{ who: 'garnier', text: `Le fabricant répond des défauts de son produit. Reste à les prouver.` }] },
+          { id: 'deux', label: 'Contre les deux', desc: 'Frais supplémentaires.', fx: { dossier: 10, frais: 400 }, set: { velopro: true, stopixB: true },
+            after: [{ who: 'garnier', text: `Chacun paiera sa part de la panne, si tu le prouves.` }] },
+          { id: 'aucun', label: 'Contre personne : l\'assureur paiera', desc: 'Pour quoi faire ?', fx: {},
+            after: [{ who: 'lefort', text: `Et l'an prochain, ma prime d'assurance doublera.` }] } ] }
+      ] },
+    { num: 3, title: 'L\'exonération', sub: 'La lettre de l\'avocate de Mme Royer vient d\'arriver.',
+      steps: [
+        { t: 'event', who: 'riviere', text: `Ma cliente réclame 45${N}000${N}€. Rapido est l'employeur du livreur et utilisait le vélo${N}: sa responsabilité ne fait aucun doute.`, fx: { mois: 2, conf: -4 } },
+        { t: 'event', if: s => s.flags.noAT, who: 'theo', text: `J'ai fait la déclaration moi-même. La Sécurité sociale a écrit à Rapido${N}: ne pas déclarer un accident du travail, c'est une infraction. Amende.`, fx: { frais: 750, conf: -10 } },
+        { t: 'say', who: 'garnier', text: `Pour échapper à tout ou partie de sa responsabilité, Rapido doit invoquer quelque chose qui ne vient pas de lui. Une force majeure${N}: imprévisible, irrésistible, extérieure. Le fait d'un tiers qui aurait ces mêmes caractères. Ou la faute de la victime elle-même. Choisis la défense principale.` },
+        { t: 'choice', id: 'defense', prompt: `Quelle défense principale pour Rapido${N}?`, options: [
+          { id: 'fm', label: 'La force majeure : une pluie battante', desc: 'Freiner était impossible.', fx: {}, set: { fm: true },
+            after: [{ who: 'garnier', text: `Une averse en novembre${N}? Ni imprévisible, ni irrésistible. Je doute que le juge te suive.` }] },
+          { id: 'victime', label: 'La faute de la victime : hors du passage, sur son téléphone', desc: 'Elle a sa part.', fx: { dossier: 5 }, set: { fauteV: true },
+            after: [{ who: 'garnier', text: s => s.flags.camera ? `Avec la vidéo, c'est ta meilleure carte. Elle ne libérera pas Rapido, mais elle réduira la facture.` : `Sans les images, ce sera sa parole contre celle de Théo.` }] },
+          { id: 'tiers', label: 'Le fait d\'un tiers : c\'est la faute de Stopix', desc: 'Le frein était défectueux.', fx: {}, set: { tiers: true },
+            after: [{ who: 'garnier', text: `Un défaut du vélo lui-même n'est pas un événement extérieur pour celui qui l'utilise. Face à Mme Royer, ça ne marchera pas. Contre Stopix, ensuite, oui.` }] } ] },
+        { t: 'say', who: 'riviere', text: `Ma cliente est prête à transiger à 30${N}000${N}€, pour solde de tout compte. Réponse sous quinze jours.` },
+        { t: 'choice', id: 'offreB', prompt: `La proposition de l'avocate de Mme Royer${N}?`, options: [
+          { id: 'accepter', label: 'Conseiller d\'accepter', desc: 'L\'assureur paie, l\'affaire est close.', do: s => { s.stop = 'accord'; },
+            after: [{ who: 'lefort', text: `30${N}000${N}€, l'assureur paie, et on n'en parle plus. Je dors enfin.` }] },
+          { id: 'contre', label: 'Contre-proposer 22 000 €', desc: 'Sa faute est filmée.',
+            do: s => { if (s.dossier >= 55) s.stop = 'accordplus'; },
+            after: s => s.stop ? [{ who: 'riviere', text: `Ma cliente a vu la vidéo. Elle accepte 22${N}000${N}€.` }] : [{ who: 'riviere', text: `22${N}000${N}€${N}? Avec ce dossier${N}? À l'audience, alors.` }] },
+          { id: 'refuser', label: 'Refuser : le juge fixera le montant', desc: 'Elle réclame trop.', fx: { conf: 3 },
+            after: [{ who: 'lefort', text: `On ne va pas payer 30${N}000${N}€ pour quelqu'un qui traversait n'importe où.` }] },
+          { id: 'signer', label: 'Accepter au nom de ta cliente, sans la consulter', desc: 'C\'est raisonnable.', fx: { conf: -60 },
+            after: [{ who: 'lefort', text: `Vous avez engagé mon entreprise sans me demander${N}? Je change d'avocat.` },
+                    { who: 'garnier', text: `L'avocat conseille, le client décide. Toujours.` }] } ] }
+      ] },
+    { num: 4, title: 'L\'audience', sub: 'Tribunal judiciaire, 9 h 30.', final: true,
+      steps: [
+        { t: 'event', who: 'juge', text: `Affaire Royer contre Rapido. Maître Rivière a plaidé${N}: Rapido répond de son livreur et du vélo. Maître, pour Rapido, vous avez la parole.`, fx: { mois: 7, frais: 1200 } },
+        { t: 'plead', id: 'plaid', adv: 'riviere', prompt: `Que plaides-tu pour Rapido${N}?`, args: [
+          { id: 'b1', label: LAB.b1, desc: `Le détour de Théo`, pts: 0, ok: s => false,
+            no: `L'appli de Rapido elle-même montre la commande n°4512 en cours de livraison. Théo travaillait.` },
+          { id: 'b2', label: LAB.b2, desc: `L'averse`, pts: 0, ok: s => false,
+            no: `Une averse en novembre, imprévisible${N}? Un frein qui lâche sous la pluie, irrésistible${N}? Ce n'est pas de la force majeure, c'est la météo.` },
+          { id: 'b3', label: LAB.b3, desc: `Hors du passage, sur son téléphone`, pts: 2, ok: s => s.flags.camera,
+            yes: `Ma cliente traversait hors du passage, je ne le conteste pas.`,
+            no: `Une faute${N}? Quelle preuve${N}? Ma cliente affirme qu'elle était sur le passage.` },
+          { id: 'b4', label: LAB.b4, desc: `Le recours contre le fabricant`, pts: 2, ok: s => s.flags.stopixB && s.flags.expFrein,
+            yes: `Ce recours ne regarde pas ma cliente. Il ne change rien à ce que Rapido lui doit.`,
+            no: s => !s.flags.stopixB ? `Stopix n'est même pas dans la cause.` : `Un défaut${N}? Le vélo a été réparé avant toute expertise. Plus personne ne peut dire pourquoi ce frein a lâché.` },
+          { id: 'b5', label: LAB.b5, desc: `Le recours contre le loueur`, pts: 2, ok: s => s.flags.velopro && s.flags.expFrein,
+            yes: `Ce recours ne regarde pas ma cliente.`,
+            no: s => !s.flags.velopro ? `VéloPro n'est pas dans la cause.` : `Sans expertise, rien ne prouve que VéloPro ait manqué à l'entretien.` },
+          { id: 'b6', label: LAB.b6, desc: `Le montant réclamé`, pts: 1, ok: s => true,
+            yes: `Le préjudice moral repose sur deux attestations. Je laisse le tribunal en apprécier le montant.` } ],
+          resolve: (s, score, ids) => {
+            const recours = (ids.includes('b4') && s.flags.stopixB && s.flags.expFrein) || (ids.includes('b5') && s.flags.velopro && s.flags.expFrein);
+            const red = ids.includes('b3') && s.flags.camera ? 0.2 : 0;
+            const m = Math.round(42000 * (1 - red) * (ids.includes('b6') ? 0.9 : 1) / 100) * 100; s.montant = m;
+            const eco = s.flags.ecoContest ? ` Rapido est également condamnée à réparer le préjudice écologique causé au canal${N}: 4${N}000${N}€ de dépollution.` : '';
+            if (recours && score >= 4) return { do: s => { s.res = 'garanti'; }, fx: { conf: 20, frais: s.flags.ecoContest ? 4000 : 0 }, after: [{ who: 'juge', text: `Le tribunal${N}: Rapido indemnisera Mme Royer à hauteur de ${eur(m)}. ${ids.includes('b5') && s.flags.velopro ? 'La clause de VéloPro limitant sa responsabilité à 500 € contredit son obligation essentielle d\'entretien : elle est réputée non écrite. VéloPro garantira Rapido.' : 'Stopix, fabricant du frein défectueux, garantira Rapido.'}${eco}` }] };
+            if (score >= 2) return { do: s => { s.res = 'reduit'; }, fx: { conf: 5, frais: s.flags.ecoContest ? 4000 : 0 }, after: [{ who: 'juge', text: `Le tribunal${N}: Rapido est responsable, en sa qualité d'employeur et d'utilisateur du vélo. ${red ? 'La faute de la victime réduit son indemnisation de 20 %. ' : ''}Rapido versera ${eur(m)} à Mme Royer.${eco}` }] };
+            return { do: s => { s.res = 'perdu'; }, fx: { conf: -20, frais: 800 + (s.flags.ecoContest ? 4000 : 0) }, after: [{ who: 'juge', text: `Le tribunal${N}: Rapido est entièrement responsable et versera ${eur(45000)} à Mme Royer, ainsi que ses frais de procédure.${eco}` }] };
+          } },
+        { t: 'say', who: 'lefort', text: s => s.res === 'garanti' ? `Mon assureur paie Mme Royer, et c'est VéloPro ou Stopix qui rembourse au bout du compte. Je garde mon contrat d'assurance.` : s.res === 'reduit' ? `Moins que ce qu'elle réclamait. Mon assureur va quand même augmenter ma prime.` : `45${N}000${N}€… On m'en proposait 30 à l'amiable.` }
+      ] }
+    ],
+    endings: [
+      { id: 'congedie', cut: true, when: s => s.conf <= 15, title: 'Dessaisi', stamp: 'Cliente partie', color: '#FF5C6A',
+        text: `Mme Lefort a repris son dossier. Un avocat conseille son client${N}; il ne décide pas pour lui, et il ne le perd pas en route.` },
+      { id: 'accord', when: s => s.stop === 'accord', title: 'L\'accord', stamp: 'Transaction', color: '#5FB8B0',
+        text: `L'assureur de Rapido verse 30${N}000${N}€ et l'affaire est close. Sans procès, sans aléa, et sans recours contre ceux qui ont causé la panne.` },
+      { id: 'accordplus', when: s => s.stop === 'accordplus', title: 'Le bon accord', stamp: 'Transaction gagnante', color: '#4CD97B',
+        text: `La vidéo a convaincu l'autre camp${N}: 22${N}000${N}€ pour solde de tout compte. Tu as négocié avec les faits, pas avec des promesses.` },
+      { id: 'garanti', when: s => s.res === 'garanti', title: 'La facture renvoyée', stamp: 'Bravo', color: '#4CD97B',
+        text: s => `Rapido indemnise Mme Royer, comme la loi l'exige. Mais grâce à l'expertise du frein, ceux qui ont vraiment causé la panne rembourseront. Tu n'as pas nié la responsabilité de ton client${N}: tu l'as fait remonter jusqu'à sa source.` },
+      { id: 'reduit', when: s => s.res === 'reduit', title: 'Responsabilité réduite', stamp: 'Demi-victoire', color: '#FFC64F',
+        text: s => `Rapido paie ${eur(s.montant)}. La faute de la victime ou l'exagération de ses demandes ont réduit la facture, mais personne ne remboursera Rapido.` },
+      { id: 'perdu', when: s => true, title: 'Responsable de tout', stamp: 'Condamnation totale', color: '#FF5C6A',
+        text: `Force majeure, course personnelle, faute du fabricant${N}: aucune de ces défenses ne pouvait libérer Rapido face à la victime. Rapido paie tout, sans recours.` }
+    ],
+    debrief: [
+      { act: 1, needs: ['mission', 'camera', 'velo', 'at'], title: 'Acte 1 — Les faits', text: (h, s) =>
+          `L\'employeur répond des dommages causés par son salarié dans l\'exercice de ses fonctions : c\'est la <em>responsabilité du fait d\'autrui</em>. Il n\'y échappe que si le salarié a agi hors de ses fonctions, sans autorisation et à des fins personnelles. ${h.mission === 'gps' ? 'Le GPS a fermé cette porte dès le départ.' : 'Tu as parié sur cette porte : le GPS la fermait.'} Rapido avait aussi la garde du vélo : la <em>responsabilité du fait des choses</em> pèse sur celui qui en a l\'usage, la direction et le contrôle, même sans faute. Enfin, la blessure de Théo est un <em>accident du travail</em> : un régime spécial, où la Sécurité sociale indemnise le salarié sans qu\'il ait à prouver une faute${h.at === 'non' ? ', à condition que l\'employeur le déclare' : ''}.` },
+      { act: 2, needs: ['eco', 'recours'], title: 'Acte 2 — La stratégie', text: (h, s) =>
+          `Le <em>préjudice écologique</em> est l\'atteinte à la nature elle-même, même quand personne n\'a perdu d\'argent ; il se répare d\'abord en nature (dépolluer, réempoissonner). ${h.eco === 'depolluer' ? 'Tu l\'as réparé spontanément.' : 'En le contestant, tu as exposé Rapido à une condamnation.'} Face à la victime, Rapido paie ; ensuite, il peut se retourner contre d\'autres. Contre le fabricant, par le régime des <em>produits défectueux</em>. Contre VéloPro, par la <em>responsabilité contractuelle</em> : le loueur s\'était engagé à entretenir le vélo, une <em>obligation</em> qui peut être <em>de moyens</em> (faire de son mieux) ou <em>de résultat</em> (garantir le résultat), et parfois une <em>obligation de sécurité</em>. Sa <em>clause limitative de responsabilité</em> ne vaut pas si elle vide de sa substance l\'obligation essentielle du contrat.` },
+      { act: 3, needs: ['defense', 'offreB'], title: 'Acte 3 — L\'exonération', text: (h, s) =>
+          `L\'<em>exonération</em> suppose une <em>cause étrangère</em>. La <em>force majeure</em> : un événement imprévisible, irrésistible et extérieur. Le <em>fait ou la faute d\'un tiers</em>, s\'il présente ces caractères. Le <em>fait ou la faute de la victime</em>, qui réduit l\'indemnisation, ou la supprime si elle a les caractères de la force majeure. ${h.defense === 'victime' ? 'Tu as choisi la seule défense qui pouvait jouer.' : h.defense === 'fm' ? 'La pluie n\'avait aucun des trois caractères.' : 'Le défaut du frein est interne au vélo : il n\'est pas extérieur pour son gardien.'}` },
+      { act: 4, needs: ['plaid'], finalOnly: true, title: 'Acte 4 — L\'audience', text: (h, s) =>
+          `La responsabilité civile suppose un <em>fait générateur</em>, un <em>dommage</em> et un <em>lien de causalité</em>. Elle est distincte de la <em>responsabilité pénale</em>, qui sanctionne une infraction. Avec un scooter, la loi sur les <em>accidents de la circulation</em> aurait primé : la victime piétonne aurait été indemnisée presque automatiquement. Le droit commun connaît aussi la responsabilité du <em>fait personnel</em>, du <em>fait des animaux</em> et de la <em>ruine des bâtiments</em>. Et derrière presque chaque responsable, il y a une <em>assurance</em>.` }
+    ]
+  }
+  },
+
+  /* ------------------------------ DÉBRIEF CROISÉ (les deux robes jouées) ------------------------------ */
+  croise: (Ha, Hb) => {
+    const liste = ids => (ids || []).map(i => `<li>${LAB[i]}</li>`).join('');
+    return `<div class="deb"><h3>Ce que tu as plaidé</h3><div class="two"><div><b>Pour Mme Royer</b><ul>${liste(Ha.plaid) || '<li>Affaire réglée avant l\'audience</li>'}</ul></div><div><b>Pour Rapido</b><ul>${liste(Hb.plaid) || '<li>Affaire réglée avant l\'audience</li>'}</ul></div></div>
+      <p>La même vidéo a servi les deux camps : elle prouvait que le frein avait lâché, donc la responsabilité de Rapido, et que Mme Royer traversait hors du passage, donc sa part de faute. La même expertise du frein permettait à la victime d\'attaquer le fabricant, et à Rapido de se faire rembourser. Dans une affaire de responsabilité, la vraie question est souvent moins « qui est coupable ? » que « qui paie, et qui rembourse qui ? ».</p>
+      <p>Dans la réalité, un même avocat ne peut jamais défendre les deux parties d\'une affaire : ce serait un <em>conflit d\'intérêts</em>.</p></div>`;
+  },
+  vocab: ['Responsabilité civile / pénale', 'Dommage et préjudice', 'Préjudice corporel, matériel, moral', 'Réparation', 'Assurance', 'Fait générateur', 'Lien de causalité', 'Préjudice écologique', 'Accident du travail', 'Accident de la circulation', 'Produits défectueux', 'Responsabilité contractuelle', 'Obligation de moyens / de résultat', 'Obligation de sécurité', 'Clause limitative de responsabilité', 'Fait personnel', 'Fait des choses', 'Fait d\'autrui', 'Fait des animaux', 'Ruine des bâtiments', 'Exonération', 'Cause étrangère', 'Force majeure', 'Fait d\'un tiers', 'Faute de la victime']
+};
+GAME.acts = GAME.robes.a.acts; GAME.endings = GAME.robes.a.endings; GAME.debrief = GAME.robes.a.debrief;
+let H = {};   // historique des choix (lu par le débrief)
+
+/* =====================================================================
+   2. DÉCOR — la rue en pente sous la pluie, puis la salle d'audience.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  if (act.final) return `<svg viewBox="0 0 360 200" role="img" aria-label="La salle d'audience">
+    <rect width="360" height="200" fill="#0b0805"/><rect x="0" y="0" width="360" height="162" fill="#120e09"/>
+    <g fill="none" stroke="#3a2a14" stroke-width="1.5"><rect x="130" y="20" width="24" height="142"/><rect x="306" y="20" width="24" height="142"/></g>
+    <g transform="translate(230,34)" stroke="${DROIT}" stroke-width="2" fill="none"><line x1="0" y1="0" x2="0" y2="42"/><line x1="-30" y1="8" x2="30" y2="8"/><path d="M-30,8 L-40,30 L-20,30 Z"/><path d="M30,8 L20,30 L40,30 Z"/><line x1="-12" y1="42" x2="12" y2="42"/></g>
+    <rect x="166" y="104" width="128" height="58" fill="#17110a" stroke="${DROIT}" stroke-width="1.5"/><rect x="158" y="98" width="144" height="8" fill="${DROIT}" opacity=".7"/>
+    <text x="230" y="138" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#9a8e7c">TRIBUNAL JUDICIAIRE</text>
+    <rect x="0" y="162" width="360" height="38" fill="#0d0a06"/><line x1="0" y1="162" x2="360" y2="162" stroke="#3a2a14" stroke-width="1.5"/>`;
+  let pluie = ''; for (let i = 0; i < 26; i++) pluie += `<line x1="${130 + (i * 37) % 230}" y1="${(i * 23) % 120}" x2="${126 + (i * 37) % 230}" y2="${(i * 23) % 120 + 10}" stroke="#5B8FFF" stroke-width="1" opacity=".45"/>`;
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="La rue de l'accident, sous la pluie">
+    <rect width="360" height="200" fill="#0b0805"/><rect x="0" y="0" width="360" height="162" fill="#120e09"/>
+    <g fill="#17110a" stroke="#3a2a14" stroke-width="1.5"><rect x="128" y="20" width="56" height="110"/><rect x="290" y="34" width="70" height="96"/></g>
+    <rect x="136" y="34" width="14" height="14" fill="${DROIT}" opacity=".35"/><rect x="160" y="34" width="14" height="14" fill="${DROIT}" opacity=".2"/><rect x="302" y="48" width="14" height="14" fill="${DROIT}" opacity=".3"/>
+    <g fill="#EEF3EC" opacity=".55"><rect x="200" y="150" width="8" height="12"/><rect x="214" y="150" width="8" height="12"/><rect x="228" y="150" width="8" height="12"/><rect x="242" y="150" width="8" height="12"/></g>
+    <g transform="translate(250,118)" stroke="${DROIT}" stroke-width="1.8" fill="#17110a"><rect x="0" y="0" width="34" height="18" rx="2"/><circle cx="-2" cy="28" r="9" fill="none"/><circle cx="48" cy="28" r="9" fill="none"/><path d="M34,10 L48,28 M48,28 L42,4 L50,2" fill="none"/></g>
+    ${pluie}
+    <rect x="0" y="162" width="360" height="38" fill="#0d0a06"/><line x1="0" y1="162" x2="360" y2="162" stroke="#3a2a14" stroke-width="1.5"/>`;
+};
+
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, tag: l.tag, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  let robe = null;
+  function startGame(r) {
+    if (typeof r === 'string') robe = r;
+    const R = GAME.robes[robe];
+    GAME.acts = R.acts; GAME.endings = R.endings; GAME.debrief = R.debrief;
+    S = { flags: {}, robe }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      frame(st.who, `<div class="box">${whoTag(st.who)}${st.tag ? `<span class="verdict ${st.tag}">${st.tag === 'tient' ? 'Ton argument tient' : 'Ton argument tombe'}</span>` : ''}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'plead') {
+      lastDeltas = [];
+      let pick = [];
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="plead-h">Choisis tes trois arguments.</p><div class="opts">${st.args.map((a, i) => `<button class="opt arg" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${a.label}</span><span class="arg-n"></span></div><div class="opt-d">${val(a.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go" disabled>Plaider ▸</button></div></div>`);
+      const go = document.getElementById('go');
+      app.querySelectorAll('.arg').forEach(b => b.onclick = () => {
+        const i = +b.dataset.i;
+        pick = pick.includes(i) ? pick.filter(x => x !== i) : pick.length < 3 ? pick.concat(i) : pick;
+        app.querySelectorAll('.arg').forEach(x => { const k = pick.indexOf(+x.dataset.i); x.setAttribute('aria-pressed', k >= 0); x.querySelector('.arg-n').textContent = k >= 0 ? k + 1 : ''; });
+        go.disabled = pick.length !== 3;
+      });
+      go.onclick = () => {
+        const chosen = pick.map(i => st.args[i]);
+        H[st.id] = chosen.map(a => a.id);
+        let score = 0;
+        const lines = [];
+        chosen.forEach(a => {
+          const ok = a.ok(S); score += ok ? a.pts : 0;
+          lines.push({ who: 'narr', text: `«${N}${a.plaid || a.label}${N}»` });
+          lines.push({ who: st.adv, text: val(ok ? a.yes : a.no, S), tag: ok ? 'tient' : 'tombe' });
+        });
+        H[st.id + 'Score'] = score;
+        const res = st.resolve(S, score, chosen.map(a => a.id));
+        if (res.do) res.do(S);
+        const verdict = (res.after || []).slice();
+        if (verdict.length) verdict[0] = { t: 'event', who: verdict[0].who, text: verdict[0].text, fx: res.fx };   // les jauges bougent quand le juge parle
+        else applyFx(res.fx);
+        pushAfter(lines.concat(verdict)); next();
+      };
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="${st.step || 1}" value="${st.def}" aria-label="${st.prompt}">
+        <div class="range-l"><span>${st.show(st.min)}</span><span>${st.show(st.max)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(robe + ':' + e.id);
+    try { localStorage.setItem(GAME.storeKey + '_' + robe, JSON.stringify(H)); } catch (err) {}
+    const autre = robe === 'a' ? 'b' : 'a';
+    let Hautre = null; try { Hautre = JSON.parse(localStorage.getItem(GAME.storeKey + '_' + autre) || 'null'); } catch (err) {}
+    const croise = Hautre && GAME.croise ? GAME.croise(robe === 'a' ? H : Hautre, robe === 'a' ? Hautre : H) : '';
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">Tu as appliqué ces règles sans les nommer. Voici comment on les appelle en droit.</p>${deb}` : ''}
+      ${forced && e.cut ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour aller jusqu'au jugement.</p>` : ''}
+      ${croise ? `<div class="deb-t">Les deux robes</div><p class="deb-s">Tu as défendu les deux camps de la même affaire. Voici ce que chacun a fait des mêmes faits.</p>${croise}` : `<div class="robe-next"><b>Et de l'autre côté${N}?</b> ${GAME.robes[autre].teaser}</div>`}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="swap">Changer de robe ▸</button><button class="btn ghost" id="again">Rejouer cette robe</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.robes.a.endings.length + GAME.robes.b.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = () => startGame(robe);
+    document.getElementById('swap').onclick = () => startGame(autre);
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get();
+    const robeBtn = r => { const R = GAME.robes[r], n = found.filter(x => x.startsWith(r + ':')).length;
+      return `<button class="opt robe" data-r="${r}"><div class="opt-t"><span>${R.label}</span>${n ? `<span class="opt-c">${n} fin${n > 1 ? 's' : ''}</span>` : ''}</div><div class="opt-d">${R.sub}</div></button>`; };
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <div class="prompt">Choisis ta robe</div>
+      <div class="opts">${robeBtn('a')}${robeBtn('b')}</div>
+      <p class="found">${GAME.meta} · ${GAME.robes.a.endings.length + GAME.robes.b.endings.length} fins possibles${found.length ? ` · ${found.length} découverte${found.length > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    app.querySelectorAll('.robe').forEach(b => b.onclick = () => startGame(b.dataset.r));
+  }
+  home();
+})();
+</script>
+</body>
+</html>

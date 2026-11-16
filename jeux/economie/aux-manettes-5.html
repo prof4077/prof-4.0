@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Aux Manettes 5 — Jeu Économie Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#4CD97B;--eco-dim:#2A8E4C;--bg:#050806;--panel:#0a120c;--panel2:#0d1710;--line:#173322;--txt:#EEF3EC;--muted:#7C9483;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(76,217,123,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(76,217,123,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#12201a;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070c09;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(76,217,123,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#04160a;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#04160a;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#102016;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#12201a;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#04160a;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#07110c;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#07110c;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#07110c;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#07110c;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(76,217,123,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#07110c;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 3) n'a pas besoin d'être touché.
+   Jauges : croiss (croissance, % par an), res (ressources restantes, moyenne du gaz et de la forêt, 0-100),
+            emis (émissions de Valmont, indice 100 en 2025), pauv (pauvreté, à Valmont et au Kirai, 0-100).
+   s.gaz et s.foret gardent le niveau de chaque réserve ; s.rg et s.rf ce qu'on en prélève tous les cinq ans.
+   Une option de choix peut porter chain (conséquences case par case) et voix (trois réactions).
+   ===================================================================== */
+const N = ' ';
+const sg = n => (n > 0 ? '+' : n < 0 ? '−' : '') + (Math.abs(Math.round(n * 10) / 10)).toLocaleString('fr-FR') + N + '%';
+const R = (g, f, o) => Object.assign({ gaz: g, foret: f, res: Math.round((g + f) / 2 * 10) / 10 }, o || {});   // effet sur les réserves
+const V = (a, b, c) => [a, b, c];
+const S_ = text => ({ who: 'sorel', text }), D_ = text => ({ who: 'drak', text }), P_ = (nom, text) => ({ nom, text });
+const prep = s => s.flags.fonds || s.flags.innov || s.flags.formation;           // l'après-gaz a-t-il été préparé ?
+function cuves(s) {
+  const cuve = (x, niv, col, titre, sous) => { const h = Math.round(Math.max(0, niv) * 0.9);
+    return `<rect x="${x}" y="20" width="96" height="90" rx="4" fill="#07110c" stroke="#7C9483" stroke-width="2"/>
+      <rect x="${x + 2}" y="${108 - h}" width="92" height="${h}" fill="${col}" opacity=".7"/>
+      <text x="${x + 48}" y="${70}" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="13" fill="#EEF3EC">${Math.round(Math.max(0, niv))}</text>
+      <text x="${x + 48}" y="126" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="12" fill="${col}">${titre}</text>
+      <text x="${x + 48}" y="140" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10.5" fill="#7C9483">${sous}</text>`; };
+  return `<span class="pyr"><svg viewBox="0 0 300 146" role="img" aria-label="Les deux réserves de Valmont">
+    ${cuve(30, s.gaz, '#FFC64F', 'LE GAZ', 'ne se renouvelle pas')}${cuve(174, s.foret, '#4CD97B', 'LA FORÊT', 'repousse, si on la laisse')}
+  </svg></span>`;
+}
+const periode = (de, a) => ({ t: 'event', who: 'sorel', text: s => `${cuves(s)}${de} → ${a}. Cinq ans passent. ${s.gaz > 0 ? (s.rg >= 30 ? 'Les puits de gaz tournent à plein régime.' : 'Le gaz s\'écoule, plus lentement.') : 'Les puits de gaz sont à l\'arrêt.'} ${s.rf ? 'Les bûcherons coupent plus vite que la forêt ne repousse.' : 'La forêt repousse aussi vite qu\'on la coupe.'}`,
+  fx: s => R(-Math.min(s.gaz, s.rg), -Math.min(s.foret, s.rf)) });
+const epuise = { t: 'event', if: s => s.gaz <= 0 && !s.flags.epuise, who: 'sorel', set: { epuise: true },
+  text: s => prep(s) ? `Le dernier puits de gaz vient de fermer. Le choc est réel, mais vous l'aviez préparé${N}: ${[s.flags.fonds && 'le fonds amortit la perte des recettes', s.flags.innov && 'de nouvelles industries ont pris le relais', s.flags.formation && 'les ouvriers du gaz ont été formés à d\'autres métiers'].filter(Boolean).join(', ')}.` : `Le dernier puits de gaz vient de fermer. Rien n'était prêt. Les recettes s'effondrent, quatre mille ouvriers perdent leur emploi d'un coup, et aucune industrie n'est là pour les accueillir.`,
+  fx: s => prep(s) ? { croiss: -s.boost, pauv: 2 } : { croiss: -s.boost - 2, pauv: 12 }, do: s => { if (!prep(s)) s.flags.sec = true; } };
+const foretBasse = { t: 'event', if: s => s.foret <= 40 && !s.flags.foretbas, who: 'sorel', set: { foretbas: true },
+  text: `La forêt ne couvre plus que les crêtes. Sans arbres, les pluies ravinent les pentes${N}: coulées de boue dans deux vallées, scieries à l'arrêt, et le carbone que la forêt absorbait reste dans l'air.`,
+  fx: { croiss: -0.3, pauv: 3, emis: 5 } };
+
+const GAME = {
+  title: 'Aux Manettes 5',
+  brand: 'AUX <span>MANETTES 5</span>',
+  storeKey: 'auxManettes5Fins',
+  backLink: '../../matieres/economie-terminale.html',
+  footer: 'Économie Terminale STMG, thème 9',
+  kicker: 'Économie · Terminale STMG · Thème 9',
+  pitch: `Tu diriges le gouvernement de Valmont de 2025 à 2050. Le pays vit de son gaz, qui sera épuisé dans vingt ans, et de ses forêts. Croître, oui. Mais combien de temps, avec quoi, et au prix de quoi pour ceux qui viendront après${N}?`,
+  meta: '5 actes · 25 minutes',
+  start: s => Object.assign(s, { croiss: 2, gaz: 100, foret: 100, res: 100, emis: 100, pauv: 50, rg: 25, rf: 0, boost: 0 }),
+  hud: [
+    { k: 'croiss', label: 'Croissance', short: 'Croissance', show: s => sg(s.croiss),       pct: s => (s.croiss + 2) * 15, low: s => s.croiss < 1, unit: N + 'pt' },
+    { k: 'res',    label: 'Ressources', short: 'Ressources', show: s => Math.round(s.res),  pct: s => s.res,              low: s => s.res < 45, unit: N + 'pt' },
+    { k: 'emis',   label: 'Émissions',  short: 'Émissions',  show: s => Math.round(s.emis), pct: s => s.emis / 1.3,       low: s => s.emis >= 100, inv: true, unit: N + 'pt' },
+    { k: 'pauv',   label: 'Pauvreté',   short: 'Pauvreté',   show: s => Math.round(s.pauv), pct: s => s.pauv,             low: s => s.pauv >= 55, inv: true, clamp: true }
+  ],
+  fail: s => null,
+  lock: (s, cost) => null,
+  bilan: s => [['Croissance en 2050', sg(s.croiss) + ' par an'], ['Gaz restant', Math.round(Math.max(0, s.gaz)) + ' / 100'], ['Forêt', Math.round(s.foret) + ' / 100'], ['Émissions (100 en 2025)', Math.round(s.emis)], ['Pauvreté', Math.round(s.pauv) + ' / 100']],
+
+  characters: {
+    arel:   { name: 'Mme Arel',    role: 'Présidente de Valmont',           color: '#B9A6FF', body: '#3a3f4a', hair: '#8a8f96', acc: 'tie' },
+    sorel:  { name: 'Mme Sorel',   role: 'ta conseillère',                  color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'clip' },
+    drak:   { name: 'M. Drak',     role: 'chef de l\'opposition',           color: '#FF5C7A', body: '#1c1c22', hair: '#7a2f2f', acc: 'tie' },
+    haddad: { name: 'Mme Haddad',  role: 'fondatrice de la start-up Ampère', color: '#5B8FFF', body: '#3D62B8', hair: '#1c1c22', acc: 'clip' },
+    asante: { name: 'Mme Asante',  role: 'ministre du Développement du Kirai', color: '#FFC64F', body: '#8a5a22', hair: '#1c1c22', acc: 'tie' },
+    tavor:  { name: 'M. Tavor',    role: 'négociateur du Soran',            color: '#5FB8B0', body: '#2f5b57', hair: '#1c1c22', acc: 'tie' },
+    narr:   { name: 'Toi',         role: '',                                color: '#4CD97B' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Ce qui s\'épuise', sub: '2025. Premier conseil des ministres.',
+    steps: [
+      { t: 'say', who: 'arel', text: `Je vous confie le gouvernement. Valmont croît de 2${N}% par an, et une bonne part de cette croissance vient du gaz. Les géologues sont formels${N}: au rythme actuel, le gisement sera vide dans vingt ans. Vous gouvernerez jusqu'en 2050. Ce que vous laisserez, c'est votre bilan.` },
+      { t: 'say', who: 'sorel', text: s => `${cuves(s)}Voici nos deux réserves. Le gaz s'est formé en des millions d'années${N}: chaque mètre cube brûlé est perdu pour toujours. La forêt, elle, repousse. Si on coupe moins qu'elle ne grandit, elle durera toujours. Si on coupe plus, elle finit comme le gaz.` },
+      { t: 'choice', id: 'gaz', prompt: `Le gaz de Valmont${N}?`, options: [
+        { id: 'rapide', label: 'Je l\'extrais à pleine vitesse', desc: 'Recettes maximales, tout de suite.', fx: { croiss: 1, emis: 8 }, do: s => { s.rg = 35; s.boost = 1; },
+          chain: { good: ['Production de gaz record', 'Recettes et emplois immédiats', 'Croissance en forte hausse'], bad: ['Émissions en hausse', 'Gisement vide vers 2040', 'Que fera-t-on après ?'] },
+          voix: V(S_(`C'est la croissance la plus rapide possible, et la plus courte. Vous empruntez à vos successeurs.`), D_(`Enfin un gouvernement qui ose${N}! Valmont n'a pas à s'excuser d'avoir du gaz.`), P_('Lina, 17 ans', `En 2040, j'aurai 32 ans. Il restera quoi${N}?`)) },
+        { id: 'lent', label: 'Je ralentis l\'extraction', desc: 'Moins de recettes, mais le gaz durera plus de 25 ans.', fx: { croiss: 0.2, emis: 2 }, do: s => { s.rg = 18; s.boost = 0.2; },
+          chain: { good: ['Le gisement durera après 2050', 'Moins d\'émissions'], bad: ['Moins de recettes aujourd\'hui', 'Croissance plus faible', 'Moins d\'emplois dans le gaz'] },
+          voix: V(S_(`Vous gardez des réserves pour plus tard. Mais garder ne suffit pas${N}: un jour, il faudra vivre sans.`), D_(`Le gouvernement laisse dormir notre richesse sous terre.`), P_('M. Faure, ouvrier du gaz', `On réduit les équipes. Je garde ma place, mon collègue non.`)) },
+        { id: 'fonds', label: 'J\'extrais, mais je place 30 % des recettes dans un fonds pour l\'après', desc: 'Un peu moins de croissance aujourd\'hui, une réserve pour demain.', fx: { croiss: 0.5, emis: 5 }, set: { fonds: true }, do: s => { s.rg = 25; s.boost = 0.5; },
+          chain: { good: ['Le gaz rapporte', 'Une partie est mise de côté', 'Le fonds grossit pendant vingt ans', 'Il financera l\'après-gaz'], bad: ['Moins de dépenses aujourd\'hui', 'Gisement vide vers 2045'] },
+          voix: V(S_(`Vous transformez une richesse qui disparaît en une richesse qui reste. C'est ce que font les pays pétroliers les plus prudents.`), D_(`De l'argent qui dort pendant que les Valmontois attendent.`), P_('Lina, 17 ans', `Un fonds pour ma génération${N}? Je le croirai quand je le verrai.`)) } ] },
+      { t: 'say', who: 'sorel', text: `Les scieries réclament de couper davantage. Le bois se vend bien, et elles promettent trois cents embauches.` },
+      { t: 'choice', id: 'foret', prompt: `La forêt de Valmont${N}?`, options: [
+        { id: 'surcoupe', label: 'On coupe plus vite qu\'elle ne repousse', desc: 'Du bois et des emplois tout de suite.', fx: R(0, -15, { croiss: 0.3, emis: 4, pauv: -2 }), do: s => { s.rf = 15; },
+          chain: { good: ['Plus de bois vendu', '300 emplois dans les scieries', 'Croissance en hausse'], bad: ['La forêt recule chaque année', 'Elle absorbe moins de carbone', 'Une ressource renouvelable devient épuisable'] },
+          voix: V(S_(`Une forêt est renouvelable tant qu'on lui en laisse le temps. Vous venez de la traiter comme un gisement.`), D_(`Le bois, c'est du travail. Pour une fois, le gouvernement a compris.`), P_('M. Garnier, scieur', `Trois embauches chez moi ce mois-ci. Mon père disait qu'on ne coupait jamais les jeunes arbres. Mais bon.`)) },
+        { id: 'durable', label: 'On coupe seulement ce qui repousse', desc: 'La forêt reste intacte.', fx: { croiss: -0.1 }, do: s => { s.rf = 0; },
+          chain: { good: ['La forêt se maintient', 'Bois disponible pour toujours', 'Elle continue d\'absorber du carbone'], bad: ['Pas d\'emplois supplémentaires', 'Les scieries protestent'] },
+          voix: V(S_(`Vous prélevez les intérêts, pas le capital. Cette forêt sera encore là en 2050.`), D_(`Trois cents emplois refusés pour quelques arbres.`), P_('M. Garnier, scieur', `Mon père aurait dit pareil. Mes comptes, moins.`)) } ] },
+      { t: 'say', who: 'sorel', text: `Un dernier mot, avant les journalistes. Ils vous demanderont votre croissance. Ce chiffre mesure ce que Valmont produit chaque année. Il ne dit rien de ce qu'il reste dans les réserves, ni de ce que nous rejetons dans l'air, ni de la santé des habitants. C'est pour ça que j'ai ajouté trois jauges à votre tableau de bord.` }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Inventer l\'après', sub: '2030. Il faudra bien produire autrement.',
+    steps: [
+      periode(2025, 2030), foretBasse,
+      { t: 'say', who: 'haddad', text: `Ma start-up, Ampère, a inventé une batterie qui stocke deux fois plus d'énergie que les autres. Cinq ans de recherche, toutes mes économies et celles de mes associés. Je demande un brevet${N}: vingt ans pendant lesquels personne n'aura le droit de copier mon invention sans me payer.` },
+      { t: 'choice', id: 'brevet', prompt: `La batterie d'Ampère${N}?`, options: [
+        { id: 'brevet', label: 'J\'accorde le brevet', desc: 'Vingt ans d\'exclusivité.', fx: { croiss: 0.3, emis: -3 }, set: { brevet: true },
+          chain: { good: ['Ampère récupère son investissement', 'Les investisseurs financent d\'autres start-up', 'La recherche continue', 'D\'autres inventions suivent'], bad: ['Une seule entreprise vend la batterie', 'Elle reste chère', 'Elle se diffuse lentement'] },
+          voix: V(S_(`Sans protection, personne n'investirait cinq ans dans une idée que le voisin copierait en un mois. Le prix à payer, c'est une diffusion plus lente.`), D_(`Le gouvernement offre un monopole à une start-up.`), { who: 'haddad', text: `Merci. J'embauche quarante ingénieurs cette année.` }) },
+        { id: 'libre', label: 'Je refuse le brevet : l\'invention est à tout le monde', desc: 'Toutes les usines pourront la fabriquer.', fx: { croiss: 0.1, emis: -6 }, set: { libre: true },
+          chain: { good: ['Toutes les usines copient la batterie', 'Elle devient bon marché', 'Elle se diffuse très vite'], bad: ['Ampère ne récupère rien', 'Ses investisseurs fuient', 'Plus personne n\'ose financer la recherche'] },
+          voix: V(S_(`La batterie se diffuse vite. La prochaine invention, en revanche, risque de ne jamais voir le jour.`), D_(`Le gouvernement vole les inventeurs. Qui inventera encore à Valmont${N}?`), { who: 'haddad', text: `J'ai fermé Ampère. Mes ingénieurs sont partis au Soran, où les brevets existent.` }) },
+        { id: 'rachat', label: 'L\'État rachète le brevet et le met à disposition de tous', desc: 'Ampère est payée, l\'invention est libre.', fx: { croiss: -0.1, emis: -7 },
+          chain: { good: ['Ampère est rémunérée', 'L\'invention se diffuse vite', 'La recherche reste rentable'], bad: ['L\'État paie très cher', 'Moins d\'argent public ailleurs'] },
+          voix: V(S_(`Vous avez payé pour avoir les deux${N}: l'incitation à inventer et la diffusion rapide. C'est cher, et ça ne peut pas se faire pour toutes les inventions.`), D_(`Des millions d'argent public pour une batterie.`), { who: 'haddad', text: `Le prix est juste. Avec cet argent, je repars sur un nouveau projet.` }) } ] },
+      { t: 'say', who: 'asante', text: `Bonjour. Je suis ministre du Développement du Kirai. Valmont nous achète du cacao, et je viens vous proposer un projet. Dans nos campagnes, des millions de paysans cultivent des terres qu'aucun papier ne leur attribue. Sans titre de propriété, ils ne peuvent pas emprunter, et ils n'osent pas planter des arbres qui rapporteront dans dix ans${N}: ils pourraient être chassés avant.` },
+      { t: 'choice', id: 'titres', prompt: `Financer le registre des terres du Kirai${N}?`, options: [
+        { id: 'financer', label: 'Oui, Valmont finance le registre', desc: 'Chaque paysan reçoit un titre pour sa parcelle.', fx: { pauv: -6, croiss: 0.1 },
+          chain: { good: ['Chaque paysan possède sa parcelle', 'Il peut emprunter en la mettant en garantie', 'Il investit : semences, irrigation, arbres', 'Les récoltes augmentent', 'La pauvreté recule'], bad: ['Coût pour Valmont', 'Conflits entre voisins sur les limites'] },
+          voix: V(S_(`Être sûr de garder ce que l'on cultive, c'est la condition pour investir. Sans propriété sûre, personne ne plante ce qu'il ne récoltera peut-être pas.`), D_(`L'argent des Valmontois pour des champs à l'autre bout du monde.`), { who: 'asante', text: `Dans dix ans, nos cacaoyers vous diront merci.` }) },
+        { id: 'refuser', label: 'Non, ce n\'est pas notre affaire', desc: 'Valmont a ses propres priorités.', fx: { pauv: 2 },
+          chain: { good: ['Pas de dépense pour Valmont'], bad: ['Les paysans restent sans titre', 'Ils n\'investissent pas', 'Les récoltes stagnent', 'La pauvreté demeure'] },
+          voix: V(S_(`Le Kirai restera pauvre plus longtemps. Et un pays pauvre achète peu à Valmont.`), D_(`Enfin, le gouvernement pense d'abord aux Valmontois.`), { who: 'asante', text: `Je comprends. Nous chercherons ailleurs. Le Soran est intéressé.` }) } ] },
+      { t: 'say', who: 'sorel', text: `Dernière décision de l'année${N}: le budget pour préparer l'après-gaz. Vous ne pourrez pas tout faire.` },
+      { t: 'choice', id: 'investir', prompt: `Où investir pour l'après-gaz${N}?`, options: [
+        { id: 'recherche', label: 'Dans la recherche et les universités', desc: 'Des inventions dans dix ans.', fx: { croiss: 0.2, emis: -4 }, set: { innov: true },
+          chain: { good: ['Plus de chercheurs', 'Nouvelles techniques de production', 'Produire plus avec autant de travail et de machines', 'Nouvelles industries pour remplacer le gaz'], bad: ['Résultats lents', 'Rien à montrer avant longtemps'] },
+          voix: V(S_(`Le progrès technique, c'est la seule croissance qui ne s'épuise pas${N}: une idée peut servir mille fois.`), D_(`Des laboratoires, encore. Et les ouvriers du gaz${N}?`), P_('Lina, 22 ans, étudiante', `Mon labo vient de recevoir des crédits. On travaille sur le recyclage des batteries.`)) },
+        { id: 'formation', label: 'Dans la formation des ouvriers du gaz', desc: 'Qu\'ils aient un métier quand les puits fermeront.', fx: { pauv: -4 }, set: { formation: true },
+          chain: { good: ['Les ouvriers apprennent d\'autres métiers', 'Ils pourront changer d\'emploi', 'La fermeture des puits sera moins brutale'], bad: ['Aucune nouvelle industrie créée', 'Il faudra des emplois pour les accueillir'] },
+          voix: V(S_(`Vous préparez les personnes plutôt que les machines. C'est indispensable, à condition qu'il y ait des emplois au bout.`), D_(`Former à quoi${N}? Pour des usines qui n'existent pas${N}?`), P_('M. Faure, ouvrier du gaz', `Je deviens technicien en isolation des bâtiments. À 48 ans. Je n'y croyais pas.`)) },
+        { id: 'subventions', label: 'En subventions aux entreprises', desc: 'Qu\'elles décident elles-mêmes quoi faire.', fx: { croiss: 0.4, emis: -2 },
+          chain: { good: ['Les entreprises reçoivent de l\'argent', 'Elles investissent tout de suite', 'Croissance immédiate'], bad: ['Beaucoup investissent dans ce qu\'elles font déjà', 'Peu préparent vraiment l\'après-gaz'] },
+          voix: V(S_(`L'effet est rapide, mais vous n'avez pas choisi la direction. Beaucoup ont modernisé… leurs installations de gaz.`), D_(`Pour une fois, l'argent va à ceux qui créent des emplois.`), P_('M. Faure, ouvrier du gaz', `Ma boîte a reçu une subvention. Elle a acheté une nouvelle foreuse.`)) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Les outils de la transition', sub: '2035. Il faut rejeter moins, sans casser le pays.',
+    steps: [
+      periode(2030, 2035), epuise, foretBasse,
+      { t: 'say', who: 'sorel', text: `Valmont s'est engagé à réduire ses émissions. Vous avez quatre outils. Taxer ce qui pollue. Interdire certains équipements. Payer ceux qui changent. Ou fixer un plafond total d'émissions et laisser les usines s'échanger des droits à polluer. Chacun agit à sa façon sur les entreprises, les ménages et les investissements.` },
+      { t: 'choice', id: 'instrument', prompt: `Quel outil pour réduire les émissions${N}?`, options: [
+        { id: 'taxe', label: 'Une taxe carbone', desc: 'Chaque tonne de CO₂ rejetée coûte 100 €.', fx: { emis: -14, croiss: -0.3 }, set: { taxe: true },
+          chain: { good: ['Polluer coûte cher', 'Les ménages choisissent des produits moins polluants', 'Les entreprises investissent dans des techniques propres', 'Les émissions baissent'], bad: ['Essence et chauffage plus chers', 'Les ménages modestes et ruraux paient le plus', 'Production plus coûteuse'] },
+          voix: V(S_(`Le prix devient un signal${N}: tout le monde a intérêt à moins polluer, sans qu'on dise à chacun comment. Mais le plein coûte plus cher pour celui qui n'a pas d'autre choix que la voiture.`), D_(`Une taxe de plus sur ceux qui roulent pour aller travailler${N}!`), P_('Mme Roux, aide-soignante en zone rurale', `Quarante kilomètres par jour, pas de bus. Je fais comment${N}?`)) },
+        { id: 'normes', label: 'Des normes : interdire les chaudières au fioul en 2040', desc: 'Et les voitures les plus polluantes en ville.', fx: { emis: -10, croiss: -0.2, pauv: 3 },
+          chain: { good: ['Règle claire pour tous', 'Les équipements polluants disparaissent', 'Les entreprises fabriquent des équipements propres'], bad: ['Il faut tout remplacer à date fixe', 'Coût élevé pour les ménages modestes', 'Aucun intérêt à faire mieux que la norme'] },
+          voix: V(S_(`Efficace et simple à contrôler. Mais chacun doit payer le remplacement, qu'il en ait les moyens ou non.`), D_(`Le gouvernement entre dans nos chaufferies.`), P_('M. Faure', `Ma chaudière a quinze ans. Une neuve, c'est 8${N}000${N}€.`)) },
+        { id: 'subventions', label: 'Des subventions : primes à l\'isolation et à la voiture électrique', desc: 'On paie ceux qui changent.', fx: { emis: -7, croiss: 0.2, pauv: 1 },
+          chain: { good: ['Changer coûte moins cher', 'Commandes pour le bâtiment et l\'automobile', 'Les émissions baissent'], bad: ['Coût élevé pour l\'État', 'Ceux qui en profitent le plus ont déjà les moyens d\'acheter', 'Effet plus lent'] },
+          voix: V(S_(`Populaire et favorable à l'activité. Mais une prime de 5${N}000${N}€ sur une voiture à 35${N}000${N}€ profite surtout à ceux qui pouvaient déjà se l'offrir.`), D_(`De l'argent public pour les voitures des cadres.`), P_('Mme Roux', `La prime, c'est bien. Il me manque encore 30${N}000${N}€.`)) },
+        { id: 'quotas', label: 'Un marché de droits à polluer', desc: 'Un plafond total, et les usines s\'échangent des quotas.', fx: { emis: -12, croiss: -0.2 },
+          chain: { good: ['Le total des émissions est plafonné', 'Les usines qui réduisent facilement revendent leurs quotas', 'Les autres en achètent', 'La baisse se fait là où elle coûte le moins'], bad: ['Concerne surtout les grandes usines', 'Le prix du quota peut s\'effondrer si le plafond est trop haut'] },
+          voix: V(S_(`Vous fixez la quantité, le marché fixe le prix. Tout dépend du plafond${N}: trop généreux, il ne sert à rien.`), D_(`On vend désormais le droit de polluer${N}!`), P_('M. Garnier, scieur', `Ma scierie ne rejette presque rien. J'ai revendu mes quotas à la cimenterie. Ça m'a payé une machine.`)) } ] },
+      { t: 'choice', if: s => s.flags.taxe, id: 'compensation', prompt: `Et l'argent de la taxe carbone${N}?`, options: [
+        { id: 'oui', label: 'Je le reverse aux ménages modestes et ruraux', desc: 'Un chèque énergie chaque trimestre.', fx: { pauv: -3, croiss: -0.1 },
+          chain: { good: ['Les plus modestes reçoivent un chèque', 'Le signal-prix reste', 'Ils ne s\'appauvrissent pas'], bad: ['La taxe ne finance rien d\'autre'] },
+          voix: V(S_(`Le prix reste élevé pour inciter, mais le revenu est rendu à ceux qui ne peuvent pas faire autrement. C'est ce qui rend une taxe carbone acceptable.`), D_(`On prend d'une main, on rend de l'autre${N}: à quoi bon${N}?`), P_('Mme Roux', `Le chèque couvre la hausse de l'essence. Je ne gagne rien, mais je ne perds plus.`)) },
+        { id: 'non', label: 'Je le garde pour le budget de l\'État', desc: 'Il manque de l\'argent partout.', fx: { pauv: 10 }, set: { colere: true },
+          chain: { good: ['Recettes nouvelles pour l\'État'], bad: ['Les plus modestes paient sans compensation', 'Colère dans les zones rurales', 'Manifestations chaque samedi'] },
+          voix: V(S_(`Vous avez transformé un outil écologique en impôt de plus, payé surtout par ceux qui n'ont pas le choix.`), D_(`Le peuple est dans la rue, et il a raison${N}!`), P_('Mme Roux', `Je ne suis pas contre l'écologie. Je suis contre payer pour ceux qui prennent l'avion.`)) } ] },
+      { t: 'say', who: 'haddad', text: `Les premières batteries arrivent en fin de vie. Elles contiennent du lithium, du cobalt, des métaux rares qu'on ne trouve pas à Valmont. Les jeter, c'est jeter des ressources. Les recycler, c'est les réutiliser presque à l'infini. Reste à savoir qui le fera.` },
+      { t: 'choice', id: 'recyclage', prompt: `Qui gère l'usine de recyclage des batteries${N}?`, options: [
+        { id: 'prive', label: 'Une entreprise privée', desc: 'Le meilleur prix, et des actionnaires à rémunérer.', fx: { croiss: 0.2, emis: -4 }, set: { circ: true },
+          chain: { good: ['Batteries recyclées', 'Métaux réutilisés', 'Moins d\'extraction minière', 'Bénéfices pour l\'entreprise'], bad: ['Elle ne recycle que ce qui est rentable'] },
+          voix: V(S_(`Le produit d'hier devient la matière de demain${N}: c'est le principe d'une économie qui tourne en boucle.`), D_(`Rien à redire. Pour une fois.`), { who: 'haddad', text: `Ils recyclent le lithium. Le reste part en décharge${N}: ce n'est pas rentable.` }) },
+        { id: 'coop', label: 'Une coopérative de salariés, avec une association d\'insertion', desc: 'Les salariés décident ensemble, les bénéfices restent dans l\'usine.', fx: { pauv: -4, emis: -4 }, set: { circ: true, ess: true },
+          chain: { good: ['Batteries recyclées', 'Emplois pour des chômeurs de longue durée', 'Chaque salarié a une voix', 'Bénéfices réinvestis dans l\'usine'], bad: ['Moins de capitaux pour grandir', 'Croissance plus lente de l\'usine'] },
+          voix: V(S_(`Une entreprise dont le but premier n'est pas le profit, et où chacun vote, quel que soit l'argent qu'il a mis. Coopératives, mutuelles, associations${N}: c'est une autre façon d'entreprendre.`), D_(`Une utopie de plus.`), P_('M. Petit, 54 ans', `Trois ans de chômage. Ici, on m'a formé, et je vote aux assemblées comme le directeur.`)) },
+        { id: 'etat', label: 'L\'État', desc: 'Un service public du recyclage.', fx: { emis: -4, croiss: -0.1, pauv: -1 }, set: { circ: true },
+          chain: { good: ['Batteries recyclées', 'Tout est collecté, même ce qui n\'est pas rentable'], bad: ['Coût pour l\'État', 'Peu d\'incitation à innover'] },
+          voix: V(S_(`Tout est recyclé, rentable ou pas. C'est l'État qui paie la différence.`), D_(`Encore un service public${N}!`), { who: 'haddad', text: `Ils prennent tout. Ils sont lents, mais ils prennent tout.` }) } ] },
+      { t: 'say', who: 'sorel', text: `Une plateforme propose de remplacer 30${N}000 voitures particulières de la capitale par 3${N}000 voitures partagées, disponibles à la demande. Une voiture reste garée 95${N}% du temps.` },
+      { t: 'choice', id: 'partage', prompt: `L'autopartage dans la capitale${N}?`, options: [
+        { id: 'encourager', label: 'Je l\'encourage : places réservées, abonnement aidé', desc: 'Utiliser une voiture plutôt que la posséder.', fx: { emis: -5, pauv: -2, croiss: -0.1 },
+          chain: { good: ['Moins de voitures à fabriquer', 'Moins de ressources consommées', 'Les ménages paient l\'usage, pas l\'achat'], bad: ['Moins de voitures vendues', 'Les concessionnaires protestent'] },
+          voix: V(S_(`On partage l'usage au lieu de multiplier les objets. Ça marche en ville${N}; à la campagne, beaucoup moins.`), D_(`Bientôt, on partagera nos brosses à dents.`), P_('Lina, 27 ans', `J'ai vendu ma voiture. 180${N}€ d'économie par mois.`)) },
+        { id: 'laisser', label: 'Je laisse faire le marché', desc: 'Pas d\'aide, pas d\'obstacle.', fx: {},
+          chain: { good: ['Aucune dépense publique'], bad: ['La plateforme grandit lentement', 'Peu d\'effet sur les émissions'] },
+          voix: V(S_(`La plateforme survit. Elle ne change pas grand-chose.`), D_(`Le gouvernement laisse faire. Parfait.`), P_('Lina, 27 ans', `Il n'y a jamais de voiture disponible dans mon quartier.`)) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Sans frontières', sub: '2040. Sommet mondial sur le climat.',
+    steps: [
+      periode(2035, 2040), epuise, foretBasse,
+      { t: 'say', who: 'sorel', text: `Le climat appartient à tout le monde${N}: personne ne peut en être privé, et ce que Valmont rejette réchauffe aussi le Soran et le Kirai. Mais Valmont ne pèse que 0,5${N}% des émissions mondiales. Si nous faisons des efforts seuls, nous en payons le coût et tout le monde en profite. Si nous ne faisons rien, nous profitons des efforts des autres. Chaque pays fait le même calcul.` },
+      { t: 'say', who: 'tavor', text: `Le Soran est prêt à réduire ses émissions de moitié… si les autres en font autant. Personne ne veut être le seul à payer.` },
+      { t: 'choice', id: 'sommet', prompt: `Que promet Valmont au sommet${N}?`, options: [
+        { id: 'engager', label: 'Diviser nos émissions par deux, avec des contrôles internationaux', desc: 'Montrer l\'exemple.', fx: { emis: -10, croiss: -0.3 }, set: { coop: true },
+          chain: { good: ['Valmont s\'engage, chiffres à l\'appui', 'Le Soran suit', 'D\'autres pays s\'engagent', 'Un accord mondial devient possible'], bad: ['Coût pour l\'économie de Valmont', 'Rien ne garantit que tous tiendront parole'] },
+          voix: V(S_(`Un petit pays ne sauve pas le climat. Mais il peut débloquer une négociation où chacun attend l'autre.`), D_(`Nous payons pour la planète entière${N}!`), { who: 'tavor', text: `Valmont s'engage avec contrôles${N}? Alors le Soran signe.` }) },
+        { id: 'conditionnel', label: 'S\'engager, à condition que le Soran le fasse aussi', desc: 'Pas d\'effort sans réciprocité.', fx: { emis: -6 }, set: { coop: true },
+          chain: { good: ['Valmont et le Soran s\'engagent ensemble', 'Chacun surveille l\'autre'], bad: ['Engagement plus modeste', 'D\'autres pays hésitent encore'] },
+          voix: V(S_(`Prudent. La coopération avance, à petits pas.`), D_(`Le gouvernement suit le Soran.`), { who: 'tavor', text: `Marché conclu. Nous signons ensemble.` }) },
+        { id: 'clandestin', label: 'Ne rien promettre : nos émissions ne pèsent rien', desc: 'Laissons les grands pays faire l\'effort.', fx: { croiss: 0.2 }, set: { clandestin: true },
+          chain: { good: ['Aucun coût pour Valmont', 'Croissance préservée'], bad: ['Le Soran refuse de s\'engager seul', 'D\'autres pays font le même calcul', 'Le sommet échoue', 'Le climat se dérègle pour tous, Valmont compris'] },
+          voix: V(S_(`Votre raisonnement est imparable… et tout le monde l'a tenu. Résultat${N}: personne ne fait rien.`), D_(`Enfin un gouvernement qui défend nos intérêts.`), { who: 'tavor', text: `Si Valmont ne fait rien, pourquoi le Soran ferait-il quelque chose${N}?` }) } ] },
+      { t: 'say', who: 'asante', text: `Au Kirai, une personne sur trois n'a pas de quoi se nourrir, se loger et se soigner correctement. Et ce sont elles qui subissent les sécheresses, alors qu'elles n'ont presque rien rejeté. Valmont peut nous aider. Que voulez-vous financer${N}?` },
+      { t: 'choice', id: 'aide', prompt: `L'aide de Valmont au Kirai${N}?`, options: [
+        { id: 'barrage', label: 'Un barrage pour l\'irrigation et l\'électricité', desc: 'Effet en cinq ans.', fx: { croiss: 0.1, pauv: -3 },
+          chain: { good: ['Irrigation contre les sécheresses', 'Électricité pour les villages', 'Récoltes plus sûres'], bad: ['Des villages déplacés', 'Les plus pauvres en profitent peu'] },
+          voix: V(S_(`Un équipement utile. Mais l'électricité arrive d'abord chez ceux qui peuvent la payer.`), D_(`Nos impôts pour du béton à l'étranger.`), { who: 'asante', text: `Merci. Les villages de la vallée attendent l'eau depuis vingt ans.` }) },
+        { id: 'ecoles', label: 'Des écoles, en particulier pour les filles', desc: 'Effet dans quinze ans.', fx: { pauv: -2 }, set: { ecoles: true },
+          chain: { good: ['Plus d\'enfants scolarisés', 'Surtout des filles', 'Mieux formés, ils gagnent plus', 'Les mères instruites soignent mieux leurs enfants', 'La pauvreté recule durablement'], bad: ['Rien de visible avant longtemps'] },
+          voix: V(S_(`C'est l'investissement le plus lent… et l'un de ceux qui rapportent le plus. Une année d'école en plus, c'est un salaire plus élevé pour toute une vie.`), D_(`Des écoles au Kirai, alors que les nôtres manquent de profs${N}?`), { who: 'asante', text: `Ma mère ne savait pas lire. Moi, je suis ministre. Vous comprenez pourquoi je vous remercie.` }) },
+        { id: 'urgence', label: 'Une aide alimentaire d\'urgence', desc: 'Effet immédiat.', fx: { pauv: -4 },
+          chain: { good: ['Des familles mangent à leur faim tout de suite', 'Moins de malnutrition infantile'], bad: ['Il faudra recommencer l\'an prochain', 'Rien ne change dans la durée'] },
+          voix: V(S_(`Indispensable dans l'urgence. Mais l'aide soulage la pauvreté sans en supprimer les causes.`), D_(`De la charité, encore.`), { who: 'asante', text: `Cette année, personne n'est mort de faim dans le Nord. L'an prochain, il faudra recommencer.` }) } ] },
+      { t: 'say', who: 'sorel', text: `Ne confondez pas deux pauvretés.
+        <span class="pay"><span>Au Kirai</span><b>pauvreté absolue</b><span style="grid-column:1/-1;color:var(--muted);font-size:13.5px;margin:-2px 0 6px">Ne pas avoir le minimum pour vivre : manger, se loger, se soigner.</span><span>À Valmont</span><b>pauvreté relative</b><span style="grid-column:1/-1;color:var(--muted);font-size:13.5px;margin:-2px 0 6px">Gagner beaucoup moins que les autres : moins de 60 % du revenu médian du pays.</span></span>
+        Un pauvre de Valmont est rarement pauvre au sens du Kirai. Mais il est exclu de ce qui est normal autour de lui.` }
+    ] },
+
+  /* ------------------------------ ACTE 5 ------------------------------ */
+  { num: 5, title: '2050', sub: 'Dernier conseil des ministres. Le bilan de vingt-cinq ans.', final: true,
+    steps: [
+      periode(2040, 2045), epuise, foretBasse,
+      { t: 'event', if: s => s.flags.innov || s.flags.brevet, who: 'haddad', text: `Les industries nées de la recherche tournent à plein${N}: batteries, isolation, recyclage. Elles produisent plus avec autant de salariés, et elles ne s'épuisent pas.`, fx: { croiss: 0.6, emis: -4 } },
+      { t: 'event', if: s => s.flags.ecoles, who: 'asante', text: `Les premières filles scolarisées grâce à vous ont 25 ans. Elles sont infirmières, techniciennes, commerçantes. Dans leurs villages, la pauvreté a reculé plus vite qu'ailleurs.`, fx: { pauv: -8 } },
+      { t: 'event', if: s => s.flags.clandestin, who: 'tavor', text: `Le sommet a échoué, et aucun autre n'a abouti depuis. Sécheresses, inondations, récoltes perdues${N}: le climat ne s'arrête pas aux frontières de Valmont.`, fx: { croiss: -0.3, pauv: 4 } },
+      periode(2045, 2050), epuise,
+      { t: 'say', who: 'sorel', text: s => `${cuves(s)}Voici ce que vous laissez. Dans votre tableau de bord, il y a la croissance que vous avez produite… et ce qu'il reste pour produire demain.` },
+      { t: 'say', who: 'arel', text: `Vingt-cinq ans. La génération de Lina a l'âge que vous aviez en arrivant. Voici ce qu'on retiendra de vous.` }
+    ] }
+  ],
+
+  /* ------------------------------ FINS (ordre de priorité) ------------------------------ */
+  endings: [
+    { id: 'sec', when: s => s.flags.sec, title: 'Le pays à sec', stamp: 'Après-gaz non préparé', color: '#FF5C6A',
+      text: `Le gaz a fait la fortune de Valmont, puis il s'est arrêté. Rien n'avait été mis de côté, personne n'avait été formé, aucune industrie n'attendait. Le pays a vécu sur un stock comme s'il était éternel.` },
+    { id: 'clandestin', when: s => s.flags.clandestin, title: 'Le passager clandestin', stamp: 'Sommet échoué', color: '#FF5C6A',
+      text: `Tu as laissé les autres faire l'effort. Ils ont fait le même calcul que toi, et personne n'a rien fait. Valmont subit aujourd'hui le dérèglement qu'il n'a pas voulu combattre.` },
+    { id: 'brune', when: s => s.emis >= 112 || s.res <= 30, title: 'Croissance à crédit', stamp: 'Réserves vidées', color: '#FFC64F',
+      text: `Valmont a beaucoup produit. Pour cela, il a vidé son gaz, rasé ses forêts et rempli l'air. Le PIB était flatteur${N}: il ne comptait pas ce qui disparaissait.` },
+    { id: 'subie', when: s => s.flags.colere || s.pauv >= 60, title: 'La transition subie', stamp: 'Colère sociale', color: '#FFC64F',
+      text: `Les émissions ont baissé, mais ce sont les plus modestes qui ont payé. Sans accompagnement, la transition écologique est devenue une injustice, et le pays s'est divisé.` },
+    { id: 'durable', when: s => s.emis <= 80 && s.res >= 45 && s.pauv <= 42 && s.croiss >= 1, title: 'Développement durable', stamp: 'Bravo', color: '#4CD97B',
+      text: `Valmont croît encore, plus lentement, mais sur des bases qui durent${N}: des idées plutôt que du gaz, une forêt intacte, moins d'émissions, moins de pauvreté ici et au Kirai. La génération de Lina hérite d'un pays, pas d'une facture.` },
+    { id: 'honorable', when: s => true, title: 'Mandat honorable', stamp: 'Correct', color: '#7C9483',
+      text: `Tu n'as pas tout réussi, mais tu as commencé à changer de cap. Il reste du chemin à faire à ton successeur.` }
+  ],
+
+  /* ------------------------------ DÉBRIEF (h = choix du joueur) ------------------------------ */
+  debrief: [
+    { act: 1, needs: ['gaz', 'foret'], title: 'Acte 1 — Ce qui s\'épuise', text: (h, s) => {
+        const g = h.gaz === 'rapide' ? 'En extrayant le gaz à pleine vitesse, tu as acheté de la croissance avec un stock qui ne reviendra pas.' : h.gaz === 'fonds' ? 'En plaçant une partie des recettes du gaz dans un fonds, tu as transformé une ressource qui disparaît en richesse qui dure.' : 'En ralentissant l\'extraction, tu as fait durer le stock.';
+        const f = h.foret === 'surcoupe' ? 'En coupant plus vite que la repousse, tu as rendu épuisable une ressource renouvelable.' : 'En coupant seulement ce qui repousse, tu as préservé une ressource renouvelable.';
+        return `La <em>croissance</em> est l\'augmentation de la production d\'un pays, mesurée par le PIB. Elle utilise des <em>ressources non renouvelables</em>, dont le stock est limité (gaz, pétrole, métaux), et des <em>ressources renouvelables</em>, qui se reconstituent si on ne prélève pas plus que leur rythme de renouvellement (forêts, poissons, eau). ${g} ${f} L\'<em>épuisement des ressources rares</em> pose une question que le PIB ignore : il compte ce qu\'on produit dans l\'année, pas ce qu\'on détruit. Le <em>développement durable</em> est un développement qui répond aux besoins d\'aujourd\'hui sans empêcher les générations futures de répondre aux leurs. Pour le suivre, on utilise des <em>indicateurs</em> complémentaires du PIB : émissions de gaz à effet de serre, empreinte écologique, état des ressources, IDH.`; },
+      chain: () => ({ good: ['Croissance', 'Production en hausse', 'Revenus en hausse'], bad: ['Prélèvement de ressources', 'Stocks qui s\'épuisent', 'Émissions'] }) },
+    { act: 2, needs: ['brevet', 'titres', 'investir'], title: 'Acte 2 — Inventer l\'après', text: (h, s) => {
+        const b = h.brevet === 'brevet' ? 'En accordant le brevet, tu as protégé l\'innovateur pour l\'inciter à inventer.' : h.brevet === 'libre' ? 'En refusant le brevet, tu as favorisé la diffusion mais découragé les inventeurs.' : 'En rachetant le brevet, tu as payé pour avoir à la fois l\'incitation et la diffusion.';
+        const t = h.titres === 'financer' ? 'Au Kirai, les titres de propriété ont permis aux paysans d\'investir.' : 'Au Kirai, sans titres de propriété, les paysans n\'ont pas pu investir.';
+        const i = h.investir === 'recherche' ? 'En finançant la recherche, tu as misé sur le progrès technique.' : h.investir === 'formation' ? 'En formant les ouvriers du gaz, tu as préparé les personnes au changement.' : 'En subventionnant sans orienter, tu as obtenu de l\'activité immédiate, mais peu de transformation.';
+        return `Le <em>progrès technique</em> regroupe les nouvelles connaissances appliquées à la production. Il naît de l\'<em>innovation</em> : nouveaux produits, nouveaux procédés, nouvelles organisations. Il augmente la <em>productivité des facteurs de production</em> : on produit davantage avec la même quantité de travail et de capital. C\'est une source de croissance qui ne s\'épuise pas. ${i} Les <em>droits de propriété</em> favorisent la croissance : savoir qu\'on pourra garder les fruits de son effort incite à investir et à innover. Le brevet en est un exemple, le titre de propriété d\'une terre un autre. ${b} ${t}`; },
+      chain: () => ({ good: ['Droits de propriété protégés', 'Incitation à investir et innover', 'Progrès technique', 'Productivité en hausse', 'Croissance'], bad: ['Monopole temporaire', 'Diffusion plus lente'] }) },
+    { act: 3, needs: ['instrument', 'recyclage', 'partage'], title: 'Acte 3 — Les outils de la transition', text: (h, s) => {
+        const i = h.instrument === 'taxe' ? 'Tu as choisi la taxe : elle agit par le prix.' : h.instrument === 'normes' ? 'Tu as choisi la norme : elle agit par l\'interdiction.' : h.instrument === 'subventions' ? 'Tu as choisi la subvention : elle agit par l\'incitation financière.' : 'Tu as choisi le marché de quotas : il fixe une quantité et laisse le marché fixer le prix.';
+        const c = h.compensation === 'non' ? ' Sans compensation, la taxe a surtout pesé sur les ménages modestes.' : h.compensation === 'oui' ? ' En reversant la taxe aux ménages modestes, tu l\'as rendue plus juste.' : '';
+        const r = h.recyclage === 'coop' ? 'En confiant le recyclage à une coopérative et une association, tu as fait appel à l\'<em>économie sociale et solidaire</em>.' : 'L\'usine de recyclage aurait aussi pu être confiée à un acteur de l\'<em>économie sociale et solidaire</em>.';
+        return `La <em>transition écologique</em> consiste à passer d\'une économie qui épuise et pollue à une économie qui préserve. Ses instruments agissent différemment sur la <em>production</em> (coûts des entreprises), la <em>consommation</em> (prix pour les ménages) et l\'<em>investissement</em> (orienté vers des techniques propres) : taxe environnementale, normes, subventions, marché de quotas d\'émission. ${i}${c} L\'<em>économie circulaire</em> cherche à réduire, réutiliser et recycler : les déchets d\'hier deviennent les ressources de demain. L\'<em>économie collaborative</em> repose sur le partage de l\'usage d\'un bien plutôt que sa possession. ${r} L\'ESS regroupe des coopératives, des mutuelles, des associations et des fondations : leur but premier n\'est pas le profit, et leurs membres décident ensemble, selon le principe « une personne, une voix ».`; },
+      chain: () => ({ good: ['Taxe, norme, subvention ou quota', 'Polluer devient plus coûteux ou moins rentable', 'Investissements dans des techniques propres', 'Émissions en baisse'], bad: ['Coûts pour les entreprises et les ménages', 'Effets inégaux selon les revenus'] }) },
+    { act: 4, needs: ['sommet', 'aide'], title: 'Acte 4 — Sans frontières', text: (h, s) => {
+        const m = h.sommet === 'clandestin' ? 'En refusant tout engagement, tu as joué le passager clandestin.' : 'En t\'engageant, tu as rendu possible la coopération internationale.';
+        const a = h.aide === 'ecoles' ? 'En finançant des écoles, tu as misé sur l\'<em>économie de l\'éducation</em>.' : h.aide === 'urgence' ? 'Ton aide d\'urgence a réduit la pauvreté absolue pour un temps, sans en traiter les causes.' : 'Ton barrage a amélioré les conditions de production, surtout pour ceux qui pouvaient payer l\'électricité.';
+        return `Le climat est un <em>bien public mondial</em> : personne ne peut être empêché d\'en profiter, et ce que fait un pays touche tous les autres. Chaque pays est tenté de laisser les autres payer l\'effort, d\'où la nécessité de la <em>coopération internationale</em>. ${m} Les <em>inégalités géographiques</em> sont fortes : les pays les plus pauvres subissent souvent le plus les dérèglements qu\'ils ont le moins causés. La <em>pauvreté absolue</em> désigne le fait de ne pas disposer du minimum pour vivre ; la <em>pauvreté relative</em> se mesure par rapport aux autres (en Europe, moins de 60 % du revenu médian). L\'<em>économie de l\'éducation</em> étudie ce que rapporte l\'éducation : elle augmente les revenus, la santé et la productivité, et c\'est l\'un des moyens les plus durables de <em>réduire la pauvreté absolue</em>. ${a}`; },
+      chain: () => ({ good: ['Éducation', 'Capital humain', 'Productivité et revenus', 'Pauvreté en recul'], bad: ['Bien public mondial', 'Chacun attend l\'effort des autres', 'Sans coopération, rien ne se fait'] }) },
+    { act: 5, needs: ['aide'], finalOnly: true, title: 'Acte 5 — 2050', text: (h, s) =>
+        `Croissance et développement durable ne s\'opposent pas forcément, mais ils ne se confondent pas. Une croissance soutenable repose moins sur ce qu\'on extrait que sur ce qu\'on invente et ce qu\'on apprend : progrès technique, éducation, ressources gérées pour durer. Et parce que les ressources et le climat ne connaissent pas les frontières, aucun pays ne peut y arriver seul.` }
+  ],
+  vocab: ['Croissance', 'Ressources renouvelables', 'Ressources non renouvelables', 'Épuisement des ressources rares', 'Développement durable', 'Indicateurs du développement durable', 'Progrès technique', 'Innovation', 'Productivité des facteurs', 'Droits de propriété', 'Transition écologique', 'Taxe, normes, subventions, quotas', 'Économie circulaire', 'Économie collaborative', 'Économie sociale et solidaire (ESS)', 'Bien public mondial', 'Coopération internationale', 'Inégalités géographiques', 'Pauvreté absolue / relative', 'Économie de l\'éducation']
+};
+let H = {};   // historique des choix (lu par le débrief)
+
+/* =====================================================================
+   2. DÉCOR — Valmont : le puits de gaz, la forêt, l'usine.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  let arbres = '';
+  const n = Math.max(0, Math.round(S.foret / 12.5));
+  for (let i = 0; i < 8; i++) arbres += i < n ? `<g transform="translate(${248 + (i % 4) * 26},${118 - Math.floor(i / 4) * 22})"><path d="M0,-18 L11,6 L-11,6 Z" fill="#0d1710" stroke="#4CD97B" stroke-width="1.4"/><line x1="0" y1="6" x2="0" y2="14" stroke="#7C9483" stroke-width="1.5"/></g>`
+                                     : `<g transform="translate(${248 + (i % 4) * 26},${118 - Math.floor(i / 4) * 22})"><rect x="-4" y="8" width="8" height="6" fill="#3a2a14"/></g>`;
+  const fumee = Math.max(0, Math.round((S.emis - 50) / 12));
+  let smoke = ''; for (let i = 0; i < fumee; i++) smoke += `<circle cx="${204 + (i % 2) * 6}" cy="${74 - i * 9}" r="${4 + i * 0.7}" fill="#7C9483" opacity="${(0.55 - i * 0.05).toFixed(2)}"/>`;
+  const gazOk = S.gaz > 0;
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Valmont : le puits de gaz, l'usine et la forêt">
+    <rect width="360" height="200" fill="#070c09"/><rect x="0" y="0" width="360" height="162" fill="#0a120c"/>
+    <g transform="translate(142,50)" stroke="${gazOk ? '#FFC64F' : '#5a4526'}" stroke-width="1.8" fill="none"><path d="M0,112 L16,0 L32,112"/><line x1="5" y1="74" x2="27" y2="74"/><line x1="9" y1="40" x2="23" y2="40"/>
+      ${gazOk ? `<path d="M16,-4 Q10,-14 16,-24 Q22,-14 16,-4 Z" fill="#FF9D3D" stroke="#FFC64F"/>` : ''}</g>
+    <g transform="translate(184,92)"><rect x="0" y="0" width="44" height="70" fill="#0d1710" stroke="#B9A6FF" stroke-width="1.5"/><rect x="16" y="-22" width="10" height="22" fill="#0d1710" stroke="#B9A6FF" stroke-width="1.5"/>
+      <rect x="6" y="12" width="10" height="8" fill="#B9A6FF" opacity=".35"/><rect x="26" y="12" width="10" height="8" fill="#B9A6FF" opacity=".35"/></g>
+    ${smoke}${arbres}
+    <rect x="0" y="162" width="360" height="38" fill="#080d0a"/><line x1="0" y1="162" x2="360" y2="162" stroke="#173322" stroke-width="1.5"/>`;
+};
+
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      frame(st.who, `<div class="box">${whoTag(st.who)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="${st.step || 1}" value="${st.def}" aria-label="${st.prompt}">
+        <div class="range-l"><span>${st.show(st.min)}</span><span>${st.show(st.max)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">Tu as utilisé ces notions pour diriger. Voici comment on les appelle en économie.</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour aller au bout de l'année.</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>17 ans et demi — Jeu Droit 1ère STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#FF9D3D;--eco-dim:#B86A1F;--bg:#080604;--panel:#120e09;--panel2:#17110a;--line:#3a2a14;--txt:#EEF3EC;--muted:#9a8e7c;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(255,157,61,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(255,157,61,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#20170d;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(255,157,61,.5);background:rgba(255,157,61,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#0b0805;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(255,157,61,.09), rgba(18,14,9,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#1a0e02;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#1a0e02;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#20170d;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#20170d;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#1a0e02;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#110c07;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#110c07;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#110c07;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 3) n'a pas besoin d'être touché.
+   Jauges : projet (avancement de la marque, 0-100), argent (€), famille (confiance des proches, 0-100),
+            expo (exposition : ce que tu risques sur tes biens personnels, 0-100).
+   ===================================================================== */
+const N = ' ';
+const DROIT = '#FF9D3D';
+const eur = n => Math.round(n).toLocaleString('fr-FR') + N + '€';
+const seuls = s => ['seulPresse', 'seulBail', 'seulCompte'].filter(k => s.flags[k]).length;
+const structure = s => s.flags.societe || s.flags.asso;
+const perso = s => !structure(s) || s.flags.caution;                               // les dettes retombent-elles sur toi ?
+
+const GAME = {
+  title: '17 ans et demi',
+  brand: '17 ANS <span>ET DEMI</span>',
+  storeKey: 'dixSeptAnsFins',
+  backLink: '../../matieres/droit-1ere.html',
+  footer: 'Droit 1re STMG, thème 3',
+  kicker: 'Droit · 1re STMG · Thème 3',
+  pitch: `Tu as 17 ans et demi, un chien nommé Pixel, et une idée${N}: lancer ta marque de t-shirts. Tu veux tout, tout de suite, sans personne. Problème${N}: aujourd'hui ta signature ne vaut presque rien. Et dans six mois, elle t'engagera sur tout ce que tu possèdes.`,
+  meta: '4 actes · 15 minutes',
+  start: s => Object.assign(s, { projet: 10, argent: 400, famille: 60, expo: 0, stop: null }),
+  hud: [
+    { k: 'projet',  label: 'Projet',     short: 'Projet',     show: s => Math.round(s.projet),  pct: s => s.projet,      low: s => false, clamp: true },
+    { k: 'argent',  label: 'Argent',     short: 'Argent',     show: s => eur(s.argent),         pct: s => s.argent / 20, low: s => s.argent < 50, unit: N + '€' },
+    { k: 'famille', label: 'Famille',    short: 'Famille',    show: s => Math.round(s.famille), pct: s => s.famille,     low: s => s.famille < 30, clamp: true },
+    { k: 'expo',    label: 'Exposition', short: 'Exposition', show: s => Math.round(s.expo),    pct: s => s.expo,        low: s => s.expo >= 40, clamp: true }
+  ],
+  fail: s => s.stop,
+  lock: (s, cost) => cost > s.argent ? 'Tu n\'as pas assez d\'argent.' : null,
+  bilan: s => [['Projet', Math.round(s.projet) + ' / 100'], ['Argent', eur(s.argent)], ['Famille', Math.round(s.famille) + ' / 100'], ['Exposition', Math.round(s.expo) + ' / 100']],
+
+  characters: {
+    papa:   { name: 'Papa',        role: '',                               color: '#5B8FFF', body: '#3D62B8', hair: '#1c1c22', acc: '' },
+    maman:  { name: 'Maman',       role: '',                               color: '#FF8AD1', body: '#B8508F', hair: '#3a2418', acc: 'bun' },
+    papi:   { name: 'Papi Marcel', role: 'ton grand-père',                 color: '#FFC64F', body: '#8a5a22', hair: '#d8d8d8', acc: 'cap' },
+    helene: { name: 'Tante Hélène', role: 'tutrice de Papi',               color: '#5FB8B0', body: '#2f5b57', hair: '#7a2f2f', acc: 'clip' },
+    lou:    { name: 'Lou',         role: 'ton amie, étudiante en droit',   color: '#B9A6FF', body: '#5b4c9a', hair: '#1c1c22', acc: 'bun' },
+    vidal:  { name: 'Mme Vidal',   role: 'greffière',                      color: '#FF9D3D', body: '#3a3f4a', hair: '#8a8f96', acc: 'tie' },
+    brun:   { name: 'M. Brun',     role: 'grossiste en textile',           color: '#FF5C7A', body: '#3a3f4a', hair: '#5a4630', acc: 'box' },
+    castel: { name: 'Mme Castel',  role: 'investisseuse',                  color: '#4CD97B', body: '#1c1c22', hair: '#c9a24a', acc: 'tie' },
+    narr:   { name: 'Toi',         role: '',                               color: '#FF9D3D' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Trop jeune pour signer', sub: '17 ans et demi. Une idée, 400 € et un chien.',
+    steps: [
+      { t: 'say', who: 'narr', text: `J'ai dessiné Pixel sur un t-shirt pour rire. Douze personnes au lycée m'ont demandé le même. Alors c'est décidé${N}: je lance ma marque. Maintenant. Pas dans six mois.` },
+      { t: 'event', who: 'narr', text: `Première étape${N}: dix t-shirts blancs au supermarché, 40${N}€ de mon argent de poche. La caissière encaisse sans me poser une seule question.`, fx: { argent: -40, projet: 5 } },
+      { t: 'say', who: 'narr', text: `Sur une appli d'annonces, une presse à flocage d'occasion${N}: 600${N}€, payable en trois fois. Avec ça, je produis dans ma chambre.` },
+      { t: 'choice', id: 'presse', prompt: `La presse à 600${N}€${N}?`, options: [
+        { id: 'seul', label: 'Je signe et je ne dis rien', desc: '200 € aujourd\'hui, le reste sur deux mois.', fx: { argent: -200, projet: 15 }, set: { seulPresse: true },
+          after: [{ who: 'narr', text: `Le vendeur n'a même pas demandé mon âge. La presse est cachée dans le garage, sous une bâche.` }] },
+        { id: 'parents', label: 'J\'en parle à mes parents', desc: 'Ils vont poser mille questions.', fx: { argent: -200, projet: 10, famille: 5 },
+          after: [{ who: 'papa', text: `600${N}€${N}? J'ai appelé le vendeur, vérifié la machine, et c'est moi qui signe à ta place. Je complète ce qui manque, tu me rembourseras sur tes ventes.` }] } ] },
+      { t: 'say', who: 'narr', text: `Deuxième envie${N}: un vrai atelier. Il y a un petit local à louer derrière la gare, 150${N}€ par mois.` },
+      { t: 'choice', id: 'local', prompt: `Le local à 150${N}€ par mois${N}?`, options: [
+        { id: 'seul', label: 'Je signe le bail et je ne dis rien', desc: 'Un an d\'engagement. Premier loyer tout de suite.', lock: s => s.argent < 150 ? 'Tu n\'as pas assez d\'argent.' : null, fx: { argent: -150, projet: 15 }, set: { seulBail: true },
+          after: [{ who: 'narr', text: `Le propriétaire a regardé ma carte d'identité un peu vite. J'ai les clés. Mon atelier${N}!` }] },
+        { id: 'parents', label: 'J\'en parle à mes parents', desc: 'Ça sent le refus.', fx: { projet: 3, famille: 5 },
+          after: [{ who: 'maman', text: `Un bail d'un an, à ton âge${N}? Non. Ça, c'est une décision trop lourde, je ne la signerai pas pour toi. Mais merci de nous l'avoir demandé. On trouvera autre chose.` }] },
+        { id: 'non', label: 'Je laisse tomber le local', desc: 'Ma chambre suffira pour l\'instant.',
+          after: [{ who: 'narr', text: `Tant pis. Pixel dormira sur les cartons.` }] } ] },
+      { t: 'say', who: 'narr', text: `Troisième envie${N}: un compte en banque pour la marque, pour encaisser les commandes proprement.` },
+      { t: 'choice', id: 'compte', prompt: `Le compte en banque${N}?`, options: [
+        { id: 'seul', label: 'Je l\'ouvre en ligne, sans rien dire', desc: 'Il suffit de cocher « J\'ai plus de 18 ans ».', fx: { projet: 8 }, set: { seulCompte: true },
+          after: [{ who: 'narr', text: `Trois minutes, une case cochée. C'est presque trop facile.` }] },
+        { id: 'parents', label: 'J\'y vais avec ma mère', desc: 'Un mercredi après-midi à la banque.', fx: { projet: 6, famille: 4 },
+          after: [{ who: 'maman', text: `Voilà, j'ai signé l'autorisation. Le compte est à ton nom, mais c'est moi qui réponds de toi jusqu'à tes 18 ans.` }] } ] },
+      { t: 'event', if: s => seuls(s) === 0, who: 'papa', text: `Tu sais ce qui me plaît${N}? Tu aurais pu tout faire dans notre dos. Tu nous as demandé à chaque fois. Tant que tu n'as pas 18 ans, c'est nous qui signons pour toi${N}: autant qu'on sache ce qu'on signe.`, fx: { famille: 10 } },
+      { t: 'event', if: s => seuls(s) > 0, who: 'papa', text: s => `C'est quoi, ${[s.flags.seulPresse && 'cette machine sous la bâche', s.flags.seulBail && 'ce bail dans ton sac', s.flags.seulCompte && 'ce relevé de banque à ton nom'].filter(Boolean).join(', et ')}${N}? Tu as signé ça sans nous${N}? À 17 ans, ta signature ne t'engage pas pour des choses pareilles. Et elle ne nous engage pas non plus.`, fx: s => ({ famille: -8 * seuls(s) }) },
+      { t: 'event', if: s => seuls(s) > 0, who: 'maman', text: s => `On a tout fait annuler. ${s.flags.seulPresse ? 'Le vendeur a repris sa presse et rendu l\'argent. ' : ''}${s.flags.seulBail ? 'Le propriétaire a rendu le loyer, furieux, et repris ses clés. ' : ''}${s.flags.seulCompte ? 'La banque a fermé le compte : tu avais menti sur ton âge. ' : ''}Ces contrats n'avaient aucune chance de tenir.`,
+        fx: s => ({ projet: -((s.flags.seulPresse ? 15 : 0) + (s.flags.seulBail ? 15 : 0) + (s.flags.seulCompte ? 8 : 0)), argent: (s.flags.seulPresse ? 200 : 0) + (s.flags.seulBail ? 150 : 0) }), do: s => { if (seuls(s) === 3) s.stop = 'annule'; } }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Papi Marcel', sub: 'Un garage vide, une vieille camionnette, et un grand-père très généreux.',
+    steps: [
+      { t: 'say', who: 'papi', text: `Une marque de t-shirts${N}! Avec le chien dessus${N}! Ah, ça me plaît. Écoute, ma crevette${N}: mon garage est vide, prends-le. Et la vieille camionnette, vends-la, garde l'argent. C'est cadeau. Je te signe un papier tout de suite.` },
+      { t: 'say', who: 'helene', text: `Doucement, Papa. Tu sais que depuis ta maladie, le juge m'a nommée tutrice${N}: tes affaires, c'est moi qui les gère et qui signe à ta place. Certains jours tu es en pleine forme. D'autres, tu donnerais ta maison au facteur.` },
+      { t: 'event', who: 'helene', text: `Le garage, pas de souci. Le prêter, c'est de la gestion courante${N}: je peux le décider seule, et ça ne lui retire rien. Tiens, voilà les clés.`, fx: { projet: 8 }, set: { garage: true } },
+      { t: 'say', who: 'helene', text: `La camionnette, c'est autre chose. La vendre, c'est faire sortir un bien de ce qu'il possède, pour toujours. Ça, je n'ai pas le droit de le décider seule${N}: il faut l'accord du juge. Compte deux mois.` },
+      { t: 'say', who: 'papi', text: `Deux mois pour vendre MA camionnette${N}? N'écoute pas ta tante. J'ai un acheteur, le voisin, 1${N}500${N}€ en liquide. On fait ça samedi, entre nous.` },
+      { t: 'choice', id: 'papi', prompt: `La camionnette de Papi${N}?`, options: [
+        { id: 'vendre', label: 'On la vend samedi, comme dit Papi', desc: '1 500 € tout de suite. Il est d\'accord, après tout.', fx: { argent: 1500, projet: 10 }, set: { vendu: true },
+          after: [{ who: 'papi', text: `Et voilà${N}! Affaire conclue. Ne dis rien à Hélène, elle s'inquiète pour tout.` }] },
+        { id: 'juge', label: 'On demande l\'accord du juge', desc: 'Deux mois d\'attente.', fx: { projet: -5, famille: 8 }, set: { juge: true },
+          after: [{ who: 'helene', text: `Merci. Je dépose la demande demain. Papi va bouder trois jours, puis il aura oublié.` }] },
+        { id: 'non', label: 'Je me contente du garage', desc: 'C\'est déjà beaucoup.', fx: { famille: 5 },
+          after: [{ who: 'papi', text: `Tu es trop sage. Tu tiens ça de ta grand-mère.` }] } ] },
+      { t: 'event', if: s => s.flags.vendu, who: 'helene', text: `Le voisin roule dans la camionnette de Papa. Tu te rends compte de ce que tu as fait${N}? Cette vente ne vaut rien${N}: il n'avait pas le droit de signer, et moi non plus sans le juge. J'ai dû la faire annuler, rendre l'argent, et m'expliquer au tribunal. On m'a confié sa protection, et tu as décidé à ma place.`, fx: { argent: -1500, projet: -10, famille: -35 }, set: { brouille: true } },
+      { t: 'event', if: s => s.flags.juge, who: 'helene', text: `Le juge a répondu. Il autorise la vente, et comme Papa le souhaite depuis des mois, un don de 1${N}000${N}€ pour ton projet. Le reste va sur son compte. Tout est en règle, personne ne pourra jamais le contester.`, fx: { argent: 1000, projet: 5 } }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: '18 ans', sub: 'Ce matin, quelque chose a changé. Et ce n\'est pas que le gâteau.',
+    steps: [
+      { t: 'say', who: 'papa', text: `Joyeux anniversaire${N}! À partir d'aujourd'hui, plus besoin de nous${N}: ta signature t'engage. Complètement. C'est une liberté… et c'est aussi un risque. Signe en connaissance de cause.` },
+      { t: 'say', who: 'lou', text: `Je t'accompagne à la mairie chercher ton acte de naissance, il t'en faut un pour les démarches. Regarde ce qu'il y a dessus${N}:
+        <span class="pay"><span>Nom</span><b>celui reçu à la naissance</b><span>Prénoms</span><b>choisis par les parents</b><span>Sexe</span><b>mention à l'état civil</b><span>Né(e) le, à</span><b>date et lieu</b></span>
+        Avec ton adresse, c'est tout ce qui permet de dire${N}: c'est toi, et personne d'autre.` },
+      { t: 'say', who: 'lou', text: `Ça paraît gravé dans le marbre, mais pas tout à fait. Moi, à 18 ans, j'ai pris le nom de ma mère${N}: une simple déclaration ici, à la mairie. Et la mention du sexe, un tribunal peut la modifier à la demande de la personne. Ce n'est pas une formalité, mais la loi le permet.` },
+      { t: 'say', who: 'lou', text: `Bon, ta marque. Pour l'instant, «${N}Pixel & Co${N}», c'est juste toi qui vends des t-shirts. Tu peux continuer comme ça, monter une association avec Sami et moi, ou créer une société. Ce n'est pas qu'une question de paperasse.` },
+      { t: 'choice', id: 'forme', prompt: `Quelle forme pour Pixel & Co${N}?`, options: [
+        { id: 'rien', label: 'Rien du tout : je vends, c\'est tout', desc: 'Pas de papier, pas de frais. La marque, c\'est moi.', fx: { projet: 8, expo: 50 },
+          after: [{ who: 'lou', text: `Comme tu veux. Mais alors il n'y a aucune différence entre la marque et toi${N}: ce qu'elle doit, c'est toi qui le dois.` }] },
+        { id: 'asso', label: 'Une association avec Lou et Sami', desc: 'Gratuit. On décide à trois, et les bénéfices restent dans l\'asso.', fx: { projet: 8, famille: 3 }, set: { asso: true },
+          after: [{ who: 'lou', text: `Génial${N}! Par contre, on ne pourra pas se partager les bénéfices${N}: tout ce que gagne l'asso reste à l'asso.` }] },
+        { id: 'societe', label: 'Une société', cost: 250, desc: 'Des frais, des statuts, mais la marque devient indépendante de toi.', fx: { argent: -250, projet: 12 }, set: { societe: true },
+          after: [{ who: 'lou', text: `Sérieux. La société aura sa propre caisse et ses propres dettes, séparées des tiennes.` }] } ] },
+      { t: 'say', if: s => structure(s), who: 'vidal', text: s => `Pour enregistrer votre ${s.flags.asso ? 'association' : 'société'}, il me faut trois choses${N}: son nom, son adresse officielle, et ce qu'elle va faire. Le nom, «${N}Pixel & Co${N}», est libre. Pour l'adresse${N}?` },
+      { t: 'choice', if: s => structure(s), id: 'siege', prompt: `Quelle adresse officielle pour Pixel & Co${N}?`, options: [
+        { id: 'parents', label: 'La maison de mes parents', desc: 'Gratuit, s\'ils sont d\'accord.', fx: s => s.famille >= 45 ? { famille: 2 } : { argent: -120 },
+          after: s => s.famille >= 45 ? [{ who: 'maman', text: `Une société à notre adresse${N}? Tu aurais pu installer ça n'importe où, tu nous le demandes${N}: c'est oui.` }]
+                                      : [{ who: 'papa', text: `Après ce qui s'est passé, non. Débrouille-toi.` }, { who: 'narr', text: `J'ai dû payer une société de domiciliation${N}: 120${N}€ pour une adresse.` }] },
+        { id: 'domi', label: 'Une société de domiciliation', cost: 120, desc: 'Une adresse louée, sans rien demander à personne.', fx: { argent: -120 },
+          after: [{ who: 'vidal', text: `C'est noté. Le courrier officiel arrivera là-bas.` }] } ] },
+      { t: 'say', if: s => structure(s), who: 'narr', text: `Et j'ai une idée géniale${N}: «${N}Mettez 10${N}% au nom de Pixel. C'est lui, la star.${N}»` },
+      { t: 'event', if: s => structure(s), who: 'vidal', text: s => `Votre chien${N}? Non. Il ne peut rien posséder, rien signer, rien devoir${N}: aux yeux du droit, ce n'est pas une personne. En revanche… voilà, c'est enregistré. Depuis cette minute, Pixel & Co existe${N}: elle a un nom, une adresse, et elle peut posséder, signer et devoir de l'argent. Comme vous.`, fx: { projet: 10 } },
+      { t: 'say', who: 'narr', text: `En sortant, un livreur à vélo percute Pixel. Patte cassée. «${N}C'est qu'un chien, je vous rembourse ce qu'il vaut, 80${N}€.${N}»` },
+      { t: 'say', who: 'lou', text: `Il a tort. Pixel n'est pas une personne, mais ce n'est pas un objet non plus${N}: la loi dit que c'est un être vivant, capable de souffrir. Le livreur devra payer le vétérinaire, et un juge peut même tenir compte de ta peine.` },
+      { t: 'say', who: 'brun', text: `Vous voulez 300 t-shirts${N}? 2${N}000${N}€. Je peux vous laisser 60 jours pour payer… mais une marque qui débute, je ne connais pas. Je veux votre engagement à vous, sur vos biens personnels. Sinon, c'est comptant, et vous prenez moins.` },
+      { t: 'choice', id: 'caution', prompt: `La commande chez M.${N}Brun${N}?`, options: [
+        { id: 'caution', label: '300 t-shirts, et je m\'engage personnellement', desc: 'Rien à payer aujourd\'hui. Si la marque ne paie pas, c\'est moi.', fx: { projet: 15, expo: 40 }, set: { caution: true, gros: true },
+          after: [{ who: 'brun', text: `Signez là. Avec ça, si votre marque ne me paie pas, je viens chercher votre scooter.` }] },
+        { id: 'comptant', label: '100 t-shirts, payés comptant', cost: 700, desc: 'Moins de stock, mais je ne dois rien.', fx: { argent: -700, projet: 8 },
+          after: [{ who: 'brun', text: `Petite commande. Mais au moins, on est quittes.` }] },
+        { id: 'non', label: 'Pas de commande pour l\'instant', desc: 'Je continue avec mes dix t-shirts.', fx: { projet: -3 }, set: { sansStock: true },
+          after: [{ who: 'brun', text: `Revenez quand vous aurez de quoi.` }] } ] },
+      { t: 'event', if: s => !s.flags.sansStock && perso(s), who: 'narr', text: s => `Catastrophe${N}: tout le lot déteint au premier lavage. Les clients exigent d'être remboursés${s.flags.gros ? ', et M.' + N + 'Brun veut ses 2' + N + '000' + N + '€' : ''}. ${structure(s) ? 'La caisse de Pixel & Co est vide, mais j\'ai signé de mon nom : c\'est vers moi qu\'il se tourne.' : 'Et comme Pixel & Co, c\'est moi, tout retombe sur moi.'} ${s.flags.gros ? 'Un commissaire de justice vient de saisir mon scooter et mon livret.' : 'Mes économies y passent.'}`,
+        fx: s => s.flags.gros ? { argent: -s.argent, projet: -25 } : { argent: -Math.min(s.argent, 600), projet: -10 }, do: s => { if (s.flags.gros) s.flags.saisi = true; }, set: { choc: true } },
+      { t: 'event', if: s => !s.flags.sansStock && !s.flags.choc, who: 'narr', text: s => `Catastrophe${N}: tout le lot déteint au premier lavage. Les clients exigent d'être remboursés. La caisse de Pixel & Co y passe entièrement. Mais personne ne peut toucher à mon scooter ni à mon livret${N}: ce n'est pas moi qui dois cet argent, c'est ${s.flags.asso ? 'l\'association' : 'la société'}.`, fx: { projet: -12 } }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Ce qui ne se vend pas', sub: 'Un an après le premier t-shirt.', final: true,
+    steps: [
+      { t: 'say', who: 'castel', text: `J'adore votre histoire${N}: le lycée, le chien, la chambre. Je vous propose 3${N}000${N}€. En échange, votre nom et votre visage m'appartiennent, définitivement${N}: je les utilise où je veux, comme je veux, pour toujours.` },
+      { t: 'choice', id: 'image', prompt: `L'offre de Mme${N}Castel${N}?`, options: [
+        { id: 'vendre', label: 'J\'accepte : 3 000 €, pour toujours', desc: 'C\'est beaucoup d\'argent.', fx: { projet: 3 },
+          after: [{ who: 'lou', text: `Ne dépense rien. Ce contrat ne tient pas${N}: ton nom et ton visage font partie de toi, ils ne se vendent pas. Elle peut payer pour les utiliser un temps, pour une campagne précise, c'est tout.` },
+                  { who: 'castel', text: `Votre amie a raison, mon avocat me l'a confirmé. Refaisons le contrat${N}: une campagne, un an, 1${N}200${N}€.` },
+                  { who: 'narr', text: `J'ai signé le nouveau contrat. Moins d'argent… mais je reste propriétaire de ma tête.` }], do: s => { s.argent += 1200; } },
+        { id: 'louer', label: 'Je propose une campagne d\'un an, pas plus', desc: '1 500 €, et je garde la main.', fx: { argent: 1500, projet: 10 },
+          after: [{ who: 'castel', text: `Vous négociez dur, à 18 ans. Marché conclu${N}: une campagne, un an, et vous validez chaque photo.` }] },
+        { id: 'refuser', label: 'Je refuse', desc: 'Mon visage n\'est pas un logo.', fx: { famille: 3 },
+          after: [{ who: 'castel', text: `Dommage. Gardez ma carte.` }] } ] },
+      { t: 'say', if: s => s.flags.brouille, who: 'papi', text: `Hélène ne veut plus que tu viennes me voir sans elle. Elle a raison d'être fâchée, tu sais. C'est moi qui t'ai poussé… mais c'est elle qui me protège.` },
+      { t: 'say', if: s => !s.flags.brouille, who: 'papi', text: `J'ai mis ton t-shirt pour aller à la boulangerie. La boulangère en veut trois. Je prends ma commission${N}?` },
+      { t: 'say', who: 'maman', text: `Un an déjà. Assieds-toi et raconte-nous où tu en es. Tout. Même ce qui a raté.` }
+    ] }
+  ],
+
+  /* ------------------------------ FINS (ordre de priorité) ------------------------------ */
+  endings: [
+    { id: 'annule', when: s => s.stop === 'annule', title: 'Tout est annulé', stamp: 'Retour à zéro', color: '#FF5C6A',
+      text: `La presse, le local, le compte${N}: tout ce que tu avais signé en cachette a été annulé en une soirée. Il te reste dix t-shirts blancs et des parents qui ne te font plus confiance.` },
+    { id: 'brouille', when: s => s.flags.brouille, title: 'La brouille', stamp: 'Famille fâchée', color: '#FF5C6A',
+      text: `Tu as suivi Papi parce que ça t'arrangeait. La vente a été annulée, et ta tante ne te parle plus. Celle qui signait pour lui était là pour le protéger, y compris de sa propre générosité.` },
+    { id: 'saisi', when: s => s.flags.saisi, title: 'Saisi', stamp: 'Scooter et livret', color: '#FF5C6A',
+      text: `Les dettes de la marque sont devenues les tiennes. Ton scooter est parti, ton livret est vide. À 18 ans, ta signature engage tout ce que tu possèdes${N}: c'est ça aussi, être libre de signer.` },
+    { id: 'lancee', when: s => s.flags.societe && s.projet >= 55 && s.famille >= 55, title: 'Marque lancée', stamp: 'Bravo', color: '#4CD97B',
+      text: `Pixel & Co existe pour de bon${N}: elle a son nom, son adresse, sa caisse, et ses galères ne peuvent plus t'emporter avec elle. Ta famille porte tes t-shirts. Pixel, lui, s'en moque${N}: il dort sur le stock.` },
+    { id: 'asso', when: s => s.flags.asso, title: 'L\'asso des copains', stamp: 'Pour le plaisir', color: '#B9A6FF',
+      text: `Personne ne s'enrichit, tout ce qui rentre repart dans des t-shirts. Mais vous êtes trois, vous décidez ensemble, et le samedi au marché c'est la meilleure équipe du monde.` },
+    { id: 'demarre', when: s => true, title: 'Ça démarre', stamp: 'À suivre', color: '#9a8e7c',
+      text: `Rien d'irréparable, rien de gagné. Tu as appris quand ta signature compte, pour qui, et sur quoi. La suite t'appartient.` }
+  ],
+
+  /* ------------------------------ DÉBRIEF (h = choix du joueur) ------------------------------ */
+  debrief: [
+    { act: 1, needs: ['presse', 'local', 'compte'], title: 'Acte 1 — Trop jeune pour signer', text: (h, s) => {
+        const n = [h.presse, h.local, h.compte].filter(x => x === 'seul').length;
+        const c = n === 0 ? 'Tu as tout demandé à tes parents : c\'est exactement ce que prévoit le droit.' : `Tu as signé ${n > 1 ? n + ' contrats' : 'un contrat'} en cachette, et tes parents ${n > 1 ? 'les ont fait' : 'l\'ont fait'} annuler : ${n > 1 ? 'ils n\'étaient' : 'il n\'était'} pas valable${n > 1 ? 's' : ''}.`;
+        return `Dès la naissance, tu es une <em>personne physique</em> : tu as des droits. Mais avant 18 ans, tu ne peux pas les exercer sans aide : c\'est l\'<em>incapacité juridique</em> du mineur, pensée pour le protéger. Ce sont ses parents qui agissent en son nom : c\'est la <em>représentation</em>. ${c} Seule exception : les actes de la vie courante, comme tes dix t-shirts blancs, qu\'un mineur peut faire seul. Certaines décisions sont si lourdes (un bail d\'un an) que même les parents hésitent à les prendre pour lui.`; } },
+    { act: 2, needs: ['papi'], title: 'Acte 2 — Papi Marcel', text: (h, s) => {
+        const p = h.papi === 'vendre' ? 'En vendant sur la seule parole de Papi, tu as fait un acte nul : ni lui ni Hélène ne pouvaient le décider sans le juge.' : h.papi === 'juge' ? 'En attendant le juge, tu as perdu deux mois, mais la vente est devenue inattaquable.' : 'En renonçant à la camionnette, tu as évité la question.';
+        return `L\'incapacité ne concerne pas que les mineurs. Un adulte dont les facultés sont altérées peut être placé sous protection par un juge : Papi est un majeur protégé, et sa tutrice le <em>représente</em>. Tout dépend alors de la gravité de l\'acte. Prêter le garage est un <em>acte d\'administration</em> : de la gestion courante, qui ne retire rien à ce qu\'il possède ; la tutrice le décide seule. Vendre la camionnette est un <em>acte de disposition</em> : il fait sortir un bien pour toujours ; il faut l\'autorisation du juge. ${p}`; } },
+    { act: 3, needs: ['forme', 'caution'], title: 'Acte 3 — 18 ans', text: (h, s) => {
+        const f = h.forme === 'rien' ? 'En ne créant rien, tu as affronté les dettes sans protection : la marque n\'avait pas de patrimoine distinct du tien.' : h.forme === 'asso' ? 'Ton association est une personne morale : elle a son propre patrimoine, mais elle ne peut pas partager ses bénéfices entre ses membres.' : 'Ta société est une personne morale : elle a son propre patrimoine, séparé du tien.';
+        const c = h.caution === 'caution' ? 'Mais en t\'engageant personnellement auprès de M. Brun, tu as rouvert la porte : ton propre patrimoine garantissait la dette.' : h.caution === 'comptant' ? 'En payant comptant, tu n\'as engagé que ce que tu avais déjà.' : 'En ne commandant rien, tu n\'as rien risqué… ni rien vendu.';
+        return `À 18 ans, tu acquiers la pleine <em>capacité juridique</em>. Une personne s\'identifie par son <em>nom</em>, ses prénoms, la mention de son sexe (son <em>genre</em> à l\'état civil) et son <em>domicile</em> ; la loi permet, à certaines conditions, de changer de nom ou de faire modifier la mention du sexe. À côté des personnes physiques, il existe des <em>personnes morales</em> : des groupements (associations, sociétés) auxquels le droit reconnaît une existence propre. Elles naissent par un enregistrement, et s\'identifient par une <em>dénomination</em> et un <em>siège</em>. ${f} Le <em>patrimoine</em>, c\'est l\'ensemble de ce qu\'une personne possède et de ce qu\'elle doit : ses biens répondent de ses dettes. ${c} Pixel, lui, n\'a pas de patrimoine : l\'<em>animal</em> n\'est pas une personne. Mais ce n\'est pas une chose ordinaire : la loi le définit comme un être vivant doué de sensibilité.`; } },
+    { act: 4, needs: ['image'], finalOnly: true, title: 'Acte 4 — Ce qui ne se vend pas', text: (h, s) => {
+        const i = h.image === 'vendre' ? 'Tu avais accepté de tout céder pour toujours : le contrat ne valait rien sur ce point.' : h.image === 'louer' ? 'En proposant une campagne limitée, tu as fait exactement ce que le droit permet.' : 'En refusant, tu as gardé ton image pour toi.';
+        return `Tes t-shirts, ton scooter, l\'argent qu\'on te doit : ce sont des <em>droits patrimoniaux</em>. Ils ont une valeur en argent, ils font partie de ton patrimoine, tu peux les vendre ou les donner. Ton nom, ton image, ta vie privée sont des <em>droits extrapatrimoniaux</em> : attachés à ta personne, ils n\'ont pas de prix et ne peuvent pas être vendus définitivement. On peut seulement autoriser quelqu\'un à les utiliser, pour un temps et un usage précis. ${i}`; } }
+  ],
+  vocab: ['Personne physique', 'Personne morale', 'Nom / dénomination', 'Domicile / siège', 'Genre', 'Capacité juridique', 'Incapacité juridique', 'Représentation', 'Acte d\'administration', 'Acte de disposition', 'Patrimoine', 'Droits patrimoniaux', 'Droits extrapatrimoniaux', 'Statut de l\'animal']
+};
+let H = {};   // historique des choix (lu par le débrief)
+
+/* =====================================================================
+   2. DÉCOR — l'atelier improvisé (chambre, puis garage de Papi), avec Pixel.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const stack = Math.max(1, Math.min(7, Math.round(S.projet / 12)));
+  let tees = '';
+  for (let i = 0; i < stack; i++) tees += `<rect x="238" y="${150 - i * 7}" width="44" height="6" rx="1.5" fill="#17110a" stroke="#EEF3EC" stroke-width="1" opacity=".8"/>`;
+  const presse = (H.presse && !S.flags.seulPresse) || (S.flags.seulPresse && act.num === 1) ? `<g transform="translate(296,112)"><rect x="0" y="30" width="46" height="20" fill="#17110a" stroke="#5B8FFF" stroke-width="1.5"/><rect x="4" y="12" width="38" height="8" fill="#17110a" stroke="#5B8FFF" stroke-width="1.5"/><line x1="23" y1="20" x2="23" y2="30" stroke="#5B8FFF" stroke-width="2"/><line x1="23" y1="12" x2="40" y2="0" stroke="#5B8FFF" stroke-width="2"/></g>` : '';
+  const sign = structure(S) && H.siege ? `<rect x="196" y="34" width="116" height="22" fill="#110c07" stroke="${DROIT}" stroke-width="1.5"/><text x="254" y="49" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="10" fill="${DROIT}">PIXEL &amp; CO</text>` : '';
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="L'atelier de Pixel &amp; Co">
+    <rect width="360" height="200" fill="#0b0805"/><rect x="0" y="0" width="360" height="162" fill="#120e09"/>
+    ${S.flags.garage ? `<g stroke="#3a2a14" stroke-width="1.2"><line x1="120" y1="30" x2="360" y2="30"/><line x1="120" y1="62" x2="360" y2="62"/><line x1="120" y1="94" x2="360" y2="94"/></g>` : `<rect x="130" y="34" width="50" height="46" fill="#110c07" stroke="#3a2a14" stroke-width="1.5"/><line x1="155" y1="34" x2="155" y2="80" stroke="#3a2a14"/>`}
+    ${sign}${tees}${presse}
+    <g transform="translate(150,128)" fill="#17110a" stroke="${DROIT}" stroke-width="1.6"><ellipse cx="24" cy="20" rx="20" ry="11"/><circle cx="48" cy="8" r="9"/><path d="M42,0 L40,-9 L48,-2 Z"/><path d="M52,-1 L58,-8 L57,3 Z"/><line x1="10" y1="28" x2="10" y2="34"/><line x1="36" y1="28" x2="36" y2="34"/><path d="M4,16 Q-6,8 -2,0" fill="none"/><circle cx="51" cy="7" r="1.2" fill="${DROIT}" stroke="none"/></g>
+    <rect x="0" y="162" width="360" height="38" fill="#0d0a06"/><line x1="0" y1="162" x2="360" y2="162" stroke="#3a2a14" stroke-width="1.5"/>`;
+};
+
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] += v;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      frame(st.who, `<div class="box">${whoTag(st.who)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        applyFx(fx);
+        pushAfter(val(o.after, S)); next();
+      });
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="${st.step || 1}" value="${st.def}" aria-label="${st.prompt}">
+        <div class="range-l"><span>${st.show(st.min)}</span><span>${st.show(st.max)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        applyFx(res.fx); pushAfter(res.after); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p></div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">Tu as appliqué ces règles sans les nommer. Voici comment on les appelle en droit.</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour aller au bout de l'histoire.</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

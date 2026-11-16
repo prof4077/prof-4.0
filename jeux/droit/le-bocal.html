@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Le Bocal — Jeu Droit Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#FF9D3D;--eco-dim:#B86A1F;--bg:#080604;--panel:#120e09;--panel2:#17110a;--line:#3a2a14;--txt:#EEF3EC;--muted:#9a8e7c;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(255,157,61,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(255,157,61,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#20170d;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(255,157,61,.5);background:rgba(255,157,61,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#0b0805;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(255,157,61,.09), rgba(18,14,9,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#1a0e02;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#1a0e02;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#20170d;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#20170d;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#1a0e02;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#110c07;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#110c07;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#110c07;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.clause{display:block;margin:8px 0 0;padding:8px 12px;border-left:3px solid var(--eco);background:#110c07;font-size:14px;line-height:1.45;color:var(--txt);}
+.clause b{color:var(--eco);}
+.plead-h{margin:-4px 0 12px;color:var(--muted);font-size:14px;}
+.opt.arg[aria-pressed="true"]{border-color:var(--eco);background:rgba(255,157,61,.12);}
+.arg-n{font-family:'Orbitron',sans-serif;font-weight:800;color:var(--eco);min-width:14px;text-align:right;}
+.verdict{display:inline-block;margin:10px 0 0;padding:3px 10px;font-family:'Orbitron',sans-serif;font-weight:800;font-size:10px;letter-spacing:1px;text-transform:uppercase;border:1px solid;}
+.verdict.tient{color:#4CD97B;border-color:#4CD97B;}
+.verdict.tombe{color:#FF5C6A;border-color:#FF5C6A;}
+.robe-next{margin:22px 0 4px;padding:14px 16px;border:1px dashed var(--eco);font-size:15px;line-height:1.5;}
+.robe-next b{color:var(--eco);}
+.deb .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0 12px;font-size:14px;}
+.deb .two ul{margin:6px 0 0 18px;}
+.deb .two li{margin-bottom:4px;}
+@media (max-width:420px){.deb .two{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 3) n'a pas besoin d'être touché.
+   Une affaire, deux robes : robe a = avocat de Sarah Benoît (la créatrice), robe b = avocat de Bio&Vrac (l'enseigne installée).
+   Jauges : dossier (solidité du dossier, 0-100), conf (confiance du client, 0-100),
+            frais (frais engagés par le client, €), mois (durée de l'affaire).
+   Droit appliqué : celui en vigueur ; l'entrepreneur individuel bénéficie depuis 2022 d'une séparation
+   automatique entre patrimoine personnel et patrimoine professionnel (le débrief retrace l'ancien système).
+   ===================================================================== */
+const N = ' ';
+const DROIT = '#FF9D3D';
+const eur = n => Math.round(n).toLocaleString('fr-FR') + N + '€';
+const FLYER = `<span class="clause"><b>Le flyer distribué le jour de l'ouverture.</b> «${N}Le Bocal, votre épicerie vrac. Ici, du vrai bio. Pas comme chez certains voisins.${N}»</span>`;
+const GRIEFS = `<span class="clause"><b>Ce que Bio&amp;Vrac reproche à Sarah.</b> 1) S'être installée à 300 mètres de son magasin. 2) Avoir embauché deux de ses vendeuses. 3) Avoir copié ses couleurs, vert et kraft. 4) Le flyer. Elle réclame 40${N}000${N}€.</span>`;
+const LAB = {
+  a1: 'S\'installer à 300 mètres n\'est pas une faute : le commerce est libre', a2: 'Embaucher deux vendeuses qui ont démissionné n\'est pas une faute', a3: 'Ces couleurs sont celles de toute l\'enseigne Le Bocal',
+  a4: 'Le flyer ne vise personne', a5: 'Le flyer a été retiré dès le lendemain : le préjudice est minime', a6: 'Bio&Vrac ne prouve aucune perte',
+  b1: 'Elle s\'est installée à 300 mètres pour nous prendre nos clients', b2: 'Son flyer nous dénigre : nous sommes le seul magasin bio du quartier', b3: 'Notre chiffre a baissé le mois de son ouverture',
+  b4: 'Elle a débauché nos vendeuses', b5: 'Ses couleurs imitent les nôtres', b6: 'Le dénigrement cause par lui-même un préjudice'
+};
+const structure = s => s.flags.scop ? 'la coopérative' : s.flags.societe ? 'la société' : null;
+
+const GAME = {
+  title: 'Le Bocal',
+  brand: 'LE <span>BOCAL</span>',
+  storeKey: 'leBocalFins',
+  backLink: '../../matieres/droit-terminale.html',
+  footer: 'Droit Terminale STMG, thème 8',
+  kicker: 'Droit · Terminale STMG · Thème 8',
+  pitch: `Sarah dirigeait le magasin lyonnais de Bio&Vrac. Elle démissionne et ouvre sa propre épicerie en vrac, à 300 mètres, sous une enseigne en franchise. Deux vendeuses la suivent. Bio&Vrac crie à la concurrence déloyale. Concurrencer, est-ce tricher${N}? Une créatrice, une enseigne installée. Tu vas être les deux avocats.`,
+  meta: '2 robes · 15 minutes chacune',
+  start: s => Object.assign(s, { dossier: 20, conf: 60, frais: 0, mois: 0, stop: null, res: null }),
+  hud: [
+    { k: 'dossier', label: 'Dossier',   short: 'Dossier',   show: s => Math.round(s.dossier), pct: s => s.dossier,     low: s => s.dossier < 30, clamp: true },
+    { k: 'conf',    label: 'Confiance', short: 'Confiance', show: s => Math.round(s.conf),    pct: s => s.conf,        low: s => s.conf < 35, clamp: true },
+    { k: 'frais',   label: 'Frais',     short: 'Frais',     show: s => eur(s.frais),          pct: s => s.frais / 30,  low: s => s.frais > 2500, inv: true, unit: N + '€' },
+    { k: 'mois',    label: 'Durée',     short: 'Durée',     show: s => s.mois + N + 'mois',   pct: s => s.mois * 7,    low: s => false, inv: true, unit: N + 'mois' }
+  ],
+  fail: s => s.stop || (s.conf <= 15 ? 'congedie' : null),
+  lock: (s, cost) => null,
+  bilan: s => [['Dossier', Math.round(s.dossier) + ' / 100'], ['Confiance du client', Math.round(s.conf) + ' / 100'], ['Frais engagés', eur(s.frais)], ['Durée de l\'affaire', s.mois + N + 'mois']],
+
+  characters: {
+    sarah:    { name: 'Sarah Benoît',  role: 'créatrice de l\'épicerie Le Bocal',  color: '#FF8AD1', body: '#B8508F', hair: '#5a4630', acc: 'bun' },
+    castagne: { name: 'M. Castagne',   role: 'fondateur de Bio&Vrac',              color: '#5B8FFF', body: '#3D62B8', hair: '#c9c9c9', acc: 'box' },
+    valette:  { name: 'M. Valette',    role: 'développeur du réseau Le Bocal',     color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'tie' },
+    lacombe:  { name: 'M. Lacombe',    role: 'producteur de lentilles',            color: '#FFC64F', body: '#8a5a22', hair: '#5a4630', acc: 'cap' },
+    garnier:  { name: 'Me Garnier',    role: 'associée de ton cabinet',            color: '#B9A6FF', body: '#1c1c22', hair: '#8a8f96', acc: 'tie' },
+    kessler:  { name: 'Me Kessler',    role: 'avocat de Bio&Vrac',                 color: '#5FB8B0', body: '#1c1c22', hair: '#1c1c22', acc: 'tie' },
+    riviere:  { name: 'Me Rivière',    role: 'avocate de Sarah Benoît',            color: '#FFC64F', body: '#1c1c22', hair: '#7a2f2f', acc: 'tie' },
+    fabre:    { name: 'M. Fabre',      role: 'président du tribunal de commerce',  color: '#FF9D3D', body: '#1c1c22', hair: '#c9a24a', acc: 'clip' },
+    narr:     { name: 'Toi',           role: '',                                   color: '#FF9D3D' }
+  },
+
+  robes: {
+  /* =========================== ROBE A : SARAH BENOÎT =========================== */
+  a: {
+    label: 'L\'avocat de Sarah Benoît', sub: 'La créatrice, que son ancien employeur accuse de concurrence déloyale.',
+    teaser: `Tu as défendu Sarah. Passe de l'autre côté${N}: Bio&Vrac voit une ancienne cadre s'installer à 300 mètres avec deux de ses vendeuses, et son fondateur a très envie de riposter.`,
+    acts: [
+    { num: 1, title: 'Créer', sub: 'Sarah a trouvé un local. Il reste à choisir sous quelle forme se lancer.',
+      steps: [
+        { t: 'say', who: 'sarah', text: `Dix ans chez Bio&Vrac. J'ai démissionné, et je n'ai jamais signé de clause de non-concurrence. Je veux ouvrir ma propre épicerie en vrac, sous l'enseigne Le Bocal. Mon frère veut mettre 10${N}000${N}€ dans l'aventure, et deux vendeuses aimeraient me suivre. Par où je commence${N}?` },
+        { t: 'say', who: 'garnier', text: `Par la question qui compte le jour où tout va mal${N}: qui paie les dettes de l'épicerie${N}? Seule, en entreprise individuelle, tu es l'entreprise. En société, l'entreprise est une autre personne que toi.` },
+        { t: 'choice', id: 'forme', prompt: `Sous quelle forme Sarah se lance-t-elle${N}?`, options: [
+          { id: 'ei', label: 'Seule, en entreprise individuelle', desc: 'Simple, rapide, pas d\'associé.', fx: {}, set: { ei: true },
+            after: [{ who: 'garnier', text: `Simple, oui. Autrefois, l'entrepreneur individuel répondait des dettes de son entreprise sur tous ses biens, maison comprise. Depuis 2022, ses biens personnels sont séparés automatiquement de ses biens professionnels${N}: les créanciers de l'épicerie ne peuvent saisir que ce qui sert à l'épicerie.` }] },
+          { id: 'sarl', label: 'Une société avec son frère', desc: 'Il apporte 10 000 €, elle 15 000 €.', fx: { frais: 800, dossier: 3 }, set: { societe: true },
+            after: [{ who: 'garnier', text: `Deux associés qui mettent chacun quelque chose en commun pour en partager les bénéfices, et les pertes. Il faut vraiment vouloir travailler ensemble. En échange, chacun ne risque que ce qu'il a apporté${N}: la société a son propre patrimoine.` },
+                    { who: 'sarah', text: `Mon frère voulait juste «${N}placer de l'argent${N}». Quand je lui ai dit qu'il partagerait aussi les pertes, il a réfléchi. Il est d'accord.` }] },
+          { id: 'scop', label: 'Une coopérative avec ses deux vendeuses', desc: 'Les salariées sont aussi associées.', fx: { frais: 800, dossier: 5, conf: 5 }, set: { societe: true, scop: true },
+            after: [{ who: 'garnier', text: `Une société coopérative${N}: les salariés détiennent la majorité du capital et votent selon le principe «${N}une personne, une voix${N}», quel que soit l'argent apporté. Et une partie des bénéfices reste obligatoirement dans l'entreprise.` },
+                    { who: 'sarah', text: `Elles ne seront plus «${N}mes vendeuses${N}», on sera associées. Ça me plaît.` }] } ] }
+      ] },
+    { num: 2, title: 'Le contrat de franchise', sub: 'M. Valette, du réseau Le Bocal, apporte le contrat à signer.',
+      steps: [
+        { t: 'say', who: 'valette', text: `Le Bocal, c'est quarante épiceries en France. Vous avez l'enseigne, nos couleurs, notre savoir-faire et une formation. En échange${N}: 15${N}000${N}€ de droit d'entrée et 5${N}% de votre chiffre d'affaires chaque mois. Et vous achetez vos produits chez nous. Il faut signer cette semaine, le local intéresse un autre candidat.`, fx: {} },
+        { t: 'choice', id: 'dip', prompt: `Avant de signer${N}?`, options: [
+          { id: 'verifier', label: 'Exiger le document d\'information remis vingt jours avant la signature', desc: 'Les chiffres réels du réseau.', fx: { dossier: 5, mois: 1 }, set: { dip: true },
+            after: [{ who: 'garnier', text: `La loi impose au franchiseur de remettre ce document vingt jours avant la signature. On y lit que trois franchisés ont fermé l'an dernier, tous parce qu'un autre Bocal s'était ouvert trop près. Tu sais ce qu'il faut négocier.` }] },
+          { id: 'signer', label: 'Signer vite : le local risque de partir', desc: 'On lira plus tard.', fx: { conf: 3 },
+            after: [{ who: 'garnier', text: `Un contrat se lit avant, jamais après.` }] } ] },
+        { t: 'choice', id: 'clause', prompt: `Quelle clause négocier en priorité${N}?`, options: [
+          { id: 'zone', label: 'Une zone d\'exclusivité : pas d\'autre Bocal à moins de 2 km', desc: 'Se protéger de son propre réseau.', fx: { dossier: 5 }, set: { zone: true },
+            after: [{ who: 'valette', text: `Deux kilomètres… C'est d'accord.` }] },
+          { id: 'local', label: 'Pouvoir acheter 30 % des produits à des producteurs locaux', desc: 'Les lentilles de M. Lacombe, par exemple.', fx: { dossier: 5 }, set: { local: true },
+            after: [{ who: 'valette', text: `Trente pour cent, avec notre accord sur la qualité. Entendu.` }] },
+          { id: 'rien', label: 'Rien : le contrat est standard', desc: 'Inutile de compliquer.', fx: {},
+            after: [{ who: 'valette', text: `Parfait. Signez là.` }] } ] },
+        { t: 'choice', id: 'livraison', prompt: `Les livraisons à domicile${N}?`, options: [
+          { id: 'soustraitance', label: 'Les confier à une coopérative de coursiers, par contrat de prestation', desc: 'Ils s\'organisent comme ils l\'entendent.', fx: { dossier: 3 },
+            after: [{ who: 'garnier', text: `Un contrat d'entreprise${N}: les coursiers travaillent pour toi, mais sans être sous tes ordres. Si tu leur imposes des horaires et contrôles leur travail, ils deviendront tes salariés aux yeux du juge.` }] },
+          { id: 'salarie', label: 'Embaucher un livreur', desc: 'Mieux contrôler le service.', fx: { frais: 200 },
+            after: [{ who: 'garnier', text: `Plus de contrôle, plus de charges. C'est un choix de gestion.` }] } ] },
+        { t: 'choice', id: 'vendeuses', prompt: `Les deux vendeuses de Bio&Vrac qui veulent te suivre${N}?`, options: [
+          { id: 'embaucher', label: 'Les accueillir, sans rien leur demander d\'autre', desc: 'Elles ont démissionné, elles sont libres.', fx: { dossier: 2 },
+            after: [{ who: 'garnier', text: `Un salarié qui démissionne est libre d'aller travailler où il veut, sauf clause valable. Deux vendeuses sur vingt, ce n'est pas désorganiser Bio&Vrac.` }] },
+          { id: 'fichier', label: 'Leur demander d\'apporter la liste des fournisseurs de Bio&Vrac', desc: 'Ça ferait gagner des mois.', fx: { dossier: -15 }, set: { fichier: true },
+            after: [{ who: 'garnier', text: `Là, tu franchis la ligne. Recruter est libre${N}; récupérer les documents d'un concurrent par ses anciens salariés, c'est déloyal.` }] },
+          { id: 'refuser', label: 'Refuser de les embaucher', desc: 'Pour ne pas provoquer Bio&Vrac.', fx: { conf: -5 },
+            after: [{ who: 'sarah', text: `C'étaient les meilleures… Bon.` }] } ] },
+        { t: 'event', who: 'sarah', text: `${FLYER}Regardez le flyer que j'ai fait imprimer. Deux mille exemplaires, distribués ce matin dans le quartier. Il claque, non${N}?`, fx: { mois: 1 } },
+        { t: 'choice', id: 'flyer', prompt: `Le flyer${N}?`, options: [
+          { id: 'retirer', label: 'Le faire retirer tout de suite, et distribuer une version corrigée', desc: 'Sans la phrase sur les voisins.', fx: { dossier: 10, frais: 300, conf: -3 }, set: { retire: true },
+            after: [{ who: 'garnier', text: `«${N}Certains voisins${N}», dans une rue où il n'y a qu'une autre épicerie bio${N}: tout le monde a compris de qui elle parlait. Discréditer un concurrent identifiable, c'est fautif. Le retirer vite limite les dégâts.` }] },
+          { id: 'laisser', label: 'Le laisser : c\'est de bonne guerre', desc: 'Le commerce, c\'est la bagarre.', fx: { conf: 4 },
+            after: [{ who: 'garnier', text: `La concurrence est libre, à condition d'être loyale. Ce flyer, tu le retrouveras au tribunal.` }] } ] }
+      ] },
+    { num: 3, title: 'L\'attaque', sub: 'Six mois après l\'ouverture, une assignation arrive.',
+      steps: [
+        { t: 'event', who: 'kessler', text: `${GRIEFS}Ma cliente préfère éviter un procès. Retirez définitivement ce flyer et versez 3${N}000${N}€, et nous en restons là.`, fx: { mois: 4, conf: -4 } },
+        { t: 'say', who: 'garnier', text: `Trie les reproches. Ouvrir un commerce concurrent, même à côté, c'est la liberté du commerce. Embaucher des salariés qui ont démissionné, aussi, sauf s'ils emportent des secrets ou si l'on vide l'entreprise de son personnel. Les couleurs vert et kraft sont celles imposées par Le Bocal à toutes ses épiceries. Reste le flyer${N}: là, il y a une vraie faute. Pour gagner, Bio&Vrac doit prouver une faute, un préjudice, et le lien entre les deux.` },
+        { t: 'choice', id: 'offre', prompt: `La proposition de Bio&Vrac${N}?`, options: [
+          { id: 'accepter', label: 'Conseiller d\'accepter', desc: '3 000 € et c\'est fini.', do: s => { s.stop = 'accord'; },
+            after: [{ who: 'sarah', text: `3${N}000${N}€ pour une phrase de trop. La leçon est chère, mais je dormirai.` }] },
+          { id: 'contre', label: 'Proposer 1 000 € et un rectificatif publié', desc: 'Le flyer seul ne vaut pas plus.',
+            do: s => { if (s.dossier >= 50) s.stop = 'accordplus'; },
+            after: s => s.stop ? [{ who: 'kessler', text: `Mon client accepte. Il voulait surtout que la phrase disparaisse.` }] : [{ who: 'kessler', text: `1${N}000${N}€${N}? Avec ce dossier${N}? Nous plaiderons.` }] },
+          { id: 'refuser', label: 'Refuser : le tribunal tranchera', desc: 'Elle veut que la liberté du commerce soit reconnue.', fx: { conf: 3 },
+            after: [{ who: 'sarah', text: `Je ne vais pas payer pour avoir osé ouvrir une épicerie.` }] },
+          { id: 'signer', label: 'Accepter au nom de ta cliente, sans la consulter', desc: 'C\'est raisonnable.', fx: { conf: -60 },
+            after: [{ who: 'sarah', text: `Vous avez accepté pour moi${N}? Je change d'avocat.` }, { who: 'garnier', text: `L'avocat conseille, le client décide. Toujours.` }] } ] }
+      ] },
+    { num: 4, title: 'L\'audience', sub: 'Tribunal de commerce de Lyon.', final: true,
+      steps: [
+        { t: 'event', who: 'fabre', text: `Les juges de ce tribunal sont des commerçants et des chefs d'entreprise, élus par leurs pairs. Bio&Vrac réclame 40${N}000${N}€ pour concurrence déloyale. Maître, pour Mme Benoît.`, fx: { mois: 6, frais: 1000 } },
+        { t: 'plead', id: 'plaid', adv: 'kessler', prompt: `Que plaides-tu pour Sarah${N}?`, args: [
+          { id: 'a1', label: LAB.a1, desc: `Les 300 mètres`, pts: 2, ok: s => true,
+            yes: `Je reconnais que Mme Benoît n'était liée par aucune clause de non-concurrence. Elle pouvait s'installer où elle voulait.` },
+          { id: 'a2', label: LAB.a2, desc: `Les deux vendeuses`, pts: 1, ok: s => !s.flags.fichier,
+            yes: `Deux départs sur vingt salariés, sans documents emportés. Je n'insiste pas.`,
+            no: `Elles sont arrivées avec la liste des fournisseurs de Bio&Vrac. Ce n'est plus un recrutement, c'est un détournement.` },
+          { id: 'a3', label: LAB.a3, desc: `Le vert et le kraft`, pts: 1, ok: s => true,
+            yes: `Les quarante épiceries du réseau ont ces couleurs, c'est exact.` },
+          { id: 'a4', label: LAB.a4, desc: `« Certains voisins »`, pts: 0, ok: s => false,
+            no: `Dans cette rue, il n'y a qu'un seul «${N}voisin${N}» qui vend du bio${N}: Bio&Vrac. Tout le quartier l'a compris.` },
+          { id: 'a5', label: LAB.a5, desc: `Le rectificatif`, pts: 1, ok: s => s.flags.retire,
+            yes: `Je reconnais que le flyer a été retiré et corrigé dès le lendemain.`,
+            no: `Retiré${N}? Il circule encore. Nous en avons trouvé dans les boîtes aux lettres un mois plus tard.` },
+          { id: 'a6', label: LAB.a6, desc: `Le chiffre d'affaires`, pts: 0, ok: s => false,
+            no: `Quand un concurrent est dénigré, un préjudice en découle nécessairement, ne serait-ce qu'une atteinte à son image.` } ],
+          resolve: (s, score, ids) => {
+            if (s.flags.fichier) { s.montant = 25000;
+              return { do: s => { s.res = 'lourd'; }, fx: { conf: -20, frais: 25000 }, after: [{ who: 'fabre', text: `Le tribunal${N}: l'utilisation de la liste des fournisseurs de Bio&Vrac, apportée par ses anciennes salariées, et le dénigrement constituent des actes de concurrence déloyale. Mme Benoît${structure(s) ? ', ou plutôt ' + structure(s) + ',' : ''} versera ${eur(25000)}.` }] }; }
+            if (score >= 4) { s.montant = s.flags.retire ? 2000 : 4000;
+              return { do: s => { s.res = 'leger'; }, fx: { conf: 15, frais: s.montant }, after: [{ who: 'fabre', text: `Le tribunal${N}: s'installer près d'un concurrent, recruter ses anciens salariés, adopter les couleurs de son réseau${N}: rien de cela n'est fautif. Seul le flyer dénigre Bio&Vrac. ${structure(s) ? 'La ' + structure(s).split(' ')[1] : 'Mme Benoît'} versera ${eur(s.montant)}.` }] }; }
+            if (score >= 2) { s.montant = 10000;
+              return { do: s => { s.res = 'moyen'; }, fx: { conf: -5, frais: 10000 }, after: [{ who: 'fabre', text: `Le tribunal${N}: le dénigrement est établi, et la défense n'a pas convaincu sur le reste. ${eur(10000)} de dommages et intérêts.` }] }; }
+            s.montant = 25000;
+            return { do: s => { s.res = 'lourd'; }, fx: { conf: -20, frais: 25000 }, after: [{ who: 'fabre', text: `Le tribunal${N}: faute de défense convaincante, la concurrence déloyale est retenue. ${eur(25000)}.` }] };
+          } },
+        { t: 'say', who: 'sarah', text: s => s.res === 'leger' ? `On m'a reproché une phrase, pas mon épicerie. C'est tout ce que je voulais entendre.` : s.res === 'moyen' ? `C'est cher payé pour une phrase.` : structure(s) ? `${eur(25000)}… C'est ${structure(s)} qui paie. Mon appartement, lui, n'est pas touché.` : `${eur(25000)}… L'épicerie va devoir fermer. Mais mon appartement n'est pas dans le patrimoine de l'épicerie${N}: au moins, je ne perds pas tout.` }
+      ] }
+    ],
+    endings: [
+      { id: 'congedie', cut: true, when: s => s.conf <= 15, title: 'Dessaisi', stamp: 'Cliente partie', color: '#FF5C6A',
+        text: `Sarah a repris son dossier. L'avocat conseille, le client décide${N}: tu as inversé les rôles.` },
+      { id: 'accord', when: s => s.stop === 'accord', title: 'L\'accord', stamp: 'Transaction', color: '#5FB8B0',
+        text: `3${N}000${N}€ pour une phrase de trop, et l'affaire est close. Sarah garde son épicerie, sa clientèle et ses vendeuses.` },
+      { id: 'accordplus', when: s => s.stop === 'accordplus', title: 'Le bon accord', stamp: 'Transaction gagnante', color: '#4CD97B',
+        text: `Un rectificatif et 1${N}000${N}€${N}: Bio&Vrac a compris que le reste de ses reproches ne tiendrait pas. Le meilleur procès est parfois celui qui n'a pas lieu.` },
+      { id: 'leger', when: s => s.res === 'leger', title: 'La concurrence n\'est pas une faute', stamp: 'Bravo', color: '#4CD97B',
+        text: s => `Le tribunal a reconnu à Sarah la liberté de s'installer, de recruter et d'afficher les couleurs de son réseau. Seul le flyer lui coûte ${eur(s.montant)}.` },
+      { id: 'moyen', when: s => s.res === 'moyen', title: 'Condamnation partielle', stamp: 'Demi-victoire', color: '#FFC64F',
+        text: `Le dénigrement est sanctionné plus lourdement que prévu. Une défense mieux ciblée aurait réduit la note.` },
+      { id: 'lourd', when: s => true, title: 'Concurrence déloyale', stamp: 'Condamnée', color: '#FF5C6A',
+        text: s => structure(s) ? `${eur(25000)} de dommages et intérêts. C'est ${structure(s)} qui doit payer${N}: les associés ne perdent que ce qu'ils ont apporté, et le patrimoine personnel de Sarah reste hors d'atteinte.` : `${eur(25000)} de dommages et intérêts. L'épicerie ne s'en remet pas. Depuis 2022, les créanciers de l'entreprise individuelle ne peuvent saisir que ses biens professionnels${N}: Sarah perd son commerce, pas son appartement.` }
+    ],
+    debrief: [
+      { act: 1, needs: ['forme'], title: 'Acte 1 — Créer', text: (h, s) =>
+          `${h.forme === 'ei' ? 'Tu as choisi l\'<em>entreprise individuelle</em>.' : h.forme === 'scop' ? 'Tu as choisi une <em>société coopérative</em> (SCOP).' : 'Tu as choisi une <em>société commerciale</em>.'} L\'entreprise individuelle reposait sur le principe d\'<em>unicité du patrimoine</em> : une personne n\'a qu\'un patrimoine, et ses créanciers professionnels pouvaient saisir tous ses biens. Pour protéger l\'entrepreneur, la loi a créé la <em>déclaration d\'insaisissabilité</em> (rendre certains biens immobiliers insaisissables ; la résidence principale l\'est devenue automatiquement en 2015), puis le <em>patrimoine d\'affectation</em> (l\'EIRL, qui permettait d\'affecter certains biens à l\'activité). Depuis 2022, la séparation entre biens personnels et professionnels est automatique. La société repose sur un <em>contrat de société</em> : des associés font des <em>apports</em> (argent, biens, travail), animés par l\'<em>affectio societatis</em>, la volonté de collaborer, pour partager bénéfices et pertes. Dans une SARL ou une SAS, la <em>responsabilité est limitée aux apports</em>. Dans une <em>SCOP</em>, les salariés sont associés majoritaires et votent selon « une personne, une voix ».` },
+      { act: 2, needs: ['dip', 'clause', 'livraison', 'vendeuses', 'flyer'], title: 'Acte 2 — Le contrat de franchise', text: (h, s) =>
+          `Par le <em>contrat de franchise</em>, un franchiseur met à disposition sa marque, son savoir-faire et son assistance ; le franchisé, commerçant indépendant, paie un droit d\'entrée et des redevances, et respecte les normes du réseau. ${h.dip === 'verifier' ? 'Le document d\'information précontractuelle t\'a révélé les fermetures du réseau.' : 'Sans lire le document d\'information, tu as signé à l\'aveugle.'} Le <em>contrat d\'entreprise</em>, ou <em>sous-traitance</em>, confie une tâche à un prestataire indépendant, sans lien de subordination. Ce sont des <em>partenariats contractuels</em> : chacun reste juridiquement indépendant. ${h.vendeuses === 'fichier' ? 'En faisant apporter la liste des fournisseurs, tu as commis un acte de concurrence déloyale.' : 'Recruter des salariés démissionnaires n\'était pas fautif.'}` },
+      { act: 3, needs: ['offre'], title: 'Acte 3 — L\'attaque', text: (h, s) =>
+          `La <em>liberté du commerce et de l\'industrie</em> permet à chacun d\'entreprendre et de concurrencer. Mais la concurrence doit rester loyale : la <em>concurrence déloyale</em> regroupe le dénigrement (discréditer un concurrent identifiable), la confusion (imiter pour être pris pour lui), la désorganisation (débaucher massivement, détourner des documents) et le parasitisme (profiter des efforts d\'autrui). L\'<em>action en concurrence déloyale</em> repose sur la responsabilité civile : il faut une <em>faute</em>, un <em>préjudice</em> et un lien de causalité.` },
+      { act: 4, needs: ['plaid'], finalOnly: true, title: 'Acte 4 — L\'audience', text: (h, s) =>
+          `Le tribunal de commerce juge les litiges entre commerçants, avec des juges élus parmi eux. La concurrence déloyale n\'est qu\'une des règles du jeu. Le droit encadre aussi les <em>pratiques restrictives de concurrence</em> entre partenaires commerciaux, comme la <em>rupture brutale d\'une relation commerciale établie</em> ou la <em>revente à perte</em>, et les <em>pratiques anticoncurrentielles</em> (ententes sur les prix, abus de position dominante), sanctionnées par l\'Autorité de la concurrence.` }
+    ]
+  },
+
+  /* =========================== ROBE B : BIO&VRAC =========================== */
+  b: {
+    label: 'L\'avocat de Bio&Vrac', sub: 'L\'enseigne installée, qui voit son ancienne cadre ouvrir à 300 mètres.',
+    teaser: `Tu as défendu Bio&Vrac. Passe de l'autre côté${N}: Sarah a tout misé sur son épicerie, et son ancien employeur veut la faire fermer.`,
+    acts: [
+    { num: 1, title: 'Les faits', sub: 'M. Castagne, fondateur de Bio&Vrac, est dans ton bureau.',
+      steps: [
+        { t: 'say', who: 'castagne', text: `Dix ans que je lui fais confiance. Elle démissionne, ouvre à 300 mètres, embarque deux de mes vendeuses, prend les mêmes couleurs que nous, et distribue ça dans tout le quartier. Je veux qu'elle ferme.${FLYER}` },
+        { t: 'say', who: 'garnier', text: `Comprends ce que veut ton client, puis ce que permet le droit. Ouvrir un commerce concurrent est une liberté. Pour obtenir quoi que ce soit, il faudra prouver une faute, un préjudice, et le lien entre les deux.` },
+        { t: 'choice', id: 'analyse', prompt: `Que reproches-tu à Sarah${N}?`, options: [
+          { id: 'tout', label: 'Tout : l\'installation, les vendeuses, les couleurs, le flyer', desc: 'Ce que veut M. Castagne.', fx: { conf: 6, dossier: -5 },
+            after: [{ who: 'garnier', text: `Quatre reproches, dont trois fragiles. Les faibles risquent d'affaiblir le seul qui tient.` }] },
+          { id: 'cible', label: 'Concentrer l\'attaque sur le flyer', desc: 'Le seul vrai dénigrement.', fx: { conf: -5, dossier: 10 }, set: { cible: true },
+            after: [{ who: 'castagne', text: `Seulement le flyer${N}? Et le reste${N}? Bon… si vous pensez que c'est ce qui tient.` }] } ] },
+        { t: 'choice', id: 'constat', prompt: `Le flyer${N}?`, options: [
+          { id: 'constat', label: 'Faire constater sa distribution par un commissaire de justice', desc: '300 €.', fx: { dossier: 10, frais: 300 }, set: { constatF: true },
+            after: [{ who: 'garnier', text: `Flyers dans les boîtes aux lettres, sur le comptoir, et trois clients qui ont demandé à tes vendeurs si leurs produits étaient «${N}vraiment bio${N}». Tout est consigné.` }] },
+          { id: 'non', label: 'Inutile : tout le quartier l\'a vu', desc: 'C\'est notoire.', fx: {},
+            after: [{ who: 'garnier', text: `Notoire n'est pas prouvé.` }] } ] },
+        { t: 'choice', id: 'compta', prompt: `Le préjudice de Bio&Vrac${N}?`, options: [
+          { id: 'compta', label: 'Comparer le chiffre d\'affaires avant et après l\'ouverture', desc: 'Chiffres à l\'appui.', fx: { dossier: 8 }, set: { compta: true },
+            after: [{ who: 'garnier', text: `Moins 6${N}% le mois de la distribution du flyer, puis ça remonte. Ce n'est pas une catastrophe, mais c'est réel.` }] },
+          { id: 'non', label: 'Pas besoin : la perte est évidente', desc: 'Une concurrente à 300 mètres !', fx: {},
+            after: [{ who: 'garnier', text: `Évidente pour M. Castagne. À prouver pour le tribunal.` }] } ] },
+        { t: 'choice', id: 'vendeuses', prompt: `Les deux vendeuses parties chez Sarah${N}?`, options: [
+          { id: 'verifier', label: 'Vérifier si elles ont emporté des documents', desc: 'Accès informatiques, dossiers.', fx: { dossier: 3 },
+            after: [{ who: 'garnier', text: `Rien. Elles sont parties avec leurs affaires, sans un fichier. Deux départs sur vingt salariés${N}: ce n'est pas une désorganisation.` }] },
+          { id: 'accuser', label: 'Les accuser d\'avoir emporté la liste des fournisseurs', desc: 'Ça renforcera le dossier.', fx: { dossier: -8 }, set: { accuse: true },
+            after: [{ who: 'garnier', text: `Sans la moindre preuve${N}? C'est le meilleur moyen de perdre ta crédibilité devant le tribunal.` }] } ] }
+      ] },
+    { num: 2, title: 'Les tentations', sub: 'M. Castagne a des idées pour riposter.',
+      steps: [
+        { t: 'say', who: 'castagne', text: `Le procès, c'est long. J'ai trois idées pour l'étrangler plus vite. Dites-moi lesquelles on peut faire.` },
+        { t: 'choice', id: 'prix', prompt: `«${N}On vend les lentilles et le riz moins cher qu'on ne les achète, pendant trois mois.${N}»`, options: [
+          { id: 'perte', label: 'D\'accord', desc: 'On perd un peu, elle perd tout.', fx: { conf: 6, dossier: -10 }, set: { revente: true },
+            after: [{ who: 'garnier', text: `Revendre un produit en l'état en dessous de son prix d'achat est interdit, et puni d'une lourde amende. Et Sarah en entendra parler.` }] },
+          { id: 'promo', label: 'Une promotion, mais toujours au-dessus du prix d\'achat', desc: 'Agressive, mais permise.', fx: { dossier: 3 },
+            after: [{ who: 'garnier', text: `Baisser ses prix, même fortement, c'est jouer le jeu de la concurrence. Tant qu'on ne vend pas à perte.` }] },
+          { id: 'rien', label: 'Ne pas toucher aux prix', desc: 'Miser sur la qualité.', fx: {},
+            after: [{ who: 'castagne', text: `Hmm. Soit.` }] } ] },
+        { t: 'choice', id: 'producteur', prompt: `«${N}M. Lacombe, mon producteur de lentilles depuis huit ans, livre aussi Sarah. Je lui dis${N}: c'est elle ou moi.${N}»`, options: [
+          { id: 'menacer', label: 'D\'accord', desc: 'Et s\'il refuse, on arrête ses commandes lundi.', fx: { dossier: -10 }, set: { rupture: true },
+            after: [{ who: 'lacombe', text: `Je livre qui je veux. Vous coupez huit ans de commandes du jour au lendemain${N}? Je vais voir un avocat.` },
+                    { who: 'garnier', text: `Mettre fin brutalement, sans préavis écrit, à une relation commerciale établie depuis huit ans engage la responsabilité de celui qui rompt. M. Lacombe obtiendra réparation.` }] },
+          { id: 'laisser', label: 'Non : M. Lacombe livre qui il veut', desc: 'Garder un bon fournisseur.', fx: { dossier: 3 },
+            after: [{ who: 'lacombe', text: `Merci. Huit ans, ça se respecte.` }] } ] },
+        { t: 'choice', id: 'entente', prompt: `«${N}Vrac'Up, l'autre chaîne du coin, propose qu'on aligne nos prix pour lui couper l'herbe sous le pied.${N}»`, options: [
+          { id: 'accepter', label: 'D\'accord', desc: 'À deux, on est plus forts.', fx: { dossier: -10 }, set: { entente: true },
+            after: [{ who: 'garnier', text: `Deux concurrents qui s'entendent sur leurs prix, c'est une entente illicite. L'Autorité de la concurrence peut infliger une amende allant jusqu'à 10${N}% du chiffre d'affaires mondial.` }] },
+          { id: 'refuser', label: 'Refuser', desc: 'Chacun ses prix.', fx: { dossier: 3 },
+            after: [{ who: 'castagne', text: `Vous êtes bien sage. Mais d'accord.` }] } ] }
+      ] },
+    { num: 3, title: 'La négociation', sub: 'L\'avocate de Sarah a écrit.',
+      steps: [
+        { t: 'event', who: 'riviere', text: `Ma cliente reconnaît que la phrase de son flyer était maladroite. Elle propose de la retirer définitivement, de publier un rectificatif et de verser 2${N}000${N}€. Pour le reste, elle n'a fait qu'user de sa liberté d'entreprendre.`, fx: { mois: 4, conf: -4 } },
+        { t: 'choice', id: 'offreB', prompt: `La proposition de Sarah${N}?`, options: [
+          { id: 'accepter', label: 'Conseiller d\'accepter', desc: 'Le flyer disparaît, 2 000 € encaissés.', do: s => { s.stop = 'accord'; },
+            after: [{ who: 'castagne', text: `Elle reste ouverte… mais elle a reconnu sa faute. Soit.` }] },
+          { id: 'contre', label: 'Exiger 5 000 €', desc: 'Le flyer a coûté des clients.',
+            do: s => { if (s.dossier >= 50) s.stop = 'accordplus'; },
+            after: s => s.stop ? [{ who: 'riviere', text: `Ma cliente a vu votre constat et vos chiffres. Elle accepte 5${N}000${N}€.` }] : [{ who: 'riviere', text: `5${N}000${N}€${N}? Sur quelles preuves${N}? Nous plaiderons.` }] },
+          { id: 'refuser', label: 'Refuser : il veut qu\'elle ferme', desc: 'Au tribunal.', fx: { conf: 5 },
+            after: [{ who: 'castagne', text: `Je ne veux pas de son argent. Je veux qu'elle parte.` }] },
+          { id: 'signer', label: 'Accepter au nom de ton client, sans le consulter', desc: 'C\'est raisonnable.', fx: { conf: -60 },
+            after: [{ who: 'castagne', text: `Vous avez accepté sans moi${N}? Je reprends mon dossier.` }, { who: 'garnier', text: `L'avocat conseille, le client décide. Toujours.` }] } ] }
+      ] },
+    { num: 4, title: 'L\'audience', sub: 'Tribunal de commerce de Lyon.', final: true,
+      steps: [
+        { t: 'event', who: 'fabre', text: `Les juges de ce tribunal sont des commerçants et des chefs d'entreprise, élus par leurs pairs. Maître, pour Bio&Vrac, vous avez la parole.`, fx: { mois: 6, frais: 1000 } },
+        { t: 'plead', id: 'plaid', adv: 'riviere', prompt: `Que plaides-tu pour Bio&Vrac${N}?`, args: [
+          { id: 'b1', label: LAB.b1, desc: `Les 300 mètres`, pts: 0, ok: s => false,
+            no: `Ma cliente n'avait signé aucune clause de non-concurrence. Le commerce est libre${N}: s'installer près d'un concurrent n'a jamais été une faute.` },
+          { id: 'b2', label: LAB.b2, desc: `« Certains voisins »`, pts: 2, ok: s => s.flags.constatF,
+            yes: `Ma cliente reconnaît la maladresse de cette phrase.`,
+            no: `Quel flyer${N}? Diffusé où, à combien d'exemplaires${N}? Rien au dossier ne le prouve.` },
+          { id: 'b3', label: LAB.b3, desc: `Moins 6 %`, pts: 1, ok: s => s.flags.compta,
+            yes: `Une baisse de 6${N}% sur un mois, qui s'est résorbée. Je laisse le tribunal apprécier.`,
+            no: `Une baisse${N}? Aucun chiffre n'est produit.` },
+          { id: 'b4', label: LAB.b4, desc: `Les deux départs`, pts: 0, ok: s => false,
+            no: s => s.flags.accuse ? `On accuse ces vendeuses d'avoir emporté des fichiers sans la moindre preuve. Deux salariées sur vingt, qui ont démissionné librement.` : `Deux salariées sur vingt, qui ont démissionné librement, sans emporter un document. Bio&Vrac n'a pas été désorganisée.` },
+          { id: 'b5', label: LAB.b5, desc: `Le vert et le kraft`, pts: 0, ok: s => false,
+            no: `Ce sont les couleurs imposées par le réseau Le Bocal à ses quarante épiceries. Ma cliente n'a rien imité.` },
+          { id: 'b6', label: LAB.b6, desc: `L'image de l'enseigne`, pts: 1, ok: s => true,
+            yes: `Je ne conteste pas qu'un dénigrement cause un préjudice d'image. J'en conteste le montant.` } ],
+          resolve: (s, score, ids) => {
+            const fautes = [s.flags.revente && 'la revente à perte', s.flags.rupture && 'la rupture brutale avec M. Lacombe', s.flags.entente && 'l\'entente avec Vrac\'Up'].filter(Boolean);
+            if (fautes.length) return { do: s => { s.res = 'arroseur'; }, fx: { conf: -25, frais: 15000 }, after: [{ who: 'riviere', text: `Et pendant qu'il accuse ma cliente de déloyauté, Bio&Vrac s'est rendue coupable de ${fautes.join(', de ')}. Nous avons saisi qui de droit.` },
+              { who: 'fabre', text: `Le tribunal${N}: le flyer de Mme Benoît est fautif, elle versera 2${N}000${N}€. Mais Bio&Vrac devra répondre de ses propres pratiques${N}: ${fautes.join(', ')}. Le coût pour elle dépasse largement ce qu'elle obtient.` }] };
+            if (score >= 4) return { do: s => { s.res = 'gain'; s.montant = 8000; }, fx: { conf: 15 }, after: [{ who: 'fabre', text: `Le tribunal${N}: le flyer dénigre Bio&Vrac, seul magasin bio du quartier, et lui a causé un préjudice démontré. Mme Benoît versera ${eur(8000)} et retirera définitivement le flyer. Le surplus des demandes est rejeté.` }] };
+            if (score >= 2) return { do: s => { s.res = 'partiel'; s.montant = 3000; }, fx: { conf: 0 }, after: [{ who: 'fabre', text: `Le tribunal${N}: le dénigrement est établi, mais le préjudice est mal démontré. ${eur(3000)}. Le surplus des demandes est rejeté.` }] };
+            return { do: s => { s.res = 'perdu'; }, fx: { conf: -20, frais: 2000 }, after: [{ who: 'fabre', text: `Le tribunal${N}: Bio&Vrac ne prouve aucune faute. Mme Benoît a usé de sa liberté d'entreprendre. Bio&Vrac est déboutée et versera 2${N}000${N}€ pour les frais de procédure.` }] };
+          } },
+        { t: 'say', who: 'castagne', text: s => s.res === 'gain' ? `Elle reste ouverte, mais elle paie, et le flyer disparaît. Je m'en contenterai.` : s.res === 'arroseur' ? `J'ai voulu la faire tomber, et c'est moi qu'on poursuit.` : s.res === 'partiel' ? `3${N}000${N}€. Elle me les aurait presque proposés à l'amiable.` : `Débouté. Et c'est moi qui paie ses frais.` }
+      ] }
+    ],
+    endings: [
+      { id: 'congedie', cut: true, when: s => s.conf <= 15, title: 'Dessaisi', stamp: 'Client parti', color: '#FF5C6A',
+        text: `M. Castagne a repris son dossier. L'avocat conseille, le client décide${N}: tu as inversé les rôles.` },
+      { id: 'accord', when: s => s.stop === 'accord', title: 'L\'accord', stamp: 'Transaction', color: '#5FB8B0',
+        text: `Le flyer disparaît, un rectificatif est publié, et 2${N}000${N}€ sont versés. Sarah reste ouverte${N}: c'était son droit depuis le début.` },
+      { id: 'accordplus', when: s => s.stop === 'accordplus', title: 'Le bon accord', stamp: 'Transaction gagnante', color: '#4CD97B',
+        text: `Constat et chiffres à l'appui, tu as obtenu 5${N}000${N}€ sans plaider. Tu as négocié sur ce qui était prouvé, pas sur la colère de ton client.` },
+      { id: 'arroseur', when: s => s.res === 'arroseur', title: 'L\'arroseur arrosé', stamp: 'Pratiques illicites', color: '#FF5C6A',
+        text: `Bio&Vrac accusait Sarah de déloyauté. Ses propres ripostes, vente à perte, rupture brutale ou entente, lui coûtent bien plus que le flyer ne lui a fait perdre.` },
+      { id: 'gain', when: s => s.res === 'gain', title: 'Le dénigrement sanctionné', stamp: 'Bravo', color: '#4CD97B',
+        text: `Tu as renoncé aux mauvais griefs et prouvé le seul vrai. Sarah est condamnée pour son flyer, et Bio&Vrac obtient ce que le droit lui permettait d'obtenir${N}: réparation, pas la fermeture de sa concurrente.` },
+      { id: 'partiel', when: s => s.res === 'partiel', title: 'Gain partiel', stamp: 'Demi-victoire', color: '#FFC64F',
+        text: `Le dénigrement est reconnu, mais faute de chiffres, le préjudice est jugé modeste.` },
+      { id: 'perdu', when: s => true, title: 'Débouté', stamp: 'Action rejetée', color: '#FF5C6A',
+        text: `Sans preuve du flyer, il ne restait que des reproches contre la liberté du commerce. Bio&Vrac paie les frais de sa concurrente.` }
+    ],
+    debrief: [
+      { act: 1, needs: ['analyse', 'constat', 'compta', 'vendeuses'], title: 'Acte 1 — Les faits', text: (h, s) =>
+          `La <em>liberté du commerce et de l\'industrie</em> permet à chacun d\'ouvrir un commerce, même juste à côté d\'un concurrent. Elle n\'est limitée que par la <em>loyauté de la concurrence</em>. La <em>concurrence déloyale</em> recouvre le dénigrement, la confusion, la désorganisation et le parasitisme. L\'<em>action en concurrence déloyale</em> exige une <em>faute</em>, un <em>préjudice</em> et un lien entre les deux. ${h.analyse === 'cible' ? 'En concentrant l\'attaque sur le flyer, tu as visé la seule faute réelle.' : 'En attaquant tout, tu as mêlé une faute réelle à des reproches que le droit ne sanctionne pas.'}` },
+      { act: 2, needs: ['prix', 'producteur', 'entente'], title: 'Acte 2 — Les tentations', text: (h, s) =>
+          `Le droit encadre aussi la façon dont les entreprises se défendent. Les <em>pratiques restrictives de concurrence</em> concernent les relations entre partenaires commerciaux : la <em>rupture brutale d\'une relation commerciale établie</em> sans préavis suffisant ${h.producteur === 'menacer' ? '(ce que tu as fait à M. Lacombe)' : ''} engage la responsabilité de son auteur. La <em>revente à perte</em>, revendre un produit sous son prix d\'achat, est interdite et punie d\'une amende. Les <em>pratiques anticoncurrentielles</em>, comme une entente sur les prix entre concurrents ${h.entente === 'accepter' ? '(celle que tu as acceptée)' : ''} ou un abus de position dominante, sont sanctionnées par l\'Autorité de la concurrence.` },
+      { act: 3, needs: ['offreB'], title: 'Acte 3 — La négociation', text: (h, s) =>
+          `En face, Sarah était une créatrice d\'entreprise, liée au réseau Le Bocal par un <em>contrat de franchise</em> : elle utilise sa marque, son savoir-faire et ses couleurs contre un droit d\'entrée et des redevances, tout en restant indépendante. C\'est pourquoi la ressemblance des couleurs n\'était pas une imitation de Bio&Vrac. La franchise et la <em>sous-traitance</em> (contrat d\'entreprise) sont des <em>partenariats contractuels</em>.` },
+      { act: 4, needs: ['plaid'], finalOnly: true, title: 'Acte 4 — L\'audience', text: (h, s) =>
+          `Selon sa structure, Sarah ne risquait pas la même chose. Une <em>société commerciale</em> naît d\'un <em>contrat de société</em> : des associés font des <em>apports</em> et partagent bénéfices et pertes, animés par l\'<em>affectio societatis</em> ; dans une SARL ou une SAS, leur <em>responsabilité est limitée aux apports</em>. La <em>SCOP</em> est une société dont les salariés sont associés majoritaires. L\'<em>entreprise individuelle</em> reposait sur l\'<em>unicité du patrimoine</em>, corrigée par la <em>déclaration d\'insaisissabilité</em> et le <em>patrimoine d\'affectation</em> ; depuis 2022, le patrimoine personnel de l\'entrepreneur est séparé automatiquement de son patrimoine professionnel.` }
+    ]
+  }
+  },
+
+  /* ------------------------------ DÉBRIEF CROISÉ (les deux robes jouées) ------------------------------ */
+  croise: (Ha, Hb) => {
+    const liste = ids => (ids || []).map(i => `<li>${LAB[i]}</li>`).join('');
+    return `<div class="deb"><h3>Ce que tu as plaidé</h3><div class="two"><div><b>Pour Sarah</b><ul>${liste(Ha.plaid) || '<li>Affaire réglée avant l\'audience</li>'}</ul></div><div><b>Pour Bio&amp;Vrac</b><ul>${liste(Hb.plaid) || '<li>Affaire réglée avant l\'audience</li>'}</ul></div></div>
+      <p>Sur quatre reproches, un seul était juridiquement solide : le flyer. Côté Sarah, la bonne défense consistait à défendre la liberté du commerce sur les trois autres, et à limiter les dégâts sur le quatrième. Côté Bio&amp;Vrac, la bonne attaque consistait à renoncer aux trois premiers et à prouver le dernier. Et chaque camp avait sa tentation : pour Sarah, emporter la liste des fournisseurs ; pour Bio&amp;Vrac, riposter par des pratiques interdites. Dans les deux cas, celui qui cède transforme un petit litige en grosse condamnation.</p>
+      <p>Dans la réalité, un même avocat ne peut jamais défendre les deux parties d\'une affaire : ce serait un <em>conflit d\'intérêts</em>.</p></div>`;
+  },
+  vocab: ['Liberté du commerce et de l\'industrie', 'Loyauté de la concurrence', 'Concurrence déloyale', 'Action en concurrence déloyale', 'Faute et préjudice', 'Pratiques restrictives de concurrence', 'Rupture de relation commerciale établie', 'Revente à perte', 'Pratiques anticoncurrentielles', 'Entreprise individuelle', 'Unicité du patrimoine', 'Déclaration d\'insaisissabilité', 'Patrimoine d\'affectation', 'Contrat de société', 'Affectio societatis', 'Apport', 'Responsabilité limitée aux apports', 'SCOP', 'Contrat d\'entreprise (sous-traitance)', 'Contrat de franchise']
+};
+GAME.acts = GAME.robes.a.acts; GAME.endings = GAME.robes.a.endings; GAME.debrief = GAME.robes.a.debrief;
+let H = {};   // historique des choix (lu par le débrief)
+
+/* =====================================================================
+   2. DÉCOR — la rue commerçante : Bio&Vrac à gauche, Le Bocal à droite ; puis le tribunal de commerce.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  if (act.final) return `<svg viewBox="0 0 360 200" role="img" aria-label="Le tribunal de commerce">
+    <rect width="360" height="200" fill="#0b0805"/><rect x="0" y="0" width="360" height="162" fill="#120e09"/>
+    <g fill="none" stroke="#3a2a14" stroke-width="1.5"><rect x="130" y="20" width="24" height="142"/><rect x="306" y="20" width="24" height="142"/></g>
+    <g transform="translate(230,34)" stroke="${DROIT}" stroke-width="2" fill="none"><line x1="0" y1="0" x2="0" y2="42"/><line x1="-30" y1="8" x2="30" y2="8"/><path d="M-30,8 L-40,30 L-20,30 Z"/><path d="M30,8 L20,30 L40,30 Z"/><line x1="-12" y1="42" x2="12" y2="42"/></g>
+    <rect x="160" y="104" width="140" height="58" fill="#17110a" stroke="${DROIT}" stroke-width="1.5"/><rect x="152" y="98" width="156" height="8" fill="${DROIT}" opacity=".7"/>
+    <text x="230" y="138" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="8.5" fill="#9a8e7c">TRIBUNAL DE COMMERCE</text>
+    <rect x="0" y="162" width="360" height="38" fill="#0d0a06"/><line x1="0" y1="162" x2="360" y2="162" stroke="#3a2a14" stroke-width="1.5"/>`;
+  const ouvert = act.num >= 2 || S.robe === 'b';
+  const shop = (x, nom, col, on) => `<g transform="translate(${x},40)"><rect x="0" y="0" width="96" height="122" fill="#17110a" stroke="${on ? col : '#3a2a14'}" stroke-width="1.5"/>
+    <rect x="6" y="8" width="84" height="18" fill="#110c07" stroke="${on ? col : '#3a2a14'}"/><text x="48" y="21" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="8" fill="${on ? col : '#5a4526'}">${nom}</text>
+    <rect x="10" y="38" width="76" height="46" fill="${on ? col : '#110c07'}" opacity="${on ? '.15' : '1'}" stroke="${on ? col : '#3a2a14'}"/>
+    ${on ? `<g fill="${col}" opacity=".6"><rect x="16" y="66" width="10" height="14" rx="2"/><rect x="30" y="62" width="10" height="18" rx="2"/><rect x="44" y="66" width="10" height="14" rx="2"/><rect x="58" y="60" width="10" height="20" rx="2"/><rect x="72" y="66" width="10" height="14" rx="2"/></g>` : ''}
+    <rect x="34" y="92" width="28" height="30" fill="#110c07" stroke="${on ? col : '#3a2a14'}"/></g>`;
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="La rue : Bio&amp;Vrac et Le Bocal, à 300 mètres l'un de l'autre">
+    <rect width="360" height="200" fill="#0b0805"/><rect x="0" y="0" width="360" height="162" fill="#120e09"/>
+    ${shop(132, 'BIO&amp;VRAC', '#5B8FFF', true)}${shop(256, 'LE BOCAL', '#4CD97B', ouvert)}
+    <text x="244" y="34" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="#9a8e7c">← 300 m →</text>
+    <rect x="0" y="162" width="360" height="38" fill="#0d0a06"/><line x1="0" y1="162" x2="360" y2="162" stroke="#3a2a14" stroke-width="1.5"/>`;
+};
+
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, tag: l.tag, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  let robe = null;
+  function startGame(r) {
+    if (typeof r === 'string') robe = r;
+    const R = GAME.robes[robe];
+    GAME.acts = R.acts; GAME.endings = R.endings; GAME.debrief = R.debrief;
+    S = { flags: {}, robe }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      frame(st.who, `<div class="box">${whoTag(st.who)}${st.tag ? `<span class="verdict ${st.tag}">${st.tag === 'tient' ? 'Ton argument tient' : 'Ton argument tombe'}</span>` : ''}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'plead') {
+      lastDeltas = [];
+      let pick = [];
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="plead-h">Choisis tes trois arguments.</p><div class="opts">${st.args.map((a, i) => `<button class="opt arg" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${a.label}</span><span class="arg-n"></span></div><div class="opt-d">${val(a.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go" disabled>Plaider ▸</button></div></div>`);
+      const go = document.getElementById('go');
+      app.querySelectorAll('.arg').forEach(b => b.onclick = () => {
+        const i = +b.dataset.i;
+        pick = pick.includes(i) ? pick.filter(x => x !== i) : pick.length < 3 ? pick.concat(i) : pick;
+        app.querySelectorAll('.arg').forEach(x => { const k = pick.indexOf(+x.dataset.i); x.setAttribute('aria-pressed', k >= 0); x.querySelector('.arg-n').textContent = k >= 0 ? k + 1 : ''; });
+        go.disabled = pick.length !== 3;
+      });
+      go.onclick = () => {
+        const chosen = pick.map(i => st.args[i]);
+        H[st.id] = chosen.map(a => a.id);
+        let score = 0;
+        const lines = [];
+        chosen.forEach(a => {
+          const ok = a.ok(S); score += ok ? a.pts : 0;
+          lines.push({ who: 'narr', text: `«${N}${a.plaid || a.label}${N}»` });
+          lines.push({ who: st.adv, text: val(ok ? a.yes : a.no, S), tag: ok ? 'tient' : 'tombe' });
+        });
+        H[st.id + 'Score'] = score;
+        const res = st.resolve(S, score, chosen.map(a => a.id));
+        if (res.do) res.do(S);
+        const verdict = (res.after || []).slice();
+        if (verdict.length) verdict[0] = { t: 'event', who: verdict[0].who, text: verdict[0].text, fx: res.fx };   // les jauges bougent quand le juge parle
+        else applyFx(res.fx);
+        pushAfter(lines.concat(verdict)); next();
+      };
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="${st.step || 1}" value="${st.def}" aria-label="${st.prompt}">
+        <div class="range-l"><span>${st.show(st.min)}</span><span>${st.show(st.max)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(robe + ':' + e.id);
+    try { localStorage.setItem(GAME.storeKey + '_' + robe, JSON.stringify(H)); } catch (err) {}
+    const autre = robe === 'a' ? 'b' : 'a';
+    let Hautre = null; try { Hautre = JSON.parse(localStorage.getItem(GAME.storeKey + '_' + autre) || 'null'); } catch (err) {}
+    const croise = Hautre && GAME.croise ? GAME.croise(robe === 'a' ? H : Hautre, robe === 'a' ? Hautre : H) : '';
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">Tu as appliqué ces règles sans les nommer. Voici comment on les appelle en droit.</p>${deb}` : ''}
+      ${forced && e.cut ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour aller jusqu'au jugement.</p>` : ''}
+      ${croise ? `<div class="deb-t">Les deux robes</div><p class="deb-s">Tu as défendu les deux camps de la même affaire. Voici ce que chacun a fait des mêmes faits.</p>${croise}` : `<div class="robe-next"><b>Et de l'autre côté${N}?</b> ${GAME.robes[autre].teaser}</div>`}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="swap">Changer de robe ▸</button><button class="btn ghost" id="again">Rejouer cette robe</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.robes.a.endings.length + GAME.robes.b.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = () => startGame(robe);
+    document.getElementById('swap').onclick = () => startGame(autre);
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get();
+    const robeBtn = r => { const R = GAME.robes[r], n = found.filter(x => x.startsWith(r + ':')).length;
+      return `<button class="opt robe" data-r="${r}"><div class="opt-t"><span>${R.label}</span>${n ? `<span class="opt-c">${n} fin${n > 1 ? 's' : ''}</span>` : ''}</div><div class="opt-d">${R.sub}</div></button>`; };
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <div class="prompt">Choisis ta robe</div>
+      <div class="opts">${robeBtn('a')}${robeBtn('b')}</div>
+      <p class="found">${GAME.meta} · ${GAME.robes.a.endings.length + GAME.robes.b.endings.length} fins possibles${found.length ? ` · ${found.length} découverte${found.length > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    app.querySelectorAll('.robe').forEach(b => b.onclick = () => startGame(b.dataset.r));
+  }
+  home();
+})();
+</script>
+</body>
+</html>

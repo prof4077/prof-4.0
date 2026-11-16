@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Le Grand Soir — Jeu Économie 1ère STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#4CD97B;--eco-dim:#2A8E4C;--bg:#050806;--panel:#0a120c;--panel2:#0d1710;--line:#173322;--txt:#EEF3EC;--muted:#7C9483;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(76,217,123,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(76,217,123,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#12201a;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070c09;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(76,217,123,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#04160a;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#04160a;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#102016;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#12201a;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#04160a;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 2) n'a pas besoin d'être touché.
+   Jauges : budget (€), jours, amb (ambiance 0-100), conf (confiance 0-100).
+   ===================================================================== */
+const N = ' ';
+const COCKTAIL_COSTS = [10, 12, 16, 24, 34, 48];   // coût de chaque bac supplémentaire
+const COCKTAIL_PRICE = 30;                           // recette par bac vendu
+const CREPE_COST = 40, CREPE_AMB = [12, 7, 3, 1];    // ambiance ajoutée par chaque stand
+const sum = (a, n) => a.slice(0, n).reduce((x, y) => x + y, 0);
+
+const GAME = {
+  title: 'Le Grand Soir',
+  storeKey: 'grandSoirFins',
+  backLink: '../../matieres/economie-1ere.html',
+  overdraft: 150,                                    // découvert maximum toléré avant annulation
+  start: s => Object.assign(s, { budget: 500, jours: 15, amb: 30, conf: 50, cap: 300, stands: 0, bacs: 0,
+    pref: Math.random() < 0.5 ? 'dj' : 'ft',         // ce que les élèves veulent vraiment (révélé par le sondage)
+    rain: Math.random() < 0.4 }),
+
+  characters: {
+    okafor:  { name: 'Mme Okafor', role: 'proviseure',            color: '#B9A6FF', body: '#5b4c9a', hair: '#1c1c22', acc: 'clip' },
+    sofiane: { name: 'Sofiane',    role: 'ton binôme au CVL',     color: '#4CD97B', body: '#2A8E4C', hair: '#1c1c22', acc: '' },
+    tom:     { name: 'Tom',        role: 'élève de Terminale',    color: '#5B8FFF', body: '#3D62B8', hair: '#5a4630', acc: 'cap' },
+    roche:   { name: 'Mme Roche',  role: 'adjointe à la mairie',  color: '#FF5C7A', body: '#3a3f4a', hair: '#7a2f2f', acc: 'tie' },
+    lin:     { name: 'Mamie Lin',  role: 'stand de bubble tea',   color: '#FFC64F', body: '#B8862B', hair: '#D8DCE0', acc: 'bun' },
+    yanis:   { name: 'Yanis',      role: 'snack de la rue',       color: '#FF9D3D', body: '#B86A1F', hair: '#1c1c22', acc: 'box' },
+    vasseur: { name: 'M. Vasseur', role: 'banquier du foyer',     color: '#5FB8B0', body: '#2f5b57', hair: '#8a8f96', acc: 'tie' },
+    narr:    { name: 'Le Grand Soir', role: '',                   color: '#4CD97B' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'On ne peut pas tout avoir', sub: 'Une boîte à idées qui déborde, 500 € et 15 jours.',
+    steps: [
+      { t: 'say', who: 'okafor', text: `Inès, le conseil de la vie lycéenne vous a choisie${N}: la fête de fin d'année, c'est vous. Vous avez 500${N}€ sur le compte du foyer et 15 jours. Pas un de plus.` },
+      { t: 'say', who: 'sofiane', text: `J'ai vidé la boîte à idées. Accroche-toi${N}: un DJ, un food truck, un photobooth, un feu d'artifice, un château gonflable… et quelqu'un a écrit «${N}Beyoncé${N}».` },
+      { t: 'say', who: 'sofiane', text: `Ils veulent tout. On a 500${N}€. Avant de choisir, on pourrait leur demander ce qu'ils veulent VRAIMENT. Mais un sondage dans toutes les classes, c'est deux jours de perdus.` },
+      { t: 'choice', id: 'sondage', prompt: `Faire un sondage${N}?`, options: [
+        { id: 'oui', label: 'Oui, on sonde tout le lycée', desc: 'Deux jours de travail, mais on saura.', fx: { jours: -2 }, set: { sondage: true },
+          after: s => [{ who: 'sofiane', text: `J'ai les résultats. ${s.pref === 'dj' ? `64${N}% veulent avant tout DANSER. Manger, ça vient loin derrière.` : `61${N}% veulent avant tout bien MANGER, et pas des chips. La musique, ils s'en fichent un peu.`} Et ils seront nombreux${N}: plus de 200 comptent venir.` }] },
+        { id: 'non', label: 'Non, on décide au feeling', desc: 'On connaît les élèves, non ?',
+          after: [{ who: 'sofiane', text: `OK. On verra bien si on a vu juste.` }] } ] },
+      { t: 'say', who: 'sofiane', text: `Maintenant, le lieu. La cour est grande mais à ciel ouvert. La mairie peut prêter le gymnase, plus petit, s'il y a un dossier. Ou alors on loue la salle des fêtes.` },
+      { t: 'choice', id: 'lieu', prompt: `Où aura lieu la fête${N}?`, options: [
+        { id: 'cour', label: 'La cour du lycée', desc: s => `300 places, gratuit, en plein air.${s.flags.sondage ? ' (Sondage : plus de 200 élèves prévus.)' : ''}`, do: s => { s.cap = 300; },
+          after: [{ who: 'okafor', text: `La cour, très bien. Vous avez regardé la météo${N}? Moi non plus.` }] },
+        { id: 'gym', label: 'Le gymnase, prêté par la mairie', desc: s => `150 places, gratuit, à l'abri. Un jour pour monter le dossier.${s.flags.sondage ? ' (Sondage : plus de 200 élèves prévus.)' : ''}`, fx: { jours: -1 }, do: s => { s.cap = 150; },
+          after: [{ who: 'roche', text: `La commune vous prête le gymnase gratuitement${N}: c'est notre rôle, et ce sont les impôts de tous qui le financent. Rendez-le propre.` }] },
+        { id: 'salle', label: 'La salle des fêtes, en location', cost: 200, desc: '250 places, à l\'abri, sono intégrée dans le prix… non, pas la sono.', fx: { budget: -200 }, do: s => { s.cap = 250; },
+          after: [{ who: 'narr', text: `Le gérant encaisse les 200${N}€ et te tend les clés. Lui, il vit de ça${N}: il loue sa salle.` }] } ] },
+      { t: 'say', who: 'sofiane', text: `Pour le goûter d'accueil, deux pistes${N}: l'association des parents d'élèves propose de faire des gâteaux, gratuitement. Ou Yanis, le snack de la rue, nous fait un buffet.` },
+      { t: 'choice', id: 'gouter', prompt: `Le goûter d'accueil${N}?`, options: [
+        { id: 'parents', label: 'Les gâteaux des parents d\'élèves', desc: 'Bénévoles, gratuits, faits maison.', fx: { amb: 5 },
+          after: [{ who: 'narr', text: `Douze gâteaux arrivent le jour J. L'association ne demande rien${N}: elle n'est pas là pour gagner de l'argent.` }] },
+        { id: 'yanis', label: 'Le buffet de Yanis', cost: 80, desc: 'Mini-burgers et beignets, livrés.', fx: { budget: -80, amb: 8 },
+          after: [{ who: 'yanis', text: `80${N}€ et vous avez le meilleur buffet du quartier. C'est mon métier${N}: je vends, vous payez, tout le monde est content.` }] } ] },
+      { t: 'event', who: 'narr', text: `Les cours, un contrôle de maths, un exposé… trois jours filent sans que tu touches à la fête.`, fx: { jours: -3 } }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Choisir, c\'est renoncer', sub: 'Chaque euro dépensé ici ne le sera pas ailleurs.',
+    steps: [
+      { t: 'say', who: 'sofiane', text: `Le gros morceau${N}: la tête d'affiche. Un DJ pro, c'est 250${N}€. Un food truck privatisé, c'est 250${N}€ aussi. On n'aura jamais les deux.` },
+      { t: 'choice', id: 'tete', prompt: `Ta tête d'affiche${N}?`, options: [
+        { id: 'dj', label: 'Le DJ pro', cost: 250, desc: s => `Lumières, platines, piste de danse.${s.flags.sondage ? (s.pref === 'dj' ? ` (Sondage : 64${N}% veulent danser.)` : ` (Sondage : 61${N}% veulent surtout bien manger.)`) : ''}`,
+          fx: s => ({ budget: -250, amb: s.pref === 'dj' ? 25 : 12 }),
+          after: s => s.pref === 'dj' ? [{ who: 'tom', text: `Un vrai DJ${N}?! Tout le lycée ne parle que de ça.` }] : [{ who: 'tom', text: `Un DJ, cool… Mais franchement, on espérait surtout bien manger, pour une fois.` }] },
+        { id: 'ft', label: 'Le food truck', cost: 250, desc: s => `Burgers, frites, options végé pour tous.${s.flags.sondage ? (s.pref === 'ft' ? ` (Sondage : 61${N}% veulent surtout bien manger.)` : ` (Sondage : 64${N}% veulent danser.)`) : ''}`,
+          fx: s => ({ budget: -250, amb: s.pref === 'ft' ? 25 : 12, conf: 5 }),
+          after: s => s.pref === 'ft' ? [{ who: 'tom', text: `Un food truck rien que pour nous${N}? Là, tu régales. Tout le monde vient.` }] : [{ who: 'tom', text: `Un food truck, sympa… Mais une fête sans vraie musique, c'est une cantine améliorée, non${N}?` }] },
+        { id: 'playlist', label: 'Ni l\'un ni l\'autre : playlist maison', desc: 'Tu gardes tes 250 € pour le reste.', fx: { amb: 5 },
+          after: [{ who: 'tom', text: `Une playlist… OK. Ça fera l'affaire. J'imagine.` }] } ] },
+      { t: 'say', who: 'sofiane', text: `Les stands de crêpes, maintenant. On peut louer des crêpières${N}: 40${N}€ le stand, les parents fournissent la pâte. Tu en veux combien${N}?` },
+      { t: 'qty', id: 'crepes', prompt: 'Combien de stands de crêpes ?', min: 0, max: 4, def: 1,
+        show: n => n + (n > 1 ? ' stands' : ' stand'),
+        info: (s, n) => `Coût${N}: <b>${n * CREPE_COST}${N}€</b> · Budget après achat${N}: <b>${s.budget - n * CREPE_COST}${N}€</b>${s.flags.sondage ? '<br>Sondage : « un ou deux stands, ce serait déjà top ».' : ''}`,
+        resolve: (s, n) => ({ fx: { budget: -n * CREPE_COST, amb: sum(CREPE_AMB, n) }, do: st => { st.stands = n; },
+          after: n === 0 ? [{ who: 'tom', text: `Pas de crêpes${N}? À une fête de lycée${N}? Audacieux.` }]
+               : n === 1 ? [{ who: 'tom', text: `Des crêpes${N}! Enfin une bonne nouvelle. J'espère qu'il n'y aura pas trop la queue.` }]
+               : n === 2 ? [{ who: 'tom', text: `Deux stands, parfait${N}: des crêpes et pas d'attente.` }]
+               : [{ who: 'sofiane', text: `${n} stands… Le premier a fait plaisir à tout le monde. Le deuxième, un peu. Les suivants${N}? Personne n'a vraiment vu la différence. Et ça nous a coûté ${(n) * CREPE_COST}${N}€.` }] }) },
+      { t: 'say', who: 'lin', text: `Petite, j'ai une idée pour remplir ta caisse${N}: un bar à cocktails sans alcool. Je te montre la recette. Chaque bac se vend 30${N}€ au total.` },
+      { t: 'say', who: 'lin', text: `Mais attention. Le premier bac, tu le fais seule en dix minutes${N}: 10${N}€ de fruits. Plus tu en fais, plus ça se complique${N}: il faut un deuxième blender, des bras en plus, des fruits achetés au prix fort. Chaque bac coûte plus cher que le précédent.` },
+      { t: 'qty', id: 'bacs', prompt: 'Combien de bacs de cocktails préparer ?', min: 1, max: 6, def: 2,
+        show: n => n + (n > 1 ? ' bacs' : ' bac'),
+        info: (s, n) => `Le ${n === 1 ? '1er' : n + 'e'} bac coûte <b>${COCKTAIL_COSTS[n - 1]}${N}€</b> à préparer · il se vend <b>${COCKTAIL_PRICE}${N}€</b><br>Coût total${N}: <b>${sum(COCKTAIL_COSTS, n)}${N}€</b>`,
+        resolve: (s, n) => ({ fx: { budget: -sum(COCKTAIL_COSTS, n) }, do: st => { st.bacs = n; },
+          after: [{ who: 'lin', text: n <= 3 ? `${n} bac${n > 1 ? 's' : ''}. Prudent. Tu aurais peut-être pu en faire un de plus${N}: il rapportait encore plus qu'il ne coûtait.`
+                : n === 4 ? `Quatre bacs. Tu t'es arrêtée pile au bon moment${N}: le suivant t'aurait coûté plus qu'il ne rapporte.`
+                : `${n} bacs… Regarde bien tes derniers${N}: ils coûtent plus de 30${N}€ à préparer et se vendent 30${N}€. Tu travailles pour perdre de l'argent.` }] }) },
+      { t: 'event', who: 'narr', text: `Bac blanc de français, sortie scolaire… encore deux jours envolés.`, fx: { jours: -2 } }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Rien ne se fait seul', sub: 'Il reste la déco, le son, la caisse… et peu de temps.',
+    steps: [
+      { t: 'say', who: 'sofiane', text: `Il reste tout à préparer${N}: la déco, la caisse, le son. On est quatre au CVL. Soit on fait tout nous-mêmes, soit on demande à ceux qui savent faire.` },
+      { t: 'choice', id: 'orga', prompt: `Comment t'organises-tu${N}?`, options: [
+        { id: 'seuls', label: 'On fait tout à quatre', desc: 'Au moins, on est sûrs que ce sera fait.', fx: { jours: -5, amb: -5 },
+          after: [{ who: 'sofiane', text: `Cinq jours pour peindre trois banderoles de travers et se battre avec un tableur. On n'est ni décorateurs, ni comptables.` }] },
+        { id: 'talents', label: 'À chacun son talent', desc: 'L\'option arts fait la déco, les STMG tiennent la caisse.', fx: { jours: -2, amb: 8 },
+          after: [{ who: 'sofiane', text: `Les arts plastiques ont fait la déco en deux jours, et elle est magnifique. Les STMG ont monté un tableau de caisse. Chacun fait ce qu'il fait le mieux… et maintenant on dépend les uns des autres.` }] } ] },
+      { t: 'say', who: 'tom', text: `Il paraît que tu cherches une sono${N}? J'ai deux enceintes de concert dans mon garage. Ça se discute.` },
+      { t: 'choice', id: 'sono', prompt: `Comment obtenir la sono de Tom${N}?`, options: [
+        { id: 'troc', label: 'Lui proposer une affiche dédicacée en échange', desc: 'Un échange direct : sono contre affiche.', again: true, fx: { jours: -1 }, set: { troc: true },
+          after: [{ who: 'tom', text: `Une affiche${N}? Qu'est-ce que tu veux que j'en fasse${N}? Moi, ce que je veux, c'est manger des crêpes. Et toi, tu n'en vends pas.` },
+                  { who: 'narr', text: `Une journée de négociation pour rien${N}: tu as ce qu'il ne veut pas, il veut ce que tu n'as pas.` }] },
+        { id: 'payer', label: 'Le payer 60 €', cost: 60, desc: 'De l\'argent, il en fera ce qu\'il veut.', fx: { budget: -60 },
+          after: [{ who: 'tom', text: `60${N}€${N}? Vendu. Avec ça, je m'achète ce que je veux.` }] },
+        { id: 'tickets', label: 'Lui donner 20 € de tickets pour les stands', cost: 20, desc: 'Des tickets « Perles » valables à tous les stands de la fête.', fx: { budget: -20 },
+          after: [{ who: 'tom', text: `Des tickets valables aux crêpes ET au bar${N}? Là, tu parles. Je prends.` }] },
+        { id: 'sans', label: 'Se passer de lui', desc: 'L\'enceinte Bluetooth de Sofiane fera l\'affaire.', fx: { amb: -6 },
+          after: [{ who: 'sofiane', text: `Mon enceinte, pour tout un lycée… On entendra surtout les gens parler.` }] } ] },
+      { t: 'say', who: 'sofiane', text: `Dernier point${N}: le soir même, comment les élèves paient aux stands${N}?` },
+      { t: 'choice', id: 'paiement', prompt: `Le moyen de paiement du soir${N}?`, options: [
+        { id: 'especes', label: 'En espèces', desc: 'Pièces et billets dans une boîte à chaque stand.',
+          after: [{ who: 'sofiane', text: `Simple. Il faudra juste surveiller les boîtes… et avoir de la monnaie.` }] },
+        { id: 'tickets', label: 'Des tickets « Perles »', desc: '1 Perle = 1 €. On les achète à l\'entrée, on paie partout avec.', fx: { jours: -1, conf: 5 },
+          after: [{ who: 'okafor', text: `Une seule caisse à l'entrée, des tickets partout ailleurs${N}: voilà qui est sérieux.` }] },
+        { id: 'tel', label: 'Paiement par téléphone', cost: 20, desc: 'La banque du foyer prête un terminal, moyennant 20 € de frais.', fx: { budget: -20, conf: 10 },
+          after: [{ who: 'vasseur', text: `Chaque paiement arrive directement sur le compte du foyer. Aucun billet ne circule${N}: l'argent n'est plus qu'une écriture.` }] } ] },
+      { t: 'event', who: 'narr', text: `Dernière ligne droite${N}: deux jours de cours avant le grand soir.`, fx: { jours: -2 } }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Le grand soir', sub: 'Les portes ouvrent dans une heure.', final: true,
+    steps: [
+      { t: 'event', if: s => s.budget < 0, who: 'vasseur', text: s => `Le compte du foyer est à découvert de ${-s.budget}${N}€. La banque vous avance la somme jusqu'à demain${N}: c'est aussi notre rôle. Mais Mme Okafor est prévenue.`, fx: { conf: -10 } },
+      { t: 'event', who: 'sofiane', do: s => { s.demand = Math.round(s.amb * 3); s.att = Math.min(s.demand, s.cap); },
+        text: s => `C'est l'heure. ${s.demand >= 200 ? 'Il y a déjà la queue jusqu\'au portail' : s.demand >= 130 ? 'Les élèves arrivent par groupes' : 'Quelques élèves arrivent, tranquillement'}${N}: ${s.demand} personnes veulent entrer.` },
+      { t: 'event', if: s => s.demand > s.cap, who: 'narr', text: s => `Le lieu est plein${N}: ${s.cap} places, pas une de plus. ${s.demand - s.cap} élèves restent dehors, furieux.`, fx: { amb: -8, conf: -5 } },
+      { t: 'event', if: s => H.lieu === 'cour' && s.rain, who: 'narr', do: s => { s.att = Math.round(s.att * 0.6); }, text: `21${N}h${N}: l'averse. En dix minutes, la cour se vide à moitié. Personne n'avait prévu ça… et personne ne pouvait le savoir.`, fx: { amb: -15 } },
+      { t: 'say', if: s => H.lieu === 'cour' && !s.rain, who: 'narr', text: `Le ciel reste dégagé toute la soirée. La cour sous les guirlandes, c'est magique. Tu as eu de la chance.` },
+      { t: 'event', if: s => s.stands <= 1 && s.att > 120, who: 'tom', text: s => s.stands === 1 ? `Quarante minutes de queue pour UNE crêpe. J'abandonne.` : `Pas une crêpe, pas un truc à grignoter… Les gens commencent à partir.`, fx: { amb: -6 } },
+      { t: 'event', who: 'lin', do: s => { s.sold = Math.min(s.bacs, Math.floor(s.att / 30)); s.rec = s.sold * COCKTAIL_PRICE; }, fx: s => ({ budget: s.rec }),
+        text: s => `Le bar${N}: ${s.sold} bac${s.sold > 1 ? 's' : ''} vendu${s.sold > 1 ? 's' : ''} sur ${s.bacs}, soit ${s.rec}${N}€ de recette.${s.sold < s.bacs ? ` Le reste part à l'évier${N}: pas assez de monde pour tout boire.` : ' Tout est parti.'}` },
+      { t: 'event', if: s => H.paiement === 'especes' && s.rec > 0, who: 'sofiane', do: s => { s.trou = Math.round(s.rec * 0.15); }, fx: s => ({ budget: -Math.round(s.rec * 0.15), conf: -8 }),
+        text: s => `On a recompté trois fois les boîtes. Il manque ${Math.round(s.rec * 0.15)}${N}€. Erreurs de rendu de monnaie, ou pire… impossible de savoir.` },
+      { t: 'say', if: s => H.paiement === 'tickets', who: 'sofiane', text: `Les Perles, c'était parfait${N}: tout le monde comptait en Perles, payait en Perles, et certains en ont même gardé «${N}pour l'an prochain${N}».` },
+      { t: 'say', who: 'okafor', text: `Bien. Les derniers élèves sont partis. Faisons le bilan, Inès.` }
+    ] }
+  ],
+
+  /* ------------------------------ FINS (ordre de priorité) ------------------------------ */
+  endings: [
+    { id: 'annulee', when: s => false, title: 'Annulée !', stamp: 'Fête annulée', color: '#FF5C6A',
+      text: s => s.jours < 0 ? `Il ne restait plus assez de jours pour tout boucler. Mme Okafor a tranché${N}: pas de fête cette année. Le temps aussi était une ressource limitée.`
+                             : `Le compte du foyer a plongé trop bas. Mme Okafor a tout arrêté avant le grand soir. Le budget n'était pas extensible.` },
+    { id: 'decennie', when: s => s.amb >= 75 && s.budget >= 0, title: 'La soirée de la décennie', stamp: 'Légendaire', color: '#4CD97B',
+      text: `On en parlera encore dans dix ans. Et le foyer finit dans le vert${N}: tu as fait les bons renoncements au bon moment.` },
+    { id: 'caisse', when: s => s.amb >= 60 && s.budget < 0, title: 'Belle fête, caisse vide', stamp: 'Dans le rouge', color: '#FFC64F',
+      text: `La soirée était réussie… mais le foyer est à découvert. L'an prochain, le CVL commencera avec une dette. Tu as voulu tout avoir.` },
+    { id: 'vide', when: s => s.amb < 45, title: 'La salle à moitié vide', stamp: 'Flop', color: '#FF5C6A',
+      text: `À 22${N}h, il restait surtout les organisateurs. À force d'économiser ou de mal viser, la fête n'a pas donné envie.` },
+    { id: 'oubliable', when: s => true, title: 'Sérieux mais oubliable', stamp: 'Correct', color: '#7C9483',
+      text: `Tout s'est bien passé. Rien n'a dérapé, rien n'a marqué non plus. Une fête raisonnable, par une organisatrice raisonnable.` }
+  ],
+
+  /* ------------------------------ DÉBRIEF (h = choix du joueur) ------------------------------ */
+  debrief: [
+    { act: 1, needs: ['sondage', 'lieu', 'gouter'], title: 'Acte 1 — On ne peut pas tout avoir', text: (h, s) => {
+        const so = h.sondage === 'oui' ? 'Tu as payé deux jours pour un sondage : tu as dépensé du temps pour lever la contrainte d\'<em>information</em>.' : 'Sans sondage, tu as décidé sans savoir : c\'est la contrainte d\'<em>information</em>.';
+        const li = h.lieu === 'gym' ? 'Le gymnase prêté par la mairie est un <em>service non marchand</em>, fourni par une <em>administration publique</em>.'
+                 : h.lieu === 'salle' ? 'La salle louée 200 € est un <em>service marchand</em>, vendu par une <em>entreprise</em>.'
+                 : 'La cour était gratuite mais limitée : c\'est la contrainte d\'<em>espace</em>.';
+        const go = h.gouter === 'parents' ? 'Les gâteaux de l\'association de parents d\'élèves étaient eux aussi <em>non marchands</em>.' : 'Le buffet de Yanis était un bien <em>marchand</em> : produit pour être vendu.';
+        return `Des envies sans limite, 500 € et 15 jours : c\'est la <em>rareté</em>. Tu as dû <em>arbitrer</em> sous <em>contraintes</em> de revenu, de temps, d\'espace et d\'information. ${so} ${li} ${go} Élèves (<em>ménages</em>), commerçants, mairie, association, banque : tu as croisé les grands <em>agents économiques</em>.`; } },
+    { act: 2, needs: ['tete', 'crepes', 'bacs'], title: 'Acte 2 — Choisir, c\'est renoncer', text: (h, s) => {
+        const t = h.tete === 'dj' ? 'En prenant le DJ, tu as renoncé au food truck : ce renoncement est ton <em>coût d\'opportunité</em>.'
+                : h.tete === 'ft' ? 'En prenant le food truck, tu as renoncé au DJ : ce renoncement est ton <em>coût d\'opportunité</em>.'
+                : 'En gardant tes 250 €, tu as renoncé au DJ et au food truck : ce à quoi on renonce s\'appelle le <em>coût d\'opportunité</em>.';
+        const c = h.crepesv >= 3 ? `Tes ${h.crepesv} stands de crêpes : le premier a beaucoup apporté, les derniers presque rien.` : 'Un stand de crêpes apporte beaucoup, un quatrième presque rien.';
+        const b = h.bacsv === 4 ? 'Au bar, tu t\'es arrêtée à 4 bacs, exactement là où il fallait :' : h.bacsv > 4 ? `Au bar, tes ${h.bacsv} bacs étaient de trop :` : `Au bar, tu t\'es arrêtée à ${h.bacsv} bac${h.bacsv > 1 ? 's' : ''}, un peu tôt :`;
+        return `Ton budget fixait une limite à tes choix : la <em>contrainte budgétaire</em>. ${t} ${c} C\'est l\'<em>utilité marginale</em> : la satisfaction apportée par une unité de plus, qui diminue. ${b} un producteur continue tant que la <em>recette marginale</em> (30 € par bac) dépasse le <em>coût marginal</em> (le coût du bac en plus). Fruits, blenders, bénévoles : ce sont tes <em>facteurs de production</em>. Décider en comparant « un de plus », c\'est le <em>raisonnement à la marge</em>.`; } },
+    { act: 3, needs: ['orga', 'sono', 'paiement'], title: 'Acte 3 — Rien ne se fait seul', text: (h, s) => {
+        const o = h.orga === 'talents' ? 'Tu as confié chaque tâche à ceux qui la font le mieux : c\'est la <em>spécialisation</em>.' : 'Tout faire à quatre vous a coûté cinq jours : sans <em>spécialisation</em>, on est moins efficace.';
+        const tr = s.flags.troc ? 'Ton affiche contre sa sono ? Le <em>troc</em> a échoué : il faut que chacun veuille exactement ce que l\'autre possède.' : 'Échanger directement un objet contre un autre, c\'est le <em>troc</em> : il ne marche que si chacun veut ce que l\'autre possède.';
+        const p = h.paiement === 'tickets' ? 'Tes tickets « Perles » étaient une vraie monnaie.' : h.paiement === 'tel' ? 'Le paiement par téléphone, c\'est de la monnaie <em>électronique</em> : une simple écriture sur un compte (<em>monnaie scripturale</em>).' : 'Les pièces sont de la <em>monnaie métallique</em>, les billets de la <em>monnaie fiduciaire</em>.';
+        return `${o} Mais se spécialiser oblige à <em>échanger</em>. ${tr} D\'où la <em>monnaie</em>, qui a trois fonctions : <em>intermédiaire des échanges</em>, <em>unité de compte</em> (tout se compte en euros… ou en Perles) et <em>réserve de valeur</em> (on peut la garder pour plus tard). ${p} Les pays font pareil : ils se spécialisent, puis échangent.`; } },
+    { act: 4, needs: ['paiement'], finalOnly: true, title: 'Acte 4 — Le circuit de ta soirée', text: (h, s) =>
+        `Ce soir-là, des crêpes et des cocktails sont allés des stands vers les élèves : ce sont des <em>flux réels</em>. Dans l\'autre sens, de l\'argent est allé des élèves vers les stands : ce sont des <em>flux monétaires</em>. Ces échanges forment un <em>circuit économique</em>.
+        <svg viewBox="0 0 320 120" style="width:100%;max-width:420px;display:block;margin:14px auto 2px" role="img" aria-label="Circuit économique : flux réels et flux monétaires entre élèves et stands">
+          <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#4CD97B"/></marker><marker id="ar2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#FFC64F"/></marker></defs>
+          <rect x="4" y="38" width="92" height="44" fill="#0d1710" stroke="#4CD97B" stroke-width="1.5"/><text x="50" y="58" text-anchor="middle" fill="#EEF3EC" font-family="Rajdhani,sans-serif" font-weight="700" font-size="13">ÉLÈVES</text><text x="50" y="72" text-anchor="middle" fill="#7C9483" font-family="Inter,sans-serif" font-size="9">ménages</text>
+          <rect x="224" y="38" width="92" height="44" fill="#0d1710" stroke="#4CD97B" stroke-width="1.5"/><text x="270" y="58" text-anchor="middle" fill="#EEF3EC" font-family="Rajdhani,sans-serif" font-weight="700" font-size="13">STANDS</text><text x="270" y="72" text-anchor="middle" fill="#7C9483" font-family="Inter,sans-serif" font-size="9">producteurs</text>
+          <path d="M224,46 C180,16 140,16 98,46" fill="none" stroke="#4CD97B" stroke-width="2" marker-end="url(#ar)"/><text x="160" y="16" text-anchor="middle" fill="#4CD97B" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11">Flux réels : crêpes, cocktails</text>
+          <path d="M96,76 C140,106 180,106 222,76" fill="none" stroke="#FFC64F" stroke-width="2" marker-end="url(#ar2)"/><text x="160" y="114" text-anchor="middle" fill="#FFC64F" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11">Flux monétaires : euros, Perles</text>
+        </svg>` }
+  ],
+  vocab: ['Rareté', 'Contraintes économiques', 'Arbitrage', 'Agents économiques', 'Biens et services marchands / non marchands', 'Contrainte budgétaire', 'Coût d\'opportunité', 'Utilité marginale', 'Raisonnement à la marge', 'Coût marginal / recette marginale', 'Facteurs de production', 'Spécialisation', 'Échange', 'Troc', 'Monnaie et ses 3 fonctions', 'Monnaie métallique, fiduciaire, scripturale, électronique', 'Circuit économique']
+};
+let H = {};   // historique des choix (lu par le débrief et certaines conditions)
+
+/* =====================================================================
+   2. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  const LABELS = { budget: 'Budget', jours: 'Jours restants', amb: 'Ambiance', conf: 'Confiance' };
+  const SHORT = { budget: 'Budget', jours: 'Jours', amb: 'Ambiance', conf: 'Confiance' };
+  const UNIT = { budget: N + '€', jours: N + 'j' };
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  /* ---------- dessin : personnages et décor (SVG) ---------- */
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(70,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+  function stageSVG(who) {
+    const lights = ['#4CD97B', '#FFC64F', '#FF8AD1', '#5B8FFF', '#FF9D3D'];
+    let garland = '', wins = '', items = '';
+    for (let i = 0; i < 15; i++) { const x = 12 + i * 24, y = 26 + Math.sin(i / 14 * Math.PI) * 14; garland += `<circle cx="${x}" cy="${y}" r="3" fill="${lights[i % 5]}" opacity="${act.final ? 1 : .55}"/>`; }
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 7; c++) wins += `<rect x="${118 + c * 30}" y="${64 + r * 26}" width="16" height="14" fill="${(r * 7 + c) % 3 === 0 ? '#FFC64F' : '#0d1710'}" opacity="${(r * 7 + c) % 3 === 0 ? .5 : 1}" stroke="#173322"/>`;
+    const place = { cour: 'COUR DU LYCÉE', gym: 'GYMNASE MUNICIPAL', salle: 'SALLE DES FÊTES' }[H.lieu];
+    if (H.tete === 'dj') items += `<g transform="translate(120,150)"><rect x="0" y="0" width="54" height="24" fill="#141018" stroke="#FF8AD1" stroke-width="1.5"/><circle cx="15" cy="12" r="7" fill="none" stroke="#FF8AD1" stroke-width="1.5"/><circle cx="39" cy="12" r="7" fill="none" stroke="#FF8AD1" stroke-width="1.5"/><text x="27" y="-5" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="8" fill="#FF8AD1">DJ</text></g>`;
+    if (H.tete === 'ft') items += `<g transform="translate(116,138)"><rect x="0" y="0" width="64" height="32" rx="4" fill="#141018" stroke="#FF9D3D" stroke-width="1.5"/><rect x="8" y="7" width="32" height="13" fill="#FF9D3D" opacity=".5"/><circle cx="14" cy="36" r="5" fill="#0a0a0e" stroke="#FF9D3D"/><circle cx="50" cy="36" r="5" fill="#0a0a0e" stroke="#FF9D3D"/></g>`;
+    for (let i = 0; i < (S.stands || 0); i++) items += `<g transform="translate(${194 + i * 26},152)"><rect x="0" y="6" width="20" height="18" fill="#0d1710" stroke="#FFC64F" stroke-width="1"/><path d="M-2,6 L22,6 L11,-6 Z" fill="#FFC64F" opacity=".7"/></g>`;
+    if (S.bacs) items += `<g transform="translate(304,150)"><rect x="0" y="6" width="44" height="18" fill="#0d1710" stroke="#4CD97B" stroke-width="1.5"/><text x="22" y="-8" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="7.5" fill="#4CD97B">BAR</text><path d="M8,6 L8,-2 M18,6 L18,-4 M28,6 L28,-2" stroke="#FF8AD1" stroke-width="2"/></g>`;
+    return `<svg viewBox="0 0 360 200" role="img" aria-label="Le lycée en préparation">
+      <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#07110c"/><stop offset="1" stop-color="#050806"/></linearGradient></defs>
+      <rect width="360" height="200" fill="url(#sky)"/>
+      <rect x="108" y="52" width="232" height="96" fill="#0a120c" stroke="#173322" stroke-width="1.5"/>${wins}
+      <rect x="196" y="116" width="26" height="32" fill="#07110c" stroke="#4CD97B" stroke-width="1"/>
+      ${place ? `<rect x="150" y="40" width="148" height="16" fill="#07110c" stroke="#4CD97B" stroke-width="1"/><text x="224" y="52" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="8.5" fill="#4CD97B">${place}</text>` : ''}
+      <path d="M12,26 Q180,58 348,26" fill="none" stroke="#173322" stroke-width="1"/>${garland}
+      <rect x="0" y="174" width="360" height="26" fill="#080d0a"/><line x1="0" y1="174" x2="360" y2="174" stroke="#173322" stroke-width="1.5"/>
+      ${items}${character(who)}
+    </svg>`;
+  }
+
+  /* ---------- interface ---------- */
+  function hud() {
+    const g = (k, v, pct, low) => `<div class="g${low ? ' low' : ''}"><div class="g-l" title="${LABELS[k]}">${SHORT[k]}</div><div class="g-v">${v}</div><div class="g-b"><i style="width:${clamp(pct, 0, 100)}%"></i></div></div>`;
+    return `<div class="hud">
+      ${g('budget', S.budget + N + '€', S.budget / 5, S.budget < 0)}
+      ${g('jours', S.jours + N + 'j', S.jours / 15 * 100, S.jours < 3)}
+      ${g('amb', Math.round(S.amb), S.amb, S.amb < 45)}
+      ${g('conf', Math.round(S.conf), S.conf, S.conf < 35)}
+    </div><div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">LE GRAND <span>SOIR</span></div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${stageSVG(who)}</div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] += v;
+      if (k === 'amb' || k === 'conf') S[k] = clamp(S[k], 0, 100);
+      if (LABELS[k]) lastDeltas.push({ v, t: `${LABELS[k]} ${v > 0 ? '+' : '−'}${Math.abs(v)}${UNIT[k] || ''}` });
+    }
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+  const failed = () => !act.final && (S.jours < 0 || S.budget < -GAME.overdraft);
+
+  /* ---------- déroulement ---------- */
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    if (failed() && !(queue[0] && queue[0]._after)) return end('annulee');
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      if (st.t === 'event') { if (st.do) st.do(S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else if (!st._after) lastDeltas = [];
+      frame(st.who, `<div class="box">${whoTag(st.who)}<p class="say">${val(st.text, S)}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options.filter(o => !(st._removed || []).includes(o.id));
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost && S.budget - o.cost < -GAME.overdraft) lock = 'Budget insuffisant.';
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${o.label}</span>${o.cost ? `<span class="opt-c">− ${o.cost}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        const after = val(o.after, S), fx = val(o.fx, S);
+        if (o.again) queue.unshift(Object.assign({}, st, { _removed: (st._removed || []).concat(o.id) }));  // le choix revient, sans cette option
+        else H[st.id] = o.id;
+        if (o.do) o.do(S);
+        if (o.set) Object.assign(S.flags, o.set);
+        applyFx(fx); pushAfter(after); next();
+      });
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="1" value="${st.def}" aria-label="${st.prompt}">
+        <div class="range-l"><span>${st.min}</span><span>${st.max}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        applyFx(res.fx); pushAfter(res.after); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!»])/g, N + '$1').replace(/« /g, '«' + N)}</p></div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan"><div><small>Budget final du foyer</small><b>${S.budget}${N}€</b></div><div><small>Élèves présents</small><b>${S.att !== undefined ? S.att : '—'}</b></div>
+        <div><small>Ambiance</small><b>${Math.round(S.amb)} / 100</b></div><div><small>Confiance de la proviseure</small><b>${Math.round(S.conf)} / 100</b></div></div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">Tu as utilisé ces notions pour organiser ta fête. Voici comment on les appelle en économie.</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour aller jusqu'au grand soir.</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · Économie 1re STMG, thème 1</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">Économie · 1re STMG · Thème 1</div>
+      <h1>LE GRAND <span>SOIR</span></h1>
+      <p class="lead">Tu es Inès, élue au CVL. La proviseure te confie la fête de fin d'année${N}: 500${N}€, 15 jours, et un lycée entier qui veut tout. À toi de choisir… et de renoncer.</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">4 actes · 15 minutes · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

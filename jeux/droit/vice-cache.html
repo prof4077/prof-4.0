@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Vice caché — Jeu Droit 1ère STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#FF9D3D;--eco-dim:#B86A1F;--bg:#080604;--panel:#120e09;--panel2:#17110a;--line:#3a2a14;--txt:#EEF3EC;--muted:#9a8e7c;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(255,157,61,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(255,157,61,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#20170d;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(255,157,61,.5);background:rgba(255,157,61,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#0b0805;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(255,157,61,.09), rgba(18,14,9,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#1a0e02;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#1a0e02;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#20170d;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#20170d;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#1a0e02;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#110c07;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#110c07;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#110c07;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 3) n'a pas besoin d'être touché.
+   Jauges : dossier (solidité des preuves, 0-100), argent (€), moral (0-100), mois (mois écoulés).
+   s.res = résultat du premier procès : 'gagne', 'perdu', 'condamne' ou 'relaxe'.
+   ===================================================================== */
+const N = ' ';
+const DROIT = '#FF9D3D';
+const eur = n => Math.round(n).toLocaleString('fr-FR') + N + '€';
+const SEUIL_CIVIL = 60, SEUIL_PENAL = 55, SEUIL_APPEL = 60;
+const offre = s => s.dossier >= 50 ? 2000 : 1200;                                 // ce que le vendeur propose devant le conciliateur
+const pieces = s => [                                                             // les pièces que le juge passe en revue
+  ['Contrat écrit et signé', s.flags.ecrit], ['Trace du paiement', s.flags.virement], ['Témoin de la vente', s.flags.temoin],
+  ['Capture de l\'annonce', s.flags.capture], ['Message du vendeur', s.flags.aveu], ['Rapport d\'expert', s.flags.expert],
+  ['Constat du commissaire de justice', s.flags.constat], ['Compteur trafiqué (factures)', s.flags.compteur]];
+const tableau = s => `<span class="pay">${pieces(s).map(p => `<span>${p[0]}</span><b style="color:${p[1] ? '#4CD97B' : '#FF5C6A'}">${p[1] ? 'oui' : 'non'}</b>`).join('')}</span>`;
+const VENDEURS = {
+  dylan:  { name: 'Dylan',    role: 'vendeur, particulier', color: '#5B8FFF', body: '#3D62B8', hair: '#5a4630', acc: 'cap' },
+  garage: { name: 'M. Costa', role: 'vendeur, garagiste',   color: '#5B8FFF', body: '#3a3f4a', hair: '#1c1c22', acc: 'box' }
+};
+
+const GAME = {
+  title: 'Vice caché',
+  brand: 'VICE <span>CACHÉ</span>',
+  storeKey: 'viceCacheFins',
+  backLink: '../../matieres/droit-1ere.html',
+  footer: 'Droit 1re STMG, thème 2',
+  kicker: 'Droit · 1re STMG · Thème 2',
+  pitch: `Ta première voiture. Toutes tes économies. Trois semaines plus tard, le moteur lâche et le vendeur ne répond plus. Pour te faire rembourser, il te faudra des preuves… celles que tu as pensé à garder le jour de l'achat.`,
+  meta: '4 actes · 15 minutes',
+  start: s => { Object.assign(s, { dossier: 0, argent: 7000, moral: 70, mois: 0, res: null, stop: null }); GAME.characters.vendeur = VENDEURS.dylan; },
+  hud: [
+    { k: 'dossier', label: 'Dossier', short: 'Dossier', show: s => Math.round(s.dossier),  pct: s => s.dossier,     low: s => false, clamp: true },
+    { k: 'argent',  label: 'Argent',  short: 'Argent',  show: s => eur(s.argent),          pct: s => s.argent / 40, low: s => s.argent < 300, unit: N + '€' },
+    { k: 'moral',   label: 'Moral',   short: 'Moral',   show: s => Math.round(s.moral),    pct: s => s.moral,       low: s => s.moral < 30, clamp: true },
+    { k: 'mois',    label: 'Mois écoulés', short: 'Durée', show: s => s.mois + N + 'mois', pct: s => s.mois * 3.5,  low: s => s.mois > 18, unit: N + 'mois' }
+  ],
+  fail: s => s.stop || (s.moral <= 10 || s.argent < 0 ? 'abandon' : null),
+  lock: (s, cost) => cost > s.argent ? 'Tu n\'as plus de quoi payer.' : null,
+  bilan: s => [['Dossier', Math.round(s.dossier) + ' / 100'], ['Argent', eur(s.argent)], ['Moral', Math.round(s.moral) + ' / 100'], ['Durée de l\'affaire', s.mois + N + 'mois']],
+
+  characters: {
+    vendeur: VENDEURS.dylan,
+    sarah:   { name: 'Sarah',        role: 'ton amie, apprentie mécano',     color: '#FF8AD1', body: '#B8508F', hair: '#3a2418', acc: 'bun' },
+    petit:   { name: 'Mme Petit',    role: 'garagiste',                      color: '#FFC64F', body: '#8a5a22', hair: '#8a8f96', acc: 'box' },
+    okafor:  { name: 'Mme Okafor',   role: 'juriste, point d\'accès au droit', color: '#FF9D3D', body: '#B86A1F', hair: '#1c1c22', acc: 'clip' },
+    hamon:   { name: 'M. Hamon',     role: 'conciliateur de justice',        color: '#5FB8B0', body: '#2f5b57', hair: '#c9c9c9', acc: 'tie' },
+    renaud:  { name: 'Mme Renaud',   role: 'juge',                           color: '#B9A6FF', body: '#1c1c22', hair: '#7a2f2f', acc: 'tie' },
+    narr:    { name: 'Toi',          role: '',                               color: '#FF9D3D' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'L\'achat', sub: '19 ans, le permis en poche, 7 000 € d\'économies.',
+    steps: [
+      { t: 'say', who: 'narr', text: `Trois étés à travailler, et voilà${N}: 7${N}000${N}€. Assez pour ma première voiture. J'ai repéré le même modèle à deux endroits.` },
+      { t: 'choice', id: 'vendeur', prompt: `À qui achètes-tu${N}?`, options: [
+        { id: 'dylan', label: 'À Dylan, un particulier', desc: '6 000 €. Trouvée sur une appli d\'annonces.', fx: { argent: -6000 }, do: s => { s.prix = 6000; GAME.characters.vendeur = VENDEURS.dylan; },
+          after: [{ who: 'vendeur', text: `Elle est nickel, je te jure. Moteur refait à neuf l'an dernier. Je la vends parce que je pars à l'étranger.` }] },
+        { id: 'garage', label: 'Au garage Costa, un professionnel', desc: '6 500 €. La même, 500 € plus cher.', fx: { argent: -6500 }, set: { pro: true }, do: s => { s.prix = 6500; GAME.characters.vendeur = VENDEURS.garage; },
+          after: [{ who: 'vendeur', text: `Une très bonne affaire. Moteur refait à neuf l'an dernier. Chez moi, on ne vend que du sûr.` }] } ] },
+      { t: 'say', who: 'vendeur', text: s => s.flags.pro ? `Pour les papiers, je vous fais un ticket de caisse, ça ira plus vite. À moins que vous ne teniez à un bon de commande détaillé…` : `Pour les papiers, on fait simple${N}? Tu me donnes l'argent, je te donne les clés. On est entre gens honnêtes.` },
+      { t: 'choice', id: 'papier', prompt: `Quel papier pour la vente${N}?`, options: [
+        { id: 'ecrit', label: 'Un contrat écrit, signé par nous deux', desc: 'Prix, kilométrage, « moteur refait à neuf » : tout est noté.', fx: { dossier: 25 }, set: { ecrit: true },
+          after: [{ who: 'vendeur', text: `Tu ne fais confiance à personne, toi. Bon… Je signe où${N}?` }] },
+        { id: 'main', label: s => s.flags.pro ? 'Le ticket de caisse suffira' : 'Une poignée de main', desc: 'Pas la peine de le vexer.', fx: { moral: 2 },
+          after: [{ who: 'vendeur', text: `Voilà${N}! Ça fait plaisir, quelqu'un qui fait confiance.` }] } ] },
+      { t: 'choice', id: 'payer', prompt: `Comment paies-tu${N}?`, options: [
+        { id: 'liquide', label: 'En liquide', desc: 'Le vendeur préfère. Il fait même un geste sur le plein.', fx: { argent: 50 },
+          after: [{ who: 'vendeur', text: `Parfait. Les billets, au moins, on sait ce que c'est.` }] },
+        { id: 'virement', label: 'Par virement', desc: 'Il faut attendre que l\'argent arrive.', fx: { dossier: 10 }, set: { virement: true },
+          after: [{ who: 'vendeur', text: `Pff. Bon, j'attends la notification de ma banque et je te laisse les clés.` }] } ] },
+      { t: 'choice', id: 'sarah', prompt: `Tu vas chercher la voiture…`, options: [
+        { id: 'seul', label: 'Sans personne', desc: 'C\'est mon achat, mon moment.',
+          after: [{ who: 'narr', text: `Les clés dans la main, le sourire jusqu'aux oreilles. Personne pour me dire que j'ai mal négocié.` }] },
+        { id: 'avec', label: 'Avec Sarah', desc: 'Elle s\'y connaît, et elle écoute tout.', fx: { dossier: 10 }, set: { temoin: true },
+          after: [{ who: 'sarah', text: `«${N}Moteur refait à neuf${N}», il a dit${N}? Je l'ai bien entendu, hein. Parce que moi, je trouve qu'il claque un peu, ce moteur.` }] } ] },
+      { t: 'choice', id: 'annonce', prompt: `Sur l'appli, l'annonce affiche encore «${N}moteur refait à neuf, 70${N}000${N}km${N}».`, options: [
+        { id: 'capture', label: 'Je fais une capture d\'écran', desc: 'On ne sait jamais.', fx: { dossier: 10 }, set: { capture: true },
+          after: [{ who: 'narr', text: `Clic. Le lendemain, l'annonce a disparu.` }] },
+        { id: 'non', label: 'Je ferme l\'appli', desc: 'La voiture est à moi, l\'annonce ne sert plus à rien.',
+          after: [{ who: 'narr', text: `Le lendemain, l'annonce a disparu. Normal${N}: la voiture est vendue.` }] } ] }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Le litige', sub: 'Trois semaines plus tard, sur la rocade.',
+    steps: [
+      { t: 'event', who: 'narr', text: `Un bruit de casserole, une fumée blanche, plus rien. La dépanneuse m'emmène chez la garagiste la plus proche.`, fx: { mois: 1, moral: -10 }, set: { panne: true } },
+      { t: 'event', who: 'petit', text: `Joint de culasse. Et ce n'est pas d'hier${N}: ce moteur était déjà malade quand on vous l'a vendu. Refait à neuf${N}? Jamais de la vie. Comptez 2${N}900${N}€ de réparation.`, fx: { moral: -5 } },
+      { t: 'say', who: 'narr', text: `2${N}900${N}€. Je ne les ai pas. Et ce n'est pas à moi de les payer. Il faut que je joigne le vendeur.` },
+      { t: 'choice', id: 'message', prompt: `Comment contactes-tu le vendeur${N}?`, options: [
+        { id: 'menace', label: 'Un message furieux', desc: '« Rembourse-moi ou je te pourris sur tous les réseaux. »', fx: { moral: -3 },
+          after: [{ who: 'narr', text: `Vu. Puis plus rien. Il a bloqué mon numéro.` },
+                  { who: 'petit', text: `Vous l'avez menacé par écrit${N}? Mauvaise idée. S'il garde ce message, c'est lui qui aura quelque chose contre vous.` }] },
+        { id: 'pose', label: 'Un message posé, par écrit', desc: '« Le moteur a lâché. Étiez-vous au courant d\'un problème ? »', fx: { dossier: 15 }, set: { aveu: true },
+          after: [{ who: 'vendeur', text: `Écoute, je savais que ça fumait un peu, mais bon. C'est de l'occasion, c'est vendu en l'état. Bonne chance.` },
+                  { who: 'narr', text: `Il vient d'écrire, noir sur blanc, qu'il savait. Capture d'écran. Deux fois.` }] },
+        { id: 'appel', label: 'Un coup de téléphone', desc: 'On s\'explique mieux de vive voix.',
+          after: [{ who: 'vendeur', text: `Bon, oui, ça fumait un peu, je ne vais pas te mentir. Mais c'est vendu, c'est vendu. Allez, salut.` },
+                  { who: 'narr', text: `Il l'a reconnu${N}! … Au téléphone. Sans personne pour l'entendre. Il ne reste rien de cette conversation.` }] } ] },
+      { t: 'say', who: 'okafor', text: `Bienvenue au point d'accès au droit, c'est gratuit. Résumons${N}: vous réclamez 2${N}900${N}€, il refuse. C'est vous qui demandez, donc c'est à vous de prouver${N}: que la vente a eu lieu, ce qui a été promis, et que le défaut existait déjà.` },
+      { t: 'event', if: s => s.flags.pro, who: 'okafor', text: `Mais vous avez acheté à un professionnel, et ça change tout. Quand un défaut apparaît dans l'année, la loi considère qu'il existait le jour de la vente. Ce n'est plus à vous de le prouver${N}: c'est à M.${N}Costa de démontrer le contraire.`, fx: { dossier: 20 } },
+      { t: 'say', if: s => !s.flags.pro, who: 'okafor', text: `Entre deux particuliers, la loi ne vous aide pas${N}: tout repose sur ce que vous pouvez montrer. Et une vente de plus de 1${N}500${N}€, d'ailleurs, se prouve par un écrit.` },
+      { t: 'say', who: 'okafor', text: `Vous pouvez encore renforcer votre dossier. La panne, elle, peut se prouver par tous les moyens. Un expert indépendant dira d'où vient le défaut. Un commissaire de justice peut constater l'état du moteur et vos messages${N}: ce qu'il écrit, personne ne pourra le contester.` },
+      { t: 'choice', id: 'renfort', prompt: `Renforcer ton dossier${N}?`, options: [
+        { id: 'expert', label: 'Une expertise du moteur', cost: 400, desc: 'Un rapport qui dit quand le défaut est apparu.', fx: { argent: -400, dossier: 20 }, set: { expert: true },
+          after: [{ who: 'narr', text: `Douze pages, des photos, une conclusion${N}: «${N}défaut antérieur à la vente, connu du vendeur${N}».` }] },
+        { id: 'constat', label: 'Un constat par commissaire de justice', cost: 300, desc: 'Il constate le moteur et tes messages.', fx: { argent: -300, dossier: 15 }, set: { constat: true },
+          after: [{ who: 'narr', text: `Il a tout photographié, tout décrit, tout tamponné. Son constat a une valeur que mes propres photos n'auront jamais.` }] },
+        { id: 'rien', label: 'Rien, ça coûte trop cher', desc: 'Je garde mon argent.',
+          after: [{ who: 'okafor', text: `C'est votre choix. Mais un juge ne croit pas, il vérifie.` }] } ] },
+      { t: 'event', who: 'okafor', text: `Avant tout procès, il faut tenter de s'arranger. J'ai envoyé pour vous une lettre recommandée, et saisi un conciliateur de justice. C'est gratuit, et le vendeur a accepté de venir.`, fx: { mois: 2 } },
+      { t: 'say', who: 'hamon', text: s => `Je ne suis pas juge, je ne tranche rien${N}: je vous aide à trouver un accord. Le vendeur ${s.dossier >= 50 ? 'a vu votre dossier et il a pâli. Il' : 'a jeté un œil à votre dossier, pas très inquiet. Il'} propose ${eur(offre(s))} pour clore l'affaire aujourd'hui. Vous en réclamiez 2${N}900.` },
+      { t: 'choice', id: 'amiable', prompt: s => `Accepter ${eur(offre(s))} et en rester là${N}?`, options: [
+        { id: 'oui', label: 'J\'accepte l\'accord', desc: 'Moins que prévu, mais tout de suite, et c\'est fini.', fx: s => ({ argent: offre(s), moral: 8 }), do: s => { s.stop = 'arrangement'; },
+          after: [{ who: 'hamon', text: `Vous signez tous les deux. Cet accord vous engage${N}: plus personne ne pourra revenir dessus.` }] },
+        { id: 'non', label: 'Je refuse, je veux tout', desc: 'Direction le tribunal.', fx: { moral: -3 },
+          after: [{ who: 'hamon', text: `C'est votre droit. Je note que la conciliation a échoué${N}: vous pouvez maintenant saisir le juge.` }] } ] }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Devant le juge', sub: 'Tu n\'as plus de voiture, mais tu as un dossier.',
+    steps: [
+      { t: 'event', who: 'petit', text: `Venez voir. En démontant, j'ai trouvé de vieilles factures d'entretien sous le siège. Il y a deux ans, cette voiture avait 140${N}000${N}km. Votre compteur en affiche 70${N}000. Quelqu'un l'a trafiqué.`, fx: { dossier: 10 }, set: { compteur: true } },
+      { t: 'say', who: 'okafor', text: `Là, on change de catégorie. Trafiquer un compteur pour vendre plus cher, c'est une tromperie${N}: la loi en fait un délit. Plus grave qu'une contravention, comme un excès de vitesse. Moins grave qu'un crime. Il risque la prison.` },
+      { t: 'say', who: 'okafor', text: `Deux chemins s'ouvrent à vous. Le premier${N}: vous faites convoquer le vendeur devant le tribunal judiciaire, celui des litiges entre personnes, pour être remboursé. Vous payez les frais, et le juge ne regardera que ce que chacun apporte. Le second${N}: vous portez plainte. C'est gratuit, la police enquête à votre place, mais c'est plus long.` },
+      { t: 'choice', id: 'voie', prompt: `Quel chemin prends-tu${N}?`, options: [
+        { id: 'civil', label: 'Je le fais convoquer devant le tribunal', cost: 250, desc: 'Un commissaire de justice lui remet la convocation. Environ six mois.', fx: { argent: -250, mois: 6 },
+          after: [{ who: 'narr', text: `Le commissaire de justice lui a remis le papier en main propre${N}: date, heure, ce que je réclame et pourquoi. Il ne pourra pas dire qu'il ne savait pas.` }] },
+        { id: 'penal', label: 'Je porte plainte', desc: 'Gratuit, mais compte un an. La police enquête.', fx: { mois: 12, moral: -10, dossier: 20 }, set: { penal: true },
+          after: [{ who: 'okafor', text: `L'enquête a payé${N}: cinq autres acheteurs, cinq compteurs trafiqués. Un juge d'instruction a mis le vendeur en examen. Vous, vous êtes désormais partie civile${N}: vous serez au procès pour demander réparation, à côté du procureur qui, lui, demande une peine.` }] } ] },
+      { t: 'say', who: 'renaud', text: s => s.flags.penal ? `Tribunal correctionnel, l'audience est ouverte. Le prévenu conteste les faits. La partie civile réclame 2${N}900${N}€ de réparation et 500${N}€ pour le préjudice subi. Voyons ce que contient le dossier.` : `Tribunal judiciaire, l'audience est ouverte. Vous réclamez 2${N}900${N}€ et le remboursement de vos frais. Le vendeur soutient que la voiture a été vendue en l'état. Voyons vos pièces, une par une.` },
+      { t: 'say', who: 'renaud', text: s => `${tableau(s)}${!s.flags.ecrit && !s.flags.pro ? `Pas de contrat écrit pour une vente de ${eur(s.prix)}. C'est ennuyeux. ` : ''}${s.flags.aveu ? 'Ce message où le vendeur reconnaît qu\'il savait pèse lourd. ' : ''}${s.flags.temoin ? 'J\'ai entendu votre amie Sarah : son témoignage est précis. ' : ''}${s.flags.pro ? 'Et le vendeur est un professionnel : c\'était à lui de prouver que le défaut n\'existait pas.' : ''}` },
+      { t: 'event', who: 'renaud', text: s => s.flags.penal ? `J'ai entendu tout le monde. En matière pénale, aucune preuve ne s'impose à moi${N}: je juge selon ce dont je suis convaincue, et s'il reste un doute, il profite au prévenu. Je rendrai ma décision dans six semaines.` : `J'ai entendu les deux parties. Je ne juge pas sur ce que je crois deviner, mais sur ce qui est prouvé. Je rendrai ma décision dans six semaines.`, fx: { mois: 2 } },
+      { t: 'event', if: s => !s.flags.penal && s.dossier >= SEUIL_CIVIL, who: 'renaud', text: `Jugement. Le défaut existait avant la vente et le vendeur le connaissait. Je le condamne à vous verser 2${N}900${N}€, et 400${N}€ pour vos frais.`, fx: { argent: 3300, moral: 20 }, do: s => { s.res = 'gagne'; } },
+      { t: 'event', if: s => !s.flags.penal && !s.res, who: 'renaud', text: `Jugement. Vous aviez la charge de prouver, et vos preuves sont insuffisantes. Votre demande est rejetée. Vous verserez 300${N}€ au vendeur pour ses frais.`, fx: { argent: -300, moral: -20 }, do: s => { s.res = 'perdu'; } },
+      { t: 'event', if: s => s.flags.penal && s.dossier >= SEUIL_PENAL, who: 'renaud', text: `Jugement. Le tribunal déclare le prévenu coupable de tromperie${N}: six mois de prison avec sursis. Il versera à la partie civile 2${N}900${N}€, et 500${N}€ pour son préjudice.`, fx: { argent: 3400, moral: 20 }, do: s => { s.res = 'condamne'; } },
+      { t: 'event', if: s => s.flags.penal && !s.res, who: 'renaud', text: `Jugement. Le dossier ne permet pas d'établir avec certitude que le prévenu a lui-même trafiqué le compteur. Le doute lui profite${N}: il est relaxé. Votre demande de réparation est rejetée.`, fx: { moral: -20 }, do: s => { s.res = 'relaxe'; } }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Le dernier mot ?', sub: 'Un jugement n\'est pas toujours la fin de l\'histoire.', final: true,
+    steps: [
+      { t: 'say', who: 'okafor', text: s => s.res === 'gagne' || s.res === 'condamne' ? `Bravo. Mais ne dépensez pas tout de suite${N}: le vendeur a un mois pour demander que l'affaire soit rejugée par d'autres juges, à la cour d'appel.` : `Ce n'est pas forcément fini. Vous avez un mois pour demander que l'affaire soit rejugée entièrement par d'autres juges, à la cour d'appel. Et là-bas, vous pouvez apporter de nouvelles preuves.` },
+      { t: 'event', if: s => s.res === 'gagne', who: 'narr', text: `Il a fait appel. Dix mois d'attente de plus, la boule au ventre. Puis la cour d'appel a rendu son arrêt${N}: elle confirme le jugement, mot pour mot.`, fx: { mois: 10, moral: -5 } },
+      { t: 'event', if: s => s.res === 'condamne', who: 'narr', text: `Il n'a pas fait appel${N}: avec cinq autres victimes au dossier, son avocat le lui a déconseillé. Le jugement est définitif.` },
+      { t: 'choice', if: s => s.res === 'perdu' || s.res === 'relaxe', id: 'appel', prompt: `Faire appel${N}?`, options: [
+        { id: 'preuve', label: s => s.flags.expert ? 'Oui, avec un constat en plus' : 'Oui, avec une expertise en plus', desc: s => `Avocat et ${s.flags.expert ? 'constat' : 'expertise'} : ${eur(s.flags.expert ? 700 : 800)}. Un an de plus.`,
+          lock: s => (s.flags.expert && s.flags.constat) ? 'Tu as déjà toutes les preuves possibles.' : s.argent < (s.flags.expert ? 700 : 800) ? 'Tu n\'as plus de quoi payer.' : null,
+          fx: s => ({ argent: -(s.flags.expert ? 700 : 800), dossier: s.flags.expert ? 15 : 20, mois: 12, moral: -12 }), do: s => { if (s.flags.expert) s.flags.constat = true; else s.flags.expert = true; s.appel = true; },
+          after: [{ who: 'narr', text: `Nouveau dossier, nouvelle pièce, nouveaux juges. Et une nouvelle année à attendre.` }] },
+        { id: 'simple', label: 'Oui, avec le même dossier', desc: s => `Avocat : ${eur(400)}. Un an de plus.`, lock: s => s.argent < 400 ? 'Tu n\'as plus de quoi payer.' : null, fx: { argent: -400, mois: 12, moral: -12 }, do: s => { s.appel = true; },
+          after: [{ who: 'narr', text: `Mêmes pièces, nouveaux juges. Et une nouvelle année à attendre.` }] },
+        { id: 'stop', label: 'Non, j\'arrête là', desc: 'J\'ai assez donné.',
+          after: [{ who: 'okafor', text: `Je comprends. Passé le délai, le jugement deviendra définitif.` }] } ] },
+      { t: 'event', if: s => s.appel && s.dossier >= SEUIL_APPEL, who: 'renaud', text: `Cour d'appel. Arrêt${N}: au vu des pièces produites, la cour infirme le jugement. Le vendeur est condamné à verser 2${N}900${N}€, et 800${N}€ pour les frais.`, fx: { argent: 3700, moral: 15 }, set: { usure: true } },
+      { t: 'event', if: s => s.appel && !s.flags.usure, who: 'renaud', text: `Cour d'appel. Arrêt${N}: les preuves restent insuffisantes. La cour confirme le jugement. Vous verserez 300${N}€ de plus à la partie adverse.`, fx: { argent: -300, moral: -15 } },
+      { t: 'say', who: 'okafor', text: `Au-dessus, il ne reste que la Cour de cassation. Mais elle ne rejuge pas votre histoire${N}: elle vérifie seulement que les juges ont bien appliqué la loi. Pour vous, l'affaire s'arrête ici.` },
+      { t: 'say', who: 'sarah', text: `Alors${N}? Raconte. Et la prochaine voiture, tu m'emmènes avant de signer quoi que ce soit.` }
+    ] }
+  ],
+
+  /* ------------------------------ FINS (ordre de priorité) ------------------------------ */
+  endings: [
+    { id: 'abandon', when: s => s.moral <= 10 || s.argent < 0, title: 'Abandon', stamp: 'À bout', color: '#FF5C6A',
+      text: `Plus d'argent, plus de forces. Tu ranges le dossier dans un tiroir et tu reprends le bus. Avoir raison ne suffit pas${N}: il faut pouvoir le prouver, et tenir jusqu'au bout.` },
+    { id: 'arrangement', when: s => s.stop === 'arrangement', title: 'L\'arrangement', stamp: 'Accord signé', color: '#5FB8B0',
+      text: `Tu n'as pas tout récupéré, mais l'affaire est close en trois mois, sans procès ni frais. Un accord imparfait aujourd'hui valait peut-être mieux qu'un jugement incertain dans deux ans.` },
+    { id: 'condamne', when: s => s.res === 'condamne', title: 'Coupable', stamp: 'Vendeur condamné', color: '#4CD97B',
+      text: `Le vendeur est condamné, et il te doit réparation. Ta plainte a aussi permis à cinq autres acheteurs d'obtenir justice. Ça a pris du temps, mais il ne recommencera pas.` },
+    { id: 'usure', when: s => s.flags.usure, title: 'Victoire à l\'usure', stamp: 'Gagné en appel', color: '#FFC64F',
+      text: `Tu as gagné. Deux ans, deux procès et beaucoup de nuits blanches plus tard. Avec les bonnes preuves dès le premier jour, tout aurait été plus court.` },
+    { id: 'gain', when: s => s.res === 'gagne', title: 'Gain de cause', stamp: 'Bravo', color: '#4CD97B',
+      text: `Ton dossier était solide du premier au dernier papier. Le juge t'a donné raison, la cour d'appel aussi. La voiture est réparée, aux frais du vendeur.` },
+    { id: 'deboute', when: s => true, title: 'Débouté', stamp: 'Demande rejetée', color: '#FF5C6A',
+      text: `Tu avais sans doute raison. Mais devant un juge, ce qui n'est pas prouvé n'existe pas. Tu paies la réparation, et les frais du vendeur en plus.` }
+  ],
+
+  /* ------------------------------ DÉBRIEF (h = choix du joueur) ------------------------------ */
+  debrief: [
+    { act: 1, needs: ['vendeur', 'papier', 'payer', 'sarah', 'annonce'], title: 'Acte 1 — L\'achat', text: (h, s) => {
+        const p = h.papier === 'ecrit' ? 'Ton contrat signé à deux est un <em>acte sous signature privée</em> : un écrit rédigé par les parties elles-mêmes.' : 'En te contentant d\'une parole, tu as renoncé à un <em>acte sous signature privée</em>, l\'écrit que les parties rédigent elles-mêmes.';
+        const t = h.sarah === 'avec' ? 'Sarah, qui a tout entendu, a pu apporter son <em>témoignage</em>.' : 'Sans Sarah, tu n\'avais aucun <em>témoignage</em> à présenter.';
+        const c = h.annonce === 'capture' ? 'Ta capture d\'écran' : 'La capture d\'écran que tu n\'as pas faite';
+        const v = h.payer === 'virement' ? 'ton virement' : 'un virement';
+        return `Acheter une voiture, c\'est un <em>acte juridique</em> : tu as voulu ses effets (devenir propriétaire, payer le prix). Au-dessus de 1 500 €, un acte juridique se prouve en principe par un écrit. ${p} ${t} ${c}, comme ${v}, relèvent de la <em>preuve électronique</em>, admise si l\'on peut en identifier l\'auteur. Tout cela, ce sont des <em>modes de preuve</em> : et ils se préparent avant le litige.`; } },
+    { act: 2, needs: ['message', 'renfort', 'amiable'], title: 'Acte 2 — Le litige', text: (h, s) => {
+        const m = h.message === 'pose' ? 'Le message où le vendeur reconnaît qu\'il savait est un <em>aveu</em> : la preuve la plus forte, puisqu\'elle vient de l\'adversaire.' : h.message === 'appel' ? 'Le vendeur a reconnu les faits au téléphone : c\'était un <em>aveu</em>, mais impossible à prouver.' : 'Un message posé aurait pu obtenir un <em>aveu</em> ; ta menace l\'a fait taire.';
+        const pr = s.flags.pro ? 'Comme tu avais acheté à un professionnel, la loi t\'a offert une <em>présomption</em> : le défaut est supposé exister à la vente, et c\'est au vendeur de prouver le contraire.' : 'Si tu avais acheté à un professionnel, tu aurais bénéficié d\'une <em>présomption</em> : la loi aurait supposé que le défaut existait à la vente.';
+        const r = h.renfort === 'constat' ? 'Ton constat, dressé par un commissaire de justice, est un <em>acte authentique</em> : rédigé par un officier public, il est très difficile à contester.' : 'Un constat de commissaire de justice est un <em>acte authentique</em> : rédigé par un officier public, il est très difficile à contester.';
+        const a = h.amiable === 'oui' ? 'En signant devant le conciliateur, tu as choisi l\'<em>accord amiable</em> : chacun cède un peu, et le litige s\'éteint sans juge.' : 'En refusant l\'offre, tu as écarté l\'<em>accord amiable</em>, qui éteint un litige sans juge.';
+        return `Un <em>litige</em> naît quand une personne réclame quelque chose qu\'une autre lui refuse. Ce que chacun réclame s\'appelle ses <em>prétentions</em>. La panne, elle, est un <em>fait juridique</em> : personne ne l\'a voulue, et elle se prouve par tous moyens. La règle de base : celui qui réclame doit prouver, c\'est la <em>charge de la preuve</em>. ${pr} ${m} ${r} ${a}`; } },
+    { act: 3, needs: ['voie'], title: 'Acte 3 — Devant le juge', text: (h, s) => {
+        const v = h.voie === 'civil' ? 'Tu as choisi la voie civile : tu étais le <em>demandeur</em>, le vendeur le <em>défendeur</em>. La convocation remise par le commissaire de justice s\'appelle une <em>assignation</em>. Le juge civil tranche d\'après les preuves apportées par chacun.'
+                : 'Tu as choisi la voie pénale. Le vendeur a été <em>mis en examen</em> par un juge d\'instruction, et tu as demandé à être <em>partie civile</em> pour obtenir réparation dans le procès pénal. Le juge pénal décide selon son <em>intime conviction</em> : aucune preuve ne s\'impose à lui, et le doute profite à l\'accusé. Au civil, tu aurais été le <em>demandeur</em>, le vendeur le <em>défendeur</em>, convoqué par une <em>assignation</em>.';
+        return `Chaque juge a son domaine, c\'est la <em>compétence d\'attribution</em> : le tribunal judiciaire pour les litiges entre personnes, le tribunal correctionnel pour les délits. Une <em>infraction</em> est un comportement puni par la loi ; il en existe trois niveaux : la <em>contravention</em>, le <em>délit</em> (comme la tromperie) et le <em>crime</em>. ${v} Le procès dans son ensemble est une <em>instance</em> ; le moment où le juge entend les parties est l\'<em>audience</em> ; le temps de réflexion qui suit est le <em>délibéré</em> ; la décision d\'un tribunal est un <em>jugement</em>.`; } },
+    { act: 4, needs: ['voie'], finalOnly: true, title: 'Acte 4 — Le dernier mot ?', text: (h, s) =>
+        `Contester une décision de justice, c\'est exercer une <em>voie de recours</em>. L\'<em>appel</em> fait rejuger toute l\'affaire, les faits comme le droit, par une cour d\'appel, dont la décision s\'appelle un <em>arrêt</em>.${h.appel && h.appel !== 'stop' ? ' Tu l\'as tenté.' : ''} Le <em>pourvoi en cassation</em> est différent : la Cour de cassation ne rejuge pas les faits, elle vérifie que la règle de droit a été bien appliquée. À noter : l\'appel n\'est ouvert que si la somme réclamée dépasse 5 000 € ; le jeu a simplifié ce point.` }
+  ],
+  vocab: ['Litige', 'Prétentions', 'Demandeur / défendeur', 'Accord amiable', 'Acte juridique / fait juridique', 'Charge de la preuve', 'Présomption', 'Modes de preuve', 'Preuve électronique', 'Acte sous signature privée', 'Acte authentique', 'Témoignage', 'Aveu', 'Intime conviction du juge', 'Compétence d\'attribution', 'Assignation', 'Instance', 'Audience', 'Délibéré', 'Jugement / arrêt', 'Infraction : contravention, délit, crime', 'Mise en examen', 'Partie civile', 'Voies de recours', 'Appel', 'Pourvoi en cassation']
+};
+let H = {};   // historique des choix (lu par le débrief)
+
+/* =====================================================================
+   2. DÉCOR — la rue et la voiture, puis la salle d'audience.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  if (act.num >= 3) return `<svg viewBox="0 0 360 200" role="img" aria-label="La salle d'audience">
+    <rect width="360" height="200" fill="#0b0805"/><rect x="0" y="0" width="360" height="162" fill="#120e09"/>
+    <g fill="none" stroke="#3a2a14" stroke-width="1.5"><rect x="130" y="20" width="24" height="142"/><rect x="306" y="20" width="24" height="142"/></g>
+    <g transform="translate(230,34)" stroke="${DROIT}" stroke-width="2" fill="none"><line x1="0" y1="0" x2="0" y2="42"/><line x1="-30" y1="8" x2="30" y2="8"/><path d="M-30,8 L-40,30 L-20,30 Z"/><path d="M30,8 L20,30 L40,30 Z"/><line x1="-12" y1="42" x2="12" y2="42"/></g>
+    <rect x="166" y="104" width="128" height="58" fill="#17110a" stroke="${DROIT}" stroke-width="1.5"/><rect x="158" y="98" width="144" height="8" fill="${DROIT}" opacity=".7"/>
+    <text x="230" y="138" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#9a8e7c">${S.flags.penal ? 'TRIBUNAL CORRECTIONNEL' : 'TRIBUNAL JUDICIAIRE'}</text>
+    <rect x="0" y="162" width="360" height="38" fill="#0d0a06"/><line x1="0" y1="162" x2="360" y2="162" stroke="#3a2a14" stroke-width="1.5"/>`;
+  const smoke = S.flags.panne ? `<path d="M196,104 Q188,92 198,82 Q206,72 198,60 M208,104 Q202,94 210,86" stroke="#9a8e7c" stroke-width="2" fill="none" opacity=".7"/>` : '';
+  const col = S.flags.panne ? '#9a8e7c' : DROIT;
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="La voiture">
+    <rect width="360" height="200" fill="#0b0805"/><rect x="0" y="0" width="360" height="162" fill="#120e09"/>
+    <g fill="#17110a" stroke="#3a2a14" stroke-width="1.5"><rect x="120" y="30" width="70" height="132"/><rect x="200" y="54" width="90" height="108"/><rect x="298" y="20" width="62" height="142"/></g>
+    <g fill="#5a4526" opacity=".6"><rect x="132" y="44" width="12" height="14"/><rect x="164" y="44" width="12" height="14"/><rect x="132" y="74" width="12" height="14"/><rect x="216" y="70" width="14" height="14"/><rect x="256" y="70" width="14" height="14"/><rect x="312" y="40" width="12" height="14"/><rect x="336" y="70" width="12" height="14"/></g>
+    ${smoke}
+    <g transform="translate(186,108)"><path d="M18,18 L32,0 L92,0 L112,18 Z" fill="#17110a" stroke="${col}" stroke-width="1.8"/><rect x="0" y="18" width="134" height="24" rx="8" fill="#17110a" stroke="${col}" stroke-width="1.8"/><line x1="62" y1="0" x2="62" y2="18" stroke="${col}" stroke-width="1.2"/><circle cx="30" cy="44" r="11" fill="#0b0805" stroke="${col}" stroke-width="1.8"/><circle cx="104" cy="44" r="11" fill="#0b0805" stroke="${col}" stroke-width="1.8"/><circle cx="6" cy="28" r="3" fill="${S.flags.panne ? '#5a4526' : '#FFC64F'}"/></g>
+    <rect x="0" y="162" width="360" height="38" fill="#0d0a06"/><line x1="0" y1="162" x2="360" y2="162" stroke="#3a2a14" stroke-width="1.5"/>`;
+};
+
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] += v;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      frame(st.who, `<div class="box">${whoTag(st.who)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        applyFx(fx);
+        pushAfter(val(o.after, S)); next();
+      });
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="${st.step || 1}" value="${st.def}" aria-label="${st.prompt}">
+        <div class="range-l"><span>${st.show(st.min)}</span><span>${st.show(st.max)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        applyFx(res.fx); pushAfter(res.after); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p></div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">Tu as appliqué ces règles sans les nommer. Voici comment on les appelle en droit.</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour aller au bout de l'histoire.</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

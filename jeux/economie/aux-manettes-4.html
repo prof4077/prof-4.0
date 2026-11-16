@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Aux Manettes 4 — Jeu Économie Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#4CD97B;--eco-dim:#2A8E4C;--bg:#050806;--panel:#0a120c;--panel2:#0d1710;--line:#173322;--txt:#EEF3EC;--muted:#7C9483;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(76,217,123,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(76,217,123,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#12201a;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070c09;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(76,217,123,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#04160a;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#04160a;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#102016;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#12201a;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#04160a;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#07110c;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#07110c;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#07110c;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#07110c;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(76,217,123,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#07110c;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 3) n'a pas besoin d'être touché.
+   Jauges : solde (exportations − importations, en milliards d'euros), prix (indice des prix, 100 au départ),
+            indus (emploi industriel, indice 100 au départ), rel (relations avec les autres pays, 0-100).
+   s.exp et s.imp gardent le détail des exportations et des importations (milliards d'euros).
+   Une option de choix peut porter chain (conséquences case par case) et voix (trois réactions).
+   ===================================================================== */
+const N = ' ';
+const md = n => (Math.round(n * 10) / 10).toLocaleString('fr-FR') + N + 'Md€';
+const sgmd = n => (n > 0 ? '+' : n < 0 ? '−' : '') + (Math.abs(Math.round(n * 10) / 10)).toLocaleString('fr-FR') + N + 'Md€';
+const C = (e, i, o) => Object.assign({ exp: e, imp: i, solde: Math.round((e - i) * 10) / 10 }, o || {});   // effet sur le commerce
+const V = (a, b, c) => [a, b, c];
+const S_ = text => ({ who: 'sorel', text }), D_ = text => ({ who: 'drak', text }), P_ = (nom, text) => ({ nom, text });
+const PROT = { taxe: 5, quota: 4, norme: 3 };                                      // hausse des prix causée par chaque protection
+function port(s) {
+  const we = Math.round(s.exp / 80 * 210), wi = Math.round(s.imp / 80 * 210);
+  const t = (x, y, txt, c, sz) => `<text x="${x}" y="${y}" font-family="Rajdhani,sans-serif" font-weight="700" font-size="${sz || 12}" fill="${c || '#7C9483'}">${txt}</text>`;
+  return `<span class="pyr"><svg viewBox="0 0 300 140" role="img" aria-label="Exportations et importations de Valmont">
+    ${t(10, 16, 'Ce qui part du port (exportations)')}<rect x="10" y="22" width="${we}" height="18" fill="#4CD97B" opacity=".85"/>${t(16 + we, 36, md(s.exp), '#EEF3EC', 13)}
+    ${t(10, 64, 'Ce qui arrive au port (importations)')}<rect x="10" y="70" width="${wi}" height="18" fill="#5B8FFF" opacity=".85"/>${t(16 + wi, 84, md(s.imp), '#EEF3EC', 13)}
+    ${t(10, 114, `Solde${N}: ${sgmd(s.solde)}`, s.solde < 0 ? '#FF5C6A' : '#4CD97B', 14)}${t(10, 132, s.solde < 0 ? 'Valmont achète plus qu\'il ne vend' : s.solde > 0 ? 'Valmont vend plus qu\'il n\'achète' : 'Ventes et achats s\'équilibrent', '#7C9483', 12)}
+  </svg></span>`;
+}
+function carte() {
+  const box = (x, y, w, titre, sous, col) => `<rect x="${x}" y="${y}" width="${w}" height="34" rx="3" fill="#07110c" stroke="${col}" stroke-width="1.5"/><text x="${x + w / 2}" y="${y + 14}" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="8.5" fill="${col}">${titre}</text><text x="${x + w / 2}" y="${y + 27}" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10.5" fill="#EEF3EC">${sous}</text>`;
+  const fl = (d, col, dash) => `<path d="${d}" stroke="${col}" stroke-width="1.8" fill="none"${dash ? ' stroke-dasharray="5 4"' : ''} marker-end="url(#ar${col === '#4CD97B' ? 'G' : 'B'})"/>`;
+  return `<span class="pyr"><svg viewBox="0 0 300 172" role="img" aria-label="D'où viennent les pièces d'un vélo Valcycle">
+    <defs><marker id="arB" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5B8FFF"/></marker>
+          <marker id="arG" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#4CD97B"/></marker></defs>
+    ${box(8, 6, 84, 'NORVIE', 'les pneus', '#5B8FFF')}${box(208, 6, 84, 'SORAN', 'le cadre', '#5B8FFF')}${box(208, 130, 84, 'KIRAI', 'le dérailleur', '#5B8FFF')}
+    ${box(78, 68, 144, 'VALMONT', 'conception et assemblage', '#4CD97B')}
+    ${fl('M70,40 L112,66', '#5B8FFF')}${fl('M230,40 L190,66', '#5B8FFF')}${fl('M230,130 L190,104', '#5B8FFF')}
+    ${fl('M96,102 Q30,150 30,44', '#4CD97B', true)}
+    <text x="150" y="26" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10.5" fill="#5B8FFF">les pièces arrivent</text>
+    <text x="80" y="150" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10.5" fill="#4CD97B">le vélo fini repart en Norvie</text>
+  </svg></span>`;
+}
+
+const GAME = {
+  title: 'Aux Manettes 4',
+  brand: 'AUX <span>MANETTES 4</span>',
+  storeKey: 'auxManettes4Fins',
+  backLink: '../../matieres/economie-terminale.html',
+  footer: 'Économie Terminale STMG, thème 8',
+  kicker: 'Économie · Terminale STMG · Thème 8',
+  pitch: `La Présidente de Valmont te nomme ministre du Commerce extérieur. Le pays achète plus à l'étranger qu'il ne lui vend, et l'usine de vélos Valcycle menace de fermer. Tout le monde te supplie de «${N}protéger Valmont${N}». Reste à savoir de quoi, et à quel prix.`,
+  meta: '5 actes · 20 minutes',
+  start: s => Object.assign(s, { exp: 60, imp: 68, solde: -8, prix: 100, indus: 100, rel: 60 }),
+  hud: [
+    { k: 'solde', label: 'Solde commercial', short: 'Solde',     show: s => sgmd(s.solde),       pct: s => (s.solde + 14) * 4, low: s => s.solde < -7, unit: N + 'Md€' },
+    { k: 'prix',  label: 'Prix',             short: 'Prix',      show: s => Math.round(s.prix),  pct: s => (s.prix - 90) * 5,  low: s => s.prix >= 105, inv: true, unit: N + 'pt' },
+    { k: 'indus', label: 'Emploi industriel', short: 'Industrie', show: s => Math.round(s.indus), pct: s => (s.indus - 80) * 2.5, low: s => s.indus < 92, unit: N + 'pt' },
+    { k: 'rel',   label: 'Relations',        short: 'Relations', show: s => Math.round(s.rel),   pct: s => s.rel,              low: s => s.rel < 35, clamp: true }
+  ],
+  fail: s => s.rel <= 15 ? 'guerre' : null,
+  lock: (s, cost) => null,
+  bilan: s => [['Exportations', md(s.exp)], ['Importations', md(s.imp)], ['Solde commercial', sgmd(s.solde)], ['Prix (100 au départ)', Math.round(s.prix)], ['Emploi industriel (100 au départ)', Math.round(s.indus)], ['Relations avec les autres pays', Math.round(s.rel) + ' / 100']],
+
+  characters: {
+    arel:     { name: 'Mme Arel',     role: 'Présidente de Valmont',          color: '#B9A6FF', body: '#3a3f4a', hair: '#8a8f96', acc: 'tie' },
+    sorel:    { name: 'Mme Sorel',    role: 'ta conseillère',                 color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'clip' },
+    drak:     { name: 'M. Drak',      role: 'chef de l\'opposition',          color: '#FF5C7A', body: '#1c1c22', hair: '#7a2f2f', acc: 'tie' },
+    bastide:  { name: 'M. Bastide',   role: 'concessionnaire automobile',     color: '#FFC64F', body: '#8a5a22', hair: '#5a4630', acc: 'tie' },
+    roussel:  { name: 'M. Roussel',   role: 'directeur de Valcycle',          color: '#FF9D3D', body: '#B86A1F', hair: '#c9c9c9', acc: 'box' },
+    nadia:    { name: 'Nadia',        role: 'ouvrière chez Valcycle',         color: '#FF8AD1', body: '#B8508F', hair: '#3a2418', acc: 'cap' },
+    tavor:    { name: 'M. Tavor',     role: 'ministre du Commerce du Soran',  color: '#5B8FFF', body: '#3D62B8', hair: '#1c1c22', acc: 'tie' },
+    ferreira: { name: 'Mme Ferreira', role: 'arbitre à l\'OMC',               color: '#5FB8B0', body: '#2f5b57', hair: '#7a2f2f', acc: 'clip' },
+    narr:     { name: 'Toi',          role: '',                               color: '#4CD97B' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Ce qui entre, ce qui sort', sub: 'Premier jour au ministère. Rendez-vous au port de Valmont.',
+    steps: [
+      { t: 'say', who: 'arel', text: `Bienvenue au Commerce extérieur. Valmont achète au reste du monde plus qu'il ne lui vend, et l'opposition en fait son slogan. Commencez par comprendre ce qui entre et ce qui sort. Ensuite, agissez.` },
+      { t: 'say', who: 'sorel', text: s => `${port(s)}Chaque année, Valmont vend pour 60 milliards à l'étranger${N}: ce sont ses exportations. Il achète pour 68 milliards${N}: ses importations. Attention, il n'y a pas que des marchandises dans ces chiffres. Un touriste norvien qui dort dans un hôtel de Valmont, c'est une exportation de service.` },
+      { t: 'say', who: 'sorel', text: `Avec le Soran, c'est simple${N}: nous lui vendons du vin, il nous vend des téléphones. Chacun achète ce que l'autre fabrique et qu'il ne fait pas. Avec la Norvie, notre voisine, c'est plus curieux${N}: nous lui vendons pour 3 milliards de voitures… et nous lui en achetons pour 3 milliards.` },
+      { t: 'say', who: 'bastide', text: `Ça vous étonne${N}? Pas moi. Mes clients ne veulent pas «${N}une voiture${N}», ils veulent celle-ci, de cette couleur, avec ce moteur. Les Valmontois achètent des voitures norviennes pour le style, les Norviens achètent les nôtres pour leur solidité. Même produit, mais pas le même.` },
+      { t: 'choice', id: 'deficit', prompt: `Le déficit commercial de 8 milliards${N}?`, options: [
+        { id: 'exporter', label: 'J\'aide les entreprises à vendre à l\'étranger', desc: 'Salons, conseillers à l\'export, assurance contre les impayés.', fx: C(2, 0, { indus: 2 }),
+          chain: { good: ['Les petites entreprises osent l\'étranger', 'Elles trouvent de nouveaux clients', 'Les exportations augmentent', 'Les usines produisent plus'], bad: ['Résultats lents', 'Les importations ne baissent pas'] },
+          voix: V(S_(`Vous ne fermez rien, vous ouvrez des portes. Le solde s'améliore par le haut.`), D_(`Des salons et des petits fours. Le déficit est toujours là.`), P_('Mme Lasserre, viticultrice', `Avec l'assurance export, j'ai osé le Soran. Trois mille caisses le premier mois.`)) },
+        { id: 'valmontois', label: 'Je lance la campagne « Achetez valmontois »', desc: 'Affiches, labels, appel au patriotisme.', fx: C(0, -0.5, { prix: 1, rel: -3 }),
+          chain: { good: ['Les Valmontois achètent un peu plus local', 'Les importations baissent un peu'], bad: ['Les produits locaux sont souvent plus chers', 'Le choix se réduit', 'Nos partenaires s\'agacent'] },
+          voix: V(S_(`L'effet est faible, et nos voisins l'ont remarqué. Ils pourraient lancer «${N}Achetez norvien${N}» demain.`), D_(`Une affiche. Voilà la politique commerciale du gouvernement.`), P_('M. Bastide', `Mes clients ont regardé l'autocollant, puis le prix. Ils ont pris la norvienne.`)) },
+        { id: 'rien', label: 'Je ne fais rien pour l\'instant', desc: 'Un déficit n\'est pas forcément une maladie.', fx: {},
+          chain: { good: ['Les Valmontois gardent leurs téléphones bon marché', 'Les entreprises gardent leurs fournisseurs'], bad: ['Le déficit reste à 8 milliards', 'L\'opposition s\'en empare'] },
+          voix: V(S_(`Défendable${N}: si nous importons des téléphones, c'est que nous n'en fabriquons pas. Le déficit dit ce que nous achetons, pas ce que nous perdons. Mais il faudra l'expliquer.`), D_(`Le ministre trouve normal que l'argent des Valmontois parte à l'étranger.`), P_('Mme Lasserre, viticultrice', `Moi, je voudrais juste vendre plus au Soran. Personne ne m'aide.`)) } ] },
+      { t: 'say', who: 'drak', text: `Moi, j'ai une solution simple. Fermons les frontières${N}! Ne vendons rien, n'achetons rien, produisons tout nous-mêmes. Plus de déficit, plus de dépendance${N}!` },
+      { t: 'chain', solo: true, chain: { good: ['Frontières fermées', 'Plus aucune importation', 'Déficit nul'], bad: ['Il faut tout fabriquer sur place', 'Téléphones, médicaments, pétrole : nous n\'en produisons pas', 'Pénuries, prix qui explosent', 'Nos vins et nos voitures n\'ont plus de clients étrangers', 'Usines exportatrices fermées'] }, fx: {} },
+      { t: 'say', who: 'sorel', text: `Vivre sans aucun échange avec l'extérieur a un nom, et aucun pays ne l'a tenté longtemps sans s'appauvrir. Le vrai débat n'est pas «${N}ouvrir ou fermer${N}», mais jusqu'où ouvrir, et comment se protéger quand ça fait mal.` }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Le tour du monde d\'un vélo', sub: 'Visite chez Valcycle, la dernière grande usine de vélos de Valmont.',
+    steps: [
+      { t: 'say', who: 'roussel', text: `Bienvenue chez Valcycle. Huit cents salariés, soixante ans d'histoire. Les vélos sorannais sont 30${N}% moins chers que les nôtres, et nous perdons des clients chaque mois. Vous venez nous défendre${N}? Alors regardez d'abord ce que vous défendez.` },
+      { t: 'say', who: 'roussel', text: `${carte()}Je démonte un de nos vélos «${N}fabriqués à Valmont${N}». Le cadre vient du Soran. Le dérailleur, de Kirai. Les pneus, de Norvie. Ici, nous le dessinons, nous l'assemblons, nous le peignons. Puis la moitié repart vendue… en Norvie.` },
+      { t: 'say', who: 'sorel', text: `Vous voyez le paradoxe${N}? Pour exporter un vélo, Valcycle doit d'abord importer ses pièces. Le cadre, le dérailleur, les pneus ne sont pas vendus aux clients${N}: ils servent à fabriquer autre chose. Le vélo, lui, est terminé. Et la fabrication est découpée en étapes, chacune dans le pays où elle coûte le moins ou se fait le mieux.` },
+      { t: 'say', who: 'roussel', text: `Et voici le plus drôle. Mon fournisseur de cadres au Soran appartient au groupe Horizon. Le même groupe possède la marque de vélos qui me fait concurrence. Horizon a des usines dans quinze pays… et il hésite à en construire une ici, à Valmont.` },
+      { t: 'choice', id: 'ide', prompt: `Le groupe Horizon veut construire une usine à Valmont${N}?`, options: [
+        { id: 'accueillir', label: 'Je l\'accueille à bras ouverts', desc: 'Terrain offert, démarches accélérées.', fx: C(1.5, 0.5, { indus: 5, rel: 4 }), set: { ide: true },
+          chain: { good: ['Horizon investit 200 millions à Valmont', '600 emplois créés', 'L\'usine exporte vers toute la région'], bad: ['Elle importe ses pièces de ses autres usines', 'Les décisions se prennent au siège, au Soran', 'Elle peut repartir aussi vite qu\'elle est venue'] },
+          voix: V(S_(`Une entreprise étrangère qui construit une usine chez nous, c'est de l'emploi tout de suite. C'est aussi un patron qui ne vote pas ici.`), D_(`Le ministre déroule le tapis rouge à notre concurrent${N}!`), P_('Nadia, ouvrière chez Valcycle', `Si Valcycle ferme, au moins j'aurai une usine où postuler. C'est triste à dire.`)) },
+        { id: 'conditions', label: 'Je l\'accueille, avec des conditions', desc: 'Embaucher ici, ouvrir un centre de recherche, rester dix ans.', fx: C(1, 0.5, { indus: 4, rel: 1 }), set: { ide: true },
+          chain: { good: ['Horizon accepte, après négociation', 'Emplois et recherche à Valmont', 'Engagement de rester'], bad: ['Usine plus petite que prévu', 'Horizon trouve Valmont exigeant'] },
+          voix: V(S_(`Vous avez obtenu moins d'emplois, mais de meilleurs, et pour plus longtemps.`), D_(`Des conditions${N}? Ils ont signé, ils ne les respecteront pas.`), P_('M. Roussel', `Un centre de recherche sur le vélo électrique à vingt kilomètres d'ici… On pourrait travailler ensemble, finalement.`)) },
+        { id: 'refuser', label: 'Je refuse : pas de concurrent chez nous', desc: 'Valcycle d\'abord.', fx: { indus: -2, rel: -3 },
+          chain: { good: ['Valcycle n\'a pas de concurrent sur place'], bad: ['Horizon construit son usine en Norvie', 'Les 600 emplois partent là-bas', 'Ses vélos arrivent quand même, par la frontière'] },
+          voix: V(S_(`Le concurrent est toujours là${N}: il est juste à vingt minutes de la frontière, avec ses emplois.`), D_(`Le ministre a fait fuir 600 emplois. Bravo.`), P_('Nadia, ouvrière chez Valcycle', `Merci de nous défendre. Mais ma sœur aurait bien postulé chez Horizon.`)) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Protéger', sub: 'Les ouvriers de Valcycle sont sous tes fenêtres.',
+    steps: [
+      { t: 'say', who: 'nadia', text: `Les vélos sorannais sont moins chers parce que là-bas, on paie les ouvriers trois fois moins. Ce n'est pas de la concurrence, c'est du sabotage. Protégez-nous, ou fermez la porte de l'usine vous-même.` },
+      { t: 'say', who: 'sorel', text: `Vous avez quatre possibilités. Taxer chaque vélo importé. Fixer un nombre maximum de vélos étrangers par an. Inventer une norme technique que seuls nos vélos respectent. Ou ne rien faire, et laisser les prix bas faire leur œuvre.` },
+      { t: 'choice', id: 'protection', prompt: `Que fais-tu pour Valcycle${N}?`, options: [
+        { id: 'taxe', label: 'Une taxe de 30 % sur les vélos importés', desc: 'Les vélos étrangers coûtent autant que les nôtres.', fx: C(0, -2, { prix: 5, indus: 5, rel: -15 }), set: { protege: true, taxe: true },
+          chain: { good: ['Les vélos sorannais coûtent 30 % de plus', 'Valcycle redevient compétitive', 'Elle revend, elle embauche'], bad: ['Tous les vélos coûtent plus cher', 'Les familles paient la protection', 'Le Soran prépare sa réponse'] },
+          voix: V(S_(`Ce sont les acheteurs de vélos qui financent votre protection, à chaque passage en caisse.`), { who: 'tavor', text: `Le Soran prend note. Nous aussi, nous savons taxer.` }, P_('Nadia', `On a repris les commandes. Merci. Vraiment.`)) },
+        { id: 'quota', label: 'Pas plus de 100 000 vélos étrangers par an', desc: 'Au-delà, ils restent à la douane.', fx: C(0, -2, { prix: 4, indus: 4, rel: -12 }), set: { protege: true, quota: true },
+          chain: { good: ['Les importations sont plafonnées', 'Valcycle récupère les clients restants'], bad: ['Les vélos étrangers se font rares', 'Leurs vendeurs augmentent les prix', 'Le Soran prépare sa réponse'] },
+          voix: V(S_(`Vous avez limité la quantité, et le prix a suivi tout seul${N}: ce qui est rare devient cher.`), { who: 'tavor', text: `Un plafond sur nos vélos${N}? Le Soran prend note.` }, P_('M. Bastide', `En mars, il n'y avait plus un vélo sorannais dans toute la ville.`)) },
+        { id: 'norme', label: 'Une norme de freins « homologués Valmont »', desc: 'Officiellement pour la sécurité. En réalité, seuls nos vélos la respectent.', fx: C(0, -1, { prix: 3, indus: 3, rel: -6 }), set: { protege: true, norme: true },
+          chain: { good: ['Les vélos étrangers doivent être modifiés', 'Beaucoup renoncent à venir', 'Valcycle respire'], bad: ['On parle de sécurité, on fait du protectionnisme', 'Les autres pays finiront par le comprendre'] },
+          voix: V(S_(`C'est discret. Pas une taxe, pas un plafond${N}: juste une règle impossible à respecter pour les autres. Ça se repère tôt ou tard.`), D_(`Pour une fois, je n'ai rien à redire. Discret et efficace.`), { who: 'tavor', text: `Des freins «${N}homologués Valmont${N}»${N}? Nos ingénieurs examinent ce texte avec beaucoup d'intérêt.` }) },
+        { id: 'rien', label: 'Je ne protège pas Valcycle', desc: 'Les vélos restent bon marché.', fx: C(0, 1, { prix: -1, indus: -10, rel: 3 }),
+          chain: { good: ['Vélos bon marché pour tous', 'Les familles économisent', 'Pas de conflit avec le Soran'], bad: ['Valcycle perd ses clients', 'Elle ferme deux chaînes', '400 ouvriers licenciés'] },
+          voix: V(S_(`Le gain est réel mais éparpillé${N}: quelques euros pour des millions d'acheteurs. La perte est concentrée${N}: quatre cents emplois dans une seule ville.`), D_(`Le ministre a choisi le Soran contre les ouvriers de Valmont.`), P_('Nadia', `Je fais partie des quatre cents. Mon vélo neuf m'a coûté moins cher, c'est vrai. Je n'ai plus de travail pour aller nulle part avec.`)) } ] },
+      { t: 'say', if: s => s.flags.protege, who: 'roussel', text: `Merci, ministre. Mais les fabricants valmontois de pièces réclament le même traitement${N}: protégez aussi les cadres, les dérailleurs, les pneus importés. «${N}Valmont d'abord, jusqu'au dernier boulon${N}», disent-ils.` },
+      { t: 'choice', if: s => s.flags.protege, id: 'pieces', prompt: `Protéger aussi les pièces importées${N}?`, options: [
+        { id: 'oui', label: 'Oui, les pièces aussi', desc: 'Même traitement pour les cadres, dérailleurs et pneus.', fx: C(-1, -0.5, { indus: -8, prix: 3, rel: -5 }), set: { pieces: true },
+          chain: { good: ['Les fabricants de pièces sont protégés'], bad: ['Les cadres sorannais de Valcycle coûtent plus cher', 'Valcycle doit augmenter ses prix', 'Elle vend moins, y compris en Norvie', 'La protection se retourne contre ceux qu\'elle devait sauver'] },
+          voix: V(S_(`Valcycle importe ses pièces. En les taxant, vous taxez Valcycle. Se protéger d'un pays dont on dépend, c'est se faire payer soi-même.`), D_(`Le ministre protège tellement qu'il étouffe.`), P_('M. Roussel', `Mes cadres coûtent 30${N}% de plus. Mes vélos aussi. Les Norviens ont annulé une commande.`)) },
+        { id: 'non', label: 'Non, seulement les vélos finis', desc: 'Les pièces continuent d\'entrer librement.', fx: {},
+          chain: { good: ['Valcycle garde ses pièces bon marché', 'Elle reste compétitive'], bad: ['Les fabricants de pièces sont déçus'] },
+          voix: V(S_(`Bien vu. Valcycle a besoin du monde pour fabriquer, même si elle le craint pour vendre.`), D_(`Deux poids, deux mesures.`), P_('M. Roussel', `Merci. Sans mes cadres sorannais, je ne fais plus de vélos du tout.`)) } ] },
+      { t: 'event', if: s => s.flags.taxe || s.flags.quota, who: 'tavor', text: `Le Soran répond. À partir de lundi, nous taxons à 30${N}% le vin de Valmont. Vous vouliez protéger vos vélos${N}? Expliquez maintenant à vos viticulteurs pourquoi ils vont perdre leurs clients sorannais.`, fx: C(-3, 0, { indus: -2, rel: -5 }), set: { represailles: true } },
+      { t: 'say', if: s => s.flags.represailles, who: 'sorel', text: `Les vignerons n'avaient rien demandé. Ils paient pour les vélos. C'est le piège d'une taxe${N}: l'autre pays choisit où il frappe, et il frappe là où ça fait mal.` }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'L\'arbitre', sub: 'Genève, siège de l\'Organisation mondiale du commerce.',
+    steps: [
+      { t: 'say', who: 'sorel', text: `Presque tous les pays du monde ont signé les mêmes règles du commerce, à l'Organisation mondiale du commerce. On peut se protéger, mais dans certaines limites et pour certaines raisons. Et quand deux pays ne sont pas d'accord, ils ne sont pas censés se faire justice eux-mêmes${N}: un organe de l'OMC tranche.` },
+      { t: 'say', if: s => s.flags.protege, who: 'ferreira', text: s => `Le Soran a déposé plainte contre Valmont. Il estime que ${s.flags.taxe ? 'votre taxe de 30 % dépasse le plafond que Valmont s\'était engagé à respecter' : s.flags.quota ? 'votre plafond d\'importations est interdit par les accords que vous avez signés' : 'votre norme de freins n\'a rien à voir avec la sécurité et ne sert qu\'à bloquer ses vélos'}. La procédure commence par des consultations entre vous. Si elles échouent, nous jugerons.` },
+      { t: 'choice', if: s => s.flags.protege, id: 'omc', prompt: `Face à la plainte du Soran${N}?`, options: [
+        { id: 'riposte', label: 'Je quitte la table et je taxe le Soran à mon tour', desc: 'Œil pour œil.', fx: C(-2, -1, { rel: -25, prix: 3 }), set: { guerre: true },
+          chain: { good: ['Valmont montre ses muscles', 'Applaudissements à la tribune'], bad: ['Le Soran surtaxe d\'autres produits valmontois', 'Valmont surtaxe d\'autres produits sorannais', 'Chacun répond à l\'autre', 'Les échanges s\'effondrent des deux côtés', 'Tout le monde paie plus cher'] },
+          voix: V(S_(`Vous venez de sortir des règles. Désormais, plus personne n'arbitre${N}: c'est au plus fort.`), { who: 'tavor', text: `Très bien. Le Soran a une liste de deux cents produits valmontois. Nous commençons par le fromage.` }, P_('Mme Lasserre, viticultrice', `Mon vin, puis le fromage de mon voisin, puis… Jusqu'où ça va aller${N}?`)) },
+        { id: 'plier', label: 'J\'attends le jugement et je m\'y plierai', desc: 'Valmont a signé les règles. Il les respectera.', fx: s => C(s.flags.represailles ? 3 : 0, 2, { prix: -PROT[s.flags.taxe ? 'taxe' : s.flags.quota ? 'quota' : 'norme'], indus: -4, rel: 6 }), set: { condamne: true },
+          chain: { good: ['La décision est rendue par des arbitres neutres', 'Valmont respecte les règles', 'Le Soran lève sa taxe sur le vin'], bad: ['La mesure est jugée contraire aux accords', 'Valmont doit la retirer', 'Valcycle perd sa protection'] },
+          voix: [{ who: 'ferreira', text: `Décision${N}: la mesure de Valmont est contraire aux accords qu'il a signés. Valmont doit la retirer. S'il refuse, le Soran sera autorisé à taxer les produits valmontois en compensation.` }, S_(`Vous avez perdu le procès, mais pas la guerre commerciale, puisqu'il n'y en a pas eu. Le vin repart au Soran.`), P_('Nadia', `On redevient «${N}moins compétitifs${N}». Je connais la suite.`)] },
+        { id: 'negocier', label: 'Je négocie avec le Soran avant le jugement', desc: 'Retirer la mesure sur trois ans, le temps que Valcycle se modernise.', fx: s => C(s.flags.represailles ? 1.5 : 0, 1, { prix: -2, indus: -1, rel: 8 }), set: { accord: true },
+          chain: { good: ['Les deux pays trouvent un compromis', 'La mesure disparaît progressivement', 'Valcycle a trois ans pour s\'adapter', 'Le Soran allège sa taxe sur le vin'], bad: ['Valcycle devra être compétitive sans protection', 'Personne n\'obtient tout'] },
+          voix: V(S_(`C'est ce que l'OMC préfère${N}: que les pays s'entendent avant que les arbitres n'aient à trancher.`), { who: 'tavor', text: `Trois ans. C'est raisonnable. Le Soran retire sa plainte.` }, P_('M. Roussel', `Trois ans pour passer au vélo électrique. C'est serré, mais c'est jouable.`)) } ] },
+      { t: 'say', if: s => !s.flags.protege, who: 'sorel', text: `Pendant que vous laissiez le marché ouvert, nous avons découvert quelque chose. Le gouvernement du Soran verse de l'argent à ses fabricants pour qu'ils vendent leurs vélos à l'étranger moins cher qu'ils ne coûtent. C'est interdit par les règles de l'OMC.` },
+      { t: 'choice', if: s => !s.flags.protege, id: 'omc', prompt: `Le Soran aide illégalement ses exportateurs de vélos${N}?`, options: [
+        { id: 'plainte', label: 'Je porte plainte à l\'OMC', desc: 'Et j\'attends le jugement.', fx: C(0.5, -0.5, { indus: 4, rel: 2 }), set: { gagne: true },
+          chain: { good: ['Les arbitres examinent les aides du Soran', 'Elles sont jugées interdites', 'Le Soran doit les supprimer', 'Ses vélos retrouvent leur vrai prix', 'Valcycle respire'], bad: ['La procédure prend dix-huit mois'] },
+          voix: [{ who: 'ferreira', text: `Décision${N}: les aides du Soran à ses exportateurs sont contraires aux accords. Le Soran doit les supprimer.` }, S_(`Vous avez obtenu par le droit ce que la taxe aurait obtenu par la force, sans représailles.`), P_('Nadia', `Les deux chaînes fermées ne rouvriront pas. Mais la troisième tiendra.`)] },
+        { id: 'riposte', label: 'Je riposte seul : taxe immédiate sur les produits sorannais', desc: 'Pas le temps d\'attendre Genève.', fx: C(-2, -1, { rel: -25, prix: 3 }), set: { guerre: true },
+          chain: { good: ['Réaction immédiate', 'Applaudissements à la tribune'], bad: ['Valmont sort des règles', 'Le Soran taxe nos vins et nos voitures', 'Chacun répond à l\'autre', 'Les échanges s\'effondrent'] },
+          voix: V(S_(`Vous aviez le droit pour vous. Vous venez de le perdre en vous faisant justice vous-même.`), { who: 'tavor', text: `Le Soran ne se laissera pas taxer sans répondre.` }, P_('Mme Lasserre, viticultrice', `On allait gagner à Genève. Pourquoi ils n'ont pas attendu${N}?`)) },
+        { id: 'laisser', label: 'Je laisse faire', desc: 'Des vélos moins chers, c\'est toujours ça.', fx: { indus: -3 },
+          chain: { good: ['Vélos encore moins chers'], bad: ['Valcycle affronte un concurrent aidé par son État', 'Une troisième chaîne ferme'] },
+          voix: V(S_(`Le libre-échange suppose des règles. Laisser un pays les violer, c'est accepter qu'il gagne en trichant.`), D_(`Même quand il a raison, le ministre ne fait rien.`), P_('Nadia', `Ils trichent, on le sait, et on ne fait rien${N}?`)) } ] },
+      { t: 'say', if: s => !s.flags.guerre, who: 'sorel', text: `Dernier dossier. À l'OMC, une grande négociation s'ouvre${N}: tous les pays baisseraient ensemble leurs taxes à l'importation, et supprimeraient une partie des normes déguisées. Ça prendra des années. Nos voisins, eux, proposent un accord rapide entre nous seuls.` },
+      { t: 'choice', if: s => !s.flags.guerre, id: 'cycle', prompt: `Quelle ouverture pour Valmont${N}?`, options: [
+        { id: 'mondial', label: 'J\'entre dans la grande négociation mondiale', desc: 'Baisser ensemble les taxes de tous les pays.', fx: C(3, 1, { prix: -2, indus: -1, rel: 8 }),
+          chain: { good: ['Tous les pays baissent leurs taxes en même temps', 'Nos exportateurs accèdent à tous les marchés', 'Les importations coûtent moins cher'], bad: ['Concurrence accrue pour nos industries fragiles', 'Négociation très longue'] },
+          voix: V(S_(`Baisser ses taxes seul, c'est désarmer. Le faire tous ensemble, c'est ce qui a fait croître le commerce mondial depuis soixante-dix ans.`), D_(`Le ministre signe tout ce qu'on lui tend.`), P_('Mme Lasserre, viticultrice', `Le vin vers quarante pays sans droits de douane${N}? Je recrute.`)) },
+        { id: 'regional', label: 'Je signe un accord avec nos seuls voisins', desc: 'Rapide, entre pays qui se ressemblent.', fx: C(1.5, 0.5, { prix: -1, rel: 4 }), set: { regional: true },
+          chain: { good: ['Plus de taxes entre voisins', 'Échanges accrus dans la région', 'Signé en six mois'], bad: ['Le reste du monde reste à l\'écart', 'Les échanges se concentrent entre voisins'] },
+          voix: V(S_(`Le commerce se fait de plus en plus entre voisins. Vous venez de renforcer ce mouvement.`), D_(`Une petite union de petits pays.`), P_('M. Bastide', `Les voitures norviennes sans taxe${N}? Mes clients vont adorer.`)) },
+        { id: 'refuser', label: 'Je refuse toute nouvelle ouverture', desc: 'Valmont est assez ouvert comme ça.', fx: C(-1, 0, { rel: -6 }),
+          chain: { good: ['Aucune concurrence nouvelle'], bad: ['Les autres s\'ouvrent entre eux', 'Nos exportateurs restent taxés partout', 'Valmont est mis à l\'écart'] },
+          voix: V(S_(`Pendant que vous restez à quai, les autres signent entre eux. Nos produits paieront des taxes que les leurs ne paieront plus.`), D_(`Pour une fois, le ministre défend Valmont.`), P_('Mme Lasserre, viticultrice', `Mes concurrents norviens vendent au Soran sans taxe. Pas moi.`)) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 5 ------------------------------ */
+  { num: 5, title: 'Le bilan', sub: 'Trois ans plus tard. Retour au port de Valmont.', final: true,
+    steps: [
+      { t: 'say', who: 'sorel', text: s => `${port(s)}Le port, trois ans après. ${s.solde > -8 ? 'Le déficit s\'est réduit.' : s.solde < -8 ? 'Le déficit s\'est creusé.' : 'Le déficit n\'a pas bougé.'} Mais souvenez-vous${N}: ce chiffre ne dit pas tout. Regardez aussi ce que paient les Valmontois et combien travaillent dans nos usines.` },
+      { t: 'say', who: 'roussel', text: s => s.indus >= 100 ? `Valcycle a tenu. Nous lançons notre vélo électrique l'an prochain. Avec des cadres sorannais, évidemment.` : s.indus >= 92 ? `Valcycle a survécu, en plus petit. Nous sommes quatre cents au lieu de huit cents.` : `Valcycle a fermé ses portes en juin. Le bâtiment est à vendre.` },
+      { t: 'say', who: 'arel', text: `J'ai lu les chiffres. Voici ce que j'en retiens.` }
+    ] }
+  ],
+
+  /* ------------------------------ FINS (ordre de priorité) ------------------------------ */
+  endings: [
+    { id: 'guerre', when: s => s.rel <= 15 || s.flags.guerre, title: 'Guerre commerciale', stamp: 'Taxe contre taxe', color: '#FF5C6A',
+      text: `Chaque taxe a appelé une taxe en retour. Le vin, le fromage, les voitures${N}: tout s'exporte moins, tout s'importe plus cher. Personne n'a gagné. La Présidente te remplace par quelqu'un qui sait négocier.` },
+    { id: 'condamne', when: s => s.flags.condamne, title: 'Condamné par l\'arbitre', stamp: 'Mesure illégale', color: '#FFC64F',
+      text: `L'OMC a jugé ta protection contraire aux règles que Valmont avait signées. Tu l'as retirée, et le Soran a levé ses représailles. Valcycle doit maintenant se battre sans filet, avec trois ans de retard.` },
+    { id: 'forteresse', when: s => s.prix >= 106, title: 'La forteresse', stamp: 'Tout coûte plus cher', color: '#FFC64F',
+      text: `Tu as protégé, protégé encore, jusqu'aux pièces détachées. Valcycle tient, mais tout coûte plus cher, les exportateurs ont perdu leurs clients, et Valmont vit derrière ses murs.` },
+    { id: 'ferme', when: s => s.indus <= 90, title: 'L\'usine fermée', stamp: 'Désindustrialisation', color: '#FF5C6A',
+      text: `Les vélos n'ont jamais été aussi bon marché. Mais Valcycle a fermé, ses sous-traitants aussi, et la ville a perdu son principal employeur. L'ouverture sans accompagnement a un coût, concentré sur quelques-uns.` },
+    { id: 'ouverture', when: s => s.indus >= 100 && s.prix <= 103 && s.rel >= 60 && s.solde >= -6, title: 'L\'ouverture maîtrisée', stamp: 'Bravo', color: '#4CD97B',
+      text: `Tu as gardé les frontières ouvertes, fait respecter les règles, attiré des investissements et aidé tes entreprises à vendre au loin. Les prix sont contenus, l'industrie tient, et le Soran te serre la main.` },
+    { id: 'honorable', when: s => true, title: 'Mandat honorable', stamp: 'Correct', color: '#7C9483',
+      text: `Ni guerre ni miracle. Tu as protégé un peu, ouvert un peu, et appris que chaque taxe a un payeur caché.` }
+  ],
+
+  /* ------------------------------ DÉBRIEF (h = choix du joueur) ------------------------------ */
+  debrief: [
+    { act: 1, needs: ['deficit'], title: 'Acte 1 — Ce qui entre, ce qui sort', text: (h, s) => {
+        const d = h.deficit === 'exporter' ? 'En aidant les entreprises à vendre au loin, tu as agi sur les exportations.' : h.deficit === 'valmontois' ? 'En poussant à acheter local, tu as tenté de freiner les importations, avec peu d\'effet.' : 'En ne faisant rien, tu as considéré que le déficit reflétait surtout ce que Valmont ne produit pas.';
+        return `Les <em>exportations</em> sont les biens et services vendus à l\'étranger ; les <em>importations</em>, ceux qu\'on lui achète. La <em>balance des biens et services</em> les compare : son <em>solde</em> est positif (excédent) quand on vend plus qu\'on n\'achète, négatif (déficit) dans le cas contraire. ${d} Vin contre téléphones, c\'est du <em>commerce interbranche</em> : chaque pays échange des produits différents. Voitures contre voitures, c\'est du <em>commerce intra-branche</em> : on échange des produits semblables mais différenciés (marque, style, qualité). Enfin, l\'<em>autarcie</em> défendue par M. Drak consiste à vivre sans échanges : elle supprime le déficit, mais aussi tout ce qu\'on ne sait pas produire.`; },
+      chain: () => ({ good: ['Exportations', '− importations', '= solde de la balance des biens et services'], bad: ['Solde négatif', 'Déficit commercial'] }) },
+    { act: 2, needs: ['ide'], title: 'Acte 2 — Le tour du monde d\'un vélo', text: (h, s) => {
+        const i = h.ide === 'refuser' ? 'En refusant l\'usine d\'Horizon, tu as renoncé à un IDE, qui s\'est fait ailleurs.' : 'En accueillant l\'usine d\'Horizon, tu as attiré un IDE.';
+        return `Le vélo Valcycle illustre la <em>segmentation de la chaîne de production</em> : la fabrication est découpée en étapes réparties dans plusieurs pays. Le cadre, le dérailleur, les pneus sont des <em>produits intermédiaires</em>, destinés à entrer dans la fabrication d\'un autre produit ; le vélo terminé est un <em>produit fini</em>. Résultat : pour exporter, il faut souvent importer d\'abord. Le groupe Horizon est une <em>firme multinationale</em> : une entreprise qui possède des usines dans plusieurs pays. Quand elle construit ou rachète une usine à l\'étranger, c\'est un <em>investissement direct à l\'étranger</em> (IDE). ${i}`; },
+      chain: () => ({ good: ['Importation de produits intermédiaires', 'Assemblage à Valmont', 'Exportation du produit fini'], bad: ['Taxer les pièces importées', 'Renchérir sa propre production'] }) },
+    { act: 3, needs: ['protection'], title: 'Acte 3 — Protéger', text: (h, s) => {
+        const p = h.protection === 'taxe' ? 'Ta taxe de 30 % était un <em>droit de douane</em>.' : h.protection === 'quota' ? 'Ton plafond de 100 000 vélos était une <em>restriction quantitative</em> à l\'importation.' : h.protection === 'norme' ? 'Ta norme de freins était une <em>barrière non tarifaire</em> : une règle technique qui bloque les importations sans taxe ni plafond.' : 'En ne protégeant pas Valcycle, tu as choisi le <em>libre-échange</em>.';
+        const r = s.flags.represailles ? ' Et le Soran a riposté sur ton vin : une protection appelle souvent des représailles.' : '';
+        const q = h.pieces === 'oui' ? ' En protégeant aussi les pièces, tu as renchéri la production de Valcycle elle-même.' : '';
+        return `Le <em>libre-échange</em> laisse circuler biens et services sans obstacle : prix bas, choix large, chaque pays se concentre sur ce qu\'il fait le mieux. Mais les pertes d\'emplois se concentrent sur certains secteurs et certaines villes. Le <em>protectionnisme</em> regroupe les mesures qui freinent les importations pour protéger les producteurs nationaux : les <em>droits de douane</em> (taxes sur les produits importés), les <em>restrictions quantitatives</em> (plafonds, ou quotas) et les <em>barrières non tarifaires</em> (normes, formalités). ${p}${r}${q} Toute protection a un payeur : le consommateur, et souvent les exportateurs.`; },
+      chain: () => ({ good: ['Droit de douane', 'Importations plus chères', 'Producteurs nationaux protégés'], bad: ['Prix plus élevés pour les consommateurs', 'Représailles des autres pays', 'Exportations pénalisées'] }) },
+    { act: 4, needs: ['omc'], title: 'Acte 4 — L\'arbitre', text: (h, s) => {
+        const o = h.omc === 'riposte' ? 'En ripostant seul, tu es sorti des règles : c\'est ainsi que commence une guerre commerciale.' : h.omc === 'plier' ? 'En te pliant au jugement, tu as respecté le règlement des différends.' : h.omc === 'negocier' ? 'En négociant avec le Soran, tu as réglé le différend au stade des consultations, ce que l\'OMC encourage.' : h.omc === 'plainte' ? 'En portant plainte, tu as obtenu par le droit la fin des aides illégales du Soran.' : 'En laissant faire, tu as accepté qu\'un pays enfreigne les règles communes.';
+        const c = h.cycle === 'mondial' ? 'En rejoignant la grande négociation, tu as participé à un <em>cycle de négociations</em>.' : h.cycle === 'regional' ? 'En signant avec tes voisins, tu as renforcé la <em>régionalisation des échanges</em> : le commerce se concentre de plus en plus entre pays proches.' : h.cycle === 'refuser' ? 'En refusant toute ouverture, tu as laissé les autres pays s\'entendre sans Valmont.' : '';
+        return `L\'<em>Organisation mondiale du commerce</em> (OMC) a trois missions : fixer des règles communes au commerce entre pays, organiser des négociations pour réduire les obstacles aux échanges, et régler les conflits entre ses membres. Les <em>cycles de négociations</em> visent à abaisser ensemble les droits de douane et les barrières non tarifaires. L\'<em>organe de règlement des différends</em> (ORD) tranche les conflits : il favorise d\'abord les consultations, puis fait juger l\'affaire ; si le pays condamné ne se met pas en conformité, la victime peut être autorisée à prendre des mesures de rétorsion. ${o} ${c}`; },
+      chain: () => ({ good: ['Plainte à l\'OMC', 'Consultations', 'Jugement de l\'ORD', 'Mise en conformité'], bad: ['Se faire justice soi-même', 'Représailles', 'Guerre commerciale'] }) },
+    { act: 5, needs: ['omc'], finalOnly: true, title: 'Acte 5 — Le bilan', text: (h, s) =>
+        `Le commerce international n\'est ni bon ni mauvais en bloc. Il fait baisser les prix et ouvre des marchés, mais il déplace des emplois d\'un secteur à l\'autre et d\'un pays à l\'autre. Se protéger a toujours un coût, payé par d\'autres que ceux qu\'on protège. Et comme les productions sont découpées entre plusieurs pays, chacun dépend des autres : c\'est pourquoi les États ont besoin de règles communes et d\'un arbitre.` }
+  ],
+  vocab: ['Importations / exportations', 'Balance des biens et services', 'Solde commercial', 'Commerce interbranche', 'Commerce intra-branche', 'Segmentation de la chaîne de production', 'Produits intermédiaires / produits finis', 'Firmes multinationales', 'Investissements directs à l\'étranger (IDE)', 'Régionalisation des échanges', 'Libre-échange', 'Autarcie', 'Protectionnisme', 'Droits de douane', 'Restrictions quantitatives', 'Barrières non tarifaires', 'OMC', 'Cycles de négociations', 'Organe de règlement des différends (ORD)']
+};
+let H = {};   // historique des choix (lu par le débrief)
+
+/* =====================================================================
+   2. DÉCOR — le port de Valmont : conteneurs qui partent (verts) et qui arrivent (bleus).
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  let cont = '';
+  const ne = Math.max(1, Math.round(S.exp / 10)), ni = Math.max(1, Math.round(S.imp / 10));
+  for (let i = 0; i < ne; i++) cont += `<rect x="${138 + (i % 4) * 20}" y="${140 - Math.floor(i / 4) * 12}" width="18" height="10" fill="#0d1710" stroke="#4CD97B" stroke-width="1.3"/>`;
+  for (let i = 0; i < ni; i++) cont += `<rect x="${236 + (i % 4) * 20}" y="${140 - Math.floor(i / 4) * 12}" width="18" height="10" fill="#0d1710" stroke="#5B8FFF" stroke-width="1.3"/>`;
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Le port de Valmont">
+    <rect width="360" height="200" fill="#070c09"/><rect x="0" y="0" width="360" height="162" fill="#0a120c"/>
+    <g stroke="#7C9483" stroke-width="2" fill="none"><line x1="214" y1="20" x2="214" y2="152"/><line x1="214" y1="24" x2="300" y2="24"/><line x1="214" y1="24" x2="190" y2="24"/><line x1="214" y1="40" x2="238" y2="24"/><line x1="276" y1="24" x2="276" y2="58"/></g>
+    <rect x="268" y="58" width="16" height="9" fill="#0d1710" stroke="#5B8FFF" stroke-width="1.3"/>
+    <text x="176" y="112" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11" fill="#4CD97B">départs ${md(S.exp)}</text>
+    <text x="274" y="112" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11" fill="#5B8FFF">arrivées ${md(S.imp)}</text>
+    ${cont}
+    <rect x="0" y="152" width="360" height="10" fill="#0b1a24"/>
+    <rect x="0" y="162" width="360" height="38" fill="#080d0a"/><line x1="0" y1="162" x2="360" y2="162" stroke="#173322" stroke-width="1.5"/>`;
+};
+
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      frame(st.who, `<div class="box">${whoTag(st.who)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="${st.step || 1}" value="${st.def}" aria-label="${st.prompt}">
+        <div class="range-l"><span>${st.show(st.min)}</span><span>${st.show(st.max)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">Tu as utilisé ces notions pour diriger. Voici comment on les appelle en économie.</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour aller au bout de l'année.</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

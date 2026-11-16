@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Le Règlement — Jeu Droit 1ère STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#FF9D3D;--eco-dim:#B86A1F;--bg:#080604;--panel:#120e09;--panel2:#17110a;--line:#3a2a14;--txt:#EEF3EC;--muted:#9a8e7c;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(255,157,61,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(255,157,61,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#20170d;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(255,157,61,.5);background:rgba(255,157,61,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#0b0805;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(255,157,61,.09), rgba(18,14,9,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#1a0e02;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#1a0e02;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#20170d;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#20170d;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#1a0e02;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#110c07;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#110c07;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#110c07;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 3) n'a pas besoin d'être touché.
+   Jauges (0-100) : calme (l'ordre au foyer), adh (adhésion des élèves),
+                    sol (solidité juridique du règlement), dir (confiance de la direction).
+   s.illegal = nombre de règles illégales maintenues malgré l'avertissement.
+   ===================================================================== */
+const N = ' ';
+const DROIT = '#FF9D3D';
+const LEVELS = [['const', 'Constitution'], ['ue', 'Droit européen et traités'], ['loi', 'Lois'], ['regl', 'Règlements du gouvernement'], ['conv', 'Conventions collectives'], ['foyer', 'Règlement du foyer']];
+function pyr(lit) {                                                               // pyramide des normes, étage(s) allumé(s)
+  const on = k => lit === 'all' || lit === k || (Array.isArray(lit) && lit.includes(k));
+  const rows = LEVELS.map((l, i) => { const w1 = 70 + i * 40, w2 = 110 + i * 40, y = 6 + i * 24, c = 150;
+    return `<path d="M${c - w1 / 2},${y} L${c + w1 / 2},${y} L${c + w2 / 2},${y + 21} L${c - w2 / 2},${y + 21} Z" fill="${on(l[0]) ? DROIT : '#110c07'}" stroke="${on(l[0]) ? DROIT : '#5a4526'}" stroke-width="1.2"/><text x="${c}" y="${y + 14.5}" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="${i === 0 ? 9.5 : 11}" fill="${on(l[0]) ? '#1a0e02' : '#9a8e7c'}">${l[1]}</text>`; }).join('');
+  return `<span class="pyr"><svg viewBox="0 0 300 156" role="img" aria-label="Pyramide des règles">${rows}</svg></span>`;
+}
+/* Les règles illégales possibles : étage qui les bloque, explication de la juriste, version corrigée. */
+const FIX = [
+  { flag: 'priere', level: 'const', nom: 'le coin prière',
+    expl: `Le coin prière. Je comprends l'intention, elle est généreuse. Mais la Constitution dit que la République est laïque${N}: un lycée public ne réserve de lieu à aucune religion. Chaque élève reste libre de croire, et le lycée, lui, reste neutre.`,
+    re: 'Un coin calme ouvert à tous', reTxt: `Un coin calme, sans aucune affectation, où chacun fait ce qu'il veut en silence. Là, rien à redire.` },
+  { flag: 'censure', level: 'const', nom: 'l\'interdiction de critiquer le foyer',
+    expl: `L'interdiction de critiquer le foyer sur les réseaux. La liberté d'expression est garantie au plus haut niveau, par la Constitution. Aucun règlement de foyer ne peut la supprimer.`,
+    re: 'Interdire seulement les insultes et le harcèlement', reTxt: `Interdire les insultes et le harcèlement, oui${N}: la loi les punit déjà. Critiquer, on a le droit.` },
+  { flag: 'terminales', level: 'const', nom: 'le baby-foot réservé aux Terminales',
+    expl: `Le baby-foot réservé aux Terminales. Le principe d'égalité vient lui aussi de la Constitution${N}: on ne traite pas différemment des élèves qui sont dans la même situation.` ,
+    re: 'Un créneau par niveau, à tour de rôle', reTxt: `Un créneau pour chaque niveau, à tour de rôle${N}: la même règle pour tous. C'est valable.` },
+  { flag: 'fichier', level: 'ue', nom: 'la liste affichée des élèves sanctionnés',
+    expl: `La liste des sanctionnés affichée au mur. Un règlement européen protège les données personnelles. Il a été proposé par la Commission européenne, voté par le Parlement européen et le Conseil de l'Union, et il s'applique directement ici, jusque dans votre foyer.`,
+    re: 'Un registre tenu par la CPE, non affiché', reTxt: `Un registre que seule la CPE consulte, sans affichage${N}: c'est conforme.` },
+  { flag: 'fouille', level: 'loi', nom: 'la fouille des sacs',
+    expl: `La fouille des sacs à l'entrée. Seule une loi, votée par le Parlement, peut autoriser quelqu'un à fouiller les affaires d'un autre. Et elle réserve ce pouvoir aux policiers. Ni vous, ni même la proviseure.`,
+    re: 'Demander de montrer le contenu, sans forcer', reTxt: `Demander à l'élève d'ouvrir son sac lui-même, et prévenir la CPE s'il refuse${N}: ça, c'est possible.` },
+  { flag: 'confisc', level: 'regl', nom: 'le téléphone confisqué une semaine',
+    expl: `Le téléphone confisqué une semaine. Un décret du gouvernement fixe la liste des punitions possibles au lycée, et les juges ont déjà annulé des sanctions scolaires disproportionnées. Un tribunal saisi demain suivrait ces décisions.`,
+    re: 'Confisquer jusqu\'à la fin de la journée', reTxt: `Rendu en fin de journée${N}: la sanction devient proportionnée. Les juges l'accepteraient.` },
+  { flag: 'cafet', level: 'conv', nom: 'la cafétéria ouverte jusqu\'à 19 h',
+    expl: `La cafétéria ouverte jusqu'à 19${N}h. L'employée travaille pour une société privée. Ses horaires sont fixés par une convention collective, négociée entre les syndicats de salariés et les représentants des employeurs. Votre règlement ne peut rien lui imposer.`,
+    re: 'Demander à la société d\'étudier un créneau', reTxt: `Une demande polie à la société, qui décidera avec sa salariée${N}: parfait.` }
+];
+const fixSteps = FIX.flatMap(f => [
+  { t: 'say', if: s => s.flags[f.flag], who: 'diallo', text: `${pyr(f.level)}${f.expl}` },
+  { t: 'choice', if: s => s.flags[f.flag], id: 'fix_' + f.flag, prompt: `${f.nom.charAt(0).toUpperCase() + f.nom.slice(1)}${N}: que fais-tu de cette règle${N}?`, options: [
+    { id: 'reecrire', label: f.re, desc: 'Tu réécris la règle.', fx: { sol: 4, adh: 2, calme: 2 }, do: s => { s.flags[f.flag] = false; s.corr++; },
+      after: [{ who: 'diallo', text: f.reTxt }] },
+    { id: 'retirer', label: 'Je la supprime', desc: 'Elle disparaît du règlement.', do: s => { s.flags[f.flag] = false; s.corr++; },
+      after: [{ who: 'diallo', text: `Rayée. Une règle de moins, mais un règlement plus sûr.` }] },
+    { id: 'maintenir', label: 'Je la garde telle quelle', desc: 'Personne n\'ira vérifier.', fx: { sol: -15 }, do: s => { s.illegal++; s.garde.push(f.nom); },
+      after: [{ who: 'diallo', text: `C'est vous qui signez. Mais le jour où quelqu'un la contestera, elle tombera. Et elle ne tombera peut-être pas seule.` }] } ] }
+]);
+
+const GAME = {
+  title: 'Le Règlement',
+  brand: 'LE <span>RÈGLEMENT</span>',
+  storeKey: 'leReglementFins',
+  backLink: '../../matieres/droit-1ere.html',
+  footer: 'Droit 1re STMG, thème 1',
+  kicker: 'Droit · 1re STMG · Thème 1',
+  pitch: `Bagarre au foyer du lycée${N}: un téléphone cassé, un baby-foot confisqué, une proviseure furieuse. Elle te laisse deux semaines pour écrire un règlement qui tienne. Sinon, elle ferme tout.`,
+  meta: '4 actes · 15 minutes',
+  start: s => Object.assign(s, { calme: 35, adh: 50, sol: 50, dir: 40, illegal: 0, corr: 0, garde: [] }),
+  hud: [
+    { k: 'calme', label: 'Calme',     short: 'Calme',     show: s => Math.round(s.calme), pct: s => s.calme, low: s => s.calme < 30, clamp: true },
+    { k: 'adh',   label: 'Adhésion',  short: 'Adhésion',  show: s => Math.round(s.adh),   pct: s => s.adh,   low: s => s.adh < 30,   clamp: true },
+    { k: 'sol',   label: 'Solidité',  short: 'Solidité',  show: s => Math.round(s.sol),   pct: s => s.sol,   low: s => s.sol < 40,   clamp: true },
+    { k: 'dir',   label: 'Direction', short: 'Direction', show: s => Math.round(s.dir),   pct: s => s.dir,   low: s => s.dir < 30,   clamp: true }
+  ],
+  fail: s => s.calme <= 15 ? 'ferme' : null,
+  lock: (s, cost) => null,
+  bilan: s => [['Calme au foyer', Math.round(s.calme) + ' / 100'], ['Adhésion des élèves', Math.round(s.adh) + ' / 100'], ['Solidité du règlement', Math.round(s.sol) + ' / 100'], ['Confiance de la direction', Math.round(s.dir) + ' / 100']],
+
+  characters: {
+    ferrand: { name: 'Mme Ferrand', role: 'proviseure',                 color: '#B9A6FF', body: '#3a3f4a', hair: '#8a8f96', acc: 'tie' },
+    benali:  { name: 'M. Benali',   role: 'CPE',                        color: '#5FB8B0', body: '#2f5b57', hair: '#1c1c22', acc: 'clip' },
+    yanis:   { name: 'Yanis',       role: 'Terminale, roi du baby-foot', color: '#5B8FFF', body: '#3D62B8', hair: '#1c1c22', acc: 'cap' },
+    ines:    { name: 'Inès',        role: 'Seconde',                    color: '#FF8AD1', body: '#B8508F', hair: '#3a2418', acc: 'bun' },
+    kevin:   { name: 'Kevin',       role: 'Première',                   color: '#FFC64F', body: '#8a5a22', hair: '#5a4630', acc: '' },
+    diallo:  { name: 'Mme Diallo',  role: 'juriste du rectorat',        color: '#FF9D3D', body: '#B86A1F', hair: '#1c1c22', acc: 'clip' },
+    lambert: { name: 'Me Lambert',  role: 'avocate, mère de Kevin',     color: '#FF5C7A', body: '#1c1c22', hair: '#7a2f2f', acc: 'tie' },
+    narr:    { name: 'Toi',         role: '',                           color: '#FF9D3D' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Écrire une règle', sub: 'Une feuille blanche, un foyer en ruine, deux semaines.',
+    steps: [
+      { t: 'say', who: 'ferrand', text: `Un téléphone cassé, deux élèves à l'infirmerie, et tout ça pour un baby-foot. La classe t'a choisi pour la représenter${N}: alors écris-moi des règles. Si dans deux semaines ce foyer n'est pas vivable, je le ferme.` },
+      { t: 'say', who: 'yanis', text: `Des règles${N}? On n'est pas en cours. Laisse les gens s'arranger entre eux, ça a toujours marché… Bon, surtout pour ceux qui arrivent les premiers.` },
+      { t: 'choice', id: 'laisser', prompt: `Par où commences-tu${N}?`, options: [
+        { id: 'tester', label: 'On essaie une semaine sans règles', desc: 'Chacun est assez grand pour s\'arranger.', fx: { calme: -12, adh: 4, dir: -8 },
+          after: [{ who: 'ines', text: `Une semaine que je n'ai pas touché le baby-foot. Les Terminales le gardent de 10${N}h à 17${N}h. Et quand j'ai râlé, on m'a dit «${N}t'as qu'à être plus grande${N}».` },
+                  { who: 'narr', text: `Sans règle, ce n'est pas la liberté. C'est le plus fort qui gagne.` }] },
+        { id: 'ecrire', label: 'J\'écris des règles tout de suite', desc: 'Pas de temps à perdre.', fx: { dir: 5 },
+          after: [{ who: 'ines', text: `Enfin${N}! Les Terminales gardent le baby-foot toute la journée. Nous, les Secondes, on regarde.` }] } ] },
+      { t: 'choice', id: 'baby', prompt: `Première règle${N}: le baby-foot. Tu écris…`, options: [
+        { id: 'kevin', label: '« Kevin est interdit de baby-foot. »', desc: 'C\'est lui qui a déclenché la bagarre.', fx: { calme: 3, adh: -5, sol: -8 },
+          after: [{ who: 'kevin', text: `Une règle rien que pour moi${N}? Et demain, t'en écris une rien que pour ma sœur${N}?` },
+                  { who: 'narr', text: `Le lendemain, Kevin ne joue plus. C'est Sofiane qui monopolise la table. Ma règle ne dit rien sur Sofiane.` }] },
+        { id: 'dix', label: '« Une partie dure dix minutes quand d\'autres attendent. »', desc: 'La même chose pour tout le monde.', fx: { calme: 12, adh: 5 },
+          after: [{ who: 'ines', text: `J'ai joué${N}! Trois fois${N}! Et même Yanis a rendu la table sans discuter.` }] },
+        { id: 'libre', label: '« Premier arrivé, premier servi. »', desc: 'Simple et sans chrono.', fx: { calme: -5 },
+          after: [{ who: 'yanis', text: `Parfait pour moi${N}: je finis à 10${N}h le mardi. À ce soir, les Secondes${N}!` }] } ] },
+      { t: 'choice', id: 'ambiance', prompt: `Deuxième règle${N}: l'ambiance. Tu écris…`, options: [
+        { id: 'egoiste', label: '« Il est interdit d\'être égoïste. »', desc: 'C\'est bien ça, le fond du problème.', fx: { sol: -5 },
+          after: [{ who: 'benali', text: `Égoïste… Et je le constate comment${N}? Je ne peux pas punir ce que quelqu'un a dans la tête. Seulement ce qu'il fait.` }] },
+        { id: 'son', label: '« Le son est baissé dès que quelqu\'un le demande. »', desc: 'Un geste précis, que tout le monde peut vérifier.', fx: { calme: 10, adh: 3 },
+          after: [{ who: 'benali', text: `Ça, je peux le faire respecter${N}: soit le son a été baissé, soit il ne l'a pas été.` }] },
+        { id: 'silence', label: '« Silence complet dans le foyer. »', desc: 'Plus de bruit, plus de dispute.', fx: { calme: 12, adh: -15 },
+          after: [{ who: 'yanis', text: `Un foyer silencieux${N}? On a déjà le CDI pour ça. Moi, je ne viens plus.` }] } ] },
+      { t: 'choice', id: 'sanction', prompt: `Troisième règle${N}: et si quelqu'un casse ou frappe${N}?`, options: [
+        { id: 'rien', label: '« Chacun est invité à se montrer responsable. »', desc: 'Faire confiance, sans menacer.', fx: { adh: 5, calme: -8 }, set: { sansSanction: true },
+          after: [{ who: 'narr', text: `Trois jours plus tard, l'enceinte est par terre. Personne ne l'a cassée, paraît-il. Et rien n'est prévu.` }] },
+        { id: 'reparer', label: '« Qui casse rembourse. Qui frappe est exclu du foyer une semaine. »', desc: 'Une conséquence claire, connue d\'avance.', fx: { calme: 10, sol: 5 },
+          after: [{ who: 'benali', text: `Clair, connu de tous, et le même tarif pour chacun. Je signe.` }] },
+        { id: 'confisc', label: '« Téléphone confisqué une semaine à la moindre embrouille. »', desc: 'Ça, ça va les calmer.', fx: { calme: 12, adh: -10 }, set: { confisc: true },
+          after: [{ who: 'kevin', text: `Une semaine sans téléphone parce que j'ai haussé le ton${N}? T'es sérieux${N}?` }] } ] }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Qui décide ?', sub: 'Écrire une règle, c\'est une chose. La faire respecter en est une autre.',
+    steps: [
+      { t: 'say', who: 'narr', text: `Mes règles sont affichées. Et ce matin, Yanis a quand même gardé la table quarante minutes.` },
+      { t: 'choice', id: 'amende', prompt: `Comment fais-tu respecter ton règlement${N}?`, options: [
+        { id: 'amende', label: 'Je mets des amendes : 5 € par infraction', desc: 'Payables à moi, pour la caisse du foyer.', fx: { calme: -6, sol: -8 },
+          after: [{ who: 'yanis', text: `5${N}€${N}? À toi${N}? T'es qui, toi${N}? T'es pas flic, t'es pas prof. Je ne paie rien.` },
+                  { who: 'benali', text: `Il a raison. Tu n'as aucun pouvoir de punir. Et d'ailleurs, moi non plus je ne peux pas mettre d'amende${N}: un décret du gouvernement fixe la liste des punitions permises au lycée, et l'amende n'y est pas. Fais plutôt voter ton texte par le conseil d'administration${N}; ensuite, c'est moi qui l'appliquerai.` }] },
+        { id: 'ca', label: 'Je le fais voter par le conseil d\'administration', desc: 'Et c\'est le CPE qui l\'appliquera.', fx: { sol: 8, dir: 8 },
+          after: [{ who: 'benali', text: `Bonne idée. Le conseil d'administration a le pouvoir d'adopter un règlement, et moi celui de sanctionner. Toi, tu proposes. Yanis m'écoutera davantage que toi.` }] } ] },
+      { t: 'choice', id: 'controle', prompt: `Et pour éviter les débordements au quotidien${N}?`, options: [
+        { id: 'fouille', label: 'Fouiller les sacs à l\'entrée du foyer', desc: 'Plus d\'enceintes, plus de ballons.', fx: { calme: 8, adh: -8 }, set: { fouille: true },
+          after: [{ who: 'ines', text: `Tu veux fouiller MON sac${N}? Il y a mes affaires personnelles dedans${N}!` }] },
+        { id: 'fichier', label: 'Afficher au mur la liste des élèves sanctionnés', desc: 'La honte, ça calme.', fx: { calme: 6, adh: -10 }, set: { fichier: true },
+          after: [{ who: 'kevin', text: `Mon nom affiché devant tout le lycée${N}? Ma petite sœur passe ici tous les jours.` }] },
+        { id: 'resp', label: 'Un élève responsable par créneau', desc: 'Volontaire, il prévient le CPE en cas de problème.', fx: { calme: 6, adh: 3 },
+          after: [{ who: 'ines', text: `Je me porte volontaire pour le mardi${N}!` }] } ] },
+      { t: 'say', who: 'narr', text: `La nouvelle s'est répandue${N}: «${N}Il paraît que tu écris le règlement${N}?${N}» Tout le monde a une demande.` },
+      { t: 'say', who: 'yanis', text: `Nous, les Terminales, on passe le bac. On a besoin de décompresser plus que les autres. Réserve-nous le baby-foot.` },
+      { t: 'choice', id: 'terminales', prompt: `Le baby-foot réservé aux Terminales${N}?`, options: [
+        { id: 'oui', label: 'D\'accord', desc: 'Ils ont le bac, après tout.', fx: { adh: -8 }, set: { terminales: true },
+          after: [{ who: 'ines', text: `Donc nous, on paie la même cotisation, et on regarde${N}? Super.` }] },
+        { id: 'non', label: 'Non, la même règle pour tous', desc: 'Dix minutes, comme tout le monde.', fx: { adh: 3 },
+          after: [{ who: 'yanis', text: `Pff. Bon. Dix minutes, ça me laisse le temps de te mettre 10-0.` }] } ] },
+      { t: 'say', who: 'ines', text: `Avec quelques amis, on aimerait un coin du foyer pour prier pendant la pause de midi. Juste un tapis derrière le paravent, on ne dérangera personne.` },
+      { t: 'choice', id: 'priere', prompt: `Un coin prière dans le foyer${N}?`, options: [
+        { id: 'oui', label: 'D\'accord', desc: 'Ils ne gênent personne.', fx: { adh: 3 }, set: { priere: true },
+          after: [{ who: 'ines', text: `Merci, c'est gentil.` }] },
+        { id: 'non', label: 'Non, pas dans le foyer', desc: 'Le foyer est le même pour tous.', fx: { adh: -2 },
+          after: [{ who: 'benali', text: `Tu as bien fait, et ce n'est contre personne. Inès est libre de croire et personne ne peut le lui reprocher. Mais un lycée public reste neutre${N}: il ne réserve de lieu à aucune religion.` }] } ] },
+      { t: 'say', who: 'ferrand', text: `Depuis la bagarre, le foyer se fait démolir sur les réseaux. «${N}Le pire foyer de l'académie.${N}» J'aimerais que ton règlement interdise ça.` },
+      { t: 'choice', id: 'censure', prompt: `Interdire de critiquer le foyer sur les réseaux${N}?`, options: [
+        { id: 'oui', label: 'D\'accord, je l\'interdis', desc: 'La proviseure sera contente.', fx: { adh: -10, dir: 6 }, set: { censure: true },
+          after: [{ who: 'kevin', text: `Donc on n'a même plus le droit de dire ce qu'on pense${N}? Je poste ça tout de suite.` }] },
+        { id: 'non', label: 'Non, chacun dit ce qu\'il pense', desc: 'Tant que personne n\'est insulté.', fx: { adh: 4, dir: -4 },
+          after: [{ who: 'ferrand', text: `Hm. Tu me tiens tête. Soit. Mais alors fais en sorte qu'ils n'aient plus de raison de se plaindre.` }] } ] },
+      { t: 'say', who: 'ines', text: `Autre idée${N}: une caisse commune. Chacun met 2${N}€ par trimestre, et tout le monde a droit au goûter du vendredi, même ceux qui n'ont pas de quoi.` },
+      { t: 'choice', id: 'caisse', prompt: `Une caisse commune pour le goûter${N}?`, options: [
+        { id: 'oui', label: 'Oui', desc: 'Personne ne reste à l\'écart.', fx: { adh: 8 },
+          after: [{ who: 'kevin', text: `Bon… ça, c'est une bonne règle. Vendredi, je ramène les verres.` }] },
+        { id: 'non', label: 'Non, chacun paie son goûter', desc: 'Pas de comptes à gérer.', fx: { adh: -3 },
+          after: [{ who: 'ines', text: `Dommage. Certains ne viendront pas le vendredi, alors.` }] } ] },
+      { t: 'say', who: 'yanis', text: `Dernière chose${N}: la cafétéria ferme à 16${N}h, c'est nul. Mets dans ton règlement qu'elle reste ouverte jusqu'à 19${N}h.` },
+      { t: 'choice', id: 'cafet', prompt: `La cafétéria jusqu'à 19${N}h${N}?`, options: [
+        { id: 'exiger', label: 'Je l\'inscris dans le règlement', desc: 'Tout le monde le réclame.', fx: { adh: 6 }, set: { cafet: true },
+          after: [{ who: 'yanis', text: `Voilà${N}! Ça, c'est un règlement utile.` }] },
+        { id: 'non', label: 'Non, ce n\'est pas à moi de décider ça', desc: 'L\'employée ne dépend pas du foyer.', fx: { adh: -2 },
+          after: [{ who: 'yanis', text: `T'es pas marrant. Mais bon, t'as peut-être pas tort.` }] } ] }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Au-dessus de toi', sub: 'Ton règlement n\'est pas seul au monde.',
+    steps: [
+      { t: 'say', who: 'ferrand', text: `Avant le vote, j'ai demandé à Mme Diallo, juriste au rectorat, de relire ton texte. Elle ne laisse rien passer.` },
+      { t: 'say', who: 'diallo', text: `${pyr('foyer')}Bonjour. Voici comment je lis un règlement. Le vôtre est tout en bas. Au-dessus, il y a d'autres règles, écrites par d'autres que vous. Et une règle n'a jamais le droit de contredire celles qui sont au-dessus d'elle.` },
+      { t: 'say', who: 'diallo', text: `${pyr(['const', 'ue', 'loi', 'regl', 'conv'])}Tout en haut, la Constitution, avec les grands principes${N}: liberté, égalité, laïcité, solidarité. Puis le droit européen. Puis les lois, votées par le Parlement. Puis les règlements, pris par le gouvernement. Puis les accords négociés entre syndicats et employeurs. Et quand deux personnes ne sont pas d'accord sur le sens d'une règle, ce sont les juges qui tranchent.` },
+      ...fixSteps,
+      { t: 'event', if: s => s.illegal === 0, who: 'diallo', text: s => s.corr ? `J'ai fini. Vous avez corrigé tout ce qui devait l'être. Tel quel, votre règlement respecte chaque étage${N}: je ne vois pas comment on pourrait l'attaquer.` : `J'ai fini… et je n'ai rien trouvé à redire. C'est rare. Votre règlement respecte chaque étage${N}: je ne vois pas comment on pourrait l'attaquer.`, fx: { sol: 15, dir: 8 } },
+      { t: 'event', if: s => s.illegal > 0, who: 'diallo', text: s => `J'ai fini. Vous gardez ${s.illegal > 1 ? s.illegal + ' règles contraires' : 'une règle contraire'} à ce qui est au-dessus de vous. Je vous aurai prévenu.`, fx: { dir: -5 } }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'À l\'épreuve', sub: 'Le règlement est voté. Reste à voir s\'il tient.', final: true,
+    steps: [
+      { t: 'event', who: 'ferrand', text: `Le conseil d'administration a adopté ton règlement, à main levée. Il est affiché à l'entrée du foyer, signé, tamponné. Maintenant, il s'impose à tous. Même à ceux qui ont voté contre.`, fx: { dir: 4 } },
+      { t: 'event', if: s => s.flags.sansSanction, who: 'narr', text: `Un mois plus tard. Le règlement est toujours au mur. Plus personne ne le lit${N}: comme rien n'est prévu quand on ne le respecte pas, chacun fait comme avant.`, fx: { calme: -15 } },
+      { t: 'event', if: s => !s.flags.sansSanction, who: 'narr', text: s => `Un mois plus tard. ${s.calme >= 60 ? 'Le foyer est méconnaissable : on y joue, on y rit, et on s\'y passe la table.' : 'Le foyer est plus calme qu\'avant. Pas parfait, mais vivable.'}`, fx: { calme: 3 } },
+      { t: 'say', who: 'benali', text: `Kevin a bousculé un Seconde hier. J'ai appliqué le règlement${N}: une semaine sans foyer. Sa mère a demandé à te voir. Elle est avocate.` },
+      { t: 'say', who: 'lambert', text: `Je conteste l'exclusion de mon fils. Comme il s'agit de la décision d'un lycée public, j'irai devant le tribunal administratif. Si c'était une dispute entre deux particuliers, ce serait le tribunal judiciaire. Chaque litige a son juge.` },
+      { t: 'event', if: s => s.illegal > 0, who: 'lambert', text: s => `J'ai lu votre règlement ligne par ligne. Il contient ${s.garde.join(', et ')}. C'est contraire à des règles supérieures${N}: le juge l'écartera, et la sanction de Kevin tombera avec. On vous avait pourtant prévenu, je crois.`, fx: { sol: -30, dir: -15 } },
+      { t: 'say', if: s => s.illegal === 0, who: 'lambert', text: `J'ai lu votre règlement ligne par ligne, en cherchant la faille. Il n'y en a pas. La règle existait, elle était connue, elle vaut pour tous. Kevin fera sa semaine.` },
+      { t: 'say', who: 'lambert', text: `Retenez une chose${N}: aucune règle n'est intouchable. Même une loi votée par le Parlement, je peux la faire vérifier. Pendant un procès, je demande au Conseil constitutionnel si elle respecte la Constitution. Si la réponse est non, elle disparaît.` },
+      { t: 'say', who: 'ferrand', text: `Deux semaines, je t'avais dit. Voyons ce que tu as fait de mon foyer.` }
+    ] }
+  ],
+
+  /* ------------------------------ FINS (ordre de priorité) ------------------------------ */
+  endings: [
+    { id: 'ferme', when: s => s.calme <= 15, title: 'Foyer fermé', stamp: 'Cadenas', color: '#FF5C6A',
+      text: `Nouvelle bagarre, nouveau téléphone cassé. Mme Ferrand a tenu parole${N}: la porte est cadenassée. Sans règles claires, c'est toujours le plus fort qui s'impose.` },
+    { id: 'annule', when: s => s.illegal > 0, title: 'Règlement annulé', stamp: 'Illégal', color: '#FF5C6A',
+      text: `Ton règlement contredisait des règles placées au-dessus de lui. Il n'a pas résisté à la première contestation. Tout est à réécrire, et Kevin est de retour au baby-foot.` },
+    { id: 'tyran', when: s => s.adh < 30, title: 'Le foyer désert', stamp: 'Ordre sans élèves', color: '#FFC64F',
+      text: `Plus un bruit, plus une dispute. Plus personne non plus. Ton règlement est parfaitement respecté par les trois chaises vides. Les élèves se retrouvent maintenant devant le lycée.` },
+    { id: 'lettre', when: s => s.flags.sansSanction, title: 'Lettre morte', stamp: 'Jamais appliqué', color: '#FFC64F',
+      text: `Ton règlement est sympathique, bien écrit, affiché en couleurs. Et personne ne le respecte, puisqu'il ne se passe rien quand on l'ignore.` },
+    { id: 'modele', when: s => s.calme >= 65 && s.adh >= 55 && s.sol >= 70, title: 'Le règlement modèle', stamp: 'Bravo', color: '#4CD97B',
+      text: `Le foyer est calme, plein, et ton texte a résisté à une avocate. Mme Ferrand l'a envoyé aux autres lycées de la ville comme exemple. Yanis prétend que l'idée venait de lui.` },
+    { id: 'tient', when: s => true, title: 'Ça tient', stamp: 'Correct', color: '#9a8e7c',
+      text: `Le foyer reste ouvert et ton règlement est debout. Tout le monde n'est pas ravi, tout n'est pas réglé, mais on ne se bat plus pour un baby-foot.` }
+  ],
+
+  /* ------------------------------ DÉBRIEF (h = choix du joueur) ------------------------------ */
+  debrief: [
+    { act: 1, needs: ['laisser', 'baby', 'ambiance', 'sanction'], title: 'Acte 1 — Écrire une règle', text: (h, s) => {
+        const l = h.laisser === 'tester' ? 'Ta semaine sans règles l\'a montré : sans droit, c\'est le plus fort qui s\'impose.' : 'Le baby-foot confisqué par les plus grands le montrait déjà : sans droit, c\'est le plus fort qui s\'impose.';
+        const b = h.baby === 'kevin' ? 'Ta règle contre Kevin visait une personne : or une règle de droit est <em>générale et impersonnelle</em>, elle s\'adresse à tous ceux qui sont dans la même situation.' : h.baby === 'dix' ? 'Ta règle des dix minutes valait pour tout le monde : elle était <em>générale et impersonnelle</em>.' : 'Ta règle « premier arrivé, premier servi » était <em>générale et impersonnelle</em>, mais elle n\'organisait rien : elle donnait raison aux plus disponibles.';
+        const a = h.ambiance === 'egoiste' ? 'En interdisant d\'« être égoïste », tu as écrit une règle de <em>morale</em> : elle juge ce que les gens sont. Le droit, lui, ne s\'occupe que des comportements que l\'on peut constater.' : 'En visant un comportement précis plutôt que l\'égoïsme, tu as fait du droit et non de la <em>morale</em> : la morale juge les intentions, le droit les actes que l\'on peut constater.';
+        const sa = h.sanction === 'rien' ? 'Ta règle sans conséquence a été ignorée : une règle de droit est <em>obligatoire</em> et sa violation est <em>sanctionnée</em>.' : 'En prévoyant une conséquence, tu as rendu ta règle <em>obligatoire</em> : sa violation est <em>sanctionnée</em>.';
+        return `${l} Le droit a des <em>fonctions</em> : organiser la vie en commun, régler les conflits sans violence, protéger les plus faibles. La tranquillité et la sécurité de tous portent un nom : l\'<em>ordre public</em>. ${b} ${a} ${sa} Ce sont les <em>caractères de la règle de droit</em>.`; } },
+    { act: 2, needs: ['amende', 'controle', 'terminales', 'priere', 'censure', 'caisse', 'cafet'], title: 'Acte 2 — Qui décide ?', text: (h, s) => {
+        const am = h.amende === 'amende' ? 'Ton amende a fait rire Yanis : tu n\'avais aucun pouvoir pour l\'imposer.' : 'En passant par le conseil d\'administration, tu as donné à ton texte une vraie force.';
+        const t = h.terminales === 'oui' ? 'en réservant le baby-foot aux Terminales, tu as touché à l\'<em>égalité</em>' : 'en refusant de réserver le baby-foot aux Terminales, tu as défendu l\'<em>égalité</em>';
+        const p = h.priere === 'oui' ? 'en acceptant le coin prière, tu t\'es heurté à la <em>laïcité</em>' : 'en refusant le coin prière, tu as appliqué la <em>laïcité</em>';
+        const c = h.censure === 'oui' ? 'en interdisant les critiques, tu as restreint la <em>liberté</em> d\'expression' : 'en refusant d\'interdire les critiques, tu as protégé la <em>liberté</em> d\'expression';
+        const ca = h.caisse === 'oui' ? 'avec la caisse commune, tu as fait vivre la <em>solidarité</em>' : 'la caisse commune que tu as refusée relevait de la <em>solidarité</em>';
+        return `${am} Une règle de droit ne vaut que si elle vient d\'une <em>autorité légitime</em>, c\'est-à-dire de quelqu\'un qui a reçu le pouvoir de l\'édicter et de la faire respecter. Dans un <em>État de droit</em>, même ceux qui commandent sont soumis à des règles : le CPE lui-même ne peut pas inventer une punition. Les demandes des élèves t\'ont fait rencontrer les grands principes de la République : ${t} ; ${p} (l\'État ne favorise aucune religion et garantit à chacun la liberté de croire ou non) ; ${c} ; ${ca}.`; } },
+    { act: 3, needs: ['cafet'], title: 'Acte 3 — Au-dessus de toi', text: (h, s) => {
+        const r = s.illegal ? `Tu as maintenu ${s.illegal > 1 ? s.illegal + ' règles contraires' : 'une règle contraire'} à une norme supérieure : c\'est ce qui a fait tomber ton règlement.` : s.corr ? `Tu as corrigé ${s.corr > 1 ? 'les ' + s.corr + ' règles' : 'la règle'} que Mme Diallo t\'a signalée${s.corr > 1 ? 's' : ''} : ton règlement est devenu inattaquable.` : 'Mme Diallo n\'a rien trouvé à corriger : tu avais respecté chaque étage sans le savoir.';
+        return `La pyramide de Mme Diallo s\'appelle la <em>hiérarchie des normes</em> : chaque règle doit respecter celles qui sont au-dessus d\'elle. ${r} Ces étages sont les <em>sources du droit</em>. Au sommet, la <em>Constitution</em>. Puis le <em>droit de l\'Union européenne</em> : les traités, les <em>règlements</em> européens (applicables directement, comme celui sur les données personnelles) et les <em>directives</em> (que chaque pays transpose dans sa propre loi), adoptés par la <em>Commission européenne</em>, le <em>Parlement européen</em> et le <em>Conseil de l\'Union européenne</em>. Puis la <em>loi</em>, votée par le <em>Parlement</em>. Puis le <em>règlement</em> (décrets, arrêtés), pris par le <em>gouvernement</em>. Puis les <em>conventions et accords collectifs</em>, négociés par les <em>partenaires sociaux</em>. Enfin, les décisions des juges forment la <em>jurisprudence</em> : elles précisent le sens des règles.`; } },
+    { act: 4, needs: ['cafet'], finalOnly: true, title: 'Acte 4 — À l\'épreuve', text: (h, s) =>
+        `Me Lambert t\'a montré deux choses. D\'abord, l\'<em>organisation judiciaire</em> : les litiges avec une administration (un lycée public) vont devant les juges administratifs, les litiges entre particuliers devant les juges judiciaires. Ensuite, le <em>contrôle de constitutionnalité</em> : même une loi peut être contestée. Pendant un procès, toute personne peut poser une <em>question prioritaire de constitutionnalité</em> (QPC), et le Conseil constitutionnel vérifie alors que la loi respecte la Constitution. À noter : dans la réalité, le règlement d\'un foyer est préparé par la Maison des lycéens et adopté par le conseil d\'administration ; ton rôle a été simplifié pour le jeu.` }
+  ],
+  vocab: ['Fonctions du droit', 'Droit et morale', 'Ordre public', 'Caractères de la règle de droit', 'Autorité légitime', 'État de droit', 'Laïcité', 'Égalité', 'Liberté', 'Solidarité', 'Hiérarchie des normes', 'Constitution', 'Contrôle de constitutionnalité (QPC)', 'Droit de l\'Union européenne', 'Règlement et directive européens', 'Loi / Parlement', 'Règlement / gouvernement', 'Conventions et accords collectifs', 'Jurisprudence', 'Organisation judiciaire']
+};
+let H = {};   // historique des choix (lu par le débrief)
+
+/* =====================================================================
+   2. DÉCOR — le foyer (le panneau du règlement se remplit, le foyer se vide ou se remplit).
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const n = Math.min(7, Object.keys(H).filter(k => !k.startsWith('fix_')).length);
+  let lines = '';
+  for (let i = 0; i < n; i++) lines += `<line x1="266" y1="${52 + i * 7}" x2="${318 - (i % 3) * 8}" y2="${52 + i * 7}" stroke="${DROIT}" stroke-width="2" opacity=".8"/>`;
+  const voted = act.num === 4;
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Le foyer du lycée">
+    <rect width="360" height="200" fill="#0b0805"/>
+    <rect x="0" y="0" width="360" height="162" fill="#120e09"/>
+    <g stroke="#3a2a14" stroke-width="1"><line x1="0" y1="26" x2="360" y2="26"/></g>
+    <text x="14" y="18" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#5a4526">FOYER DES LYCÉENS</text>
+    <rect x="256" y="34" width="72" height="76" fill="#110c07" stroke="${voted ? DROIT : '#5a4526'}" stroke-width="1.5"/>
+    <text x="292" y="46" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="8" fill="${DROIT}">RÈGLEMENT</text>${lines}
+    ${voted ? `<circle cx="314" cy="98" r="7" fill="none" stroke="${DROIT}" stroke-width="1.5"/><path d="M310,98 L313,101 L318,95" stroke="${DROIT}" stroke-width="1.5" fill="none"/>` : ''}
+    <g transform="translate(132,112)"><rect x="0" y="0" width="92" height="30" rx="3" fill="#17110a" stroke="#4CD97B" stroke-width="1.5"/><line x1="46" y1="0" x2="46" y2="30" stroke="#4CD97B" stroke-width="1" opacity=".5"/><g stroke="#9a8e7c" stroke-width="1.5"><line x1="16" y1="-8" x2="16" y2="38"/><line x1="36" y1="-8" x2="36" y2="38"/><line x1="56" y1="-8" x2="56" y2="38"/><line x1="76" y1="-8" x2="76" y2="38"/></g><rect x="6" y="30" width="5" height="20" fill="#3a2a14"/><rect x="81" y="30" width="5" height="20" fill="#3a2a14"/><circle cx="46" cy="15" r="2.5" fill="#EEF3EC"/></g>
+    <g transform="translate(238,132)"><rect x="0" y="0" width="16" height="30" rx="2" fill="#17110a" stroke="#5B8FFF" stroke-width="1.3"/><circle cx="8" cy="9" r="4" fill="none" stroke="#5B8FFF"/><circle cx="8" cy="21" r="5" fill="none" stroke="#5B8FFF"/></g>
+    <g transform="translate(282,126)"><rect x="0" y="10" width="62" height="26" rx="6" fill="#17110a" stroke="#FF8AD1" stroke-width="1.3"/><rect x="-5" y="2" width="12" height="34" rx="5" fill="#17110a" stroke="#FF8AD1" stroke-width="1.3"/><rect x="55" y="2" width="12" height="34" rx="5" fill="#17110a" stroke="#FF8AD1" stroke-width="1.3"/></g>
+    <rect x="0" y="162" width="360" height="38" fill="#0d0a06"/><line x1="0" y1="162" x2="360" y2="162" stroke="#3a2a14" stroke-width="1.5"/>`;
+};
+
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] += v;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      frame(st.who, `<div class="box">${whoTag(st.who)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${o.label}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        applyFx(fx);
+        pushAfter(val(o.after, S)); next();
+      });
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="${st.step || 1}" value="${st.def}" aria-label="${st.prompt}">
+        <div class="range-l"><span>${st.show(st.min)}</span><span>${st.show(st.max)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        applyFx(res.fx); pushAfter(res.after); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p></div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">Tu as appliqué ces règles sans les nommer. Voici comment on les appelle en droit.</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour aller au bout de l'histoire.</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

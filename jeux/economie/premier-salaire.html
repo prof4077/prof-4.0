@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Premier Salaire — Jeu Économie 1ère STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#4CD97B;--eco-dim:#2A8E4C;--bg:#050806;--panel:#0a120c;--panel2:#0d1710;--line:#173322;--txt:#EEF3EC;--muted:#7C9483;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(76,217,123,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(76,217,123,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#12201a;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070c09;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(76,217,123,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#04160a;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#04160a;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#102016;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#12201a;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#04160a;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#07110c;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#07110c;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 3) n'a pas besoin d'être touché.
+   Jauges : compte (€), epargne (€), moral (0-100), pa (pouvoir d'achat, indice 100 au départ).
+   s.ep = somme mise de côté chaque mois ; s.salaire = revenu disponible mensuel.
+   ===================================================================== */
+const N = ' ';
+const eur = n => Math.round(n).toLocaleString('fr-FR') + N + '€';
+const pay = (s, n) => s.epargne >= n ? { epargne: -n } : { compte: -n };          // on paie avec l'épargne si elle suffit, sinon avec le compte
+const mood = s => s.ep >= 300 ? -8 : s.ep <= 50 ? 3 : 0;                          // effet du rythme d'épargne sur le moral
+const months = (s, n) => n * s.ep + Math.round(s.epargne * 0.02);                 // versements + intérêts du livret
+const LOYER = { coloc: 500, studio: 760, loin: 600 };
+const budget = (s, lg) => {                                                       // budget mensuel de Léo à l'acte 3
+  const R = s.salaire, log = LOYER[lg], alim = s.flags.promo ? 300 : 270, tr = lg === 'loin' ? 190 : 90, autres = 170;
+  return { R, log, alim, tr, autres, ep: s.ep, loisirs: R - log - alim - tr - autres - s.ep };
+};
+const COL = { log: '#5B8FFF', alim: '#4CD97B', tr: '#FFC64F', loisirs: '#FF8AD1', ep: '#B9A6FF', autres: '#7C9483' };
+function donut(parts) {                                                           // camembert en anneau + légende
+  const tot = parts.reduce((a, p) => a + p[1], 0), C = 2 * Math.PI * 38; let acc = 0;
+  const arcs = parts.map(p => { const len = p[1] / tot * C, a = `<circle cx="50" cy="50" r="38" fill="none" stroke="${p[2]}" stroke-width="18" stroke-dasharray="${len.toFixed(2)} ${(C - len).toFixed(2)}" stroke-dashoffset="${(-acc).toFixed(2)}"/>`; acc += len; return a; }).join('');
+  const leg = parts.map(p => `<span><i style="background:${p[2]}"></i>${p[0]}</span><b>${Math.round(p[1] / tot * 100)}${N}%</b>`).join('');
+  return `<span class="donut"><svg viewBox="0 0 100 100" aria-hidden="true"><g transform="rotate(-90 50 50)">${arcs}</g></svg><span class="leg">${leg}</span></span>`;
+}
+const donutLeo = (s, lg) => { const b = budget(s, lg); return donut([['Logement', b.log, COL.log], ['Alimentation', b.alim, COL.alim], ['Transport', b.tr, COL.tr], ['Loisirs', b.loisirs, COL.loisirs], ['Épargne', b.ep, COL.ep], ['Autres', b.autres, COL.autres]].filter(p => p[1] > 0)); };
+const donutSamira = () => donut([['Logement', 30, COL.log], ['Alimentation', 28, COL.alim], ['Transport', 12, COL.tr], ['Loisirs', 5, COL.loisirs], ['Épargne', 3, COL.ep], ['Enfants, autres', 22, COL.autres]]);
+const pct = (a, b) => Math.round(a / b * 100);
+
+const GAME = {
+  title: 'Premier Salaire',
+  brand: 'PREMIER <span>SALAIRE</span>',
+  storeKey: 'premierSalaireFins',
+  backLink: '../../matieres/economie-1ere.html',
+  footer: 'Économie 1re STMG, thème 3',
+  kicker: 'Économie · 1re STMG · Thème 3',
+  pitch: `Tu es Léo. Premier vrai salaire, première coloc, premier compte à gérer seul${N}: 1${N}500${N}€ par mois. Dépenser, mettre de côté, tenir quand les prix montent… Trois ans de ta vie se jouent ici.`,
+  meta: '4 actes · 15 minutes',
+  start: s => Object.assign(s, { compte: 300, epargne: 0, moral: 60, pa: 100, ep: 0, salaire: 1500, place: 0 }),
+  hud: [
+    { k: 'compte',  label: 'Compte',          short: 'Compte',      show: s => eur(s.compte),         pct: s => s.compte / 20,       low: s => s.compte < 0, unit: N + '€' },
+    { k: 'epargne', label: 'Épargne',         short: 'Épargne',     show: s => eur(s.epargne),        pct: s => s.epargne / 50,      low: s => false, unit: N + '€' },
+    { k: 'moral',   label: 'Moral',           short: 'Moral',       show: s => Math.round(s.moral),   pct: s => s.moral,             low: s => s.moral < 40, clamp: true },
+    { k: 'pa',      label: 'Pouvoir d\'achat', short: 'Pouv. achat', show: s => Math.round(s.pa),      pct: s => (s.pa - 80) * 2.5,   low: s => s.pa < 100 }
+  ],
+  fail: s => s.compte < -500 ? 'rouge' : null,
+  lock: (s, cost) => (s.epargne >= cost || s.compte - cost >= -400) ? null : 'Ta banque refuse ce paiement.',
+  bilan: s => [['Compte', eur(s.compte)], ['Épargne disponible', eur(s.epargne)], ['Moral', Math.round(s.moral) + ' / 100'], ['Pouvoir d\'achat', 'indice ' + Math.round(s.pa)]],
+
+  characters: {
+    maman:  { name: 'Maman',       role: '',                         color: '#FF9D3D', body: '#B86A1F', hair: '#3a2418', acc: 'bun' },
+    enzo:   { name: 'Enzo',        role: 'ton colocataire',          color: '#5B8FFF', body: '#3D62B8', hair: '#1c1c22', acc: 'cap' },
+    samira: { name: 'Samira',      role: 'ta collègue à l\'atelier', color: '#FF8AD1', body: '#B8508F', hair: '#3a2418', acc: 'bun' },
+    nour:   { name: 'Nour',        role: 'ta patronne',              color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'box' },
+    keller: { name: 'Mme Keller',  role: 'conseillère bancaire',     color: '#B9A6FF', body: '#3a3f4a', hair: '#8a5a22', acc: 'tie' },
+    narr:   { name: 'Léo',         role: '',                         color: '#4CD97B' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Dépenser ou garder ?', sub: 'Premier mois de salaire. Tout est à toi. Enfin, presque.',
+    steps: [
+      { t: 'say', who: 'maman', text: `Mon grand, ça y est${N}: ton appartement, ton salaire. 1${N}500${N}€ qui tombent chaque mois, rien que pour toi. Ne fais pas n'importe quoi avec.` },
+      { t: 'say', who: 'enzo', text: `Bienvenue dans la coloc${N}! Bon, les choses qui fâchent${N}:
+        <span class="pay"><span>Ta part du loyer</span><b>480${N}€</b><span>Courses</span><b>260${N}€</b><span>Transport</span><b>90${N}€</b><span>Téléphone, assurance, électricité</span><b>170${N}€</b><span class="tot">Ce qui te reste chaque mois</span><b class="tot">500${N}€</b></span>` },
+      { t: 'say', who: 'enzo', text: `500 balles de libre${N}! Resto, concerts, fringues… T'as 20 ans, tu bosses toute la semaine. Profite, non${N}?` },
+      { t: 'say', who: 'samira', text: `Écoute une vieille de l'atelier${N}: un pépin, ça arrive toujours le mois où tu n'as rien de côté. Et si tu veux une voiture un jour, elle ne va pas se payer toute seule.` },
+      { t: 'qty', id: 'ep', prompt: 'Sur tes 500 € libres, combien mets-tu de côté chaque mois ?', min: 0, max: 500, step: 50, def: 100,
+        show: n => eur(n),
+        info: (s, n) => `Mis de côté${N}: <b>${eur(n)}</b> par mois<br>Pour sortir et te faire plaisir${N}: <b>${eur(500 - n)}</b> par mois`,
+        resolve: (s, n) => { const do_ = s => { s.ep = n; };
+          return n <= 50 ? { band: 'rien', do: do_, fx: { moral: 8 }, after: [{ who: 'enzo', text: `Voilà${N}! Ce soir c'est burger, samedi c'est concert. La belle vie.` }] }
+               : n >= 300 ? { band: 'fourmi', do: do_, fx: { moral: -10 }, after: [{ who: 'enzo', text: `Encore non${N}? Ça fait trois soirées que tu refuses. On va finir par ne plus te proposer.` }] }
+               : { band: 'equilibre', do: do_, after: [{ who: 'samira', text: `Un peu pour aujourd'hui, un peu pour demain. Ça me paraît sage.` }] }; } },
+      { t: 'event', who: 'narr', text: s => `Trois mois passent. ${s.ep ? `Tu as versé ${eur(3 * s.ep)} sur ton livret.` : `Ton livret est toujours vide, mais tu connais tous les bars du quartier.`}`, fx: s => ({ epargne: months(s, 3), moral: mood(s) }) },
+      { t: 'say', who: 'enzo', text: `Regarde ça${N}: la nouvelle console, 480${N}€. Le magasin propose de la payer en dix fois. Tu repars avec ce soir, et tu ne sens rien passer${N}!` },
+      { t: 'choice', id: 'console', prompt: `La console à 480${N}€${N}?`, options: [
+        { id: 'credit', label: 'La prendre en dix fois', desc: '53 € par mois pendant dix mois.', fx: { moral: 10 }, set: { credit: true, console: true },
+          after: [{ who: 'narr', text: `Dix fois 53, ça fait 530${N}€. La console m'a coûté 50${N}€ de plus que son prix. Je ne l'avais pas calculé.` }] },
+        { id: 'cash', label: 'La payer avec mon épargne', desc: '480 € tout de suite.', lock: s => s.epargne < 480 ? 'Tu n\'as pas assez de côté.' : null, fx: { epargne: -480, moral: 10 }, set: { console: true },
+          after: [{ who: 'enzo', text: `Payée cash${N}! Respect. Allez, je lance une partie.` }] },
+        { id: 'attendre', label: 'Attendre', desc: 'Elle sera encore là dans six mois.', fx: { moral: -4 },
+          after: [{ who: 'enzo', text: `Comme tu veux. Tu joueras sur la mienne… quand elle sera libre.` }] } ] },
+      { t: 'say', who: 'keller', text: `Bonjour Léo. Une nouvelle pour votre livret${N}: son taux passe de 1${N}% à 3${N}%. 1${N}000${N}€ placés vous rapportaient 10${N}€ par an${N}; ils en rapporteront 30. Laisser dormir de l'argent chez nous devient plus intéressant.` },
+      { t: 'choice', id: 'taux', prompt: `Le livret rapporte plus. Tu changes quelque chose${N}?`, options: [
+        { id: 'plus', label: 'Je mets 100 € de plus par mois', desc: 'Autant en profiter.', lock: s => s.ep >= 500 ? 'Tu mets déjà tout de côté.' : null, fx: { moral: -4 }, do: s => { s.ep = Math.min(500, s.ep + 100); },
+          after: s => [{ who: 'keller', text: `C'est noté${N}: ${eur(s.ep)} par mois. Renoncer à dépenser aujourd'hui vous est désormais mieux payé.` }] },
+        { id: 'pareil', label: 'Je ne change rien', desc: 'Mon rythme me convient.',
+          after: [{ who: 'keller', text: `Très bien. Votre livret reste à votre disposition.` }] },
+        { id: 'moins', label: 'Je mets 100 € de moins', desc: 'On ne vit qu\'une fois.', lock: s => s.ep < 100 ? 'Tu ne mets déjà presque rien de côté.' : null, fx: { moral: 4 }, do: s => { s.ep = Math.max(0, s.ep - 100); },
+          after: [{ who: 'enzo', text: `Enfin une bonne décision. Je réserve le resto.` }] } ] },
+      { t: 'event', who: 'narr', text: s => `Quatre mois de plus. ${s.flags.credit ? 'Les mensualités de la console tombent, une par une. ' : ''}${s.ep >= 300 ? 'Mon livret grossit. Mon téléphone, lui, ne sonne plus beaucoup le samedi soir.' : s.ep <= 50 ? 'Je ne regarde pas trop mon relevé de compte.' : 'Le livret monte doucement.'}`, fx: s => ({ epargne: months(s, 4), moral: mood(s), compte: s.flags.credit ? -370 : 0 }) },
+      { t: 'event', if: s => s.epargne >= 400, who: 'narr', text: `Lundi, 7${N}h. Le scooter ne démarre plus. Le garagiste annonce 400${N}€. Je grimace… et je paie avec mon livret. C'est exactement pour ça qu'il était là.`, fx: { epargne: -400 }, set: { amorti: true } },
+      { t: 'event', if: s => s.epargne < 400 && !s.flags.amorti, who: 'narr', text: `Lundi, 7${N}h. Le scooter ne démarre plus. Le garagiste annonce 400${N}€. Je n'ai pas cette somme de côté. Je paie par carte en fermant les yeux${N}: mon compte passe dans le rouge.`, fx: { compte: -400, moral: -8 } }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Le même caddie', sub: 'Un an plus tard. Ton salaire n\'a pas baissé. Alors pourquoi c\'est plus serré ?',
+    steps: [
+      { t: 'event', who: 'narr', text: s => `Les mois ont filé${N}: déjà plus d'un an que je travaille.${s.flags.credit ? ' La console est enfin payée.' : ''} ${s.ep ? 'Mon livret a continué de grossir, intérêts compris.' : ''}`, fx: s => ({ epargne: months(s, 8), moral: mood(s), compte: s.flags.credit ? -160 : 0 }) },
+      { t: 'event', if: s => s.compte < 0, who: 'keller', text: `Léo, votre compte est à découvert. Cela vous coûte des frais chaque mois. Il faut revenir à zéro, vite.`, fx: s => ({ compte: 100 - s.compte, moral: -12 }), set: { serre: true } },
+      { t: 'say', if: s => s.flags.serre, who: 'narr', text: `Deux mois de pâtes, zéro sortie. Je suis remonté au-dessus de zéro, mais je m'en souviendrai.` },
+      { t: 'say', who: 'narr', text: `Samedi, supermarché. Même liste que l'an dernier, mêmes marques, même caddie. Je compare les deux tickets${N}:
+        <span class="pay tick"><span></span><b>L'an dernier</b><b>Aujourd'hui</b><span>Pâtes (1 kg)</span><b>1,60${N}€</b><b>1,85${N}€</b><span>Poulet</span><b>7,90${N}€</b><b>8,60${N}€</b><span>Café</span><b>3,80${N}€</b><b>4,30${N}€</b><span>Lessive</span><b>6,50${N}€</b><b>6,40${N}€</b><span>… et 20 autres articles</span><b></b><b></b><span class="tot">Total du caddie</span><b class="tot">60${N}€</b><b class="tot">63${N}€</b></span>` },
+      { t: 'event', who: 'enzo', text: `Mauvaise nouvelle${N}: le propriétaire augmente le loyer de 20${N}€ chacun. Et t'as vu le prix de l'essence${N}? Tout a pris 5${N}% en un an.`, fx: { pa: -5 } },
+      { t: 'event', who: 'nour', text: `Léo, tu as bien travaillé cette année. Je t'augmente de 2${N}%${N}: tu passes de 1${N}500 à 1${N}530${N}€.`, fx: { pa: 2 }, do: s => { s.salaire = 1530; } },
+      { t: 'say', who: 'narr', text: `Mon salaire a monté. Pourtant, avec lui, je remplis moins mon caddie qu'il y a un an. Regarde la jauge en haut à droite.` },
+      { t: 'choice', id: 'hausse', prompt: `Comment tu encaisses la hausse des prix${N}?`, options: [
+        { id: 'nego', label: 'Demander 5 % à Nour', desc: 'Les prix ont pris 5 %, pas 2.', fx: { pa: 2, moral: -2 }, do: s => { s.salaire = 1560; },
+          after: [{ who: 'nour', text: `5${N}%${N}? Mon manioc aussi a augmenté, figure-toi. Je monte à 4${N}%, et c'est mon dernier mot.` }, { who: 'narr', text: `4${N}% de plus sur ma fiche de paie, 5${N}% de plus sur les étiquettes. J'ai presque rattrapé les prix. Presque.` }] },
+        { id: 'marques', label: 'Changer de magasin et de marques', desc: 'Le même caddie, en moins cher.', fx: { pa: 3, moral: -3 },
+          after: [{ who: 'narr', text: `Caddie plein pour 58${N}€. Le café est moins bon, mais mon argent va de nouveau aussi loin qu'avant.` }] },
+        { id: 'piocher', label: 'Piocher dans mon épargne', desc: '300 € pour garder mon train de vie.', lock: s => s.epargne < 300 ? 'Tu n\'as pas assez de côté.' : null, fx: { epargne: -300, moral: 2 },
+          after: [{ who: 'samira', text: `Ça marche cette année. Et l'an prochain, quand les prix auront encore monté${N}?` }] },
+        { id: 'loisirs', label: 'Rogner sur les sorties', desc: 'Les courses d\'abord.', fx: { moral: -10 },
+          after: [{ who: 'enzo', text: `Tu ne viens plus au ciné non plus${N}? C'est la crise ou quoi${N}?` }] } ] },
+      { t: 'say', who: 'samira', text: `Tu te plains des prix${N}? En 1985, ma première télé m'a coûté deux mois de salaire. Aujourd'hui, pour une télé bien meilleure, il faut une semaine de travail.` },
+      { t: 'say', who: 'samira', text: `Par contre, mon premier loyer, c'était une semaine de salaire. Aujourd'hui, il t'en faut presque deux. Tout ne bouge pas dans le même sens${N}: les écrans dégringolent, les loyers grimpent. Et malgré tout, avec un mois de salaire, on s'offre bien plus de choses qu'à mon époque.` },
+      { t: 'say', who: 'narr', text: `Justement${N}: mon téléphone vient de tomber dans l'escalier. Écran mort.` },
+      { t: 'choice', id: 'tel', prompt: `Quel téléphone${N}?`, options: [
+        { id: 'neuf', label: 'Le dernier modèle', cost: 600, desc: 'Il vient de sortir.', fx: s => Object.assign(pay(s, 600), { moral: 6 }),
+          after: [{ who: 'enzo', text: `La classe. Dans deux ans, il vaudra la moitié, tu sais${N}?` }] },
+        { id: 'ancien', label: 'Le modèle d\'il y a deux ans', cost: 250, desc: 'Il coûtait 500 € à sa sortie.', fx: s => pay(s, 250),
+          after: [{ who: 'narr', text: `Moitié prix en deux ans, pour le même téléphone. Pendant ce temps, mon loyer n'a fait que monter.` }] },
+        { id: 'fissure', label: 'Garder l\'écran fissuré', desc: 'Ça marche encore. À peu près.', fx: { moral: -5 },
+          after: [{ who: 'enzo', text: `Tu lis tes messages à travers une toile d'araignée, là.` }] } ] }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Où part l\'argent ?', sub: 'Deux ans plus tard. Tu n\'es plus le petit nouveau.',
+    steps: [
+      { t: 'event', who: 'narr', text: s => `Deux ans de plus. Les prix ont continué de grimper, de 4${N}% par an. ${s.ep >= 300 ? 'Mon livret est bien rempli. Mes week-ends, beaucoup moins.' : s.ep ? 'Mon livret a pris du poids.' : 'Mon livret, lui, n\'a pas bougé.'}`, fx: s => ({ epargne: months(s, 20), moral: mood(s), pa: -8 }) },
+      { t: 'event', if: s => s.compte < 0, who: 'keller', text: `Léo, encore à découvert. Les frais s'accumulent. Il faut vous serrer la ceinture.`, fx: s => ({ compte: 100 - s.compte, moral: -12 }) },
+      { t: 'say', who: 'nour', text: `Léo, j'ouvre une deuxième ligne de production et il me faut un chef d'équipe. Le poste est pour toi${N}: 1${N}900${N}€ par mois. Mais tu géreras les plannings, les retards, les râleurs.` },
+      { t: 'choice', id: 'promo', prompt: `Chef d'équipe${N}?`, options: [
+        { id: 'oui', label: 'J\'accepte le poste', desc: '1 900 € par mois, et des responsabilités.', fx: { pa: 23, moral: -3 }, set: { promo: true }, do: s => { s.salaire = 1900; },
+          after: [{ who: 'narr', text: `1${N}900${N}€. Cette fois, mon salaire a monté bien plus vite que les prix.` }] },
+        { id: 'non', label: 'Je reste à mon poste', desc: 'Même salaire, moins de soucis.', fx: { moral: 3 },
+          after: [{ who: 'narr', text: `Tranquille. Mais mon salaire ne bouge plus, et les étiquettes, elles, continuent.` }] } ] },
+      { t: 'say', who: 'enzo', text: `Bon… Je te préviens, je me mets à la batterie. Si tu veux partir, je comprendrai.` },
+      { t: 'choice', id: 'logement', prompt: `Où tu habites, maintenant${N}?`, options: ['coloc', 'studio', 'loin'].map(lg => ({
+          id: lg,
+          label: { coloc: 'Rester en coloc avec Enzo', studio: 'Un studio seul en centre-ville', loin: 'Un deux-pièces loin du centre' }[lg],
+          cost: { coloc: 0, studio: 700, loin: 400 }[lg],
+          desc: { coloc: '500 € par mois. Et la batterie.', studio: '760 € par mois. Enfin chez toi. Caution à verser.', loin: '600 € par mois, mais 190 € de transport. Caution à verser.' }[lg],
+          fx: s => Object.assign(lg === 'coloc' ? {} : pay(s, lg === 'studio' ? 700 : 400), { moral: { coloc: -4, studio: 10, loin: 3 }[lg] }),
+          do: s => { const b = budget(s, lg), max = Math.max(0, Math.floor((b.loisirs + b.ep - 50) / 50) * 50); s.epAvant = s.ep; if (s.ep > max) s.ep = max; },
+          after: s => s.ep < s.epAvant ? [{ who: 'narr', text: `Avec ce loyer, impossible de garder mon rythme${N}: je ne peux plus mettre que ${eur(s.ep)} de côté par mois.` }]
+                 : [{ who: 'narr', text: { coloc: `Boum, boum, tchak. Je dors avec des bouchons, mais mon budget respire.`, studio: `Mon canapé, mon frigo, mon silence. Ça n'a pas de prix. Enfin si${N}: 760${N}€.`, loin: `C'est grand, c'est calme. Et c'est à 50 minutes de l'atelier.` }[lg] }] })) },
+      { t: 'say', who: 'keller', text: s => { const b = budget(s, H.logement); return `Voici où part chacun de vos ${eur(b.R)}, Léo${N}: ${donutLeo(s, H.logement)}
+        ${s.flags.promo ? `À votre premier mois, les courses pesaient 17${N}% de votre budget. Vous mangez mieux aujourd'hui, et pourtant elles n'en pèsent plus que ${pct(b.alim, b.R)}${N}%.` : `À votre premier mois, le logement pesait 32${N}% de votre budget. Il en pèse ${pct(b.log, b.R)}${N}% aujourd'hui.`}`; } },
+      { t: 'say', who: 'samira', text: `Tiens, montre${N}? Le mien n'a rien à voir. Même salaire que toi, mais trois enfants${N}: ${donutSamira()} Chez moi, presque tout part dans le toit et dans l'assiette. Les loisirs, c'est le square.` },
+      { t: 'say', who: 'keller', text: s => `Vous avez ${eur(s.epargne)} sur votre livret. Qu'en faites-vous${N}?` },
+      { t: 'choice', id: 'projet', prompt: `Ton épargne, tu en fais quoi${N}?`, options: [
+        { id: 'voiture', label: 'J\'achète une voiture d\'occasion', desc: '2 000 € de mon livret.', lock: s => s.epargne < 2000 ? 'Tu n\'as pas 2 000 € de côté.' : null, fx: { epargne: -2000, moral: 12 }, set: { projet: true, voiture: true },
+          after: [{ who: 'maman', text: `Ta voiture, payée avec ton argent, sans rien devoir à personne. Je suis fière de toi.` }] },
+        { id: 'placer', label: 'Je place 1 000 € sur cinq ans', desc: 'Ça rapporte plus, mais l\'argent est bloqué.', lock: s => s.epargne < 1000 ? 'Tu n\'as pas 1 000 € de côté.' : null, fx: { epargne: -1000, moral: 2 }, set: { projet: true }, do: s => { s.place = 1000; },
+          after: [{ who: 'keller', text: `Dans cinq ans, vous retrouverez plus que vos 1${N}000${N}€. D'ici là, cet argent n'est plus disponible.` }] },
+        { id: 'garder', label: 'Je garde tout disponible', desc: 'On ne sait jamais.',
+          after: [{ who: 'keller', text: `Comme vous voudrez. Tout reste sur le livret, à portée de main.` }] } ] },
+      { t: 'say', who: 'nour', text: `J'ai une mauvaise nouvelle. TeaMax suspend ses commandes pendant deux mois. Tout l'atelier passe en chômage partiel${N}: vous toucherez 300${N}€ de moins par mois.` },
+      { t: 'event', if: s => s.epargne >= 600, who: 'narr', text: `600${N}€ en moins sur deux mois. Je les prends sur mon livret. Le loyer est payé, le frigo est plein. Je dors tranquille.`, fx: { epargne: -600 }, set: { tenu: true } },
+      { t: 'event', if: s => !s.flags.tenu, who: 'narr', text: s => `600${N}€ en moins sur deux mois${s.place ? ', et mon placement est bloqué' : ''}. ${s.epargne ? 'Mon livret ne suffit pas.' : 'Je n\'ai rien de côté.'} Le loyer passe, puis plus rien. J'appelle Maman.`, fx: s => ({ compte: -(600 - s.epargne), epargne: -s.epargne, moral: -15 }), set: { cigale: true } }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Trois ans plus tard', sub: 'Dimanche midi, chez Maman.', final: true,
+    steps: [
+      { t: 'say', who: 'keller', text: s => `Avant votre déjeuner de famille, votre bilan, Léo. Voici tout ce que vous possédez${N}:
+        <span class="pay"><span>Livret</span><b>${eur(s.epargne)}</b>${s.place ? `<span>Placement bloqué</span><b>${eur(s.place)}</b>` : ''}${s.flags.voiture ? `<span>Voiture</span><b>${eur(2000)}</b>` : ''}${s.flags.console ? `<span>Console</span><b>${eur(150)}</b>` : ''}<span class="tot">Total</span><b class="tot">${eur(s.epargne + s.place + (s.flags.voiture ? 2000 : 0) + (s.flags.console ? 150 : 0))}</b></span>
+        <small>Il y a trois ans, cette colonne était vide.</small>` },
+      { t: 'say', who: 'maman', text: `Assieds-toi, c'est prêt. Alors, mon grand… trois ans que tu gères ta vie tout seul. Tu t'en sors${N}?` }
+    ] }
+  ],
+
+  /* ------------------------------ FINS (ordre de priorité) ------------------------------ */
+  endings: [
+    { id: 'rouge', when: s => s.compte < -500, title: 'Dans le rouge', stamp: 'Carte bloquée', color: '#FF5C6A',
+      text: `Ton découvert a dépassé la limite. La banque bloque ta carte et rejette tes paiements. Sans rien de côté, chaque imprévu t'a enfoncé un peu plus.` },
+    { id: 'cigale', when: s => s.flags.cigale, title: 'La cigale', stamp: 'Retour chez Maman', color: '#FFC64F',
+      text: `Tu as bien vécu, c'est vrai. Mais le jour où ton salaire a baissé, il n'y avait rien pour amortir le choc. Tu rends tes clés et tu retrouves ta chambre d'ado.` },
+    { id: 'rattrape', when: s => s.pa < 100, title: 'Rattrapé par les prix', stamp: 'Pouvoir d\'achat en baisse', color: '#FFC64F',
+      text: `Ton salaire a un peu monté en trois ans. Les prix, beaucoup plus. Avec ta paie d'aujourd'hui, tu achètes moins de choses qu'avec celle de ton premier mois.` },
+    { id: 'fourmi', when: s => s.moral < 40, title: 'La fourmi triste', stamp: 'Riche et seul', color: '#B9A6FF',
+      text: `Ton livret est plein. Ton agenda est vide. À force de tout garder pour plus tard, tu as oublié de vivre maintenant. Maman te trouve mauvaise mine.` },
+    { id: 'projet', when: s => s.flags.projet && s.moral >= 55, title: 'Le projet réalisé', stamp: 'Bravo', color: '#4CD97B',
+      text: `Tu as profité sans te mettre en danger, tenu quand ça secouait, et ton épargne a servi à construire quelque chose. Maman ressert tout le monde, l'air de rien, très fière.` },
+    { id: 'passe', when: s => true, title: 'Ça passe', stamp: 'Correct', color: '#7C9483',
+      text: `Pas de catastrophe, pas d'exploit. Les factures sont payées, le frigo est plein, et il reste un peu de marge. Pour un début dans la vie, c'est déjà bien.` }
+  ],
+
+  /* ------------------------------ DÉBRIEF (h = choix du joueur) ------------------------------ */
+  debrief: [
+    { act: 1, needs: ['ep', 'console', 'taux'], title: 'Acte 1 — Dépenser ou garder ?', text: (h, s) => {
+        const e = h.ep === 'rien' ? `Tu as choisi de presque tout dépenser (${eur(h.epv)} de côté par mois) : ta <em>propension à consommer</em> était très forte, ton <em>taux d\'épargne</em> presque nul.`
+              : h.ep === 'fourmi' ? `Tu as mis ${eur(h.epv)} de côté par mois, soit ${pct(h.epv, 1500)} % de ton revenu : c\'est ton <em>taux d\'épargne</em>, très élevé. Ta <em>propension à consommer</em> (la part du revenu que tu dépenses) était donc faible.`
+              : `Tu as mis ${eur(h.epv)} de côté par mois, soit ${pct(h.epv, 1500)} % de ton revenu : c\'est ton <em>taux d\'épargne</em>. Le reste, la part que tu dépenses, mesure ta <em>propension à consommer</em>.`;
+        const c = h.console === 'credit' ? 'En prenant la console en dix fois, tu as consommé tout de suite un revenu que tu n\'avais pas encore gagné, et cela t\'a coûté 50 € de plus.' : h.console === 'cash' ? 'Ta console, tu l\'as payée grâce à ce que tu avais renoncé à dépenser avant.' : 'En renonçant à la console, tu as préféré garder ta marge.';
+        const t = h.taux === 'plus' ? 'Quand le taux du livret est monté, tu as épargné davantage : tu as réagi au <em>taux d\'intérêt</em>.' : h.taux === 'moins' ? 'Le taux du livret est monté, mais tu as préféré consommer plus : le <em>taux d\'intérêt</em> n\'est qu\'une raison parmi d\'autres.' : 'Le taux du livret est monté sans que tu changes rien : le <em>taux d\'intérêt</em> n\'est qu\'une raison parmi d\'autres.';
+        return `Chaque mois, tu as partagé ton revenu disponible entre <em>consommation</em> et <em>épargne</em>. ${e} ${c} ${t} Les conseils de Samira résument les <em>déterminants de l\'épargne</em> : se protéger d\'un coup dur (le scooter), c\'est l\'<em>épargne de précaution</em> ; préparer un achat, un projet ; faire fructifier, un placement. Ton revenu, ton âge et les risques que tu redoutes pèsent aussi dans ce choix.`; } },
+    { act: 2, needs: ['hausse', 'tel'], title: 'Acte 2 — Le même caddie', text: (h, s) => {
+        const r = h.hausse === 'nego' ? 'En négociant, tu as cherché à faire monter ton revenu aussi vite que les prix.' : h.hausse === 'marques' ? 'En changeant de marques, tu as modifié ton panier pour que ton revenu aille aussi loin qu\'avant.' : h.hausse === 'piocher' ? 'En piochant dans ton épargne, tu as maintenu ta consommation sans régler le problème.' : 'En rognant sur les sorties, tu as subi la baisse en consommant moins.';
+        const t = h.tel === 'ancien' ? 'Ton téléphone à moitié prix deux ans après sa sortie, face à un loyer qui grimpe, illustre les' : 'La télé de Samira et son loyer illustrent les';
+        return `Ton caddie identique d\'une année sur l\'autre, c\'est un <em>panier de biens</em> : en suivant le prix d\'un panier fixe, on calcule l\'<em>indice des prix à la consommation</em> (IPC). Le tien est passé de 60 à 63 € : +5 %. Ton salaire n\'a pris que 2 % : ton <em>pouvoir d\'achat</em>, c\'est-à-dire la quantité de biens et de services que ton revenu permet d\'acheter, a baissé. ${r} ${t} <em>prix relatifs</em> : tous les prix n\'évoluent pas au même rythme. Et sur quarante ans, les revenus ont monté plus vite que les prix : le pouvoir d\'achat augmente <em>à long terme</em>.`; } },
+    { act: 3, needs: ['promo', 'logement', 'projet'], title: 'Acte 3 — Où part l\'argent ?', text: (h, s) => {
+        const p = h.promo === 'oui' ? 'Avec ta promotion, tes courses ont augmenté en euros mais leur part dans ton budget a baissé : quand le revenu monte, la part de l\'alimentation recule.' : 'Sans promotion, tes parts ont peu bougé, sauf le logement qui pèse de plus en plus lourd.';
+        const l = h.logement === 'studio' ? 'En prenant un studio seul, tu as fait du logement ton premier poste, de loin.' : h.logement === 'loin' ? 'En t\'éloignant, tu as échangé du loyer contre du transport.' : 'En restant en coloc, tu as gardé un logement léger dans ton budget.';
+        const pr = h.projet === 'voiture' ? 'Ta voiture, achetée avec ton épargne, fait maintenant partie de ton <em>patrimoine</em>.' : h.projet === 'placer' ? 'Ton placement fait partie de ton <em>patrimoine</em>, mais il n\'était pas disponible le jour du chômage partiel.' : 'Ton livret, gardé disponible, constitue ton <em>patrimoine</em>.';
+        return `Le camembert de Mme Keller montre la <em>composition de tes dépenses</em>. La part de chaque poste dans le budget s\'appelle un <em>coefficient budgétaire</em>. ${p} ${l} Le camembert de Samira est différent du tien à salaire égal : la taille de la famille, l\'âge, le revenu font partie des <em>déterminants de la consommation</em>. ${pr} Le patrimoine, c\'est tout ce qu\'un ménage possède : il se construit avec l\'épargne accumulée.`; } },
+    { act: 4, needs: ['projet'], finalOnly: true, title: 'Acte 4 — Le bilan', text: (h, s) =>
+        `En trois ans, tu as fait sans cesse le même choix : consommer maintenant ou épargner pour plus tard. Il n\'y a pas de bonne réponse unique. Trop peu d\'épargne, et le moindre choc fait tomber. Trop, et on se prive pour rien. Ton revenu, les prix, les taux, ta situation et tes projets font bouger le curseur.` }
+  ],
+  vocab: ['Consommation', 'Épargne', 'Déterminants de l\'épargne et de la consommation', 'Propension à consommer', 'Taux d\'épargne', 'Taux d\'intérêt', 'Épargne de précaution', 'Patrimoine', 'Indice des prix à la consommation', 'Panier de biens', 'Pouvoir d\'achat', 'Évolution à long terme du pouvoir d\'achat', 'Prix relatifs', 'Composition des dépenses', 'Coefficients budgétaires']
+};
+let H = {};   // historique des choix (lu par le débrief)
+
+/* =====================================================================
+   2. DÉCOR — le salon de Léo (évolue avec les choix).
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  let extra = '';
+  if (S.flags.console) extra += `<rect x="236" y="120" width="34" height="9" rx="2" fill="#101820" stroke="#5B8FFF" stroke-width="1.5"/><circle cx="244" cy="124.5" r="1.5" fill="#4CD97B"/>`;
+  if (S.flags.voiture) extra += `<g transform="translate(140,62)"><path d="M0,14 L6,4 L26,4 L33,14 Z" fill="#FF9D3D" opacity=".9"/><rect x="-3" y="14" width="40" height="7" rx="3" fill="#FF9D3D"/><circle cx="6" cy="22" r="3.5" fill="#050806" stroke="#FF9D3D"/><circle cx="28" cy="22" r="3.5" fill="#050806" stroke="#FF9D3D"/></g>`;
+  const piles = Math.min(6, Math.floor(S.epargne / 800));
+  for (let i = 0; i < piles; i++) extra += `<ellipse cx="${318}" cy="${150 - i * 5}" rx="11" ry="3.5" fill="#1a140c" stroke="#B9A6FF" stroke-width="1.2"/>`;
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Le salon de Léo">
+    <rect width="360" height="200" fill="#070c09"/>
+    <rect x="0" y="0" width="360" height="162" fill="#0a120c"/>
+    <rect x="126" y="28" width="70" height="62" fill="#07110c" stroke="#173322" stroke-width="2"/><line x1="161" y1="28" x2="161" y2="90" stroke="#173322" stroke-width="1.5"/><line x1="126" y1="59" x2="196" y2="59" stroke="#173322" stroke-width="1.5"/>
+    <circle cx="180" cy="42" r="6" fill="#FFC64F" opacity=".35"/>
+    <g transform="translate(222,64)"><rect x="0" y="0" width="62" height="40" rx="3" fill="#050806" stroke="#4CD97B" stroke-width="1.5"/><rect x="26" y="40" width="10" height="8" fill="#173322"/><rect x="10" y="48" width="42" height="4" fill="#173322"/></g>
+    <rect x="214" y="116" width="78" height="46" fill="#0d1610" stroke="#173322" stroke-width="1.5"/>
+    <g transform="translate(300,128)"><rect x="0" y="26" width="36" height="8" fill="#0d1610" stroke="#173322"/></g>
+    ${extra}
+    <g transform="translate(118,118)"><rect x="0" y="12" width="82" height="30" rx="6" fill="#141018" stroke="#FF8AD1" stroke-width="1.3" opacity=".9"/><rect x="-6" y="4" width="14" height="38" rx="5" fill="#141018" stroke="#FF8AD1" stroke-width="1.3"/><rect x="74" y="4" width="14" height="38" rx="5" fill="#141018" stroke="#FF8AD1" stroke-width="1.3"/></g>
+    <rect x="0" y="162" width="360" height="38" fill="#080d0a"/><line x1="0" y1="162" x2="360" y2="162" stroke="#173322" stroke-width="1.5"/>`;
+};
+
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] += v;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      frame(st.who, `<div class="box">${whoTag(st.who)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${o.label}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        applyFx(fx);
+        pushAfter(val(o.after, S)); next();
+      });
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="${st.step || 1}" value="${st.def}" aria-label="${st.prompt}">
+        <div class="range-l"><span>${st.show(st.min)}</span><span>${st.show(st.max)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        applyFx(res.fx); pushAfter(res.after); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p></div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">Tu as utilisé ces notions pour diriger. Voici comment on les appelle en économie.</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour aller au bout de l'année.</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

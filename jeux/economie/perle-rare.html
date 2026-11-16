@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Perle Rare — Jeu Économie 1ère STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#4CD97B;--eco-dim:#2A8E4C;--bg:#050806;--panel:#0a120c;--panel2:#0d1710;--line:#173322;--txt:#EEF3EC;--muted:#7C9483;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(76,217,123,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(76,217,123,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#12201a;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070c09;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(76,217,123,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#04160a;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#04160a;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#102016;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:46px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px;color:var(--muted);margin-top:8px;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#12201a;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#04160a;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 2) n'a pas besoin d'être touché.
+   Jauges : treso (€), part (%), sat (0-100), rep (0-100), risk (cachée).
+   ===================================================================== */
+const eur = n => (Math.round(n * 100) / 100).toFixed(2).replace('.', ',') + ' €';
+
+const GAME = {
+  title: 'Perle Rare',
+  backLink: '../../matieres/economie-1ere.html',
+  start: { treso: 2000, part: 10, sat: 50, rep: 50, risk: 0, cost: 2.5 },
+
+  characters: {
+    lin:      { name: 'Mamie Lin',    role: 'ancienne gérante',        color: '#FFC64F', body: '#B8862B', hair: '#D8DCE0', acc: 'bun' },
+    yanis:    { name: 'Yanis',        role: 'stand voisin',            color: '#5B8FFF', body: '#3D62B8', hair: '#1c1c22', acc: 'cap' },
+    ines:     { name: 'Inès',         role: 'cliente, élève de 1re',  color: '#FF8AD1', body: '#B8508F', hair: '#3a2418', acc: 'pony' },
+    karim:    { name: 'Karim',        role: 'fournisseur de perles',   color: '#FF9D3D', body: '#B86A1F', hair: '#1c1c22', acc: 'box' },
+    sacha:    { name: 'Sacha Morel',  role: 'directeur régional TeaMax', color: '#FF5C7A', body: '#3a3f4a', hair: '#5a4630', acc: 'tie' },
+    delcourt: { name: 'Mme Delcourt', role: 'enquêtrice',              color: '#B9A6FF', body: '#5b4c9a', hair: '#7a2f2f', acc: 'clip' },
+    narr:     { name: 'Perle Rare',   role: '',                        color: '#4CD97B' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'La rue des snacks', sub: 'Dix stands, la même boisson, le même prix.', bg: { stands: 9 },
+    steps: [
+      { t: 'say', who: 'lin', text: 'Voilà les clés, petit. « Perle Rare » est à toi. Je prends ma retraite, mais je passerai voir si tu ne coules pas mon stand.' },
+      { t: 'say', who: 'lin', text: 'Regarde la rue : dix stands de bubble tea, tous pareils, tous à 4 €. Une boisson te coûte 2,50 € à préparer. À toi de jouer.' },
+      { t: 'say', who: 'ines', text: 'Salut ! C\'est toi le nouveau ? J\'ai dix minutes de pause et 5 € en poche. Tu le fais à combien, ton bubble tea ?' },
+      { t: 'price', id: 'price1', prompt: 'Fixe ton prix de vente', min: 3, max: 6, def: 4,
+        resolve: (s, p) => p > 4.3
+          ? { band: 'haut', fx: { part: -6, treso: -300 }, after: [
+              { who: 'ines', text: `${eur(p)} ? Yanis fait exactement le même à 4 €, juste là. Désolée !` },
+              { who: 'narr', text: 'Toute la semaine, la file se forme chez les voisins. Tu jettes des perles invendues.' } ] }
+          : p < 3.5
+          ? { band: 'bas', fx: { part: 3, treso: -100 }, after: [
+              { who: 'ines', text: `${eur(p)} ?! J\'appelle toute ma classe.` },
+              { who: 'narr', text: 'Ton stand est plein… mais à ce prix, tu gagnes presque rien par boisson.' },
+              { who: 'yanis', text: 'Bien joué. Sauf que dès demain, je m\'aligne. Et les autres aussi. On aura tous juste moins d\'argent.' } ] }
+          : { band: 'marche', fx: { treso: 200 }, after: [
+              { who: 'ines', text: 'Comme partout, quoi. Allez, un taro, s\'il te plaît !' },
+              { who: 'narr', text: 'Semaine correcte : tu vends comme les autres, ni plus, ni moins.' } ] } },
+      { t: 'say', who: 'karim', text: 'Salut patron. J\'ai des perles de tapioca moins chères : 40 centimes d\'économie par boisson. Bon… elles sont un peu caoutchouc. Personne verra la différence. Enfin, presque.' },
+      { t: 'choice', id: 'pearls', prompt: 'Les perles bas de gamme de Karim ?', options: [
+        { id: 'oui', label: 'Accepter', desc: 'Moins cher à produire, chaque semaine.', fx: { sat: -10 }, set: { cheap: true }, do: s => { s.cost = 2.1; },
+          after: [{ who: 'ines', text: 'Euh… elles sont bizarres, tes perles, aujourd\'hui, non ?' }] },
+        { id: 'non', label: 'Refuser', desc: 'Tu gardes la recette de Mamie Lin.',
+          after: [{ who: 'lin', text: 'Tu as bien fait. Ici, ce que les gens achètent, c\'est d\'abord ce qu\'il y a dans le gobelet.' }] } ] },
+      { t: 'say', who: 'lin', text: 'Dernière chose : certains restent ouverts une heure de plus le soir. Il passe encore 8 clients environ. Mais l\'électricité et ton extra te coûtent 10 €, plus les boissons à préparer.' },
+      { t: 'choice', id: 'hour', prompt: 'Ouvrir une heure de plus ?', options: [
+        { id: 'oui', label: 'Oui, j\'ouvre', desc: '8 boissons de plus à vendre.', fx: { treso: 2 },
+          after: [{ who: 'narr', text: '8 boissons à 4 € : 32 € encaissés. Mais 20 € de préparation et 10 € de frais : 30 €. Il te reste 2 € pour une heure de travail.' }] },
+        { id: 'non', label: 'Non, je ferme', desc: 'Tu rentres à l\'heure.',
+          after: [{ who: 'lin', text: 'J\'avais fait le calcul un jour : 2 € de gagnés pour une heure debout. Tu as vu juste.' }] } ] },
+      { t: 'event', if: s => s.flags.cheap, who: 'narr', text: 'Fin de l\'acte : tes perles moins chères t\'ont fait économiser 200 €.', fx: { treso: 200 } }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Se démarquer', sub: 'Et si ton bubble tea n\'était plus « comme les autres » ?', bg: { stands: 9 },
+    steps: [
+      { t: 'say', who: 'lin', text: 'Tu as vu ? Tant que tu vends la même chose que les neuf autres, c\'est la rue qui décide de ton prix. Pas toi.' },
+      { t: 'say', who: 'lin', text: 'Tu as un peu d\'argent de côté. Tu peux tenter quelque chose… ou le garder au chaud.' },
+      { t: 'choice', id: 'invest', prompt: 'Que fais-tu de tes économies ?', options: [
+        { id: 'recette', label: 'Une recette signature', cost: 800, desc: 'Le « Jade Latte » : matcha, lait d\'avoine, perles maison. Introuvable ailleurs.', fx: { treso: -800, sat: 15, rep: 10 }, set: { recette: true },
+          after: [{ who: 'ines', text: 'OK, le Jade Latte, c\'est une dinguerie. J\'en ai parlé à tout le monde. Y a QUE toi qui fais ça.' }] },
+        { id: 'appli', label: 'Appli de commande + gobelet consigné', cost: 1200, desc: 'On commande depuis la salle de perm, on récupère sans attendre. Du jamais-vu dans la rue.', fx: { treso: -1200, rep: 15, part: 5 }, set: { appli: true },
+          after: [{ who: 'ines', text: 'Je commande en sortant de maths, c\'est prêt quand j\'arrive. Trop fort.' },
+                  { who: 'yanis', text: 'Pas mal, ton appli… Très intéressant, même. Je note.' }] },
+        { id: 'rien', label: 'Je garde mon argent', desc: 'Pas de risque. Le stand reste tel quel.',
+          after: [{ who: 'lin', text: 'Prudent. Mais dans cette rue, tu restes un stand parmi dix.' }] } ] },
+      { t: 'say', who: 'narr', text: 'Nouvelle semaine. Tu peux revoir ton prix.' },
+      { t: 'price', id: 'price2', prompt: 'Fixe ton nouveau prix', min: 3, max: 6, def: 4,
+        resolve: (s, p) => {
+          const diff = s.flags.recette || s.flags.appli;
+          if (p < 3.5) return { band: 'bas', fx: { part: 3, treso: -100 }, after: [{ who: 'narr', text: 'La file s\'allonge, mais ta marge fond. Tu travailles beaucoup pour pas grand-chose.' }] };
+          if (diff && p > 5) return { band: 'trop', fx: { part: -3, treso: 200 }, after: [{ who: 'ines', text: `${eur(p)}… J\'adore ce que tu fais, mais là, c\'est une fois par semaine, pas plus.` }] };
+          if (diff && p >= 4.5) return { band: 'pouvoir', fx: { treso: 400 }, after: [
+            { who: 'ines', text: `${eur(p)} ? C\'est plus cher que chez Yanis… mais chez Yanis, y a pas ça. Vas-y, j\'en prends un.` },
+            { who: 'narr', text: 'Tu as monté ton prix et presque personne n\'est parti. Il y a un mois, c\'était impossible.' }] };
+          if (diff) return { band: 'sage', fx: { treso: 200 }, after: [{ who: 'lin', text: 'Tu restes au prix de la rue alors que tu proposes mieux qu\'elle. Tu aurais pu oser un peu plus.' }] };
+          if (p > 4.3) return { band: 'haut', fx: { part: -6, treso: -300 }, after: [{ who: 'ines', text: `${eur(p)} pour le même qu\'à côté ? Tu rêves.` }, { who: 'narr', text: 'Rien n\'a changé : sans différence, pas de liberté sur le prix.' }] };
+          return { band: 'marche', fx: { treso: 200 }, after: [{ who: 'narr', text: 'Même prix que les autres, mêmes ventes que les autres.' }] };
+        } },
+      { t: 'say', who: 'narr', text: 'Un stand de smoothies vient d\'ouvrir en face. Certains élèves hésitent : smoothie ou bubble tea ?' },
+      { t: 'choice', id: 'smoothie', prompt: 'Comment réagis-tu ?', options: [
+        { id: 'menu', label: 'Lancer un menu bubble tea + cookie', desc: 'Les deux vont bien ensemble : on vend l\'un avec l\'autre.', fx: { treso: 300 },
+          after: [{ who: 'ines', text: 'Le cookie avec le thé, c\'est validé. Le smoothie attendra.' }] },
+        { id: 'baisse', label: 'Baisser mon prix', desc: 'Pour retenir ceux qui hésitent.', fx: { part: 2, treso: -200 },
+          after: [{ who: 'narr', text: 'Quelques clients reviennent. Mais chaque boisson te rapporte moins.' }] } ] },
+      { t: 'event', if: s => s.flags.cheap, who: 'narr', text: 'Fin de l\'acte : +200 € d\'économies sur les perles.', fx: { treso: 200 } }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'L\'arrivée des chaînes', sub: 'Deux géants s\'installent. La rue ne sera plus jamais la même.', bg: { stands: 2, chains: true },
+    steps: [
+      { t: 'event', who: 'narr', text: 'En un été, tout a changé. TeaMax et Boba Factory ont ouvert deux immenses boutiques. Six petits stands ont fermé : une partie de leurs clients vient chez toi.', fx: { part: 12 } },
+      { t: 'event', if: s => s.flags.appli, who: 'yanis', text: 'Au fait… j\'ai lancé mon appli, moi aussi. Sans rancune ? Tout le monde copie tout le monde, ici.', fx: { part: -2 } },
+      { t: 'say', who: 'yanis', text: 'On n\'est plus que quatre : les deux chaînes, toi et moi. Et eux, ils font 70 % des ventes à deux.' },
+      { t: 'say', who: 'narr', text: 'Lundi matin, une affiche géante : « TeaMax — tous les bubble teas à 3,20 € ». Boba Factory s\'aligne dans l\'heure.' },
+      { t: 'choice', id: 'war', prompt: 'TeaMax casse les prix. Ta réponse ?', options: [
+        { id: 'suivre', label: 'Je m\'aligne à 3,20 €', desc: 'Tu gardes tes clients, quoi qu\'il en coûte.', fx: { treso: -600 },
+          after: [{ who: 'narr', text: 'Tes clients restent. Mais TeaMax a les reins solides : eux peuvent tenir des mois à ce prix. Toi, tu perds de l\'argent chaque semaine.' }] },
+        { id: 'tenir', label: 'Je tiens mon prix', desc: 'Tu refuses de les suivre.',
+          fx: s => (s.flags.recette || s.flags.appli) ? { part: -3 } : { part: -10 },
+          after: s => (s.flags.recette || s.flags.appli)
+            ? [{ who: 'ines', text: 'TeaMax c\'est moins cher, ouais. Mais c\'est pas pareil que chez toi. Je reste.' }]
+            : [{ who: 'ines', text: 'Désolée… c\'est le même bubble tea, et 80 centimes de moins. Je vais chez TeaMax.' }] },
+        { id: 'gamme', label: 'Je monte en gamme, à 5,50 €', desc: 'Tu mises tout sur ta recette signature.', lock: s => s.flags.recette ? null : 'Il te faut une recette signature (acte 2).', fx: { treso: 400, part: -2 },
+          after: [{ who: 'ines', text: 'Le Jade Latte à 5,50 ? C\'est mon plaisir du vendredi. TeaMax, c\'est pour les autres jours.' }] } ] },
+      { t: 'say', who: 'sacha', text: 'Bonjour. Sacha Morel, TeaMax. Joli stand. On peut se parler deux minutes ? Entre professionnels.' },
+      { t: 'say', who: 'sacha', text: 'Cette guerre des prix nous coûte cher à tous. J\'ai une idée simple : vous, moi, Boba Factory… tout le monde à 5 €. Plus personne ne baisse. Je vous envoie ça par message, discrètement.' },
+      { t: 'choice', id: 'entente', prompt: 'La proposition de Sacha ?', options: [
+        { id: 'oui', label: 'J\'accepte', desc: 'Tout le monde à 5 €. Fini la guerre.', fx: { treso: 1500, sat: -15, risk: 60 }, set: { entente: true },
+          after: [{ who: 'narr', text: 'Les prix remontent partout le même jour. L\'argent rentre comme jamais.' },
+                  { who: 'ines', text: 'Attends… 5 € partout, d\'un coup ? Vous vous êtes passé le mot ou quoi ?' }] },
+        { id: 'non', label: 'Je refuse', desc: 'Tu restes libre de tes prix.',
+          after: [{ who: 'sacha', text: 'Dommage. Vous le regretterez peut-être.' }] },
+        { id: 'preuve', label: 'Je refuse… et je garde son message', desc: 'On ne sait jamais.', set: { proof: true },
+          after: [{ who: 'sacha', text: 'Dommage. Vous le regretterez peut-être.' }, { who: 'narr', text: 'Tu fais une capture d\'écran. Elle dort dans ton téléphone.' }] } ] },
+      { t: 'say', who: 'karim', text: 'J\'ai un truc pour toi. Mes perles premium, je peux te les réserver : à toi seul, dans tout le quartier. Si quelqu\'un veut ouvrir un stand ici, il n\'aura que du bas de gamme. 1 000 € le contrat.' },
+      { t: 'choice', id: 'karim', prompt: 'Que décides-tu ?', options: [
+        { id: 'exclu', label: 'Signer l\'exclusivité', cost: 1000, desc: 'Personne d\'autre n\'aura ces perles.', fx: { treso: -1000, part: 8, risk: 20 }, set: { exclu: true },
+          after: [{ who: 'yanis', text: 'Karim ne veut plus me livrer les premium… C\'est toi ? Sérieux ? Mon cousin voulait ouvrir un stand, il laisse tomber.' }] },
+        { id: 'innov', label: 'Innover encore', cost: 800, desc: 'Un bubble tea chaud pour l\'hiver, que personne ne propose.', fx: { treso: -800, rep: 10 },
+          after: [{ who: 'ines', text: 'Un bubble tea CHAUD ? En novembre, tu vas être le roi de la rue.' }] },
+        { id: 'rien', label: 'Ni l\'un ni l\'autre', desc: 'Tu gardes ta trésorerie.',
+          after: [{ who: 'karim', text: 'Comme tu veux, patron.' }] } ] },
+      { t: 'event', if: s => s.flags.cheap, who: 'narr', text: 'Fin de l\'acte : +200 € d\'économies sur les perles.', fx: { treso: 200 } }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Le contrôle', sub: 'Quelqu\'un s\'intéresse de très près aux prix de la rue.', bg: { stands: 2, chains: true },
+    steps: [
+      /* --- branche entente --- */
+      { t: 'event', if: s => s.flags.entente, do: s => { s.noRuin = true; }, who: 'delcourt', text: 'Bonjour. Mme Delcourt, je contrôle le respect de la concurrence. Quatre vendeurs, le même prix, le même jour : vous comprenez que ça m\'intrigue.' },
+      { t: 'say', if: s => s.flags.entente, who: 'delcourt', text: 'J\'ai saisi des téléphones chez TeaMax ce matin. Je vous pose donc la question une seule fois : vous êtes-vous mis d\'accord sur les prix ?' },
+      { t: 'choice', if: s => s.flags.entente, id: 'enquete', prompt: 'Que réponds-tu ?', options: [
+        { id: 'nier', label: 'Je nie tout', desc: '« Pure coïncidence. »', fx: { treso: -3000, rep: -30 },
+          after: [{ who: 'delcourt', text: 'Voici le message de M. Morel, avec votre réponse : « OK pour 5 €. » Amende maximale : 3 000 €.' },
+                  { who: 'ines', text: 'C\'est dans le journal du lycée… Vous nous avez tous fait payer plus cher, exprès. Franchement, c\'est moche.' }] },
+        { id: 'coop', label: 'Je reconnais et je coopère', desc: 'Tu montres les messages.', fx: { treso: -1000, rep: -10 },
+          after: [{ who: 'delcourt', text: 'Vous avez participé, donc vous payez : 1 000 €. Mais votre coopération réduit l\'amende. Ne recommencez pas.' }] } ] },
+      /* --- branche sans entente --- */
+      { t: 'say', if: s => !s.flags.entente, who: 'delcourt', text: 'Bonjour. Mme Delcourt, je contrôle le respect de la concurrence. TeaMax et Boba Factory affichent les mêmes prix, les mêmes jours. Vous a-t-on proposé quelque chose ?' },
+      { t: 'event', if: s => !s.flags.entente && s.flags.proof, who: 'narr', text: 'Tu sors ton téléphone et tu lui montres le message de Sacha. Elle sourit pour la première fois.', fx: { rep: 5 } },
+      { t: 'event', if: s => !s.flags.entente, who: 'narr', text: 'Trois semaines plus tard, les deux chaînes sont lourdement sanctionnées. Dégoûtés, beaucoup de leurs clients viennent chez toi.', fx: { part: 15, treso: 400 } },
+      { t: 'say', if: s => !s.flags.entente && s.flags.exclu, who: 'delcourt', text: 'Un mot sur votre contrat d\'exclusivité avec votre fournisseur : empêcher les autres d\'entrer sur le marché, on surveille ça aussi. Faites attention.' },
+      { t: 'say', if: s => !s.flags.entente && s.part > 45, who: 'lin', text: 'Regarde-toi : presque un client sur deux achète chez toi. Tu es le patron de la rue. La question, maintenant : qu\'est-ce que tu fais de ce pouvoir ?' },
+      { t: 'choice', if: s => !s.flags.entente && s.part > 45, id: 'final', prompt: 'Tu domines le marché. Ton prix ?', options: [
+        { id: 'hausse', label: 'Je passe à 6,50 €', desc: 'Ils n\'ont presque plus le choix, après tout.', fx: { treso: 800, sat: -20 },
+          after: [{ who: 'ines', text: '6,50 €. Tu profites, là. On vient parce qu\'on n\'a plus trop le choix… mais on n\'est pas contents.' },
+                  { who: 'yanis', text: 'À ce prix-là, tu sais quoi ? Mon cousin rouvre un stand. Tes marges, ça donne des idées.' }] },
+        { id: 'sage', label: 'Je reste raisonnable', desc: 'Tu gardes un prix que tes clients trouvent juste.', fx: { sat: 5 },
+          after: [{ who: 'ines', text: 'T\'aurais pu en profiter et tu l\'as pas fait. Respect. On reste.' }] } ] },
+      { t: 'say', who: 'lin', text: 'Bon. Je crois qu\'il est temps de faire les comptes, petit.' }
+    ] }
+  ],
+
+  /* ------------------------------ FINS (dans l'ordre de priorité) ------------------------------ */
+  endings: [
+    { id: 'condamne', when: s => s.flags.entente, title: 'Condamné pour entente', stamp: 'Sanctionné', color: '#FF5C6A',
+      text: 'L\'argent facile n\'aura duré qu\'un temps. L\'amende est tombée, et dans la rue, tout le monde sait que tu as fait payer tes clients plus cher en cachette.' },
+    { id: 'ruine', when: s => s.treso <= 0, title: 'Ruiné par la guerre des prix', stamp: 'Rideau baissé', color: '#FF5C6A',
+      text: 'La caisse est vide. Entre les prix cassés et les dépenses, « Perle Rare » n\'a pas tenu. Mamie Lin reprend les clés, sans un reproche.' },
+    { id: 'roi', when: s => s.part >= 35 && s.sat < 35, title: 'Le roi sans clients', stamp: 'Puissant mais détesté', color: '#FFC64F',
+      text: 'Tu domines la rue, et tu en as profité. Les clients achètent encore… en attendant mieux. Et « mieux » vient justement d\'ouvrir en face.' },
+    { id: 'leader', when: s => s.rep >= 70 && s.part >= 35, title: 'Le leader innovant', stamp: 'Bravo', color: '#4CD97B',
+      text: 'Tu n\'as pas gagné en cassant les prix ni en trichant : tu as gagné en proposant ce que personne d\'autre n\'avait. Les chaînes te regardent avec inquiétude.' },
+    { id: 'boutique', when: s => s.treso >= 2500 && s.sat >= 60, title: 'La boutique de quartier rentable', stamp: 'Belle affaire', color: '#4CD97B',
+      text: 'Pas le plus gros de la rue, mais le préféré. Tes clients reviennent, ta caisse est saine, et tu dors tranquille.' },
+    { id: 'survivant', when: s => true, title: 'Le survivant de la rue', stamp: 'Toujours debout', color: '#7C9483',
+      text: 'Les chaînes sont passées, la tempête aussi, et ton stand est toujours là. Ni riche, ni célèbre : un stand parmi d\'autres, qui suit le marché.' }
+  ],
+
+  /* ------------------------------ DÉBRIEF (h = historique des choix) ------------------------------ */
+  debrief: [
+    { act: 1, needs: ['price1', 'pearls', 'hour'], title: 'Acte 1 — La rue des snacks', text: (h, s) => {
+        const p = h.price1 === 'haut' ? `Tu as tenté ${eur(h.price1v)} et Inès est partie chez Yanis`
+              : h.price1 === 'bas' ? `Tu as cassé ton prix à ${eur(h.price1v)}, et tous les voisins se sont alignés`
+              : `Tu es resté à ${eur(h.price1v)}, comme tout le monde`;
+        const hr = h.hour === 'oui' ? 'Ton heure en plus qui rapportait 2 €' : 'L\'heure en plus que tu as refusée (2 € de gain seulement)';
+        return `${p} : sur un <em>marché concurrentiel</em>, avec beaucoup de vendeurs et des <em>produits substituables</em>, c\'est le marché qui fixe le prix. Tu étais <em>preneur de prix</em>. ${hr} ? C\'était un raisonnement en <em>coût marginal</em> : ce que coûte et rapporte chaque boisson supplémentaire.`; } },
+    { act: 2, needs: ['invest', 'price2', 'smoothie'], title: 'Acte 2 — Se démarquer', text: (h, s) => {
+        const i = h.invest === 'recette' ? 'Avec ta recette signature, ton produit n\'était plus comme les autres : c\'est la <em>différenciation</em>.'
+              : h.invest === 'appli' ? 'Ton appli était une <em>innovation</em>… que Yanis a copiée : c\'est la <em>course à l\'innovation</em>, où il faut sans cesse garder un temps d\'avance.'
+              : 'Tu n\'as rien changé : ton produit est resté identique aux autres, et toi, preneur de prix.';
+        const pr = h.price2 === 'pouvoir' ? 'Tu as monté ton prix sans perdre tes clients : tu étais devenu <em>faiseur de prix</em>, car leur <em>élasticité prix-demande</em> avait baissé.'
+              : (h.invest !== 'rien' ? 'En te démarquant, tu pouvais devenir <em>faiseur de prix</em> : tes clients réagissent moins aux hausses, leur <em>élasticité prix-demande</em> baisse.'
+              : 'Se différencier ou innover permet de devenir <em>faiseur de prix</em> : c\'est la <em>concurrence imparfaite</em>.');
+        const sm = h.smoothie === 'menu' ? 'Le cookie vendu avec le thé ? Des <em>produits complémentaires</em>.' : 'Le smoothie qui te prenait des clients ? Un <em>produit substituable</em>.';
+        return `${i} ${pr} ${sm}`; } },
+    { act: 3, needs: ['war', 'entente', 'karim'], title: 'Acte 3 — L\'arrivée des chaînes', text: (h, s) => {
+        const w = h.war === 'suivre' ? 'Tu as suivi la baisse de TeaMax'
+              : h.war === 'gamme' ? 'Tu as répondu à TeaMax en montant en gamme' : 'Tu as tenu ton prix face à TeaMax';
+        const e = h.entente === 'oui' ? 'L\'accord que tu as accepté avec Sacha' : 'La proposition de Sacha, que tu as refusée,';
+        const k = h.karim === 'exclu' ? ' Ton contrat d\'exclusivité avec Karim a créé une <em>barrière à l\'entrée</em> : le cousin de Yanis a renoncé à s\'installer.'
+              : ' L\'exclusivité proposée par Karim aurait créé une <em>barrière à l\'entrée</em> pour les nouveaux concurrents.';
+        return `${w} : quand quelques gros vendeurs se partagent un marché très <em>concentré</em>, chacun surveille les autres. C\'est un <em>oligopole</em>. ${e} était une <em>entente illicite</em> : un <em>cartel</em> qui fixe les prix au détriment des clients.${k}`; } },
+    { act: 4, needs: ['karim'], title: 'Acte 4 — Le contrôle', text: (h, s) => {
+        const f = h.final === 'hausse' ? 'En passant à 6,50 €, tu as utilisé ton <em>pouvoir de marché</em> : tes clients ont payé plus cher… et tes marges ont attiré un nouveau concurrent.'
+              : h.final === 'sage' ? 'Tu avais un vrai <em>pouvoir de marché</em>, et tu as choisi de ne pas en abuser.'
+              : h.entente === 'oui' ? 'L\'amende te l\'a rappelé : les ententes sont interdites parce qu\'elles donnent aux vendeurs un <em>pouvoir de marché</em> artificiel.'
+              : 'Tu n\'as pas dominé la rue, mais tu as vu ce que cherchent les plus gros : le <em>pouvoir de marché</em>.';
+        return `${f} Retiens l\'idée : moins il y a d\'offreurs, plus les prix montent et plus le consommateur y perd, jusqu\'au cas extrême du <em>monopole</em>, un seul vendeur.`; } }
+  ],
+  vocab: ['Marché concurrentiel', 'Preneur de prix', 'Faiseur de prix', 'Produits substituables', 'Produits complémentaires', 'Coût marginal', 'Élasticité prix-demande', 'Différenciation', 'Innovation', 'Concurrence imparfaite', 'Oligopole', 'Concentration', 'Entente illicite / cartel', 'Barrières à l\'entrée', 'Pouvoir de marché', 'Monopole']
+};
+
+/* =====================================================================
+   2. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  const LABELS = { treso: 'Trésorerie', part: 'Part de marché', sat: 'Satisfaction', rep: 'Réputation' };
+  const SHORT = { treso: 'Trésorerie', part: 'Part marché', sat: 'Satisfaction', rep: 'Réputation' };
+  let S, H, queue, act, lastDeltas = [], maxAct = 0;
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem('perleRareFins') || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem('perleRareFins', JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  const fmtTreso = n => Math.round(n).toLocaleString('fr-FR') + ' €';
+
+  /* ---------- dessin : personnages et décor (SVG) ---------- */
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const skin = '#E8B58A';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      pony: `<path d="M-13,-72 Q-26,-62 -20,-44" stroke="${c.hair}" stroke-width="7" fill="none" stroke-linecap="round"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="#FF9D3D" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-70" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(118,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="${skin}"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+  function stand(x, col, w = 20) {
+    return `<g transform="translate(${x},128)"><rect x="0" y="0" width="${w}" height="20" fill="#0d1710" stroke="${col}" stroke-width="1" opacity=".9"/><path d="M-2,0 L${w + 2},0 L${w},-7 L0,-7 Z" fill="${col}" opacity=".55"/></g>`;
+  }
+  function stageSVG(bg, who) {
+    const cols = ['#5B8FFF', '#FF8AD1', '#FFC64F', '#FF9D3D', '#B9A6FF', '#5FB8B0', '#E8564B', '#9C4F9E', '#7C6FFF'];
+    let back = '';
+    if (bg.chains) {
+      back += `<g><rect x="14" y="62" width="92" height="86" fill="#141018" stroke="#FF5C7A" stroke-width="1.5"/><rect x="20" y="70" width="80" height="16" fill="#FF5C7A" opacity=".85"/><text x="60" y="82" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="10" fill="#14060a">TEAMAX</text><rect x="48" y="112" width="24" height="36" fill="#0a0a0e" stroke="#FF5C7A" stroke-width="1"/>
+        <rect x="116" y="72" width="88" height="76" fill="#0f1220" stroke="#5B8FFF" stroke-width="1.5"/><rect x="122" y="79" width="76" height="15" fill="#5B8FFF" opacity=".85"/><text x="160" y="90.5" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="8.5" fill="#060a18">BOBA FACTORY</text><rect x="148" y="114" width="24" height="34" fill="#0a0a0e" stroke="#5B8FFF" stroke-width="1"/></g>`;
+      back += stand(214, cols[0]);
+    } else {
+      for (let i = 0; i < bg.stands; i++) back += stand(10 + i * 25.5, cols[i % cols.length]);
+    }
+    return `<svg viewBox="0 0 360 200" role="img" aria-label="La rue des snacks">
+      <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#07110c"/><stop offset="1" stop-color="#050806"/></linearGradient></defs>
+      <rect width="360" height="200" fill="url(#sky)"/>
+      <g stroke="#173322" stroke-width="1" fill="none" opacity=".7"><polygon points="40,14 62,26 62,50 40,62 18,50 18,26"/><polygon points="300,6 316,15 316,33 300,42 284,33 284,15"/><polygon points="200,22 212,29 212,43 200,50 188,43 188,29"/></g>
+      ${back}
+      <rect x="0" y="148" width="360" height="52" fill="#080d0a"/><line x1="0" y1="148" x2="360" y2="148" stroke="#173322" stroke-width="1.5"/>
+      <g transform="translate(252,84)">
+        <rect x="0" y="22" width="96" height="78" fill="#0d1710" stroke="#4CD97B" stroke-width="1.5"/>
+        <path d="M-6,22 L102,22 L96,4 L0,4 Z" fill="#4CD97B"/><path d="M12,22 L16,4 M36,22 L38,4 M60,22 L58,4 M84,22 L80,4" stroke="#0d1710" stroke-width="5"/>
+        <rect x="8" y="30" width="80" height="16" fill="#07110c" stroke="#4CD97B" stroke-width="1"/><text x="48" y="42" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="9.5" fill="#4CD97B">PERLE RARE</text>
+        <rect x="0" y="66" width="96" height="6" fill="#4CD97B" opacity=".6"/>
+        <g transform="translate(70,48)"><path d="M0,0 L14,0 L12,18 L2,18 Z" fill="none" stroke="#EEF3EC" stroke-width="1.5"/><line x1="9" y1="-7" x2="7" y2="14" stroke="#FF8AD1" stroke-width="2"/><circle cx="5" cy="14" r="1.6" fill="#EEF3EC"/><circle cx="9" cy="15" r="1.6" fill="#EEF3EC"/></g>
+      </g>
+      ${character(who)}
+    </svg>`;
+  }
+
+  /* ---------- interface ---------- */
+  function hud() {
+    const g = (k, v, pct, low) => `<div class="g${low ? ' low' : ''}"><div class="g-l" title="${LABELS[k]}">${SHORT[k]}</div><div class="g-v">${v}</div><div class="g-b"><i style="width:${clamp(pct, 0, 100)}%"></i></div></div>`;
+    return `<div class="hud">
+      ${g('treso', fmtTreso(S.treso), S.treso / 40, S.treso < 500)}
+      ${g('part', Math.round(S.part) + ' %', S.part * 1.6, S.part < 6)}
+      ${g('sat', Math.round(S.sat), S.sat, S.sat < 35)}
+      ${g('rep', Math.round(S.rep), S.rep, S.rep < 35)}
+    </div><div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">PERLE <span>RARE</span></div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${stageSVG(act.bg, who)}</div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] += v;
+      if (k === 'sat' || k === 'rep') S[k] = clamp(S[k], 0, 100);
+      if (k === 'part') S[k] = clamp(S[k], 0, 100);
+      if (LABELS[k]) lastDeltas.push({ v, t: `${LABELS[k]} ${v > 0 ? '+' : '−'}${Math.abs(v)}${k === 'treso' ? ' €' : k === 'part' ? ' pts' : ''}` });
+    }
+  }
+  function pushAfter(lines) {
+    const arr = (lines || []).map(l => ({ t: 'say', who: l.who, text: l.text, _after: true }));
+    queue.unshift(...arr);
+  }
+
+  /* ---------- déroulement ---------- */
+  function startGame() {
+    S = Object.assign({ flags: {}, noRuin: false }, GAME.start);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    // faillite : vérifiée dès que les réactions à un choix ont été lues
+    if (S.treso <= 0 && !S.noRuin && !(queue[0] && queue[0]._after)) return end('ruine');
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      if (st.t === 'event') { if (st.do) st.do(S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else if (!st._after) lastDeltas = [];
+      frame(st.who, `<div class="box" id="box">${whoTag(st.who)}<p class="say">${val(st.text, S)}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const opts = st.options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost && S.treso < o.cost) lock = 'Trésorerie insuffisante.';
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${o.label}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')} €</span>` : ''}</div><div class="opt-d">${o.desc || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div><div class="opts">${opts}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = st.options[+b.dataset.i];
+        H[st.id] = o.id;
+        const after = val(o.after, S);           // calculé avant les effets (dépend de l'état au moment du choix)
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        if (o.set) Object.assign(S.flags, o.set);
+        applyFx(fx); pushAfter(after);
+        next();
+      });
+    } else if (st.t === 'price') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m">Coût d'une boisson : <b>${eur(S.cost)}</b> · Marge par boisson : <b id="pm"></b></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="0.1" value="${st.def}" aria-label="Prix de vente">
+        <div class="range-l"><span>${eur(st.min)}</span><span>${eur(st.max)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ce prix ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = eur(+r.value);
+        document.getElementById('pm').textContent = eur(+r.value - S.cost);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const p = Math.round(+r.value * 10) / 10, res = st.resolve(S, p);
+        H[st.id] = res.band; H[st.id + 'v'] = p; S.price = p;
+        applyFx(res.fx); pushAfter(res.after); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S)}</p></div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${e.text}</p></div>
+      <div class="bilan"><div><small>Trésorerie</small><b>${fmtTreso(S.treso)}</b></div><div><small>Part de marché</small><b>${Math.round(S.part)} %</b></div>
+        <div><small>Satisfaction clients</small><b>${Math.round(S.sat)} / 100</b></div><div><small>Réputation</small><b>${Math.round(S.rep)} / 100</b></div></div>
+      <div class="deb-t">Ce que tu viens de vivre a un nom</div>
+      <p class="deb-s">Tu as utilisé ces notions pour jouer. Voici comment on les appelle en économie.</p>
+      ${deb}
+      ${forced ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour découvrir la suite.</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes : ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · Économie 1re STMG, thème 5</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">Économie · 1re STMG · Thème 5</div>
+      <h1>PERLE <span>RARE</span></h1>
+      <p class="lead">Tu reprends un stand de bubble tea en face du lycée. Dix concurrents, deux chaînes qui arrivent, et une proposition qu'il vaudrait peut-être mieux refuser. Tiendras-tu jusqu'au bout ?</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">4 actes · 15 minutes · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

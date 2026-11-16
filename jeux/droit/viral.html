@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Viral — Jeu Droit 1ère STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#FF9D3D;--eco-dim:#B86A1F;--bg:#080604;--panel:#120e09;--panel2:#17110a;--line:#3a2a14;--txt:#EEF3EC;--muted:#9a8e7c;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(255,157,61,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(255,157,61,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#20170d;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(255,157,61,.5);background:rgba(255,157,61,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#0b0805;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(255,157,61,.09), rgba(18,14,9,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#1a0e02;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#1a0e02;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#20170d;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#20170d;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#1a0e02;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#110c07;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#110c07;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#110c07;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 3) n'a pas besoin d'être touché.
+   Jauges : noto (notoriété, 0-100), argent (€), rep (réputation, 0-100), prot (protection de la marque, 0-100).
+   ===================================================================== */
+const N = ' ';
+const DROIT = '#FF9D3D';
+const eur = n => Math.round(n).toLocaleString('fr-FR') + N + '€';
+const paie = (s, n) => -Math.min(Math.max(s.argent, 0), n);                        // on ne peut pas payer plus que ce qu'on a
+
+const GAME = {
+  title: 'Viral',
+  brand: 'VI<span>RAL</span>',
+  storeKey: 'viralFins',
+  backLink: '../../matieres/droit-1ere.html',
+  footer: 'Droit 1re STMG, thème 4',
+  kicker: 'Droit · 1re STMG · Thème 4',
+  pitch: `Ta vidéo tournée au lycée vient de dépasser 800${N}000 vues. Pixel & Co explose. Les commandes pleuvent… et les ennuis aussi. Tu vas marcher sur les droits des autres, et d'autres vont marcher sur les tiens.`,
+  meta: '4 actes · 15 minutes',
+  start: s => Object.assign(s, { noto: 40, argent: 600, rep: 60, prot: 0 }),
+  hud: [
+    { k: 'noto',   label: 'Notoriété',  short: 'Notoriété',  show: s => Math.round(s.noto), pct: s => s.noto,        low: s => false, clamp: true },
+    { k: 'argent', label: 'Argent',     short: 'Argent',     show: s => eur(s.argent),      pct: s => s.argent / 30, low: s => s.argent < 100, unit: N + '€' },
+    { k: 'rep',    label: 'Réputation', short: 'Réputation', show: s => Math.round(s.rep),  pct: s => s.rep,         low: s => s.rep < 35, clamp: true },
+    { k: 'prot',   label: 'Protection', short: 'Protection', show: s => Math.round(s.prot), pct: s => s.prot,        low: s => false, clamp: true }
+  ],
+  fail: s => s.rep <= 20 ? 'badbuzz' : null,
+  lock: (s, cost) => cost > s.argent ? 'Tu n\'as pas assez d\'argent.' : null,
+  bilan: s => [['Notoriété', Math.round(s.noto) + ' / 100'], ['Argent', eur(s.argent)], ['Réputation', Math.round(s.rep) + ' / 100'], ['Protection de la marque', Math.round(s.prot) + ' / 100']],
+
+  characters: {
+    jade:   { name: 'Jade',         role: 'Première, dans ta vidéo malgré elle', color: '#FF8AD1', body: '#B8508F', hair: '#3a2418', acc: 'bun' },
+    theo:   { name: 'Théo',         role: 'capitaine de l\'équipe de hand',      color: '#5B8FFF', body: '#3D62B8', hair: '#5a4630', acc: 'cap' },
+    lou:    { name: 'Lou',          role: 'ton amie, étudiante en droit',        color: '#B9A6FF', body: '#5b4c9a', hair: '#1c1c22', acc: 'bun' },
+    helene: { name: 'Tante Hélène', role: 'tutrice de Papi',                     color: '#5FB8B0', body: '#2f5b57', hair: '#7a2f2f', acc: 'clip' },
+    morel:  { name: 'M. Morel',     role: 'voisin du garage',                    color: '#FFC64F', body: '#8a5a22', hair: '#c9c9c9', acc: '' },
+    brun:   { name: 'M. Brun',      role: 'grossiste en textile',                color: '#FF5C7A', body: '#3a3f4a', hair: '#5a4630', acc: 'box' },
+    max:    { name: 'Max',          role: 'créateur de « Pixel Wear »',          color: '#4CD97B', body: '#1c1c22', hair: '#c9a24a', acc: 'tie' },
+    papi:   { name: 'Papi Marcel',  role: 'ton grand-père',                      color: '#FFC64F', body: '#8a5a22', hair: '#d8d8d8', acc: 'cap' },
+    narr:   { name: 'Toi',          role: '',                                    color: '#FF9D3D' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Les droits des autres', sub: 'Lundi matin. Ton téléphone n\'arrête plus de vibrer.',
+    steps: [
+      { t: 'event', who: 'narr', text: `Vendredi, j'ai filmé Pixel qui traverse le hall du lycée avec un t-shirt dans la gueule. Ce matin${N}: 812${N}000 vues. Quarante commandes dans la nuit.`, fx: { noto: 20, argent: 400 } },
+      { t: 'say', who: 'jade', text: `C'est moi, là, au premier plan, en train de manger mon sandwich. Depuis samedi, des inconnus m'écrivent. On m'a reconnue dans le bus. Je n'ai jamais dit que j'étais d'accord pour être dans ta vidéo. Retire-la.` },
+      { t: 'choice', id: 'video', prompt: `La vidéo où l'on voit Jade${N}?`, options: [
+        { id: 'retirer', label: 'Je la retire', desc: 'Adieu les 812 000 vues.', fx: { noto: -15, rep: 10 },
+          after: [{ who: 'jade', text: `Merci. Vraiment. La prochaine fois, demande avant de filmer les gens.` }] },
+        { id: 'flouter', label: 'Je la floute, puis je lui demande son accord', desc: 'Une nouvelle version, si elle dit oui.', fx: { noto: -5, rep: 12 },
+          after: [{ who: 'jade', text: `Floutée, on ne me reconnaît plus… D'accord, remets-la. Et merci de m'avoir demandé.` }] },
+        { id: 'laisser', label: 'Je la laisse en ligne', desc: 'C\'est filmé dans un lieu ouvert, et c\'est ma vidéo.', fx: { noto: 5, rep: -20 }, set: { image: true },
+          after: [{ who: 'jade', text: `Ta vidéo, peut-être. Mais mon visage, il est à moi. Mes parents vont t'écrire.` }] } ] },
+      { t: 'say', who: 'narr', text: `Dans mes messages privés, une commande de Théo, le capitaine de l'équipe de hand${N}: un t-shirt «${N}Pardon Clara, reviens${N}», taille M. Avec un long message où il raconte tout. Si je publie ça, c'est un million de vues.` },
+      { t: 'choice', id: 'prive', prompt: `Le message privé de Théo${N}?`, options: [
+        { id: 'publier', label: 'Je publie la capture d\'écran', desc: 'Le lycée entier va adorer.', fx: { noto: 10, rep: -20 }, set: { vieprivee: true },
+          after: [{ who: 'theo', text: `Tu as affiché mon message devant tout le lycée${N}? C'était entre toi et moi. Clara ne me parle plus, et tout le monde se moque de moi.` }] },
+        { id: 'anonyme', label: 'Je raconte l\'histoire, sans nom ni capture', desc: '« Un client m\'a commandé un t-shirt d\'excuses… »', fx: { noto: 4 },
+          after: [{ who: 'theo', text: `J'ai vu ta story. Personne ne sait que c'est moi. Ça passe… mais ne recommence pas.` }] },
+        { id: 'garder', label: 'Je garde ça pour moi', desc: 'Je fais le t-shirt, c\'est tout.', fx: { rep: 5 },
+          after: [{ who: 'theo', text: `T-shirt reçu. Merci de n'avoir rien dit à personne. Je te dois une faveur.` }] } ] },
+      { t: 'say', who: 'narr', text: `Mon jeu-concours «${N}Gagne un t-shirt${N}» a récolté 2${N}000 adresses e-mail. Les gens les ont données pour participer au tirage. Ce matin, une appli de pub m'en propose 500${N}€.` },
+      { t: 'choice', id: 'fichier', prompt: `Que fais-tu des 2${N}000 adresses${N}?`, options: [
+        { id: 'vendre', label: 'Je les vends à l\'appli', desc: '500 € pour un simple fichier.', fx: { argent: 500 }, set: { vendu: true },
+          after: [{ who: 'narr', text: `Virement reçu. Trois jours plus tard, Jade me demande pourquoi elle reçoit des pubs pour des trottinettes.` }] },
+        { id: 'pub', label: 'J\'envoie ma pub à tout le monde', desc: 'Autant que ça serve à ma marque.', fx: { noto: 8, rep: -8 }, set: { spam: true },
+          after: [{ who: 'jade', text: `J'ai donné mon adresse pour un tirage au sort. Pas pour recevoir ta pub tous les lundis.` }] },
+        { id: 'accord', label: 'Je demande d\'abord qui veut de mes nouvelles', desc: 'Un message, une case à cocher.', fx: { noto: 4, rep: 5 },
+          after: [{ who: 'narr', text: `600 personnes ont coché «${N}oui${N}». Celles-là liront vraiment mes messages. J'ai effacé les autres adresses.` }] },
+        { id: 'effacer', label: 'J\'efface tout après le tirage', desc: 'Le concours est fini, je n\'en ai plus besoin.', fx: { rep: 3 },
+          after: [{ who: 'narr', text: `Fichier supprimé. C'est pour ça qu'on me les avait confiées, et pour rien d'autre.` }] } ] }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Ce qui est à toi', sub: 'Être propriétaire, c\'est pouvoir beaucoup. Pas tout.',
+    steps: [
+      { t: 'say', who: 'narr', text: `Avec les commandes, la presse à flocage tourne sans arrêt. Elle est à moi, payée jusqu'au dernier euro. Sami voudrait l'utiliser le week-end pour ses propres créations.` },
+      { t: 'choice', id: 'presse', prompt: `Ta presse à flocage${N}?`, options: [
+        { id: 'user', label: 'Je la garde pour moi, jour et nuit', desc: 'Elle est à moi, je m\'en sers.', fx: { noto: 4, argent: 150 },
+          after: [{ who: 'narr', text: `Soixante t-shirts ce week-end. La presse est brûlante, moi aussi.` }] },
+        { id: 'louer', label: 'Je la loue à Sami le week-end', desc: '40 € par week-end.', fx: { argent: 160 },
+          after: [{ who: 'narr', text: `Quatre week-ends, 160${N}€. Ma presse me rapporte de l'argent pendant que je dors.` }] },
+        { id: 'vendre', label: 'Je la vends pour en acheter une plus grosse', desc: 'Il faudra ajouter 200 €.', cost: 200, fx: { argent: -200, noto: 8 },
+          after: [{ who: 'narr', text: `Vendue à Sami, remplacée par un modèle double. C'était la mienne${N}: j'en fais ce que je veux, même m'en séparer.` }] } ] },
+      { t: 'say', who: 'narr', text: `Le garage de Papi est grand. Enzo me propose 60${N}€ par mois pour y ranger ses vélos.` },
+      { t: 'choice', id: 'garage', prompt: `Louer un coin du garage à Enzo${N}?`, options: [
+        { id: 'louer', label: 'Oui, j\'encaisse le loyer', desc: '60 € par mois, sans rien faire.', fx: { argent: 180 }, set: { sousloc: true },
+          after: [{ who: 'helene', text: `Tu loues le garage de Papa${N}? Il te le prête pour t'en servir. Ce garage n'est pas à toi${N}: tu n'as pas à en tirer un loyer, encore moins à en disposer. Rends cet argent à Enzo.` },
+                  { who: 'narr', text: `J'ai rendu les 180${N}€. Et les vélos sont repartis.` }], do: s => { s.argent -= 180; s.rep -= 5; } },
+        { id: 'demander', label: 'Je demande à tante Hélène', desc: 'Le garage est à Papi.', fx: { rep: 4 },
+          after: [{ who: 'helene', text: `Bonne question. C'est d'accord, mais le loyer revient à Papa${N}: c'est son garage, c'est à lui qu'il rapporte.` }] },
+        { id: 'non', label: 'Non, ce n\'est pas à moi', desc: 'On me le prête, c\'est déjà bien.',
+          after: [{ who: 'narr', text: `Enzo trouvera un autre endroit pour ses vélos.` }] } ] },
+      { t: 'say', who: 'morel', text: `Bonjour. Il faut qu'on parle. Votre machine claque jusqu'à minuit, et l'odeur d'encre envahit mon jardin. Je ne dors plus, je ne peux plus étendre mon linge. Ça fait trois semaines.` },
+      { t: 'choice', id: 'voisin', prompt: `Que réponds-tu à M.${N}Morel${N}?`, options: [
+        { id: 'chezmoi', label: '« Je suis chez moi, je fais ce que je veux. »', desc: 'Les commandes n\'attendent pas.', fx: { noto: 5, rep: -10 }, set: { trouble: true },
+          after: [{ who: 'morel', text: `Chez vous, oui. Mais moi aussi, je suis chez moi. Vous aurez des nouvelles de mon avocat.` }] },
+        { id: 'horaires', label: 'J\'arrête à 20 h et j\'installe une aération', cost: 120, desc: '120 € de matériel, et des soirées en moins.', fx: { argent: -120, rep: 8 },
+          after: [{ who: 'morel', text: `J'ai dormi d'une traite, pour la première fois depuis un mois. Gardez-moi un t-shirt, taille L.` }] },
+        { id: 'fond', label: 'Je déplace la presse au fond du garage', desc: 'Loin de sa clôture. Un peu moins pratique.', fx: { noto: -3, rep: 5 },
+          after: [{ who: 'morel', text: `On entend encore un peu, mais c'est supportable. Merci d'avoir fait un geste.` }] } ] },
+      { t: 'say', who: 'narr', text: `Autre souci${N}: un livreur gare sa camionnette tous les jours dans la cour de Papi. «${N}Ce garage est vide depuis dix ans, personne ne s'en sert. C'est à tout le monde, maintenant.${N}»` },
+      { t: 'choice', id: 'cour', prompt: `Le livreur garé dans la cour de Papi${N}?`, options: [
+        { id: 'partir', label: 'Je lui demande de partir', desc: 'C\'est la cour de Papi, pas un parking.', fx: { rep: 2 },
+          after: [{ who: 'helene', text: `Tu as bien fait. Dix ans sans s'en servir ou cent, ça ne change rien${N}: ce garage reste à Papa. Et lui seul décide de qui y entre.` }] },
+        { id: 'laisser', label: 'Je le laisse faire', desc: 'Il n\'a pas tort, c\'était vide.',
+          after: [{ who: 'helene', text: `Tu as laissé un inconnu s'installer${N}? Dix ans sans s'en servir ou cent, ça ne change rien${N}: ce garage reste à Papa. Et lui seul décide de qui y entre. Je vais le faire partir.` }] } ] }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Ce qui ne se touche pas', sub: 'Ton bien le plus précieux ne tient dans aucun carton.',
+    steps: [
+      { t: 'say', who: 'lou', text: `Tu réalises que ce qui vaut de l'argent chez toi, ce ne sont pas les t-shirts${N}? C'est le dessin de Pixel et le nom «${N}Pixel & Co${N}». Deux choses qu'on ne peut pas toucher… mais qu'on peut te voler.` },
+      { t: 'say', who: 'lou', text: `Le dessin, c'est toi qui l'as créé${N}: il est protégé depuis la seconde où tu as posé ton crayon, sans aucune démarche. Le problème, c'est de prouver que tu l'as fait en premier. Il existe un service en ligne pour dater une création, une quinzaine d'euros.` },
+      { t: 'choice', id: 'date', prompt: `Dater officiellement ton dessin de Pixel${N}?`, options: [
+        { id: 'oui', label: 'Oui, je date ma création', cost: 15, desc: 'Une preuve de la date, pour 15 €.', fx: { argent: -15, prot: 20 }, set: { date: true },
+          after: [{ who: 'narr', text: `Fichier envoyé, reçu horodaté. Si un jour quelqu'un prétend avoir dessiné Pixel avant moi, j'ai de quoi répondre.` }] },
+        { id: 'non', label: 'Pas la peine', desc: 'Tout le monde sait que c\'est mon chien.',
+          after: [{ who: 'lou', text: `Tout le monde, aujourd'hui. Devant un juge, dans deux ans, ce sera ta parole contre une autre.` }] } ] },
+      { t: 'say', who: 'lou', text: `Le nom, c'est différent. Lui n'est protégé que si tu le déposes comme marque. Ça coûte 190${N}€ pour dix ans. Une fois déposé, toi seul peux vendre des vêtements sous ce nom.` },
+      { t: 'choice', id: 'marque', prompt: `Déposer la marque «${N}Pixel & Co${N}»${N}?`, options: [
+        { id: 'oui', label: 'Je dépose la marque', cost: 190, desc: '190 €, protégée dix ans.', fx: { argent: -190, prot: 40 }, set: { depot: true },
+          after: [{ who: 'narr', text: `Dépôt enregistré. J'ai le droit d'écrire un petit ® à côté de mon nom. Pixel n'a pas l'air impressionné.` }] },
+        { id: 'non', label: 'J\'attends d\'avoir plus d\'argent', desc: '190 €, c\'est quarante t-shirts blancs.',
+          after: [{ who: 'lou', text: `Le premier qui dépose a le nom. J'espère que ce sera toi.` }] } ] },
+      { t: 'say', who: 'brun', text: `J'ai une affaire pour vous. Des t-shirts Captain Zorg, le héros du dessin animé que tous les gamins regardent. Pas tout à fait officiels, mais très bien imités. Vous les vendez le triple en une semaine.` },
+      { t: 'choice', id: 'zorg', prompt: `Les t-shirts Captain Zorg${N}?`, options: [
+        { id: 'oui', label: 'Je prends le lot', desc: 'Ça se vendra tout seul.', fx: { argent: 800, noto: 10 }, set: { zorg: true },
+          after: [{ who: 'narr', text: `Vendus en quatre jours. Les petits frères de tout le lycée portent du Captain Zorg.` }] },
+        { id: 'studio', label: 'Je demande l\'autorisation au studio', desc: 'Si c\'est leur personnage, c\'est à eux de dire oui.', fx: { rep: 3 },
+          after: [{ who: 'narr', text: `Réponse du studio${N}: une autorisation existe, mais elle coûte 5${N}000${N}€ par an. Ce sera pour plus tard. Au moins, je sais à qui appartient Captain Zorg.` }] },
+        { id: 'non', label: 'Je refuse', desc: 'Ce n\'est pas mon dessin.', fx: { rep: 3 },
+          after: [{ who: 'brun', text: `Comme vous voudrez. Un autre les prendra.` }] } ] },
+      { t: 'say', who: 'narr', text: `Jade m'envoie un lien. Une boutique en ligne, «${N}Pixel Wear${N}». Mon chien, avec une casquette en plus. Mêmes couleurs. Deux fois moins cher.` },
+      { t: 'say', who: 'max', text: `Ton chien${N}? Tu ne l'as pas inventé, le concept du chien sur un t-shirt. Et «${N}Pixel${N}», c'est un mot du dictionnaire. Prouve que c'est à toi.` },
+      { t: 'choice', id: 'copieur', prompt: `Face à Pixel Wear${N}?`, options: [
+        { id: 'attaquer', label: 'Je l\'attaque en justice', cost: 300, desc: '300 € d\'avocat pour commencer.', fx: { argent: -300 }, set: { attaque: true },
+          after: [{ who: 'lou', text: `Je connais une avocate. Elle va te demander deux choses${N}: ce que tu as déposé, et ce que tu peux dater.` }] },
+        { id: 'ignorer', label: 'Je laisse couler', desc: 'Les vrais fans savent qui est l\'original.', fx: { noto: -8 },
+          after: [{ who: 'narr', text: `En un mois, Pixel Wear a plus d'abonnés que moi.` }] } ] },
+      { t: 'event', if: s => s.flags.attaque && s.flags.depot, who: 'lou', text: s => `Gagné${N}! Ta marque était déposée${s.flags.date ? ' et ton dessin daté' : ''}${N}: le juge a reconnu la copie. Pixel Wear doit fermer, détruire son stock et te verser 1${N}500${N}€.`, fx: { argent: 1500, prot: 20, noto: 5 }, set: { gagne: true } },
+      { t: 'event', if: s => s.flags.attaque && !s.flags.depot && s.flags.date, who: 'lou', text: `Demi-victoire. Grâce à ta preuve de date, le juge reconnaît que le dessin est de toi${N}: Max doit retirer le chien. Mais le nom, tu ne l'avais pas déposé, et lui vient de déposer «${N}Pixel Wear${N}». Vous allez devoir cohabiter.`, fx: { prot: 10 } },
+      { t: 'event', if: s => !s.flags.depot && !s.flags.date, who: 'max', text: s => `${s.flags.attaque ? `Perdu. Tu n'as rien pu prouver devant le juge. ` : ''}J'ai déposé «${N}Pixel Wear${N}» la semaine dernière. Maintenant, c'est ton «${N}Pixel & Co${N}» qui ressemble trop à ma marque. Tu as un mois pour changer de nom.`, fx: { noto: -15, prot: -20 }, set: { depossede: true } },
+      { t: 'event', if: s => s.flags.zorg, who: 'lou', text: s => `Mauvaise nouvelle. Le studio de Captain Zorg a repéré tes t-shirts. Leurs avocats ont fait saisir ce qui restait, et ils réclament 2${N}000${N}€. Tu as fait à un studio exactement ce que Max t'a fait.`, fx: s => ({ argent: paie(s, 2000), rep: -15 }) }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Un an après le buzz', sub: 'Les vues sont retombées. Les conséquences, non.', final: true,
+    steps: [
+      { t: 'event', if: s => s.flags.image, who: 'jade', text: `Mes parents ont saisi la justice. Le juge t'ordonne de retirer la vidéo et de me verser 800${N}€. Tout ça, tu pouvais l'éviter avec une question${N}: «${N}Tu es d'accord${N}?${N}»`, fx: s => ({ argent: paie(s, 800), rep: -10, noto: -10 }) },
+      { t: 'event', if: s => s.flags.vieprivee, who: 'theo', text: `J'ai changé de lycée. Avant de partir, j'ai porté plainte${N}: tu n'avais pas le droit d'étaler ma vie privée. Tu me dois 500${N}€. Et plus personne dans l'équipe ne t'achètera un t-shirt.`, fx: s => ({ argent: paie(s, 500), rep: -15 }) },
+      { t: 'event', if: s => s.flags.vendu, who: 'lou', text: `Tu as reçu un courrier de la CNIL, l'autorité qui protège les données personnelles. Quarante participants du concours se sont plaints. Amende${N}: 1${N}500${N}€. Ces adresses t'avaient été confiées pour un tirage au sort, pas pour être vendues.`, fx: s => ({ argent: paie(s, 1500), rep: -20 }) },
+      { t: 'event', if: s => s.flags.spam, who: 'lou', text: `La moitié de ta liste s'est désabonnée, et trois personnes ont signalé tes messages. Tu t'en sors avec un rappel à l'ordre, cette fois.`, fx: { rep: -5 } },
+      { t: 'event', if: s => s.flags.trouble, who: 'morel', text: `Le tribunal m'a donné raison. Votre atelier dépasse ce qu'un voisin doit supporter${N}: vous me devez 600${N}€, et la machine s'arrête à 19${N}h.`, fx: s => ({ argent: paie(s, 600), noto: -5 }) },
+      { t: 'say', who: 'papi', text: `Alors, ma crevette, cette année de gloire${N}? Raconte à ton vieux Papi. Et dis-moi${N}: le chien sur le t-shirt, il est toujours à toi${N}?` }
+    ] }
+  ],
+
+  /* ------------------------------ FINS (ordre de priorité) ------------------------------ */
+  endings: [
+    { id: 'badbuzz', when: s => s.rep <= 25, title: 'Bad buzz', stamp: 'Boycott', color: '#FF5C6A',
+      text: `Tu as fait des vues sur le dos des autres${N}: leur visage, leurs secrets, leur tranquillité. Le lycée s'est retourné. Plus personne ne veut porter ton chien.` },
+    { id: 'sanction', when: s => s.flags.vendu, title: 'La sanction', stamp: 'Amende', color: '#FF5C6A',
+      text: `500${N}€ gagnés en vendant un fichier, trois fois plus perdus en amende, et la confiance de tes clients avec. Leurs adresses n'étaient pas ta marchandise.` },
+    { id: 'depossede', when: s => s.flags.depossede, title: 'Le nom perdu', stamp: 'Trop tard', color: '#FFC64F',
+      text: `Tu as inventé Pixel & Co, mais tu ne l'as jamais protégée. Un autre a déposé le nom avant toi. Il te faut un nouveau logo, un nouveau nom, et tout recommencer.` },
+    { id: 'contref', when: s => s.flags.zorg, title: 'Contrefaçon', stamp: 'Stock saisi', color: '#FFC64F',
+      text: `Tu t'es plaint qu'on copie ton chien… en vendant le héros d'un autre. Le studio a tout fait saisir. On ne peut pas défendre ses créations et piller celles des autres.` },
+    { id: 'protege', when: s => s.flags.depot && s.flags.date && s.rep >= 60, title: 'Marque protégée', stamp: 'Bravo', color: '#4CD97B',
+      text: `Tu as respecté les autres, daté ton dessin, déposé ton nom. Pixel & Co est à toi, et tu peux le prouver. Le vrai Pixel, lui, a mâchouillé le certificat.` },
+    { id: 'roule', when: s => true, title: 'Ça roule', stamp: 'Correct', color: '#9a8e7c',
+      text: `La marque tourne, personne ne te poursuit. Mais si un copieur plus malin se présente demain, tu n'es pas tout à fait à l'abri.` }
+  ],
+
+  /* ------------------------------ DÉBRIEF (h = choix du joueur) ------------------------------ */
+  debrief: [
+    { act: 1, needs: ['video', 'prive', 'fichier'], title: 'Acte 1 — Les droits des autres', text: (h, s) => {
+        const v = h.video === 'laisser' ? 'En laissant la vidéo, tu as violé le <em>droit à l\'image</em> de Jade.' : 'En retirant ou en floutant la vidéo, tu as respecté le <em>droit à l\'image</em> de Jade.';
+        const p = h.prive === 'publier' ? 'En publiant le message de Théo, tu as porté atteinte au <em>respect de sa vie privée</em>.' : 'En ne révélant pas l\'identité de Théo, tu as respecté sa <em>vie privée</em>.';
+        const f = h.fichier === 'vendre' ? 'En vendant le fichier, tu as détourné ces données de leur but, sans l\'accord des personnes.' : h.fichier === 'pub' ? 'En envoyant ta pub à tous, tu as utilisé ces données pour autre chose que ce qui était prévu, sans accord.' : h.fichier === 'accord' ? 'En demandant l\'accord de chacun, tu as fait exactement ce que la loi exige.' : 'En effaçant le fichier une fois le tirage fait, tu as respecté le but pour lequel on te l\'avait confié.';
+        return `Toute personne a des droits attachés à elle-même, qui ne s\'achètent pas : les <em>droits de la personne</em>, ou droits extrapatrimoniaux. Chacun décide de l\'usage de son image : il faut son accord pour la diffuser. ${v} ${p} Une adresse e-mail est une <em>donnée à caractère personnel</em> : on ne peut la collecter que pour un but précis, annoncé, et avec l\'accord de la personne. ${f} En France, c\'est la CNIL qui veille à la <em>protection des données</em> ; en réalité, un petit vendeur reçoit d\'abord un avertissement avant une amende.`; } },
+    { act: 2, needs: ['presse', 'garage', 'voisin', 'cour'], title: 'Acte 2 — Ce qui est à toi', text: (h, s) => {
+        const pr = h.presse === 'user' ? 'En l\'utilisant, tu as exercé l\'<em>usus</em>' : h.presse === 'louer' ? 'En la louant à Sami, tu as exercé le <em>fructus</em>' : 'En la vendant, tu as exercé l\'<em>abusus</em>';
+        const g = h.garage === 'louer' ? 'Le garage, lui, t\'était seulement prêté : tu pouvais t\'en servir, pas en percevoir les loyers.' : 'Le garage, lui, t\'était seulement prêté : tu as compris que ses loyers revenaient à son propriétaire.';
+        const v = h.voisin === 'chezmoi' ? '« Je suis chez moi » ne suffit pas : ton bruit et tes odeurs dépassaient ce qu\'un voisin doit supporter.' : 'En tenant compte de M. Morel, tu as évité de dépasser ce qu\'un voisin doit supporter.';
+        return `Ta presse est un <em>bien corporel</em> : une chose que l\'on peut toucher. Le <em>droit de propriété</em> donne trois pouvoirs : l\'<em>usus</em> (se servir du bien), le <em>fructus</em> (en tirer des revenus) et l\'<em>abusus</em> (en disposer : le vendre, le donner, le détruire). ${pr}. ${g} Ce droit est <em>absolu</em> (le propriétaire fait ce qu\'il veut de son bien), <em>exclusif</em> (lui seul décide qui s\'en sert : le livreur n\'avait rien à faire dans la cour) et <em>perpétuel</em> (il ne se perd pas quand on ne s\'en sert pas : dix ans de garage vide n\'y changent rien). Mais absolu ne veut pas dire sans limite : ${v} C\'est le <em>trouble anormal du voisinage</em>.`; } },
+    { act: 3, needs: ['date', 'marque', 'zorg', 'copieur'], title: 'Acte 3 — Ce qui ne se touche pas', text: (h, s) => {
+        const d = h.date === 'oui' ? 'En datant ton dessin, tu t\'es donné une preuve.' : 'Sans date certaine, tu ne pouvais pas prouver que ton dessin était le premier.';
+        const m = h.marque === 'oui' ? 'En déposant ton nom, tu as obtenu un' : 'Si tu avais déposé ton nom, tu aurais obtenu un';
+        const z = h.zorg === 'oui' ? 'En vendant du Captain Zorg sans autorisation, tu as toi-même commis une contrefaçon.' : 'En refusant de vendre du Captain Zorg sans autorisation, tu as respecté le droit d\'un autre créateur.';
+        const c = s.flags.gagne ? 'Ton procès contre Pixel Wear était une <em>action en contrefaçon</em>, et tu l\'as gagnée.' : 'Poursuivre un copieur en justice s\'appelle une <em>action en contrefaçon</em> : elle ne réussit que si l\'on peut prouver son droit.';
+        return `Un dessin, un nom, une idée mise en forme sont des <em>biens incorporels</em> : on ne peut pas les toucher, mais on peut en être propriétaire. Ton dessin de Pixel est une œuvre : le <em>droit d\'auteur</em> le protège dès sa création, sans formalité. ${d} Le nom, lui, relève de la <em>propriété industrielle</em> : une <em>marque commerciale</em> n\'est protégée que si elle est déposée (à l\'INPI). ${m} <em>monopole d\'exploitation</em> : toi seul peux utiliser ce nom pour tes produits, pendant dix ans renouvelables. ${c} ${z}`; } },
+    { act: 4, needs: ['copieur'], finalOnly: true, title: 'Acte 4 — Un an après', text: (h, s) =>
+        `Tu as connu les deux côtés. Celui qui empiète : sur l\'image, la vie privée, les données, la tranquillité ou les créations des autres. Et celui dont on copie le travail. Les mêmes règles t\'ont limité et t\'ont protégé : c\'est le principe. Tes droits s\'arrêtent là où commencent ceux des autres, et réciproquement.` }
+  ],
+  vocab: ['Droits de la personne', 'Droit à l\'image', 'Respect de la vie privée', 'Données à caractère personnel', 'Biens corporels', 'Biens incorporels', 'Droit de propriété', 'Usus', 'Fructus', 'Abusus', 'Absolu, exclusif, perpétuel', 'Trouble anormal du voisinage', 'Droit d\'auteur', 'Propriété industrielle', 'Marque commerciale', 'Monopole d\'exploitation', 'Action en contrefaçon']
+};
+let H = {};   // historique des choix (lu par le débrief)
+
+/* =====================================================================
+   2. DÉCOR — le garage-atelier de Pixel & Co, avec Pixel et le compteur de vues.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const stack = Math.max(1, Math.min(7, Math.round(S.noto / 13)));
+  let tees = '';
+  for (let i = 0; i < stack; i++) tees += `<rect x="238" y="${150 - i * 7}" width="44" height="6" rx="1.5" fill="#17110a" stroke="#EEF3EC" stroke-width="1" opacity=".8"/>`;
+  const vues = S.noto >= 70 ? '1,2 M' : S.noto >= 55 ? '812 k' : S.noto >= 35 ? '240 k' : '12 k';
+  const nom = S.flags.depossede ? '? ? ?' : 'PIXEL &amp; CO' + (S.flags.depot ? ' ®' : '');
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="L'atelier de Pixel &amp; Co">
+    <rect width="360" height="200" fill="#0b0805"/><rect x="0" y="0" width="360" height="162" fill="#120e09"/>
+    <g stroke="#3a2a14" stroke-width="1.2"><line x1="120" y1="30" x2="360" y2="30"/><line x1="120" y1="62" x2="360" y2="62"/><line x1="120" y1="94" x2="360" y2="94"/></g>
+    <rect x="186" y="34" width="118" height="22" fill="#110c07" stroke="${S.flags.depossede ? '#FF5C6A' : DROIT}" stroke-width="1.5"/><text x="245" y="49" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="10" fill="${S.flags.depossede ? '#FF5C6A' : DROIT}">${nom}</text>
+    <g transform="translate(316,40)"><rect x="0" y="0" width="30" height="50" rx="4" fill="#110c07" stroke="#FF8AD1" stroke-width="1.5"/><path d="M11,16 L11,28 L21,22 Z" fill="#FF8AD1"/><text x="15" y="42" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="8" fill="#EEF3EC">${vues}</text></g>
+    ${tees}
+    <g transform="translate(296,112)"><rect x="0" y="30" width="46" height="20" fill="#17110a" stroke="#5B8FFF" stroke-width="1.5"/><rect x="4" y="12" width="38" height="8" fill="#17110a" stroke="#5B8FFF" stroke-width="1.5"/><line x1="23" y1="20" x2="23" y2="30" stroke="#5B8FFF" stroke-width="2"/><line x1="23" y1="12" x2="40" y2="0" stroke="#5B8FFF" stroke-width="2"/></g>
+    <g transform="translate(150,128)" fill="#17110a" stroke="${DROIT}" stroke-width="1.6"><ellipse cx="24" cy="20" rx="20" ry="11"/><circle cx="48" cy="8" r="9"/><path d="M42,0 L40,-9 L48,-2 Z"/><path d="M52,-1 L58,-8 L57,3 Z"/><line x1="10" y1="28" x2="10" y2="34"/><line x1="36" y1="28" x2="36" y2="34"/><path d="M4,16 Q-6,8 -2,0" fill="none"/><circle cx="51" cy="7" r="1.2" fill="${DROIT}" stroke="none"/></g>
+    <rect x="0" y="162" width="360" height="38" fill="#0d0a06"/><line x1="0" y1="162" x2="360" y2="162" stroke="#3a2a14" stroke-width="1.5"/>`;
+};
+
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] += v;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      frame(st.who, `<div class="box">${whoTag(st.who)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        applyFx(fx);
+        pushAfter(val(o.after, S)); next();
+      });
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="${st.step || 1}" value="${st.def}" aria-label="${st.prompt}">
+        <div class="range-l"><span>${st.show(st.min)}</span><span>${st.show(st.max)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        applyFx(res.fx); pushAfter(res.after); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p></div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">Tu as appliqué ces règles sans les nommer. Voici comment on les appelle en droit.</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour aller au bout de l'histoire.</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

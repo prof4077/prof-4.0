@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Aux Manettes 1 — Jeu Économie Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#4CD97B;--eco-dim:#2A8E4C;--bg:#050806;--panel:#0a120c;--panel2:#0d1710;--line:#173322;--txt:#EEF3EC;--muted:#7C9483;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(76,217,123,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(76,217,123,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#12201a;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070c09;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(76,217,123,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#04160a;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#04160a;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#102016;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#12201a;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#04160a;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#07110c;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#07110c;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#07110c;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#07110c;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(76,217,123,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#07110c;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — tout ce qui se modifie est ici (textes, chiffres, fins).
+   Le moteur (partie 3) n'a pas besoin d'être touché.
+   Jauges : bien (bien-être des habitants, 0-100), deficit (% du PIB, par an),
+            dette (% du PIB, cumulée), pop (popularité, 0-100).
+   Une option de choix peut porter :
+     chain : les deux lignes de conséquences affichées case par case ({ good: [...], bad: [...] })
+     voix  : les trois réactions (conseillère, opposition, habitant)
+   ===================================================================== */
+const N = ' ';
+const pc = n => (Math.round(n * 10) / 10).toLocaleString('fr-FR') + N + '%';
+const V = (sorel, drak, nom, hab) => [{ who: 'sorel', text: sorel }, { who: 'drak', text: drak }, { nom, text: hab }];
+function bain(dette, deficit) {                                                   // la baignoire : robinet = déficit, eau = dette
+  const h = Math.max(4, Math.min(74, dette * 0.9)), w = Math.max(0, Math.min(14, deficit * 3));
+  return `<span class="pyr"><svg viewBox="0 0 300 150" role="img" aria-label="La baignoire de la dette">
+    <path d="M40,50 L260,50 L244,134 L56,134 Z" fill="#07110c" stroke="#7C9483" stroke-width="2"/>
+    <clipPath id="tub"><path d="M42,52 L258,52 L243,132 L57,132 Z"/></clipPath>
+    <rect x="40" y="${132 - h}" width="220" height="${h}" fill="#5B8FFF" opacity=".55" clip-path="url(#tub)"/>
+    <path d="M80,10 L80,24 L104,24 L104,34" fill="none" stroke="#EEF3EC" stroke-width="5" stroke-linecap="round"/>
+    ${w > 0 ? `<rect x="${104 - w / 2}" y="36" width="${w}" height="${96 - h}" fill="#FF5C6A" opacity=".85"/>` : ''}
+    <text x="118" y="24" font-family="Rajdhani,sans-serif" font-weight="700" font-size="12" fill="#FF5C6A">Déficit de l'année : ${pc(deficit)}</text>
+    <text x="150" y="${Math.min(124, 132 - h / 2 + 4)}" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="13" fill="#EEF3EC">Dette accumulée : ${pc(dette)}</text>
+  </svg></span>`;
+}
+const annee = n => ({ t: 'event', who: 'sorel', text: s => s.deficit > 0 ? `Fin de l'année ${n}. L'État a dépensé plus qu'il n'a encaissé${N}: ${pc(s.deficit)} de la richesse du pays. Ce trou s'ajoute à tout ce que Valmont devait déjà.` : s.deficit < 0 ? `Fin de l'année ${n}. L'État a encaissé plus qu'il n'a dépensé${N}: ${pc(-s.deficit)} de la richesse du pays. Pour une fois, la baignoire se vide un peu.` : `Fin de l'année ${n}. L'État a dépensé exactement ce qu'il a encaissé. La dette ne bouge pas.`, fx: s => ({ dette: s.deficit }) });
+
+const GAME = {
+  title: 'Aux Manettes 1',
+  brand: 'AUX <span>MANETTES</span>',
+  storeKey: 'auxManettes1Fins',
+  backLink: '../../matieres/economie-terminale.html',
+  footer: 'Économie Terminale STMG, thème 6 (1/2)',
+  kicker: 'Économie · Terminale STMG · Thème 6 (1/2)',
+  pitch: `La Présidente de Valmont vient de te nommer ministre de l'Économie. Jusqu'ici, l'État ne s'occupait que de la police et des tribunaux. À toi de décider jusqu'où il doit aller… et de réparer ce que les marchés, puis l'État lui-même, abîment.`,
+  meta: '5 actes · 20 minutes',
+  start: s => Object.assign(s, { bien: 40, deficit: 1, dette: 40, pop: 50 }),
+  hud: [
+    { k: 'bien',    label: 'Bien-être',  short: 'Bien-être',  show: s => Math.round(s.bien), pct: s => s.bien,         low: s => s.bien < 35, clamp: true },
+    { k: 'deficit', label: 'Déficit',    short: 'Déficit',    show: s => pc(s.deficit),      pct: s => s.deficit * 18, low: s => s.deficit > 3, unit: N + 'pt', inv: true },
+    { k: 'dette',   label: 'Dette',      short: 'Dette',      show: s => pc(s.dette),        pct: s => s.dette * 1.3,  low: s => s.dette >= 55, unit: N + 'pt', inv: true },
+    { k: 'pop',     label: 'Popularité', short: 'Popularité', show: s => Math.round(s.pop),  pct: s => s.pop,          low: s => s.pop < 30, clamp: true }
+  ],
+  fail: s => s.pop <= 15 ? 'renvoye' : null,
+  lock: (s, cost) => null,
+  bilan: s => [['Bien-être des habitants', Math.round(s.bien) + ' / 100'], ['Déficit', pc(s.deficit) + ' du PIB'], ['Dette', pc(s.dette) + ' du PIB'], ['Popularité', Math.round(s.pop) + ' / 100']],
+
+  characters: {
+    arel:     { name: 'Mme Arel',    role: 'Présidente de Valmont',      color: '#B9A6FF', body: '#3a3f4a', hair: '#8a8f96', acc: 'tie' },
+    sorel:    { name: 'Mme Sorel',   role: 'ta conseillère',             color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'clip' },
+    drak:     { name: 'M. Drak',     role: 'chef de l\'opposition',      color: '#FF5C7A', body: '#1c1c22', hair: '#7a2f2f', acc: 'tie' },
+    brossard: { name: 'M. Brossard', role: 'député-maire de Valbourg',   color: '#FFC64F', body: '#8a5a22', hair: '#c9c9c9', acc: 'tie' },
+    narr:     { name: 'Toi',         role: '',                           color: '#4CD97B' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Jusqu\'où va l\'État ?', sub: 'Premier jour au ministère. Le bureau est immense, les caisses beaucoup moins.',
+    steps: [
+      { t: 'say', who: 'arel', text: `Bienvenue au gouvernement. Je vous confie l'économie de Valmont${N}: vingt millions d'habitants. Mon prédécesseur pensait que l'État devait faire le moins possible${N}: la police, les tribunaux, l'armée, et rien d'autre. Les écoles sont payantes, les hôpitaux privés. À vous de me dire si ça doit changer.` },
+      { t: 'say', who: 'sorel', text: `Je suis votre conseillère. Mon travail${N}: vous montrer ce que chaque décision déclenche, étape par étape, avant que vous ne la découvriez dans les journaux. Retenez une chose${N}: tout ce que l'État offre, quelqu'un le paie.` },
+      { t: 'choice', id: 'ecole', prompt: `L'école coûte 3${N}000${N}€ par an et par enfant. Un enfant sur trois n'y va pas. Que décides-tu${N}?`, options: [
+        { id: 'gratuite', label: 'L\'école gratuite pour tous', desc: 'Financée par l\'État.', fx: { bien: 12, deficit: 1, pop: 6 },
+          chain: { good: ['École gratuite', 'Tous les enfants scolarisés', 'Travailleurs mieux formés', 'Entreprises plus efficaces'], bad: ['Dépenses de l\'État en hausse', 'Déficit en hausse'] },
+          voix: V(`Vous payez aujourd'hui, le pays récolte dans quinze ans. C'est une dépense qui rapporte, mais lentement.`, `Et qui va payer${N}? Vous distribuez de l'argent que nous n'avons pas${N}!`, 'Mme Kaya, caissière', `Mes trois enfants iront à l'école. Tous les trois. Je n'aurai plus à choisir lequel.`) },
+        { id: 'bourses', label: 'Des bourses pour les familles modestes', desc: 'L\'école reste payante pour les autres.', fx: { bien: 6, deficit: 0.4, pop: 2 },
+          chain: { good: ['Bourses pour les plus modestes', 'Davantage d\'enfants scolarisés', 'Travailleurs un peu mieux formés'], bad: ['Dépenses de l\'État en légère hausse', 'Déficit en légère hausse'] },
+          voix: V(`Moins cher, mais vous créez une frontière${N}: ceux qui gagnent juste un peu trop n'auront rien.`, `Une demi-mesure. Trop pour le budget, trop peu pour les familles.`, 'M. Okoro, livreur', `Je gagne 40${N}€ de trop pour la bourse. Mon fils reste à la maison.`) },
+        { id: 'rien', label: 'Je ne change rien', desc: 'Ce n\'est pas le rôle de l\'État.', fx: { bien: -4, pop: -5 },
+          chain: { good: ['Aucune dépense nouvelle', 'Déficit stable'], bad: ['École payante', 'Les familles modestes renoncent', 'Moins de diplômés', 'Entreprises en manque de personnel formé'] },
+          voix: V(`Vos comptes sont intacts. Mais dans quinze ans, vos entreprises chercheront des ingénieurs qui n'existent pas.`, `Vous abandonnez un tiers des enfants de ce pays${N}!`, 'Mme Kaya, caissière', `J'ai trois enfants et de quoi payer l'école pour un seul.`) } ] },
+      { t: 'choice', id: 'sante', prompt: `Une opération coûte six mois de salaire. Beaucoup renoncent à se soigner. Que décides-tu${N}?`, options: [
+        { id: 'assurance', label: 'Une assurance maladie publique pour tous', desc: 'L\'État rembourse les soins.', fx: { bien: 12, deficit: 1.2, pop: 6 },
+          chain: { good: ['Soins remboursés', 'Les malades se soignent tôt', 'Population en meilleure santé', 'Moins d\'absences au travail'], bad: ['Dépenses de l\'État en forte hausse', 'Déficit en hausse'] },
+          voix: V(`C'est la dépense la plus lourde que vous puissiez créer. Et la plus difficile à supprimer ensuite.`, `Un puits sans fond${N}! Vous verrez la facture dans dix ans.`, 'M. Vidal, maçon', `J'ai fait soigner mon dos. Avant, j'aurais attendu de ne plus pouvoir marcher.`) },
+        { id: 'urgences', label: 'Des hôpitaux publics pour les urgences', desc: 'Le reste demeure à la charge de chacun.', fx: { bien: 5, deficit: 0.5, pop: 2 },
+          chain: { good: ['Urgences gratuites', 'Moins de morts évitables'], bad: ['Les soins courants restent chers', 'On attend d\'être très malade', 'Dépenses de l\'État en hausse'] },
+          voix: V(`Vous sauvez des vies, mais vous soignez tard, donc cher.`, `Ni fait ni à faire.`, 'M. Vidal, maçon', `Pour mon dos, on m'a dit de revenir quand ce serait une urgence.`) },
+        { id: 'rien', label: 'Je ne change rien', desc: 'Chacun s\'assure s\'il le peut.', fx: { bien: -5, pop: -4 },
+          chain: { good: ['Aucune dépense nouvelle', 'Déficit stable'], bad: ['Soins trop chers pour beaucoup', 'On renonce à se soigner', 'Maladies aggravées', 'Travailleurs absents ou diminués'] },
+          voix: V(`Budget préservé. Santé publique, non.`, `Le ministre regarde les gens tomber malades en comptant ses sous.`, 'M. Vidal, maçon', `Je travaille avec une hernie. Je n'ai pas six mois de salaire devant moi.`) } ] },
+      { t: 'say', who: 'sorel', text: `Dernier dossier de la semaine${N}: Valrail, la compagnie de chemins de fer. Elle appartient entièrement à l'État, elle perd de l'argent, et la moitié de ses petites lignes sont presque vides.` },
+      { t: 'choice', id: 'trains', prompt: `Que deviennent les trains de Valmont${N}?`, options: [
+        { id: 'public', label: 'Valrail reste 100 % à l\'État, et on investit', desc: 'Toutes les lignes sont maintenues.', fx: { bien: 5, deficit: 0.6, pop: 3 },
+          chain: { good: ['L\'État décide seul', 'Petites lignes maintenues', 'Villages toujours desservis'], bad: ['L\'État comble les pertes', 'Déficit en hausse'] },
+          voix: V(`Vous gardez la main sur tout. Y compris sur les pertes.`, `Une entreprise qui perd de l'argent, et vous en rajoutez${N}?`, 'Mme Lenoir, retraitée', `Mon train de 7${N}h passe toujours. Sans lui, je ne vois plus mes petits-enfants.`) },
+        { id: 'mixte', label: 'L\'État garde 51 % et vend le reste', desc: 'Des actionnaires privés entrent au capital.', fx: { bien: 2, deficit: -0.4 },
+          chain: { good: ['Vente de 49 % des parts', 'Argent frais pour l\'État', 'L\'État garde le dernier mot'], bad: ['Les actionnaires veulent des bénéfices', 'Quelques lignes vides fermées'] },
+          voix: V(`Vous partagez la propriété, les bénéfices et les décisions. Mais vous restez majoritaire.`, `Vous bradez la moitié du patrimoine des Valmontois${N}!`, 'Mme Lenoir, retraitée', `Mon train passe encore, mais plus le dimanche.`) },
+        { id: 'prive', label: 'Je vends entièrement Valrail', desc: 'Une entreprise privée la reprend.', fx: { bien: -4, deficit: -1, pop: -4 },
+          chain: { good: ['Vente totale', 'Grosse recette pour l\'État', 'Déficit en baisse'], bad: ['Le repreneur cherche le profit', 'Lignes non rentables fermées', 'Villages isolés'] },
+          voix: V(`Le budget respire cette année. Mais une recette de vente, ça ne se touche qu'une fois.`, `Vous vendez les bijoux de famille pour payer le loyer.`, 'Mme Lenoir, retraitée', `Ma gare est fermée. On m'a dit de prendre le car. Il n'y a pas de car.`) } ] },
+      { t: 'say', who: 'arel', text: s => { const n = (H.ecole !== 'rien') + (H.sante !== 'rien') + (H.trains === 'public'); return n >= 3 ? `Vous avez fait un choix net${N}: un État qui instruit, qui soigne, qui transporte. Mes prédécesseurs se retourneraient dans leur tombe. Maintenant, il va falloir le financer.` : n === 0 ? `Vous avez fait un choix net${N}: l'État ne fait presque rien, et chacun se débrouille. Les comptes sont beaux. Reste à voir ce que diront les Valmontois.` : `Vous avez tracé une ligne au milieu${N}: l'État intervient, mais pas partout. Chaque camp vous reprochera de ne pas être allé assez loin.`; } },
+      annee(1)
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'La baignoire', sub: 'Deux chiffres que tout le monde confond. Y compris à la tribune.',
+    steps: [
+      { t: 'say', who: 'drak', text: `Les Valmontois vous regardent, et les chiffres sont là. La dette de Valmont atteint des sommets${N}! Je vous somme de la réduire, immédiatement${N}!` },
+      { t: 'say', who: 'sorel', text: s => `${bain(s.dette, s.deficit)}Avant de répondre, regardez. Chaque année, quand l'État dépense plus qu'il n'encaisse, la différence coule du robinet${N}: c'est le déficit. Et tout ce qui a coulé depuis des années reste dans la baignoire${N}: c'est la dette.` },
+      { t: 'choice', id: 'robinet', prompt: `Que réponds-tu à M.${N}Drak${N}?`, options: [
+        { id: 'moitie', label: '« Je réduis la dette : je coupe le déficit de moitié. »', desc: 'Des économies dans tous les ministères.', fx: s => ({ deficit: -Math.round(s.deficit * 5) / 10, bien: -6, pop: 3 }), set: { promesse: true }, lock: s => s.deficit <= 0 ? 'Il n\'y a plus de déficit à réduire.' : null,
+          chain: { good: ['Dépenses réduites', 'Le robinet coule moins fort'], bad: ['Mais il coule encore', 'La baignoire continue de se remplir', 'La dette augmente toujours'] },
+          voix: V(`Attention à vos mots${N}: vous avez promis de réduire la dette. Vous n'avez réduit que la vitesse à laquelle elle monte.`, `Très bien. Je note votre promesse, et je la ressortirai.`, 'M. Vidal, maçon', `L'école de mon village a perdu deux postes. C'est ça, les économies${N}?`) },
+        { id: 'zero', label: '« Plus aucun déficit dès cette année. »', desc: 'Des coupes sévères partout.', fx: s => ({ deficit: -s.deficit, bien: -14, pop: -8 }), lock: s => s.deficit <= 0 ? 'Il n\'y a déjà plus de déficit.' : null,
+          chain: { good: ['Dépenses ramenées au niveau des recettes', 'Le robinet est fermé', 'La dette cesse de monter'], bad: ['Services publics réduits', 'Habitants mécontents'] },
+          voix: V(`Le robinet est fermé. Notez bien${N}: la baignoire n'est pas vide pour autant. Pour la vider, il faudrait encaisser plus qu'on ne dépense.`, `Vous saignez le pays pour un chiffre${N}!`, 'Mme Kaya, caissière', `La cantine de l'école a fermé. Ils ont dit «${N}restrictions${N}».`) },
+        { id: 'assumer', label: '« Cette dette finance des écoles et des hôpitaux. Je l\'assume. »', desc: 'Je ne touche à rien.', fx: { pop: -3 },
+          chain: { good: ['Services publics maintenus', 'Habitants protégés'], bad: ['Le robinet coule autant', 'La dette monte plus vite', 'Les intérêts à payer augmentent'] },
+          voix: V(`C'est défendable, si ce que vous financez rapporte un jour. Mais plus la baignoire est pleine, plus elle vous coûte en intérêts.`, `Le ministre avoue${N}: il laisse la dette filer${N}!`, 'M. Okoro, livreur', `Tant que l'école reste ouverte, moi, la dette…`) } ] },
+      annee(2),
+      { t: 'event', if: s => s.flags.promesse && s.deficit > 0, who: 'drak', text: s => `Vous aviez promis de réduire la dette. Elle est passée à ${pc(s.dette)}. Elle a ENCORE augmenté${N}! Vous avez menti aux Valmontois.`, fx: { pop: -8 } },
+      { t: 'say', if: s => s.flags.promesse && s.deficit > 0, who: 'sorel', text: `Il a raison sur le chiffre, et tort sur le mensonge. Vous avez bien réduit le déficit. Mais tant qu'il reste un déficit, même petit, la dette monte. Ne confondez plus jamais les deux à la tribune.` },
+      { t: 'event', if: s => s.dette >= 45, who: 'sorel', text: `Autre conséquence${N}: ceux qui nous prêtent demandent des intérêts. Plus nous devons, plus nous payons. Cette année, la facture d'intérêts grignote le budget.`, fx: { deficit: 0.3 } }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Quand le marché déraille', sub: 'Laisser faire le marché, c\'est souvent efficace. Pas toujours.',
+    steps: [
+      { t: 'say', who: 'sorel', text: `Cinq dossiers sur votre bureau. Dans chacun, des gens achètent et vendent librement, et pourtant le résultat est mauvais pour tout le monde. À chaque fois, demandez-vous${N}: qu'est-ce qui cloche, et que peut faire l'État${N}?` },
+      { t: 'say', who: 'sorel', text: `Premier dossier. La tannerie Bross fabrique le cuir le moins cher du pays. Elle rejette ses produits chimiques dans la rivière, gratuitement. En aval, les pêcheurs n'attrapent plus rien et la ville paie pour nettoyer l'eau.` },
+      { t: 'choice', id: 'riviere', prompt: `La tannerie qui pollue la rivière${N}?`, options: [
+        { id: 'rien', label: 'Je laisse faire', desc: 'Elle crée 300 emplois.', fx: { bien: -8, pop: -3 },
+          chain: { good: ['Polluer ne coûte rien à l\'usine', 'Cuir bon marché', 'Elle produit beaucoup'], bad: ['Rivière empoisonnée', 'Pêcheurs ruinés', 'La ville paie le nettoyage', 'Ceux qui paient ne sont pas ceux qui polluent'] },
+          voix: V(`Le prix du cuir est faux${N}: il ne contient pas les dégâts. Quelqu'un d'autre paie à la place de l'usine.`, `Trois cents emplois sauvés, cent pêcheurs sacrifiés. Bravo.`, 'M. Arnaud, pêcheur', `Vingt ans que je pêche ici. Je remonte des poissons morts.`) },
+        { id: 'taxe', label: 'Une taxe sur chaque tonne rejetée', desc: 'Polluer devient payant.', fx: { bien: 8, deficit: -0.3, pop: -2 },
+          chain: { good: ['Polluer coûte cher', 'L\'usine installe des filtres', 'La rivière revit', 'La taxe rapporte à l\'État'], bad: ['Le cuir coûte un peu plus cher'] },
+          voix: V(`Vous avez remis le coût des dégâts dans les comptes de celui qui les cause. Il a fait le calcul tout seul.`, `Encore une taxe${N}! Vous étouffez nos industriels.`, 'M. Arnaud, pêcheur', `Les truites reviennent. Je n'y croyais plus.`) },
+        { id: 'norme', label: 'Une limite de rejets, avec des contrôles', desc: 'Au-delà du seuil, c\'est interdit.', fx: { bien: 6, deficit: 0.1 },
+          chain: { good: ['Rejets limités par la loi', 'L\'usine s\'équipe', 'La rivière s\'améliore'], bad: ['Il faut payer des contrôleurs', 'Aucune raison de faire mieux que le seuil'] },
+          voix: V(`Efficace et clair. Mais une fois sous le seuil, l'usine n'a plus aucun intérêt à progresser.`, `Des fonctionnaires pour compter des gouttes.`, 'M. Arnaud, pêcheur', `C'est mieux. L'eau n'est pas encore claire, mais c'est mieux.`) },
+        { id: 'fermer', label: 'Je fais fermer l\'usine', desc: 'Plus d\'usine, plus de pollution.', fx: { bien: 2, pop: -6 },
+          chain: { good: ['Plus aucun rejet', 'La rivière revit'], bad: ['300 emplois supprimés', 'Le cuir est importé', 'La pollution se fait ailleurs'] },
+          voix: V(`Vous avez réglé le problème en supprimant aussi tout ce que l'usine apportait.`, `Trois cents familles au chômage sur un coup de tête${N}!`, 'Mme Bross, ouvrière', `Quinze ans de tannerie. On me parle de truites. Moi, je parle de mon loyer.`) } ] },
+      { t: 'say', who: 'sorel', text: `Deuxième dossier. Le marché des voitures d'occasion s'effondre. Le vendeur sait si sa voiture est saine ou pourrie. L'acheteur, lui, ne voit que la carrosserie.` },
+      { t: 'choice', id: 'occasion', prompt: `Le marché des voitures d'occasion${N}?`, options: [
+        { id: 'rien', label: 'Je laisse faire', desc: 'À chacun de se méfier.', fx: { bien: -5 },
+          chain: { good: ['Aucune contrainte pour les vendeurs'], bad: ['L\'acheteur ne peut rien vérifier', 'Il ne propose qu\'un prix moyen', 'Les vendeurs de bonnes voitures renoncent', 'Il ne reste que les épaves', 'Plus personne n\'achète'] },
+          voix: V(`Ce marché se détruit tout seul${N}: quand un seul des deux sait, la méfiance chasse les bons produits.`, `Les Valmontois se font arnaquer et le ministre hausse les épaules.`, 'Mme Kaya, caissière', `J'ai acheté une voiture «${N}comme neuve${N}». Elle a tenu onze jours.`) },
+        { id: 'controle', label: 'Contrôle technique obligatoire et garantie de six mois', desc: 'Avant toute vente.', fx: { bien: 7, pop: 3 },
+          chain: { good: ['L\'état de la voiture est vérifié par un tiers', 'L\'acheteur sait ce qu\'il achète', 'Il accepte de payer le juste prix', 'Les bonnes voitures reviennent sur le marché'], bad: ['Chaque vente coûte un peu plus cher'] },
+          voix: V(`Vous n'avez rien interdit${N}: vous avez donné à l'acheteur l'information qui lui manquait. Le marché refonctionne.`, `De la paperasse, encore de la paperasse.`, 'Mme Kaya, caissière', `Le garage m'a montré le rapport. J'ai payé plus cher, et je roule.`) },
+        { id: 'label', label: 'Un label « voiture vérifiée », pour ceux qui veulent', desc: 'Sans obligation.', fx: { bien: 3 },
+          chain: { good: ['Les vendeurs sérieux font vérifier', 'L\'acheteur peut les repérer'], bad: ['Les autres vendent toujours sans contrôle', 'Les acheteurs pressés se font encore piéger'] },
+          voix: V(`C'est un progrès. Mais les arnaqueurs ne demanderont pas le label.`, `Un autocollant. Voilà la politique du ministre.`, 'M. Okoro, livreur', `Avec le label, c'était 800${N}€ de plus. J'ai pris sans. Je n'aurais pas dû.`) } ] },
+      { t: 'say', who: 'sorel', text: `Troisième dossier. Valmont compte trois opérateurs de téléphone. Depuis deux ans, leurs forfaits coûtent exactement le même prix, au centime près, et ce prix a doublé. Nous avons des e-mails${N}: leurs patrons se sont mis d'accord.` },
+      { t: 'choice', id: 'telecom', prompt: `Les trois opérateurs qui s'entendent sur les prix${N}?`, options: [
+        { id: 'rien', label: 'Je laisse faire', desc: 'Les entreprises fixent leurs prix comme elles veulent.', fx: { bien: -5, pop: -4 },
+          chain: { good: ['Bénéfices records pour les opérateurs'], bad: ['Trois vendeurs seulement', 'Ils s\'entendent au lieu de se battre', 'Prix élevés', 'Les clients n\'ont aucun autre choix'] },
+          voix: V(`Quand les vendeurs sont peu nombreux, ils peuvent se comporter comme un seul. Le client perd ce que la rivalité lui garantissait.`, `Le ministre des opérateurs, pas celui des Valmontois.`, 'M. Okoro, livreur', `Mon forfait a doublé. J'ai regardé les deux autres${N}: pareil.`) },
+        { id: 'amende', label: 'Je saisis l\'autorité de la concurrence', desc: 'Enquête, amende, interdiction de s\'entendre.', fx: { bien: 6, deficit: -0.2, pop: 4 },
+          chain: { good: ['Entente sanctionnée', 'Chacun doit refaire ses prix seul', 'Ils se battent pour les clients', 'Les prix baissent'], bad: ['Les opérateurs promettent de se venger aux élections'] },
+          voix: V(`Vous n'avez pas fixé les prix${N}: vous avez rétabli la rivalité, et elle les a fait baisser pour vous.`, `Des amendes, toujours des amendes.`, 'M. Okoro, livreur', `Trois offres différentes dans ma boîte aux lettres cette semaine. Ça faisait longtemps.`) },
+        { id: 'prix', label: 'Je fixe moi-même le prix des forfaits', desc: 'Par décret, moitié prix.', fx: { bien: 2, pop: 3 },
+          chain: { good: ['Prix divisés par deux', 'Clients ravis'], bad: ['Les opérateurs gagnent moins', 'Ils cessent d\'investir', 'Le réseau vieillit', 'Les coupures se multiplient'] },
+          voix: V(`Le résultat est immédiat, et on vous applaudira. Dans trois ans, on vous reprochera les zones sans réseau.`, `Le ministre se prend pour un marchand de téléphones${N}!`, 'Mme Lenoir, retraitée', `C'est moitié prix, oui. Mais chez moi, ça ne capte plus.`) } ] },
+      { t: 'say', who: 'sorel', text: `Quatrième dossier. Le lac de Valmont n'appartient à personne${N}: chacun peut y pêcher. Chaque pêcheur se dit que s'il ne prend pas le poisson, un autre le prendra. Résultat${N}: il n'y en a presque plus.` },
+      { t: 'choice', id: 'lac', prompt: `Le lac où l'on pêche trop${N}?`, options: [
+        { id: 'rien', label: 'Je laisse faire', desc: 'Le lac est à tout le monde.', fx: { bien: -8 },
+          chain: { good: ['Chacun pêche librement'], bad: ['Chaque poisson pris manque aux autres', 'Chacun pêche le plus possible, vite', 'Les poissons n\'ont plus le temps de se reproduire', 'Lac vide', 'Plus aucun pêcheur ne vit du lac'] },
+          voix: V(`Personne ne peut être écarté du lac, mais ce que l'un prend, l'autre ne l'aura pas. Sans règle, ce genre de ressource finit toujours épuisée.`, `Le plus beau lac du pays, transformé en mare.`, 'M. Arnaud, pêcheur', `Si je me retiens, c'est mon voisin qui remplit sa barque. Alors je pêche.`) },
+        { id: 'quotas', label: 'Des quotas par bateau et une saison de fermeture', desc: 'Chacun a droit à une part.', fx: { bien: 7, pop: -3 },
+          chain: { good: ['Prises limitées pour tous', 'Les poissons se reproduisent', 'Le lac se repeuple', 'La pêche dure'], bad: ['Revenus en baisse la première année', 'Pêcheurs en colère'] },
+          voix: V(`Vous avez fait ce qu'aucun pêcheur ne pouvait décider seul${N}: imposer la même retenue à tous en même temps.`, `Vous interdisez aux gens de travailler${N}!`, 'M. Arnaud, pêcheur', `La première année, j'ai râlé. La troisième, je n'avais jamais vu autant de perches.`) },
+        { id: 'vendre', label: 'Je vends le lac à une entreprise', desc: 'Un propriétaire en prendra soin.', fx: { bien: 1, deficit: -0.3, pop: -6 },
+          chain: { good: ['Le lac a un propriétaire', 'Il limite la pêche pour protéger son bien', 'Recette pour l\'État'], bad: ['Il faut payer pour pêcher', 'Les petits pêcheurs sont écartés'] },
+          voix: V(`Ça marche${N}: un propriétaire protège ce qui lui rapporte. Mais vous avez fermé le lac à ceux qui en vivaient.`, `Le ministre vend même l'eau des lacs.`, 'M. Arnaud, pêcheur', `Quarante euros la journée de pêche. Dans MON lac.`) } ] },
+      { t: 'say', who: 'sorel', text: `Dernier dossier. La vallée de Sarre est inondée un hiver sur trois. Une digue protégerait ses 5${N}000 habitants. Aucune entreprise ne veut la construire${N}: une fois la digue en place, elle protège tout le monde, même ceux qui n'ont rien payé.` },
+      { t: 'choice', id: 'digue', prompt: `La digue de la vallée de Sarre${N}?`, options: [
+        { id: 'collecte', label: 'Une collecte volontaire auprès des habitants', desc: 'Que ceux qui veulent la digue la paient.', fx: { bien: -6, pop: -3 },
+          chain: { good: ['Aucune dépense pour l\'État'], bad: ['La digue protégera aussi ceux qui ne paient pas', 'Chacun attend que le voisin paie', 'Presque personne ne donne', 'Pas de digue', 'La vallée est inondée'] },
+          voix: V(`Personne n'est égoïste, tout le monde est logique${N}: pourquoi payer ce qu'on aura de toute façon${N}? C'est pour ça que le marché ne fournit jamais ce genre de bien.`, `Cinq mille personnes les pieds dans l'eau pendant que le ministre fait la quête.`, 'Mme Sarre, agricultrice', `J'ai donné 200${N}€. Mes voisins, rien. L'eau est montée chez tout le monde pareil.`) },
+        { id: 'impot', label: 'L\'État construit la digue, payée par l\'impôt', desc: 'Tout le monde contribue, tout le monde est protégé.', fx: { bien: 8, deficit: 0.4, pop: 4 },
+          chain: { good: ['Chacun contribue obligatoirement', 'La digue est construite', 'Toute la vallée est protégée'], bad: ['Dépense publique en hausse', 'Déficit en hausse'] },
+          voix: V(`Quand un bien profite à tous sans qu'on puisse écarter personne, seul l'impôt permet de le financer.`, `Encore une dépense${N}!`, 'Mme Sarre, agricultrice', `Premier hiver au sec depuis que je suis née.`) },
+        { id: 'rien', label: 'Je ne fais rien', desc: 'Ce n\'est pas l\'affaire de l\'État.', fx: { bien: -8, pop: -5 },
+          chain: { good: ['Aucune dépense'], bad: ['Aucune entreprise n\'a intérêt à bâtir la digue', 'Pas de digue', 'Inondation', 'Récoltes perdues, maisons détruites'] },
+          voix: V(`Le marché ne construira jamais cette digue. Ce n'est pas un jugement, c'est de l'arithmétique.`, `Le ministre regarde l'eau monter.`, 'Mme Sarre, agricultrice', `On a tout perdu. Encore.`) } ] },
+      annee(3)
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Quand c\'est l\'État qui déraille', sub: 'L\'État corrige les marchés. Qui corrige l\'État ?',
+    steps: [
+      { t: 'say', who: 'brossard', text: `Cher ministre${N}! Valbourg mérite son aéroport international. Deux pistes, un terminal en verre. Les élections sont dans six mois, et vous savez que mes électeurs comptent. Signez, et ma région votera pour la Présidente.` },
+      { t: 'say', who: 'sorel', text: `J'ai fait le calcul. Il y a déjà un aéroport à quarante minutes. Celui-ci accueillerait quarante passagers par jour, et coûterait plus cher que toutes les écoles de la région réunies. Mais sans M.${N}Brossard, la Présidente peut perdre l'élection.` },
+      { t: 'choice', id: 'aeroport', prompt: `L'aéroport de Valbourg${N}?`, options: [
+        { id: 'construire', label: 'Je signe', desc: 'Il faut gagner cette élection.', fx: { deficit: 1.5, pop: 6 }, set: { aeroport: true },
+          chain: { good: ['M. Brossard satisfait', 'Sa région vote pour la Présidente'], bad: ['Décision prise pour gagner des voix', 'Argent public dépensé sans besoin', 'Aéroport vide', 'Déficit en forte hausse', 'Moins d\'argent pour le reste'] },
+          voix: V(`Vous venez de dépenser l'argent de tous pour l'intérêt de quelques-uns. L'État aussi peut mal utiliser les ressources.`, `Je garde ce dossier. Je le sortirai au bon moment.`, 'M. Brossard', `Vous êtes un grand ministre. La plaque portera votre nom.`) },
+        { id: 'etude', label: 'Je commande une étude indépendante et je la publie', desc: 'Que chacun juge sur pièces.', fx: { bien: 2, pop: -2 },
+          chain: { good: ['Les chiffres sont rendus publics', 'Chacun voit que l\'aéroport est inutile', 'Le projet est abandonné', 'L\'argent reste disponible'], bad: ['M. Brossard est furieux'] },
+          voix: V(`Vous avez laissé les faits dire non à votre place. Rendre les décisions publiques, c'est le meilleur garde-fou contre ce genre de projet.`, `Pour une fois, je n'ai rien à redire. Ça ne durera pas.`, 'M. Brossard', `Vous me le paierez.`) },
+        { id: 'refuser', label: 'Je refuse', desc: 'Pas un euro pour un aéroport vide.', fx: { pop: -5 },
+          chain: { good: ['Aucune dépense inutile', 'L\'argent reste disponible'], bad: ['M. Brossard retire son soutien', 'L\'élection devient incertaine'] },
+          voix: V(`C'est la bonne décision, et vous allez la payer. C'est bien pour cela que tant de ministres signent.`, `Le ministre méprise nos régions${N}!`, 'M. Brossard', `Vous venez de perdre Valbourg.`) } ] },
+      { t: 'say', who: 'sorel', text: `Autre chose. L'aide que nous versons aux agriculteurs inondés${N}: quatorze formulaires, trois guichets, neuf mois d'attente. La moitié renoncent avant la fin. Là, ce n'est la faute de personne, et c'est quand même l'État qui échoue.` },
+      { t: 'choice', id: 'guichet', prompt: `L'aide aux agriculteurs, noyée dans la paperasse${N}?`, options: [
+        { id: 'simplifier', label: 'Un seul formulaire, un seul guichet', desc: 'Il faut réorganiser trois administrations.', fx: { bien: 5, pop: 3 },
+          chain: { good: ['Démarche simple', 'Les agriculteurs demandent l\'aide', 'Elle arrive à temps', 'L\'argent sert enfin à quelque chose'], bad: ['Trois services à fusionner', 'Des chefs de bureau mécontents'] },
+          voix: V(`L'aide existait déjà. Vous l'avez simplement rendue utilisable.`, `Il aura fallu trois ans pour supprimer treize formulaires.`, 'Mme Sarre, agricultrice', `J'ai été payée en trois semaines. J'ai cru à une erreur.`) },
+        { id: 'laisser', label: 'Je laisse les services s\'organiser', desc: 'Ce n\'est pas au ministre de remplir des formulaires.', fx: { bien: -4, pop: -3 },
+          chain: { good: ['Aucun conflit avec l\'administration'], bad: ['Démarche trop compliquée', 'La moitié des agriculteurs renoncent', 'L\'aide n\'atteint pas ceux qu\'elle vise', 'Argent prévu, résultat nul'] },
+          voix: V(`Une aide que personne n'arrive à toucher, c'est une dépense sans effet.`, `L'État de ce gouvernement${N}: généreux sur le papier, absent sur le terrain.`, 'Mme Sarre, agricultrice', `Au onzième formulaire, j'ai arrêté. J'ai vendu deux vaches à la place.`) } ] },
+      annee(4),
+      { t: 'event', if: s => s.flags.aeroport, who: 'drak', text: `Mesdames et messieurs, voici une photo prise hier à l'aéroport de Valbourg. Un terminal en verre. Une piste. Un pigeon. Voilà ce que ce ministre a fait de vos impôts pour acheter une élection.`, fx: { pop: -14 } }
+    ] },
+
+  /* ------------------------------ ACTE 5 ------------------------------ */
+  { num: 5, title: 'Le bilan', sub: 'Quatre ans au ministère. La Présidente veut te voir.', final: true,
+    steps: [
+      { t: 'say', who: 'sorel', text: s => `${bain(s.dette, s.deficit)}Votre baignoire, quatre ans plus tard. Quoi qu'on dise de vous ce soir, souvenez-vous de ce que vous avez appris ici${N}: le marché se trompe parfois, l'État aussi, et rien de ce qu'il fait n'est gratuit.` },
+      { t: 'say', who: 'arel', text: `Asseyez-vous. J'ai lu les rapports, les sondages et les journaux. Voici ce que je retiens de vos quatre années.` }
+    ] }
+  ],
+
+  /* ------------------------------ FINS (ordre de priorité) ------------------------------ */
+  endings: [
+    { id: 'renvoye', when: s => s.pop <= 20, title: 'Le remaniement', stamp: 'Sorti du gouvernement', color: '#FF5C6A',
+      text: `Les sondages se sont effondrés, et la Présidente ne peut plus te garder. Un communiqué de trois lignes annonce ton départ. Avoir raison ne suffit pas${N}: il faut aussi que le pays te suive.` },
+    { id: 'scandale', when: s => s.flags.aeroport, title: 'L\'aéroport fantôme', stamp: 'Scandale', color: '#FF5C6A',
+      text: `Tout ce que tu as fait de bien est oublié. Il ne reste qu'une photo${N}: une piste vide et un pigeon. Tu as dépensé l'argent de tous pour l'intérêt de quelques-uns, et les Valmontois ne te le pardonnent pas.` },
+    { id: 'rouge', when: s => s.deficit >= 4 || s.dette >= 54, title: 'Dans le rouge', stamp: 'Comptes hors de contrôle', color: '#FFC64F',
+      text: `Tu as beaucoup donné, et rien financé. Ceux qui prêtent à Valmont exigent maintenant des taux d'intérêt très élevés. Ton successeur devra couper dans tout ce que tu as créé.` },
+    { id: 'absent', when: s => s.bien < 35, title: 'L\'État absent', stamp: 'Chacun pour soi', color: '#FFC64F',
+      text: `Les comptes sont impeccables. Les rivières sont mortes, les malades attendent, les marchés font ce qu'ils veulent. Tu as tenu le budget d'un pays où il ne fait plus bon vivre.` },
+    { id: 'modele', when: s => s.bien >= 70 && s.deficit <= 3 && s.pop >= 50, title: 'L\'État stratège', stamp: 'Bravo', color: '#4CD97B',
+      text: `Tu as laissé le marché faire ce qu'il fait bien, corrigé ce qu'il fait mal, et gardé les comptes sous contrôle. La Présidente te propose de rester. M.${N}Drak, lui, cherche encore un angle d'attaque.` },
+    { id: 'correct', when: s => true, title: 'Mandat honorable', stamp: 'Correct', color: '#7C9483',
+      text: `Tu n'as rien cassé d'irréparable, et réparé plusieurs choses. Il reste des comptes à redresser ou des habitants à convaincre. C'est le lot de presque tous les ministres.` }
+  ],
+
+  /* ------------------------------ DÉBRIEF (h = choix du joueur) ------------------------------ */
+  debrief: [
+    { act: 1, needs: ['ecole', 'sante', 'trains'], title: 'Acte 1 — Jusqu\'où va l\'État ?', text: (h, s) => {
+        const n = (h.ecole !== 'rien') + (h.sante !== 'rien');
+        const e = n === 2 ? 'En finançant l\'école et la santé, tu as choisi l\'<em>interventionnisme</em> : tu as construit un <em>État-providence</em>.' : n === 0 ? 'En refusant de financer l\'école et la santé, tu as choisi le <em>libéralisme</em> : tu es resté proche de l\'État-gendarme.' : 'Tu as choisi une voie intermédiaire entre <em>interventionnisme</em> et <em>libéralisme</em>.';
+        const t = h.trains === 'public' ? 'Valrail est restée une <em>entreprise publique</em> (l\'État possède tout).' : h.trains === 'mixte' ? 'Valrail est devenue une <em>entreprise semi-publique</em> (l\'État partage le capital mais reste majoritaire).' : 'Valrail est devenue une <em>entreprise privée</em>.';
+        return `Le pays que tu as trouvé était un <em>État-gendarme</em> : il se limitait à la police, à la justice et à la défense. Un <em>État-providence</em> va plus loin : il instruit, soigne et protège. ${e} ${t} Tout cela se paie par des <em>dépenses publiques</em>.`; },
+      chain: () => ({ good: ['État-providence', 'Dépenses publiques en hausse', 'Services pour tous'], bad: ['Dépenses supérieures aux recettes', 'Déficit public'] }) },
+    { act: 2, needs: ['robinet'], title: 'Acte 2 — La baignoire', text: (h, s) => {
+        const r = h.robinet === 'moitie' ? 'En coupant le déficit de moitié, tu as ralenti la hausse de la dette, sans l\'arrêter.' : h.robinet === 'zero' ? 'En supprimant le déficit, tu as stabilisé la dette, au prix de services publics réduits.' : 'En assumant le déficit, tu as laissé la dette monter au même rythme.';
+        return `Le <em>déficit public</em> est un flux : ce que l\'État dépense en plus de ses recettes pendant une année (le robinet). La <em>dette publique</em> est un stock : la somme de tous les déficits passés qui restent à rembourser (l\'eau dans la baignoire). ${r} Pour que la dette baisse, il ne suffit pas de réduire le déficit : il faut un excédent. Et la dette a un coût : les intérêts.`; },
+      chain: () => ({ good: ['Déficit public (flux annuel)', 'S\'ajoute chaque année', 'Dette publique (stock)'], bad: ['Dette élevée', 'Intérêts à payer', 'Déficit alourdi'] }) },
+    { act: 3, needs: ['riviere', 'occasion', 'telecom', 'lac', 'digue'], title: 'Acte 3 — Quand le marché déraille', text: (h, s) => {
+        const ok = [h.riviere === 'taxe' || h.riviere === 'norme', h.occasion === 'controle' || h.occasion === 'label', h.telecom === 'amende', h.lac === 'quotas', h.digue === 'impot'].filter(Boolean).length;
+        return `Tes cinq dossiers étaient cinq <em>défaillances de marché</em> : des cas où le marché, laissé seul, répartit mal les ressources. La tannerie : une <em>externalité</em> négative, un dégât causé à d\'autres et que le prix ne contient pas ; la taxe ou la norme le font payer à celui qui le cause. Les voitures d\'occasion : une <em>asymétrie d\'information</em>, l\'un sait ce que l\'autre ignore ; le contrôle rétablit la confiance. Les opérateurs : une <em>concurrence imparfaite</em>, peu de vendeurs qui s\'entendent ; l\'autorité de la concurrence rétablit la rivalité. Le lac : un <em>bien commun</em>, ouvert à tous mais qui s\'épuise quand on s\'en sert ; il faut des règles d\'usage. La digue : un <em>bien public</em>, qui profite à tous sans qu\'on puisse écarter personne ; seul l\'impôt le finance. Tu as corrigé ${ok} défaillance${ok > 1 ? 's' : ''} sur cinq.`; },
+      chain: () => ({ good: ['Défaillance de marché', 'Intervention de l\'État (taxe, norme, information, règles, impôt)', 'Meilleure allocation des ressources'], bad: ['Marché laissé seul', 'Ressources mal réparties'] }) },
+    { act: 4, needs: ['aeroport', 'guichet'], title: 'Acte 4 — Quand c\'est l\'État qui déraille', text: (h, s) => {
+        const a = h.aeroport === 'construire' ? 'En signant pour l\'aéroport, tu as servi un intérêt particulier (une élection, une région) avec l\'argent de tous.' : 'En refusant l\'aéroport, tu as résisté à la pression d\'un intérêt particulier.';
+        const g = h.guichet === 'simplifier' ? 'En simplifiant l\'aide aux agriculteurs, tu as corrigé une lourdeur administrative.' : 'En laissant quatorze formulaires, tu as maintenu une aide que presque personne ne touchait.';
+        return `L\'État n\'est pas infaillible : il connaît lui aussi des <em>défaillances</em>. ${a} ${g} Décisions prises pour des raisons électorales, pression de groupes d\'intérêt, lenteur et complexité de l\'administration, manque d\'information : autant de cas où l\'intervention publique gaspille des ressources au lieu de mieux les répartir.`; } },
+    { act: 5, needs: ['guichet'], finalOnly: true, title: 'Acte 5 — Le bilan', text: (h, s) =>
+        `Ni le marché ni l\'État ne suffisent seuls. Le marché est efficace quand les prix disent la vérité, quand chacun est informé et quand les vendeurs se font concurrence. L\'État intervient là où ces conditions manquent, mais chaque intervention a un coût, qui se lit dans le déficit et dans la dette. Gouverner, c\'est arbitrer entre les deux.` }
+  ],
+  vocab: ['État-gendarme', 'État-providence', 'Interventionnisme', 'Libéralisme', 'Entreprise publique, semi-publique, privée', 'Dépenses publiques', 'Déficit public', 'Dette publique', 'Défaillances de marché', 'Externalités', 'Asymétries d\'information', 'Concurrence imparfaite', 'Biens communs', 'Biens publics', 'Défaillances de l\'État']
+};
+let H = {};   // historique des choix (lu par le débrief)
+
+/* =====================================================================
+   2. DÉCOR — le bureau du ministre, avec vue sur Valmont.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const sky = S.bien >= 60 ? '#4CD97B' : S.bien >= 35 ? '#7C9483' : '#FF5C6A';
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Le bureau du ministre">
+    <rect width="360" height="200" fill="#070c09"/><rect x="0" y="0" width="360" height="162" fill="#0a120c"/>
+    <rect x="130" y="22" width="150" height="86" fill="#07110c" stroke="#173322" stroke-width="2"/>
+    <g fill="#0d1710" stroke="${sky}" stroke-width="1.2" opacity=".9"><rect x="140" y="62" width="18" height="46"/><rect x="162" y="46" width="22" height="62"/><rect x="188" y="70" width="16" height="38"/><rect x="208" y="54" width="24" height="54"/><rect x="236" y="74" width="16" height="34"/><rect x="256" y="60" width="16" height="48"/></g>
+    <line x1="205" y1="22" x2="205" y2="108" stroke="#173322" stroke-width="1.5"/>
+    <g transform="translate(300,30)"><line x1="0" y1="0" x2="0" y2="132" stroke="#7C9483" stroke-width="2"/><path d="M0,2 L36,2 L36,26 L0,26 Z" fill="#07110c" stroke="#4CD97B" stroke-width="1.5"/><circle cx="18" cy="14" r="6" fill="none" stroke="#4CD97B" stroke-width="1.5"/></g>
+    <g transform="translate(150,122)"><rect x="0" y="0" width="130" height="10" fill="#141018" stroke="#B9A6FF" stroke-width="1.5"/><rect x="8" y="10" width="8" height="30" fill="#141018" stroke="#B9A6FF"/><rect x="114" y="10" width="8" height="30" fill="#141018" stroke="#B9A6FF"/><rect x="40" y="-10" width="26" height="10" fill="#07110c" stroke="#EEF3EC" stroke-width="1"/><rect x="74" y="-6" width="30" height="6" fill="#07110c" stroke="#EEF3EC" stroke-width="1"/></g>
+    <rect x="0" y="162" width="360" height="38" fill="#080d0a"/><line x1="0" y1="162" x2="360" y2="162" stroke="#173322" stroke-width="1.5"/>`;
+};
+
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      frame(st.who, `<div class="box">${whoTag(st.who)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">${st.prompt}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${st.min}" max="${st.max}" step="${st.step || 1}" value="${st.def}" aria-label="${st.prompt}">
+        <div class="range-l"><span>${st.show(st.min)}</span><span>${st.show(st.max)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        applyFx(res.fx); pushAfter(res.after); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${e.title}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">Tu as utilisé ces notions pour diriger. Voici comment on les appelle en économie.</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">Ta partie s'est arrêtée à l'acte ${maxAct}. Rejoue pour aller au bout de l'année.</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>
