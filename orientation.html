@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8"/>
 <title>PROF 4.0 — Orientation post-bac</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&amp;family=Rajdhani:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
 <style>
 :root{ --level-neon:#FFC64F; --level-dim:#A6791C; --level-glow:rgba(255,198,79,.5); }
 
@@ -337,200 +338,259 @@ footer summary:hover{color:var(--level-neon);}
 .yt-cta.sp-cta:hover{box-shadow:0 0 32px rgba(155,79,255,.55);}
 .sp-cta .yt-cta-icon{background:#9B4FFF;}
 @media (max-width:560px){.info-video{justify-content:center;}.info-video .yt-cta{padding:12px 18px;}.info-video .yt-cta-text{font-size:12.5px;}}
+
+
+/* ===== PROF 4.0 — PORTAILS NÉON VECTEUR / 2026 ===== */
+.subject-grid.portal-grid{gap:26px;align-items:stretch}
+.subject-card.portal-card{--portal:var(--subj); min-height:345px; padding:0!important; display:flex;flex-direction:column;position:relative;isolation:isolate;color:#f6faff;
+ background:linear-gradient(160deg,color-mix(in srgb,var(--portal) 18%,#0b1021) 0%,#070b15 66%,#080b12 100%);
+ border:1.5px solid var(--portal)!important;
+ clip-path:polygon(24px 0,100% 0,100% calc(100% - 24px),calc(100% - 24px) 100%,0 100%,0 24px);
+ box-shadow:inset 0 0 30px color-mix(in srgb,var(--portal) 9%,transparent),0 0 17px color-mix(in srgb,var(--portal) 17%,transparent),0 20px 30px rgba(0,0,0,.35);
+ transition:transform .3s ease,filter .3s ease,box-shadow .3s ease;}
+.subject-card.portal-card::before{content:"";inset:0;left:0;width:auto;top:0;height:auto;transform:none!important;pointer-events:none;z-index:0;
+ background:radial-gradient(ellipse at 76% 31%,color-mix(in srgb,var(--portal) 22%,transparent),transparent 56%),
+ repeating-linear-gradient(145deg,transparent 0 37px,color-mix(in srgb,var(--portal) 6%,transparent) 38px 40px,transparent 41px 72px);transition:opacity .3s;}
+.subject-card.portal-card::after{content:"";position:absolute;inset:5px;border:1px solid color-mix(in srgb,var(--portal) 27%,transparent);pointer-events:none;z-index:4;clip-path:polygon(21px 0,100% 0,100% calc(100% - 21px),calc(100% - 21px) 100%,0 100%,0 21px);opacity:.7;}
+.portal-card .portal-top{display:flex;justify-content:space-between;align-items:center;padding:20px 24px 0;position:relative;z-index:2;color:var(--portal)}
+.portal-card .portal-top .portal-hex{height:42px;width:42px;display:grid;place-items:center;border:1.5px solid currentColor;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:color-mix(in srgb,var(--portal) 13%,#0b1018);box-shadow:0 0 17px color-mix(in srgb,var(--portal) 30%,transparent)}
+.portal-card .portal-top .portal-hex svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.portal-card .portal-top .portal-open{font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:1.9px;font-weight:700;text-transform:uppercase;opacity:.9}
+.portal-card .portal-art{height:148px;margin:0 8px;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;transition:transform .4s ease;color:var(--portal)}
+.portal-card .portal-art svg{max-width:100%;height:100%;width:100%;overflow:visible;filter:drop-shadow(0 0 8px color-mix(in srgb,var(--portal) 45%,transparent))}
+.portal-art .floor{stroke:currentColor;stroke-width:2;opacity:.6;fill:none}
+.portal-art .trace{stroke:currentColor;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;fill:none;filter:drop-shadow(0 0 4px currentColor)}
+.portal-art .stroke{stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.portal-art .mass{stroke:currentColor;stroke-width:2;fill:currentColor;fill-opacity:.16}
+.portal-art .halo{fill:currentColor;fill-opacity:.12;stroke:currentColor;stroke-width:2}
+.portal-art .node{fill:#e9fff9;stroke:currentColor;stroke-width:2}
+.portal-art .ghost{fill:currentColor;fill-opacity:.08;stroke:currentColor;stroke-width:2}
+.portal-card .portal-copy{position:relative;z-index:2;margin-top:auto;padding:4px 24px 12px}
+.portal-card .subject-name{font-family:'Rajdhani',sans-serif;font-size:clamp(22px,2.2vw,28px);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:.3px;margin:0 0 9px;color:#f6f8ff!important;text-shadow:0 1px 9px rgba(255,255,255,.12)}
+.portal-card .subject-desc{font-family:'Inter',sans-serif;font-size:13.5px;line-height:1.52;color:#cbd5e0;min-height:40px}
+.portal-card .portal-cta{z-index:2;position:relative;color:#f9fcff;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:14px;display:flex;justify-content:space-between;align-items:center;margin:8px 22px 22px;padding:10px 15px;border:1px solid var(--portal);
+ background:linear-gradient(90deg,color-mix(in srgb,var(--portal) 17%,#07101b),transparent);box-shadow:0 0 10px color-mix(in srgb,var(--portal) 32%,transparent),inset 0 0 9px color-mix(in srgb,var(--portal) 10%,transparent));clip-path:polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px)}
+.portal-card .portal-cta span:last-child{font-size:20px;line-height:1;transition:transform .25s;color:var(--portal)}
+.portal-card:hover,.portal-card:focus-visible{transform:translateY(-7px);filter:saturate(1.15);box-shadow:0 0 26px color-mix(in srgb,var(--portal) 54%,transparent),0 24px 45px rgba(0,0,0,.5),inset 0 0 35px color-mix(in srgb,var(--portal) 15%,transparent)}
+.portal-card:hover .portal-art{transform:translateY(-4px) scale(1.045)}
+.portal-card:hover .portal-cta span:last-child{transform:translateX(5px)}
+.portal-card:focus-visible{outline:3px solid #fff;outline-offset:4px}
+/* accueil et sélection de niveau : conserver les infos et liens en enrichissant les panneaux */
+.hud-panel.portal-hud{--portal:var(--subj);background:linear-gradient(138deg,color-mix(in srgb,var(--portal) 23%,#07101b),#080a13 75%);border:2px solid var(--portal);box-shadow:0 0 20px color-mix(in srgb,var(--portal) 33%,transparent),0 18px 35px #0007;padding-bottom:40px}
+.hud-panel.portal-hud::after{content:"";position:absolute;inset:8px;border:1px solid color-mix(in srgb,var(--portal) 25%,transparent);pointer-events:none;clip-path:polygon(24px 0,calc(100% - 24px) 0,100% 24px,100% calc(100% - 24px),calc(100% - 24px) 100%,24px 100%,0 calc(100% - 24px),0 24px)}
+.portal-hud .hud-illustration{position:relative;z-index:1;color:var(--portal);height:150px;margin:12px 0 0;display:grid;place-items:center}
+.portal-hud .hud-illustration svg{height:100%;width:min(100%,320px);filter:drop-shadow(0 0 10px color-mix(in srgb,var(--portal) 50%,transparent))}
+.portal-hud .hud-illustration .mass{fill:currentColor;fill-opacity:.13;stroke:currentColor;stroke-width:2}.portal-hud .hud-illustration .trace,.portal-hud .hud-illustration .stroke{fill:none;stroke:currentColor;stroke-width:4}.portal-hud .hud-illustration .floor{fill:none;stroke:currentColor;stroke-width:2;opacity:.7}.portal-hud .hud-illustration .halo{fill:currentColor;fill-opacity:.12;stroke:currentColor;stroke-width:2}
+.portal-hud:hover,.portal-hud:focus-visible{box-shadow:0 0 30px color-mix(in srgb,var(--portal) 55%,transparent),0 24px 50px #0009}
+.portal-hud .hud-cta{border-radius:5px;box-shadow:0 0 12px color-mix(in srgb,var(--portal) 26%,transparent)}
+@media(max-width:980px){.subject-grid.portal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:660px){.subject-grid.portal-grid{grid-template-columns:1fr;max-width:440px;margin-inline:auto}.subject-card.portal-card{min-height:330px}.portal-card .portal-art{height:137px}}
+@media(prefers-reduced-motion:reduce){.portal-card,.portal-card .portal-art,.portal-card .portal-cta span:last-child{transition:none!important}}
+
+
+/* PROF 4.0 — refinement: unique pictograms, consistent positioning */
+.subject-card.portal-card{min-width:0;overflow:hidden}
+.portal-card .portal-top{min-height:68px;align-items:center;padding:14px 22px 0;gap:12px}
+.portal-card .portal-top .portal-hex{flex:0 0 46px;width:46px;height:46px;display:grid;place-items:center;overflow:visible}
+.portal-card .portal-top .portal-hex svg{display:block;width:25px;height:25px;overflow:visible;stroke-width:1.85}
+.portal-card .portal-art{height:146px;min-height:146px;margin:0 18px;overflow:hidden;align-items:center;justify-content:center}
+.portal-card .portal-art svg{display:block;width:100%;height:100%;max-width:340px;overflow:hidden;object-fit:contain}
+.portal-card .portal-copy{padding:10px 22px 12px;min-height:105px}
+.portal-card .portal-cta{margin:8px 22px 18px}
+.portal-hud .hud-badge{display:grid;place-items:center;flex:0 0 74px}
+.portal-hud .hud-badge svg{display:block;width:39px;height:39px;stroke:var(--subj);fill:none;overflow:visible}
+.portal-hud .hud-watermark svg{width:100%;height:100%;stroke:var(--subj);fill:none}
+.portal-hud .hud-illustration{height:152px;margin:12px auto 2px;max-width:340px;width:100%;overflow:hidden;display:grid;place-items:center}
+.portal-hud .hud-illustration svg{display:block;width:100%;height:100%;overflow:hidden}
+.portal-hud .hud-illustration .art-label{fill:currentColor;stroke:none;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px}
+@media(max-width:660px){.portal-card .portal-art{height:135px;min-height:135px;margin:0 14px}.portal-card .portal-copy{min-height:0}}
 </style>
 </head>
 <body>
 <div class="bg-field"></div>
 <div class="hex-grid" style="background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2784%27%20height%3D%2796%27%20viewBox%3D%270%200%2084%2096%27%3E%3Cpath%20d%3D%27M42%200%20L84%2024%20L84%2072%20L42%2096%20L0%2072%20L0%2024%20Z%27%20fill%3D%27none%27%20stroke%3D%27%23FFC64F%27%20stroke-width%3D%271%27/%3E%3C/svg%3E');"></div>
-
 <header>
-  <div class="nav-wrap">
-    <div class="brand">
-      <div class="brand-hex"></div>
-      <div class="brand-name">PROF <span>4.0</span></div>
-    </div>
-    <div class="breadcrumb"><a href="index.html">Accueil</a><span class="sep">/</span><span class="current">Orientation</span></div>
-  </div>
+<div class="nav-wrap">
+<div class="brand">
+<div class="brand-hex"></div>
+<div class="brand-name">PROF <span>4.0</span></div>
+</div>
+<div class="breadcrumb"><a href="index.html">Accueil</a><span class="sep">/</span><span class="current">Orientation</span></div>
+</div>
 </header>
 <div class="build-banner">
-  <svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 9v4M12 16.5h.01"/><path d="M10.3 3.9L2.5 18a1.8 1.8 0 001.55 2.7h15.9a1.8 1.8 0 001.55-2.7L13.7 3.9a1.8 1.8 0 00-3.4 0z"/></svg>
-  <span>Site en construction &mdash; de nouveaux contenus (fiches, vid&eacute;os, podcasts, jeux) sont ajout&eacute;s au fur et &agrave; mesure.</span>
+<svg stroke-width="2" viewbox="0 0 24 24"><path d="M12 9v4M12 16.5h.01"></path><path d="M10.3 3.9L2.5 18a1.8 1.8 0 001.55 2.7h15.9a1.8 1.8 0 001.55-2.7L13.7 3.9a1.8 1.8 0 00-3.4 0z"></path></svg>
+<span>Site en construction — de nouveaux contenus (fiches, vidéos, podcasts, jeux) sont ajoutés au fur et à mesure.</span>
 </div>
-
 <section class="hud-hero" style="padding-top:60px;text-align:center;--subj:#FFC64F;">
-  
-<svg class="crack-layer" viewBox="0 0 1200 500" preserveAspectRatio="none">
-  <path class="crack c1" d="M0,420 L110,370 L150,330 L250,350 L300,250 L390,270 L460,140 L540,170 L610,60"/>
-  <path class="crack c2" d="M1200,90 L1080,150 L1020,100 L940,190 L860,130 L760,270 L700,210 L610,340"/>
-  <path class="crack c3" d="M0,120 L90,150 L140,110 L210,160 L280,90"/>
+<svg class="crack-layer" preserveaspectratio="none" viewbox="0 0 1200 500">
+<path class="crack c1" d="M0,420 L110,370 L150,330 L250,350 L300,250 L390,270 L460,140 L540,170 L610,60"></path>
+<path class="crack c2" d="M1200,90 L1080,150 L1020,100 L940,190 L860,130 L760,270 L700,210 L610,340"></path>
+<path class="crack c3" d="M0,120 L90,150 L140,110 L210,160 L280,90"></path>
 </svg>
-
-  <div class="particle-field"><div class="particle" style="left:4%;bottom:-10%;width:16px;height:18px;animation-delay:0s;animation-duration:11s;"></div><div class="particle" style="left:14%;bottom:0%;width:20px;height:23px;animation-delay:1.4s;animation-duration:14s;"></div><div class="particle" style="left:24%;bottom:-20%;width:14px;height:16px;animation-delay:3.1s;animation-duration:10s;"></div><div class="particle" style="left:34%;bottom:5%;width:22px;height:25px;animation-delay:0.6s;animation-duration:16s;"></div><div class="particle" style="left:46%;bottom:-15%;width:18px;height:21px;animation-delay:4.5s;animation-duration:12s;"></div><div class="particle" style="left:58%;bottom:0%;width:15px;height:17px;animation-delay:2.2s;animation-duration:15s;"></div><div class="particle" style="left:68%;bottom:-25%;width:24px;height:28px;animation-delay:5.6s;animation-duration:13s;"></div><div class="particle" style="left:80%;bottom:-5%;width:17px;height:20px;animation-delay:1.9s;animation-duration:17s;"></div><div class="particle" style="left:90%;bottom:0%;width:19px;height:22px;animation-delay:3.8s;animation-duration:11.5s;"></div></div>
-  <div class="sec-num" style="text-align:center;">Apr&egrave;s le bac</div>
-  <div class="sec-title" style="margin-top:10px;">Orientation post-bac</div>
-  <p class="sec-sub" style="margin:18px auto 30px;max-width:560px;">
-    Tout pour bien t&rsquo;informer et construire ton projet apr&egrave;s le bac STMG.
-    Les ressources arrivent tr&egrave;s bient&ocirc;t.
+<div class="particle-field"><div class="particle" style="left:4%;bottom:-10%;width:16px;height:18px;animation-delay:0s;animation-duration:11s;"></div><div class="particle" style="left:14%;bottom:0%;width:20px;height:23px;animation-delay:1.4s;animation-duration:14s;"></div><div class="particle" style="left:24%;bottom:-20%;width:14px;height:16px;animation-delay:3.1s;animation-duration:10s;"></div><div class="particle" style="left:34%;bottom:5%;width:22px;height:25px;animation-delay:0.6s;animation-duration:16s;"></div><div class="particle" style="left:46%;bottom:-15%;width:18px;height:21px;animation-delay:4.5s;animation-duration:12s;"></div><div class="particle" style="left:58%;bottom:0%;width:15px;height:17px;animation-delay:2.2s;animation-duration:15s;"></div><div class="particle" style="left:68%;bottom:-25%;width:24px;height:28px;animation-delay:5.6s;animation-duration:13s;"></div><div class="particle" style="left:80%;bottom:-5%;width:17px;height:20px;animation-delay:1.9s;animation-duration:17s;"></div><div class="particle" style="left:90%;bottom:0%;width:19px;height:22px;animation-delay:3.8s;animation-duration:11.5s;"></div></div>
+<div class="sec-num" style="text-align:center;">Après le bac</div>
+<div class="sec-title" style="margin-top:10px;">Orientation post-bac</div>
+<p class="sec-sub" style="margin:18px auto 30px;max-width:560px;">
+    Tout pour bien t’informer et construire ton projet après le bac STMG.
+    Les ressources arrivent très bientôt.
   </p>
-  <div style="display:flex;justify-content:center;margin-bottom:46px;">
-    <div class="hud-badge" style="width:96px;height:96px;">
-      <svg viewBox="0 0 24 24" stroke-width="1.4" style="width:44px;height:44px;"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/><circle cx="12" cy="12" r=".8"/></svg>
-    </div>
-  </div>
-  <div class="info-block">
-    <div class="info-head">
-      <div class="subject-icon" style="--subj:#FFC64F;margin-bottom:0;"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg></div>
-      <div>
-        <div class="info-kicker">&Agrave; lire en premier</div>
-        <div class="info-title">Les infos essentielles</div>
-        <p class="info-sub">5 infographies pour comprendre le bac STMG, les choix &agrave; faire et ce qui t&rsquo;attend apr&egrave;s. Clique sur une fiche pour l&rsquo;ouvrir en PDF.</p>
-      </div>
-    </div>
-    <div class="info-video">
-      <a href="https://youtu.be/gNsxS0jGF3Y" target="_blank" rel="noopener" class="yt-cta">
-        <span class="yt-cta-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
-        <span class="yt-cta-text">Voir la vid&eacute;o qui r&eacute;sume les 5 fiches</span>
-      </a>
-      <a href="https://open.spotify.com/episode/4Xz6u5xuG8eOUhqFb7q3TS?si=Gbddq-uKQBiQ9mrm6nGFLQ" target="_blank" rel="noopener" class="yt-cta sp-cta">
-        <span class="yt-cta-icon"><svg viewBox="0 0 24 24" style="fill:none;stroke:#04160a;stroke-width:2.4;"><path d="M4 15v-3a8 8 0 0116 0v3"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg></span>
-        <span class="yt-cta-text">&Eacute;couter le podcast</span>
-      </a>
-    </div>
-    <div class="info-list">
-      <a class="info-row" href="ressources/orientation/parcours/orientation-01-choisir-sa-specialite-terminale.pdf" target="_blank" rel="noopener">
-        <span class="info-row-num">01</span>
-        <span class="info-row-ico"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M12 21v-7"/><path d="M12 14L6 8M12 14l6-6"/><path d="M3 5h6v3M21 5h-6v3"/></svg></span>
-        <span class="info-row-txt"><span class="info-row-title">Quelle sp&eacute;cialit&eacute; choisir en Terminale&nbsp;?</span><span class="info-row-desc">Les 4 enseignements sp&eacute;cifiques : Mercatique, GF, RH et SIG.</span></span>
-        <span class="info-row-btn"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/></svg>Ouvrir</span>
-      </a>
-      <a class="info-row" href="ressources/orientation/parcours/orientation-02-bac-stmg-epreuves-et-coefficients.pdf" target="_blank" rel="noopener">
-        <span class="info-row-num">02</span>
-        <span class="info-row-ico"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M2 9l10-5 10 5-10 5-10-5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg></span>
-        <span class="info-row-txt"><span class="info-row-title">Le bac STMG : &eacute;preuves et coefficients</span><span class="info-row-desc">Contr&ocirc;le continu, &eacute;preuves finales et Grand oral.</span></span>
-        <span class="info-row-btn"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/></svg>Ouvrir</span>
-      </a>
-      <a class="info-row" href="ressources/orientation/parcours/orientation-03-parcoursup.pdf" target="_blank" rel="noopener">
-        <span class="info-row-num">03</span>
-        <span class="info-row-ico"><svg viewBox="0 0 24 24" stroke-width="1.8"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M2 20h20M9 10l2 2 4-4"/></svg></span>
-        <span class="info-row-txt"><span class="info-row-title">Parcoursup, mode d&rsquo;emploi</span><span class="info-row-desc">Les &eacute;tapes, le calendrier et les points de vigilance.</span></span>
-        <span class="info-row-btn"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/></svg>Ouvrir</span>
-      </a>
-      <a class="info-row" href="ressources/orientation/parcours/orientation-04-grandes-filieres-du-superieur.pdf" target="_blank" rel="noopener">
-        <span class="info-row-num">04</span>
-        <span class="info-row-ico"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M12 3v18"/><path d="M5 6h11l3 3-3 3H5zM19 13H9l-3 3 3 3h10z"/></svg></span>
-        <span class="info-row-txt"><span class="info-row-title">Les grandes fili&egrave;res du sup&eacute;rieur</span><span class="info-row-desc">BTS, BUT, licence, pr&eacute;pa&hellip; le panorama des formations.</span></span>
-        <span class="info-row-btn"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/></svg>Ouvrir</span>
-      </a>
-      <a class="info-row" href="ressources/orientation/parcours/orientation-05-poursuites-etudes-apres-bac-stmg.pdf" target="_blank" rel="noopener">
-        <span class="info-row-num">05</span>
-        <span class="info-row-ico"><svg viewBox="0 0 24 24" stroke-width="1.8"><path d="M4 20l6-6 4 4 6-10"/><path d="M15 8h5v5"/></svg></span>
-        <span class="info-row-txt"><span class="info-row-title">Poursuites d&rsquo;&eacute;tudes apr&egrave;s un bac STMG</span><span class="info-row-desc">Les formations coh&eacute;rentes selon ta sp&eacute;cialit&eacute; et tes d&eacute;bouch&eacute;s.</span></span>
-        <span class="info-row-btn"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/></svg>Ouvrir</span>
-      </a>
-    </div>
-  </div>
-  </div>
-  <div class="info-block fil-block">
-    <div class="info-head">
-      <div class="subject-icon" style="--subj:#FFC64F;margin-bottom:0;"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M2 9l10-5 10 5-10 5-10-5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg></div>
-      <div>
-        <div class="info-kicker">Apr&egrave;s le bac</div>
-        <div class="info-title">Les formations apr&egrave;s STMG</div>
-        <p class="info-sub">BTS, BUT, licence, pr&eacute;pa ou &eacute;cole&nbsp;: d&eacute;couvre chaque voie et ouvre sa fiche pour tout savoir.</p>
-      </div>
-    </div>
-    <div class="fil-grid">
-      <div class="fil-card">
-        <div class="fil-top">
-          <div class="fil-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="#FFC64F" stroke-width="1.5"/></svg><span>01</span></div>
-          <div><div class="fil-name">BTS</div><div class="fil-full">Brevet de technicien sup&eacute;rieur</div></div>
-        </div>
-        <p class="fil-desc">Une formation courte, professionnalisante et concr&egrave;te, en lyc&eacute;e ou en alternance.</p>
-        <div class="fil-meta"><span class="fil-chip">&#9201; 2 ans</span><span class="fil-chip">Bac +2</span></div>
-        <div class="fil-links"><a class="fil-btn" href="ressources/orientation/filieres/filiere-01-bts.pdf" target="_blank" rel="noopener"><span class="fil-dot"></span>Fiche</a><a class="fil-btn" href="https://youtu.be/_dpeBoVmZ1c" target="_blank" rel="noopener"><span class="fil-dot fil-dot-video"></span>Vid&eacute;o</a></div>
-        <div class="fil-corner"></div>
-      </div>
-      <div class="fil-card">
-        <div class="fil-top">
-          <div class="fil-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="#FFC64F" stroke-width="1.5"/></svg><span>02</span></div>
-          <div><div class="fil-name">BUT</div><div class="fil-full">Bachelor universitaire de technologie</div></div>
-        </div>
-        <p class="fil-desc">Un &eacute;quilibre entre th&eacute;orie et pratique, en IUT, avec stages et projets.</p>
-        <div class="fil-meta"><span class="fil-chip">&#9201; 3 ans</span><span class="fil-chip">Bac +3</span></div>
-        <div class="fil-links"><a class="fil-btn" href="ressources/orientation/filieres/filiere-02-but.pdf" target="_blank" rel="noopener"><span class="fil-dot"></span>Fiche</a><a class="fil-btn" href="https://youtu.be/N2PlsznN_Sw" target="_blank" rel="noopener"><span class="fil-dot fil-dot-video"></span>Vid&eacute;o</a></div>
-        <div class="fil-corner"></div>
-      </div>
-      <div class="fil-card">
-        <div class="fil-top">
-          <div class="fil-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="#FFC64F" stroke-width="1.5"/></svg><span>03</span></div>
-          <div><div class="fil-name">Licence</div><div class="fil-full">La formation universitaire</div></div>
-        </div>
-        <p class="fil-desc">Des savoirs approfondis &agrave; l&rsquo;universit&eacute;, avec une large part d&rsquo;autonomie.</p>
-        <div class="fil-meta"><span class="fil-chip">&#9201; 3 ans</span><span class="fil-chip">Bac +3</span></div>
-        <div class="fil-links"><a class="fil-btn" href="ressources/orientation/filieres/filiere-03-licence.pdf" target="_blank" rel="noopener"><span class="fil-dot"></span>Fiche</a><a class="fil-btn" href="https://youtu.be/107A9uAMYgc" target="_blank" rel="noopener"><span class="fil-dot fil-dot-video"></span>Vid&eacute;o</a></div>
-        <div class="fil-corner"></div>
-      </div>
-      <div class="fil-card">
-        <div class="fil-top">
-          <div class="fil-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="#FFC64F" stroke-width="1.5"/></svg><span>04</span></div>
-          <div><div class="fil-name">Pr&eacute;pa ECT</div><div class="fil-full">Classe pr&eacute;paratoire technologique</div></div>
-        </div>
-        <p class="fil-desc">Une voie d&rsquo;excellence pour pr&eacute;parer les concours des grandes &eacute;coles de commerce.</p>
-        <div class="fil-meta"><span class="fil-chip">&#9201; 2 ans</span><span class="fil-chip">Concours</span></div>
-        <div class="fil-links"><a class="fil-btn" href="ressources/orientation/filieres/filiere-05-prepa-ect.pdf" target="_blank" rel="noopener"><span class="fil-dot"></span>Fiche</a><a class="fil-btn" href="https://youtu.be/B9EVPIU2wVI" target="_blank" rel="noopener"><span class="fil-dot fil-dot-video"></span>Vid&eacute;o</a></div>
-        <div class="fil-corner"></div>
-      </div>
-      <div class="fil-card">
-        <div class="fil-top">
-          <div class="fil-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="#FFC64F" stroke-width="1.5"/></svg><span>05</span></div>
-          <div><div class="fil-name">&Eacute;cole sp&eacute;cialis&eacute;e</div><div class="fil-full">Une formation cibl&eacute;e</div></div>
-        </div>
-        <p class="fil-desc">Pour se sp&eacute;cialiser dans un domaine pr&eacute;cis&nbsp;: communication, num&eacute;rique, tourisme&hellip;</p>
-        <div class="fil-meta"><span class="fil-chip">&#9201; Variable</span><span class="fil-chip">Selon l&rsquo;&eacute;cole</span></div>
-        <a class="fil-btn" href="ressources/orientation/filieres/filiere-04-ecole-specialisee.pdf" target="_blank" rel="noopener"><span class="fil-dot"></span>Fiche</a>
-        <div class="fil-corner"></div>
-      </div>
-    </div>
-  </div>
-  <div class="subject-grid orient-grid" style="text-align:left;max-width:1000px;margin:0 auto;">
-    <div class="subject-card" style="--subj:#FFC64F;">
-      <div class="subject-icon"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M4 5h16v14H4z"/><path d="M4 9h16M8 3v4M16 3v4"/><path d="M8 13h3M8 16h6"/></svg></div>
-      <div class="subject-name">Parcoursup</div>
-      <div class="subject-desc">Le calendrier, les &eacute;tapes et le fonctionnement des v&oelig;ux.</div>
-      <span class="status-empty" style="display:inline-block;margin-top:16px;">Bient&ocirc;t</span>
-    </div>
-    <div class="subject-card" style="--subj:#FFC64F;">
-      <div class="subject-icon"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M3 13h18"/></svg></div>
-      <div class="subject-name">Les m&eacute;tiers</div>
-      <div class="subject-desc">D&eacute;couvrir les m&eacute;tiers vers lesquels m&egrave;nent ces formations.</div>
-      <span class="status-empty" style="display:inline-block;margin-top:16px;">Bient&ocirc;t</span>
-    </div>
-    <div class="subject-card" style="--subj:#FFC64F;">
-      <div class="subject-icon"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
-      <div class="subject-name">Construire ton dossier</div>
-      <div class="subject-desc">Conseils pour pr&eacute;senter ton projet et mettre en valeur ton parcours.</div>
-      <span class="status-empty" style="display:inline-block;margin-top:16px;">Bient&ocirc;t</span>
-    </div>
-  </div>
-  <div class="back-row"><a href="index.html" class="btn btn-ghost">&larr; Retour &agrave; l'accueil</a></div>
+<div style="display:flex;justify-content:center;margin-bottom:46px;">
+<div class="hud-badge" style="width:96px;height:96px;">
+<svg stroke-width="1.4" style="width:44px;height:44px;" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M15.5 8.5l-2 5-5 2 2-5z"></path><circle cx="12" cy="12" r=".8"></circle></svg>
+</div>
+</div>
+<div class="info-block">
+<div class="info-head">
+<div class="subject-icon" style="--subj:#FFC64F;margin-bottom:0;"><svg stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7.5h.01"></path></svg></div>
+<div>
+<div class="info-kicker">À lire en premier</div>
+<div class="info-title">Les infos essentielles</div>
+<p class="info-sub">5 infographies pour comprendre le bac STMG, les choix à faire et ce qui t’attend après. Clique sur une fiche pour l’ouvrir en PDF.</p>
+</div>
+</div>
+<div class="info-video">
+<a class="yt-cta" href="https://youtu.be/gNsxS0jGF3Y" rel="noopener" target="_blank">
+<span class="yt-cta-icon"><svg viewbox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg></span>
+<span class="yt-cta-text">Voir la vidéo qui résume les 5 fiches</span>
+</a>
+<a class="yt-cta sp-cta" href="https://open.spotify.com/episode/4Xz6u5xuG8eOUhqFb7q3TS?si=Gbddq-uKQBiQ9mrm6nGFLQ" rel="noopener" target="_blank">
+<span class="yt-cta-icon"><svg style="fill:none;stroke:#04160a;stroke-width:2.4;" viewbox="0 0 24 24"><path d="M4 15v-3a8 8 0 0116 0v3"></path><rect height="6" rx="1.5" width="4" x="3" y="14"></rect><rect height="6" rx="1.5" width="4" x="17" y="14"></rect></svg></span>
+<span class="yt-cta-text">Écouter le podcast</span>
+</a>
+</div>
+<div class="info-list">
+<a class="info-row" href="ressources/orientation/parcours/orientation-01-choisir-sa-specialite-terminale.pdf" rel="noopener" target="_blank">
+<span class="info-row-num">01</span>
+<span class="info-row-ico"><svg stroke-width="1.8" viewbox="0 0 24 24"><path d="M12 21v-7"></path><path d="M12 14L6 8M12 14l6-6"></path><path d="M3 5h6v3M21 5h-6v3"></path></svg></span>
+<span class="info-row-txt"><span class="info-row-title">Quelle spécialité choisir en Terminale ?</span><span class="info-row-desc">Les 4 enseignements spécifiques : Mercatique, GF, RH et SIG.</span></span>
+<span class="info-row-btn"><svg stroke-width="2" viewbox="0 0 24 24"><path d="M6 3h9l5 5v13H6z"></path><path d="M14 3v6h6"></path></svg>Ouvrir</span>
+</a>
+<a class="info-row" href="ressources/orientation/parcours/orientation-02-bac-stmg-epreuves-et-coefficients.pdf" rel="noopener" target="_blank">
+<span class="info-row-num">02</span>
+<span class="info-row-ico"><svg stroke-width="1.8" viewbox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5-10-5z"></path><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"></path></svg></span>
+<span class="info-row-txt"><span class="info-row-title">Le bac STMG : épreuves et coefficients</span><span class="info-row-desc">Contrôle continu, épreuves finales et Grand oral.</span></span>
+<span class="info-row-btn"><svg stroke-width="2" viewbox="0 0 24 24"><path d="M6 3h9l5 5v13H6z"></path><path d="M14 3v6h6"></path></svg>Ouvrir</span>
+</a>
+<a class="info-row" href="ressources/orientation/parcours/orientation-03-parcoursup.pdf" rel="noopener" target="_blank">
+<span class="info-row-num">03</span>
+<span class="info-row-ico"><svg stroke-width="1.8" viewbox="0 0 24 24"><rect height="12" rx="1" width="18" x="3" y="4"></rect><path d="M2 20h20M9 10l2 2 4-4"></path></svg></span>
+<span class="info-row-txt"><span class="info-row-title">Parcoursup, mode d’emploi</span><span class="info-row-desc">Les étapes, le calendrier et les points de vigilance.</span></span>
+<span class="info-row-btn"><svg stroke-width="2" viewbox="0 0 24 24"><path d="M6 3h9l5 5v13H6z"></path><path d="M14 3v6h6"></path></svg>Ouvrir</span>
+</a>
+<a class="info-row" href="ressources/orientation/parcours/orientation-04-grandes-filieres-du-superieur.pdf" rel="noopener" target="_blank">
+<span class="info-row-num">04</span>
+<span class="info-row-ico"><svg stroke-width="1.8" viewbox="0 0 24 24"><path d="M12 3v18"></path><path d="M5 6h11l3 3-3 3H5zM19 13H9l-3 3 3 3h10z"></path></svg></span>
+<span class="info-row-txt"><span class="info-row-title">Les grandes filières du supérieur</span><span class="info-row-desc">BTS, BUT, licence, prépa… le panorama des formations.</span></span>
+<span class="info-row-btn"><svg stroke-width="2" viewbox="0 0 24 24"><path d="M6 3h9l5 5v13H6z"></path><path d="M14 3v6h6"></path></svg>Ouvrir</span>
+</a>
+<a class="info-row" href="ressources/orientation/parcours/orientation-05-poursuites-etudes-apres-bac-stmg.pdf" rel="noopener" target="_blank">
+<span class="info-row-num">05</span>
+<span class="info-row-ico"><svg stroke-width="1.8" viewbox="0 0 24 24"><path d="M4 20l6-6 4 4 6-10"></path><path d="M15 8h5v5"></path></svg></span>
+<span class="info-row-txt"><span class="info-row-title">Poursuites d’études après un bac STMG</span><span class="info-row-desc">Les formations cohérentes selon ta spécialité et tes débouchés.</span></span>
+<span class="info-row-btn"><svg stroke-width="2" viewbox="0 0 24 24"><path d="M6 3h9l5 5v13H6z"></path><path d="M14 3v6h6"></path></svg>Ouvrir</span>
+</a>
+</div>
+</div>
+<div class="info-block fil-block">
+<div class="info-head">
+<div class="subject-icon" style="--subj:#FFC64F;margin-bottom:0;"><svg stroke-width="2" viewbox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5-10-5z"></path><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"></path></svg></div>
+<div>
+<div class="info-kicker">Après le bac</div>
+<div class="info-title">Les formations après STMG</div>
+<p class="info-sub">BTS, BUT, licence, prépa ou école : découvre chaque voie et ouvre sa fiche pour tout savoir.</p>
+</div>
+</div>
+<div class="fil-grid">
+<div class="fil-card">
+<div class="fil-top">
+<div class="fil-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="#FFC64F" stroke-width="1.5"></polygon></svg><span>01</span></div>
+<div><div class="fil-name">BTS</div><div class="fil-full">Brevet de technicien supérieur</div></div>
+</div>
+<p class="fil-desc">Une formation courte, professionnalisante et concrète, en lycée ou en alternance.</p>
+<div class="fil-meta"><span class="fil-chip">⏱ 2 ans</span><span class="fil-chip">Bac +2</span></div>
+<div class="fil-links"><a class="fil-btn" href="ressources/orientation/filieres/filiere-01-bts.pdf" rel="noopener" target="_blank"><span class="fil-dot"></span>Fiche</a><a class="fil-btn" href="https://youtu.be/_dpeBoVmZ1c" rel="noopener" target="_blank"><span class="fil-dot fil-dot-video"></span>Vidéo</a></div>
+<div class="fil-corner"></div>
+</div>
+<div class="fil-card">
+<div class="fil-top">
+<div class="fil-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="#FFC64F" stroke-width="1.5"></polygon></svg><span>02</span></div>
+<div><div class="fil-name">BUT</div><div class="fil-full">Bachelor universitaire de technologie</div></div>
+</div>
+<p class="fil-desc">Un équilibre entre théorie et pratique, en IUT, avec stages et projets.</p>
+<div class="fil-meta"><span class="fil-chip">⏱ 3 ans</span><span class="fil-chip">Bac +3</span></div>
+<div class="fil-links"><a class="fil-btn" href="ressources/orientation/filieres/filiere-02-but.pdf" rel="noopener" target="_blank"><span class="fil-dot"></span>Fiche</a><a class="fil-btn" href="https://youtu.be/N2PlsznN_Sw" rel="noopener" target="_blank"><span class="fil-dot fil-dot-video"></span>Vidéo</a></div>
+<div class="fil-corner"></div>
+</div>
+<div class="fil-card">
+<div class="fil-top">
+<div class="fil-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="#FFC64F" stroke-width="1.5"></polygon></svg><span>03</span></div>
+<div><div class="fil-name">Licence</div><div class="fil-full">La formation universitaire</div></div>
+</div>
+<p class="fil-desc">Des savoirs approfondis à l’université, avec une large part d’autonomie.</p>
+<div class="fil-meta"><span class="fil-chip">⏱ 3 ans</span><span class="fil-chip">Bac +3</span></div>
+<div class="fil-links"><a class="fil-btn" href="ressources/orientation/filieres/filiere-03-licence.pdf" rel="noopener" target="_blank"><span class="fil-dot"></span>Fiche</a><a class="fil-btn" href="https://youtu.be/107A9uAMYgc" rel="noopener" target="_blank"><span class="fil-dot fil-dot-video"></span>Vidéo</a></div>
+<div class="fil-corner"></div>
+</div>
+<div class="fil-card">
+<div class="fil-top">
+<div class="fil-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="#FFC64F" stroke-width="1.5"></polygon></svg><span>04</span></div>
+<div><div class="fil-name">Prépa ECT</div><div class="fil-full">Classe préparatoire technologique</div></div>
+</div>
+<p class="fil-desc">Une voie d’excellence pour préparer les concours des grandes écoles de commerce.</p>
+<div class="fil-meta"><span class="fil-chip">⏱ 2 ans</span><span class="fil-chip">Concours</span></div>
+<div class="fil-links"><a class="fil-btn" href="ressources/orientation/filieres/filiere-05-prepa-ect.pdf" rel="noopener" target="_blank"><span class="fil-dot"></span>Fiche</a><a class="fil-btn" href="https://youtu.be/B9EVPIU2wVI" rel="noopener" target="_blank"><span class="fil-dot fil-dot-video"></span>Vidéo</a></div>
+<div class="fil-corner"></div>
+</div>
+<div class="fil-card">
+<div class="fil-top">
+<div class="fil-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="#FFC64F" stroke-width="1.5"></polygon></svg><span>05</span></div>
+<div><div class="fil-name">École spécialisée</div><div class="fil-full">Une formation ciblée</div></div>
+</div>
+<p class="fil-desc">Pour se spécialiser dans un domaine précis : communication, numérique, tourisme…</p>
+<div class="fil-meta"><span class="fil-chip">⏱ Variable</span><span class="fil-chip">Selon l’école</span></div>
+<a class="fil-btn" href="ressources/orientation/filieres/filiere-04-ecole-specialisee.pdf" rel="noopener" target="_blank"><span class="fil-dot"></span>Fiche</a>
+<div class="fil-corner"></div>
+</div>
+</div>
+</div>
+<div class="subject-grid orient-grid" style="text-align:left;max-width:1000px;margin:0 auto;">
+<div class="subject-card" style="--subj:#FFC64F;">
+<div class="subject-icon"><svg stroke-width="2" viewbox="0 0 24 24"><path d="M4 5h16v14H4z"></path><path d="M4 9h16M8 3v4M16 3v4"></path><path d="M8 13h3M8 16h6"></path></svg></div>
+<div class="subject-name">Parcoursup</div>
+<div class="subject-desc">Le calendrier, les étapes et le fonctionnement des vœux.</div>
+<span class="status-empty" style="display:inline-block;margin-top:16px;">Bientôt</span>
+</div>
+<div class="subject-card" style="--subj:#FFC64F;">
+<div class="subject-icon"><svg stroke-width="2" viewbox="0 0 24 24"><rect height="13" rx="2" width="18" x="3" y="7"></rect><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2"></path><path d="M3 13h18"></path></svg></div>
+<div class="subject-name">Les métiers</div>
+<div class="subject-desc">Découvrir les métiers vers lesquels mènent ces formations.</div>
+<span class="status-empty" style="display:inline-block;margin-top:16px;">Bientôt</span>
+</div>
+<div class="subject-card" style="--subj:#FFC64F;">
+<div class="subject-icon"><svg stroke-width="2" viewbox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></div>
+<div class="subject-name">Construire ton dossier</div>
+<div class="subject-desc">Conseils pour présenter ton projet et mettre en valeur ton parcours.</div>
+<span class="status-empty" style="display:inline-block;margin-top:16px;">Bientôt</span>
+</div>
+</div>
+<div class="back-row"><a class="btn btn-ghost" href="index.html">← Retour à l'accueil</a></div>
 </section>
-
 <footer>
-  <div class="foot-brand">PROF 4.0</div>
-  <p>Apprendre &middot; Comprendre &middot; R&eacute;ussir &mdash; &copy; 2026</p>
-  <p style="margin-top:14px;">
-    <a href="https://youtube.com/@prof4.0stmg?si=fywFQySRD-AFr2OB" target="_blank" rel="noopener"
-       style="color:var(--level-neon);font-weight:700;">&#9654; Cha&icirc;ne YouTube</a>
+<div class="foot-brand">PROF 4.0</div>
+<p>Apprendre · Comprendre · Réussir — © 2026</p>
+<p style="margin-top:14px;">
+<a href="https://youtube.com/@prof4.0stmg?si=fywFQySRD-AFr2OB" rel="noopener" style="color:var(--level-neon);font-weight:700;" target="_blank">▶ Chaîne YouTube</a>
+</p>
+<p style="margin-top:18px;font-size:11.5px;color:var(--muted);max-width:480px;margin-left:auto;margin-right:auto;">
+    © 2026 Prof 4.0 — Romain Pineau, auteur et créateur. Tous droits réservés.
   </p>
-  <p style="margin-top:18px;font-size:11.5px;color:var(--muted);max-width:480px;margin-left:auto;margin-right:auto;">
-    &copy; 2026 Prof 4.0 &mdash; Romain Pineau, auteur et cr&eacute;ateur. Tous droits r&eacute;serv&eacute;s.
-  </p>
-  <details style="margin-top:8px;max-width:480px;margin-left:auto;margin-right:auto;text-align:left;">
-    <summary style="cursor:pointer;color:var(--muted);text-decoration:underline;font-size:11px;text-align:center;list-style:none;">Mentions l&eacute;gales</summary>
-    <p style="margin-top:8px;font-size:11px;line-height:1.6;color:var(--muted);">
-      Les contenus originaux pr&eacute;sents sur ce site, notamment les cours, textes, exercices, corrig&eacute;s, supports graphiques et contenus audio et vid&eacute;o, sont prot&eacute;g&eacute;s par le droit d&rsquo;auteur. Toute reproduction, adaptation ou diffusion, totale ou partielle, sans autorisation pr&eacute;alable de l&rsquo;auteur est interdite, sous r&eacute;serve des exceptions pr&eacute;vues par la loi.
+<details style="margin-top:8px;max-width:480px;margin-left:auto;margin-right:auto;text-align:left;">
+<summary style="cursor:pointer;color:var(--muted);text-decoration:underline;font-size:11px;text-align:center;list-style:none;">Mentions légales</summary>
+<p style="margin-top:8px;font-size:11px;line-height:1.6;color:var(--muted);">
+      Les contenus originaux présents sur ce site, notamment les cours, textes, exercices, corrigés, supports graphiques et contenus audio et vidéo, sont protégés par le droit d’auteur. Toute reproduction, adaptation ou diffusion, totale ou partielle, sans autorisation préalable de l’auteur est interdite, sous réserve des exceptions prévues par la loi.
     </p>
-  </details>
+</details>
 </footer>
 </body>
 </html>

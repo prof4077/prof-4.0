@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8"/>
 <title>PROF 4.0 — STMG</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&amp;family=Rajdhani:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
 <style>
 :root{ --level-neon:#7CFF3D; --level-dim:#3FA324; --level-glow:rgba(124,255,61,.55); }
 
@@ -275,96 +276,155 @@ footer summary:hover{color:var(--level-neon);}
   padding:11px 20px;position:relative;z-index:3;text-align:center;}
 .build-banner svg{width:17px;height:17px;stroke:#FFB020;fill:none;flex-shrink:0;}
 .build-banner span{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;letter-spacing:.3px;color:#FFB020;}
+
+
+/* ===== PROF 4.0 — PORTAILS NÉON VECTEUR / 2026 ===== */
+.subject-grid.portal-grid{gap:26px;align-items:stretch}
+.subject-card.portal-card{--portal:var(--subj); min-height:345px; padding:0!important; display:flex;flex-direction:column;position:relative;isolation:isolate;color:#f6faff;
+ background:linear-gradient(160deg,color-mix(in srgb,var(--portal) 18%,#0b1021) 0%,#070b15 66%,#080b12 100%);
+ border:1.5px solid var(--portal)!important;
+ clip-path:polygon(24px 0,100% 0,100% calc(100% - 24px),calc(100% - 24px) 100%,0 100%,0 24px);
+ box-shadow:inset 0 0 30px color-mix(in srgb,var(--portal) 9%,transparent),0 0 17px color-mix(in srgb,var(--portal) 17%,transparent),0 20px 30px rgba(0,0,0,.35);
+ transition:transform .3s ease,filter .3s ease,box-shadow .3s ease;}
+.subject-card.portal-card::before{content:"";inset:0;left:0;width:auto;top:0;height:auto;transform:none!important;pointer-events:none;z-index:0;
+ background:radial-gradient(ellipse at 76% 31%,color-mix(in srgb,var(--portal) 22%,transparent),transparent 56%),
+ repeating-linear-gradient(145deg,transparent 0 37px,color-mix(in srgb,var(--portal) 6%,transparent) 38px 40px,transparent 41px 72px);transition:opacity .3s;}
+.subject-card.portal-card::after{content:"";position:absolute;inset:5px;border:1px solid color-mix(in srgb,var(--portal) 27%,transparent);pointer-events:none;z-index:4;clip-path:polygon(21px 0,100% 0,100% calc(100% - 21px),calc(100% - 21px) 100%,0 100%,0 21px);opacity:.7;}
+.portal-card .portal-top{display:flex;justify-content:space-between;align-items:center;padding:20px 24px 0;position:relative;z-index:2;color:var(--portal)}
+.portal-card .portal-top .portal-hex{height:42px;width:42px;display:grid;place-items:center;border:1.5px solid currentColor;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:color-mix(in srgb,var(--portal) 13%,#0b1018);box-shadow:0 0 17px color-mix(in srgb,var(--portal) 30%,transparent)}
+.portal-card .portal-top .portal-hex svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.portal-card .portal-top .portal-open{font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:1.9px;font-weight:700;text-transform:uppercase;opacity:.9}
+.portal-card .portal-art{height:148px;margin:0 8px;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;transition:transform .4s ease;color:var(--portal)}
+.portal-card .portal-art svg{max-width:100%;height:100%;width:100%;overflow:visible;filter:drop-shadow(0 0 8px color-mix(in srgb,var(--portal) 45%,transparent))}
+.portal-art .floor{stroke:currentColor;stroke-width:2;opacity:.6;fill:none}
+.portal-art .trace{stroke:currentColor;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;fill:none;filter:drop-shadow(0 0 4px currentColor)}
+.portal-art .stroke{stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;fill:none}
+.portal-art .mass{stroke:currentColor;stroke-width:2;fill:currentColor;fill-opacity:.16}
+.portal-art .halo{fill:currentColor;fill-opacity:.12;stroke:currentColor;stroke-width:2}
+.portal-art .node{fill:#e9fff9;stroke:currentColor;stroke-width:2}
+.portal-art .ghost{fill:currentColor;fill-opacity:.08;stroke:currentColor;stroke-width:2}
+.portal-card .portal-copy{position:relative;z-index:2;margin-top:auto;padding:4px 24px 12px}
+.portal-card .subject-name{font-family:'Rajdhani',sans-serif;font-size:clamp(22px,2.2vw,28px);font-weight:700;line-height:1.05;text-transform:uppercase;letter-spacing:.3px;margin:0 0 9px;color:#f6f8ff!important;text-shadow:0 1px 9px rgba(255,255,255,.12)}
+.portal-card .subject-desc{font-family:'Inter',sans-serif;font-size:13.5px;line-height:1.52;color:#cbd5e0;min-height:40px}
+.portal-card .portal-cta{z-index:2;position:relative;color:#f9fcff;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:14px;display:flex;justify-content:space-between;align-items:center;margin:8px 22px 22px;padding:10px 15px;border:1px solid var(--portal);
+ background:linear-gradient(90deg,color-mix(in srgb,var(--portal) 17%,#07101b),transparent);box-shadow:0 0 10px color-mix(in srgb,var(--portal) 32%,transparent),inset 0 0 9px color-mix(in srgb,var(--portal) 10%,transparent));clip-path:polygon(11px 0,100% 0,100% calc(100% - 11px),calc(100% - 11px) 100%,0 100%,0 11px)}
+.portal-card .portal-cta span:last-child{font-size:20px;line-height:1;transition:transform .25s;color:var(--portal)}
+.portal-card:hover,.portal-card:focus-visible{transform:translateY(-7px);filter:saturate(1.15);box-shadow:0 0 26px color-mix(in srgb,var(--portal) 54%,transparent),0 24px 45px rgba(0,0,0,.5),inset 0 0 35px color-mix(in srgb,var(--portal) 15%,transparent)}
+.portal-card:hover .portal-art{transform:translateY(-4px) scale(1.045)}
+.portal-card:hover .portal-cta span:last-child{transform:translateX(5px)}
+.portal-card:focus-visible{outline:3px solid #fff;outline-offset:4px}
+/* accueil et sélection de niveau : conserver les infos et liens en enrichissant les panneaux */
+.hud-panel.portal-hud{--portal:var(--subj);background:linear-gradient(138deg,color-mix(in srgb,var(--portal) 23%,#07101b),#080a13 75%);border:2px solid var(--portal);box-shadow:0 0 20px color-mix(in srgb,var(--portal) 33%,transparent),0 18px 35px #0007;padding-bottom:40px}
+.hud-panel.portal-hud::after{content:"";position:absolute;inset:8px;border:1px solid color-mix(in srgb,var(--portal) 25%,transparent);pointer-events:none;clip-path:polygon(24px 0,calc(100% - 24px) 0,100% 24px,100% calc(100% - 24px),calc(100% - 24px) 100%,24px 100%,0 calc(100% - 24px),0 24px)}
+.portal-hud .hud-illustration{position:relative;z-index:1;color:var(--portal);height:150px;margin:12px 0 0;display:grid;place-items:center}
+.portal-hud .hud-illustration svg{height:100%;width:min(100%,320px);filter:drop-shadow(0 0 10px color-mix(in srgb,var(--portal) 50%,transparent))}
+.portal-hud .hud-illustration .mass{fill:currentColor;fill-opacity:.13;stroke:currentColor;stroke-width:2}.portal-hud .hud-illustration .trace,.portal-hud .hud-illustration .stroke{fill:none;stroke:currentColor;stroke-width:4}.portal-hud .hud-illustration .floor{fill:none;stroke:currentColor;stroke-width:2;opacity:.7}.portal-hud .hud-illustration .halo{fill:currentColor;fill-opacity:.12;stroke:currentColor;stroke-width:2}
+.portal-hud:hover,.portal-hud:focus-visible{box-shadow:0 0 30px color-mix(in srgb,var(--portal) 55%,transparent),0 24px 50px #0009}
+.portal-hud .hud-cta{border-radius:5px;box-shadow:0 0 12px color-mix(in srgb,var(--portal) 26%,transparent)}
+@media(max-width:980px){.subject-grid.portal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:660px){.subject-grid.portal-grid{grid-template-columns:1fr;max-width:440px;margin-inline:auto}.subject-card.portal-card{min-height:330px}.portal-card .portal-art{height:137px}}
+@media(prefers-reduced-motion:reduce){.portal-card,.portal-card .portal-art,.portal-card .portal-cta span:last-child{transition:none!important}}
+
+
+/* PROF 4.0 — refinement: unique pictograms, consistent positioning */
+.subject-card.portal-card{min-width:0;overflow:hidden}
+.portal-card .portal-top{min-height:68px;align-items:center;padding:14px 22px 0;gap:12px}
+.portal-card .portal-top .portal-hex{flex:0 0 46px;width:46px;height:46px;display:grid;place-items:center;overflow:visible}
+.portal-card .portal-top .portal-hex svg{display:block;width:25px;height:25px;overflow:visible;stroke-width:1.85}
+.portal-card .portal-art{height:146px;min-height:146px;margin:0 18px;overflow:hidden;align-items:center;justify-content:center}
+.portal-card .portal-art svg{display:block;width:100%;height:100%;max-width:340px;overflow:hidden;object-fit:contain}
+.portal-card .portal-copy{padding:10px 22px 12px;min-height:105px}
+.portal-card .portal-cta{margin:8px 22px 18px}
+.portal-hud .hud-badge{display:grid;place-items:center;flex:0 0 74px}
+.portal-hud .hud-badge svg{display:block;width:39px;height:39px;stroke:var(--subj);fill:none;overflow:visible}
+.portal-hud .hud-watermark svg{width:100%;height:100%;stroke:var(--subj);fill:none}
+.portal-hud .hud-illustration{height:152px;margin:12px auto 2px;max-width:340px;width:100%;overflow:hidden;display:grid;place-items:center}
+.portal-hud .hud-illustration svg{display:block;width:100%;height:100%;overflow:hidden}
+.portal-hud .hud-illustration .art-label{fill:currentColor;stroke:none;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px}
+@media(max-width:660px){.portal-card .portal-art{height:135px;min-height:135px;margin:0 14px}.portal-card .portal-copy{min-height:0}}
 </style>
 </head>
 <body>
 <div class="bg-field"></div>
 <div class="hex-grid" style="background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2784%27%20height%3D%2796%27%20viewBox%3D%270%200%2084%2096%27%3E%3Cpath%20d%3D%27M42%200%20L84%2024%20L84%2072%20L42%2096%20L0%2072%20L0%2024%20Z%27%20fill%3D%27none%27%20stroke%3D%27%237CFF3D%27%20stroke-width%3D%271%27/%3E%3C/svg%3E');"></div>
-
 <header>
-  <div class="nav-wrap">
-    <div class="brand">
-      <div class="brand-hex"></div>
-      <div class="brand-name">PROF <span>4.0</span></div>
-    </div>
-    <div class="breadcrumb"><a href="index.html">Accueil</a><span class="sep">/</span><span class="current">STMG</span></div>
-  </div>
+<div class="nav-wrap">
+<div class="brand">
+<div class="brand-hex"></div>
+<div class="brand-name">PROF <span>4.0</span></div>
+</div>
+<div class="breadcrumb"><a href="index.html">Accueil</a><span class="sep">/</span><span class="current">STMG</span></div>
+</div>
 </header>
 <div class="build-banner">
-  <svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 9v4M12 16.5h.01"/><path d="M10.3 3.9L2.5 18a1.8 1.8 0 001.55 2.7h15.9a1.8 1.8 0 001.55-2.7L13.7 3.9a1.8 1.8 0 00-3.4 0z"/></svg>
-  <span>Site en construction &mdash; de nouveaux contenus (fiches, vid&eacute;os, podcasts, jeux) sont ajout&eacute;s au fur et &agrave; mesure.</span>
+<svg stroke-width="2" viewbox="0 0 24 24"><path d="M12 9v4M12 16.5h.01"></path><path d="M10.3 3.9L2.5 18a1.8 1.8 0 001.55 2.7h15.9a1.8 1.8 0 001.55-2.7L13.7 3.9a1.8 1.8 0 00-3.4 0z"></path></svg>
+<span>Site en construction — de nouveaux contenus (fiches, vidéos, podcasts, jeux) sont ajoutés au fur et à mesure.</span>
 </div>
-
 <section class="hud-hero" style="padding-top:40px;">
-  
-<svg class="crack-layer" viewBox="0 0 1200 500" preserveAspectRatio="none">
-  <path class="crack c1" d="M0,420 L110,370 L150,330 L250,350 L300,250 L390,270 L460,140 L540,170 L610,60"/>
-  <path class="crack c2" d="M1200,90 L1080,150 L1020,100 L940,190 L860,130 L760,270 L700,210 L610,340"/>
-  <path class="crack c3" d="M0,120 L90,150 L140,110 L210,160 L280,90"/>
+<svg class="crack-layer" preserveaspectratio="none" viewbox="0 0 1200 500">
+<path class="crack c1" d="M0,420 L110,370 L150,330 L250,350 L300,250 L390,270 L460,140 L540,170 L610,60"></path>
+<path class="crack c2" d="M1200,90 L1080,150 L1020,100 L940,190 L860,130 L760,270 L700,210 L610,340"></path>
+<path class="crack c3" d="M0,120 L90,150 L140,110 L210,160 L280,90"></path>
 </svg>
-
-  <div class="particle-field"><div class="particle" style="left:4%;bottom:-10%;width:16px;height:18px;animation-delay:0s;animation-duration:11s;"></div><div class="particle" style="left:14%;bottom:0%;width:20px;height:23px;animation-delay:1.4s;animation-duration:14s;"></div><div class="particle" style="left:24%;bottom:-20%;width:14px;height:16px;animation-delay:3.1s;animation-duration:10s;"></div><div class="particle" style="left:34%;bottom:5%;width:22px;height:25px;animation-delay:0.6s;animation-duration:16s;"></div><div class="particle" style="left:46%;bottom:-15%;width:18px;height:21px;animation-delay:4.5s;animation-duration:12s;"></div><div class="particle" style="left:58%;bottom:0%;width:15px;height:17px;animation-delay:2.2s;animation-duration:15s;"></div><div class="particle" style="left:68%;bottom:-25%;width:24px;height:28px;animation-delay:5.6s;animation-duration:13s;"></div><div class="particle" style="left:80%;bottom:-5%;width:17px;height:20px;animation-delay:1.9s;animation-duration:17s;"></div><div class="particle" style="left:90%;bottom:0%;width:19px;height:22px;animation-delay:3.8s;animation-duration:11.5s;"></div></div>
-  <div class="sec-head" style="text-align:center;">
-    <div class="sec-num">STMG</div>
-    <div class="sec-title">Choisis ton niveau</div>
-    <p class="sec-sub" style="margin-left:auto;margin-right:auto;">Management, Droit, &Eacute;conomie et les sp&eacute;cialit&eacute;s, organis&eacute;s par ann&eacute;e.</p>
-  </div>
-
-  <div class="hud-grid">
-    <a href="premiere.html" class="hud-panel" style="--subj:#35C8FF">
-      <div class="hud-watermark"><svg viewBox="0 0 24 24" stroke-width="1"><path d="M2 9l10-5 10 5-10 5-10-5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg></div>
-      <div class="hud-top">
-        <div class="hud-badge"><svg viewBox="0 0 24 24" stroke-width="1.6"><path d="M2 9l10-5 10 5-10 5-10-5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg></div>
-        <div>
-          <div class="hud-title">1<sup>&egrave;re</sup> STMG</div>
-          <div class="hud-sub">Ton parcours commence ici</div>
-        </div>
-      </div>
-      <div class="hud-subjects">Management &bull; Droit<br>&Eacute;conomie &bull; SDGN</div>
-      <div class="hud-stats">
-        <span class="hud-stat-chip"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M4 5c3 0 6 1 8 3 2-2 5-3 8-3v14c-3 0-6 1-8 3-2-2-5-3-8-3V5z"/></svg>4 mati&egrave;res</span>
-        <span class="hud-stat-chip"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M6 3h9l5 5v13a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M14 3v6h6"/></svg>56 chapitres</span>
-      </div>
-      <span class="hud-cta">D&eacute;couvrir <svg viewBox="0 0 24 24" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-      <div class="glow-pad"></div>
-    </a>
-    <a href="terminale.html" class="hud-panel" style="--subj:#7CFF3D">
-      <div class="hud-watermark"><svg viewBox="0 0 24 24" stroke-width="1"><path d="M8 4h8v3a4 4 0 01-8 0V4z"/><path d="M8 4H4v2a4 4 0 004 4M16 4h4v2a4 4 0 01-4 4"/><path d="M12 11v4M9 20h6M10 15h4v5h-4v-5z"/></svg></div>
-      <div class="hud-top">
-        <div class="hud-badge"><svg viewBox="0 0 24 24" stroke-width="1.6"><path d="M8 4h8v3a4 4 0 01-8 0V4z"/><path d="M8 4H4v2a4 4 0 004 4M16 4h4v2a4 4 0 01-4 4"/><path d="M12 11v4M9 20h6M10 15h4v5h-4v-5z"/></svg></div>
-        <div>
-          <div class="hud-title">Terminale STMG</div>
-          <div class="hud-sub">Ton avenir se construit</div>
-        </div>
-      </div>
-      <div class="hud-subjects">MSGN &bull; Droit &bull; &Eacute;conomie<br>RH &bull; Mercatique &bull; Gestion Finance</div>
-      <div class="hud-stats">
-        <span class="hud-stat-chip"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M4 5c3 0 6 1 8 3 2-2 5-3 8-3v14c-3 0-6 1-8 3-2-2-5-3-8-3V5z"/></svg>6 mati&egrave;res</span>
-        <span class="hud-stat-chip"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M6 3h9l5 5v13a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z"/><path d="M14 3v6h6"/></svg>75 chapitres</span>
-      </div>
-      <span class="hud-cta">D&eacute;couvrir <svg viewBox="0 0 24 24" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-      <div class="glow-pad"></div>
-    </a>
-  </div>
-  <div class="back-row"><a href="index.html" class="btn btn-ghost">&larr; Retour &agrave; l'accueil</a></div>
+<div class="particle-field"><div class="particle" style="left:4%;bottom:-10%;width:16px;height:18px;animation-delay:0s;animation-duration:11s;"></div><div class="particle" style="left:14%;bottom:0%;width:20px;height:23px;animation-delay:1.4s;animation-duration:14s;"></div><div class="particle" style="left:24%;bottom:-20%;width:14px;height:16px;animation-delay:3.1s;animation-duration:10s;"></div><div class="particle" style="left:34%;bottom:5%;width:22px;height:25px;animation-delay:0.6s;animation-duration:16s;"></div><div class="particle" style="left:46%;bottom:-15%;width:18px;height:21px;animation-delay:4.5s;animation-duration:12s;"></div><div class="particle" style="left:58%;bottom:0%;width:15px;height:17px;animation-delay:2.2s;animation-duration:15s;"></div><div class="particle" style="left:68%;bottom:-25%;width:24px;height:28px;animation-delay:5.6s;animation-duration:13s;"></div><div class="particle" style="left:80%;bottom:-5%;width:17px;height:20px;animation-delay:1.9s;animation-duration:17s;"></div><div class="particle" style="left:90%;bottom:0%;width:19px;height:22px;animation-delay:3.8s;animation-duration:11.5s;"></div></div>
+<div class="sec-head" style="text-align:center;">
+<div class="sec-num">STMG</div>
+<div class="sec-title">Choisis ton niveau</div>
+<p class="sec-sub" style="margin-left:auto;margin-right:auto;">Management, Droit, Économie et les spécialités, organisés par année.</p>
+</div>
+<div class="hud-grid">
+<a class="hud-panel portal-hud" href="premiere.html" style="--subj:#6E80FF;">
+<div class="hud-watermark"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M2 20h20M4 20v-5h5v5m0-5V9h5v6m0-6V3h5v6"></path><path d="M4 7l4-4 3 2"></path></svg></div>
+<div class="hud-top">
+<div class="hud-badge"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M2 20h20M4 20v-5h5v5m0-5V9h5v6m0-6V3h5v6"></path><path d="M4 7l4-4 3 2"></path></svg></div>
+<div>
+<div class="hud-title">1<sup>ère</sup> STMG</div>
+<div class="hud-sub">Ton parcours commence ici</div>
+</div>
+</div><div class="hud-illustration"><svg aria-hidden="true" viewbox="0 0 320 170"><path class="floor" d="M25 146h272"></path><path class="mass" d="M47 146v-34h61v34m0 0V86h61v60m0 0V59h61v87"></path><path class="trace" d="M50 104 110 78 169 50 230 25m-18 0h18v18"></path><circle class="halo" cx="252" cy="60" r="25"></circle><path class="stroke" d="M252 47v27m-13-14h26"></path><text class="art-label" text-anchor="middle" x="80" y="136">1</text><text class="art-label" text-anchor="middle" x="139" y="136">2</text><text class="art-label" text-anchor="middle" x="199" y="136">3</text></svg></div>
+<div class="hud-subjects">Management • Droit<br/>Économie • SDGN</div>
+<div class="hud-stats">
+<span class="hud-stat-chip"><svg stroke-width="2" viewbox="0 0 24 24"><path d="M4 5c3 0 6 1 8 3 2-2 5-3 8-3v14c-3 0-6 1-8 3-2-2-5-3-8-3V5z"></path></svg>4 matières</span>
+<span class="hud-stat-chip"><svg stroke-width="2" viewbox="0 0 24 24"><path d="M6 3h9l5 5v13a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z"></path><path d="M14 3v6h6"></path></svg>56 chapitres</span>
+</div>
+<span class="hud-cta">Découvrir <svg stroke-width="2" viewbox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+<div class="glow-pad"></div>
+</a>
+<a class="hud-panel portal-hud" href="terminale.html" style="--subj:#5AFF8B;">
+<div class="hud-watermark"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M5 21V3m0 1h14l-4 5 4 5H5"></path><path d="M3 21h8M13 17l2 2 5-6"></path></svg></div>
+<div class="hud-top">
+<div class="hud-badge"><svg aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><path d="M5 21V3m0 1h14l-4 5 4 5H5"></path><path d="M3 21h8M13 17l2 2 5-6"></path></svg></div>
+<div>
+<div class="hud-title">Terminale STMG</div>
+<div class="hud-sub">Ton avenir se construit</div>
+</div>
+</div><div class="hud-illustration"><svg aria-hidden="true" viewbox="0 0 320 170"><path class="floor" d="M32 146h255"></path><path class="stroke" d="M102 140V27m0 0h139l-31 27 31 27H102"></path><circle class="halo" cx="168" cy="118" r="40"></circle><path class="stroke" d="m151 117 11 13 24-28"></path><path class="trace" d="M36 137 76 120 101 137"></path><text class="art-label" text-anchor="middle" x="168" y="53">BAC</text></svg></div>
+<div class="hud-subjects">MSGN • Droit • Économie<br/>RH • Mercatique • Gestion Finance</div>
+<div class="hud-stats">
+<span class="hud-stat-chip"><svg stroke-width="2" viewbox="0 0 24 24"><path d="M4 5c3 0 6 1 8 3 2-2 5-3 8-3v14c-3 0-6 1-8 3-2-2-5-3-8-3V5z"></path></svg>6 matières</span>
+<span class="hud-stat-chip"><svg stroke-width="2" viewbox="0 0 24 24"><path d="M6 3h9l5 5v13a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z"></path><path d="M14 3v6h6"></path></svg>75 chapitres</span>
+</div>
+<span class="hud-cta">Découvrir <svg stroke-width="2" viewbox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+<div class="glow-pad"></div>
+</a>
+</div>
+<div class="back-row"><a class="btn btn-ghost" href="index.html">← Retour à l'accueil</a></div>
 </section>
-
 <footer>
-  <div class="foot-brand">PROF 4.0</div>
-  <p>Apprendre &middot; Comprendre &middot; R&eacute;ussir &mdash; &copy; 2026</p>
-  <p style="margin-top:14px;">
-    <a href="https://youtube.com/@prof4.0stmg?si=fywFQySRD-AFr2OB" target="_blank" rel="noopener"
-       style="color:var(--level-neon);font-weight:700;">&#9654; Cha&icirc;ne YouTube</a>
+<div class="foot-brand">PROF 4.0</div>
+<p>Apprendre · Comprendre · Réussir — © 2026</p>
+<p style="margin-top:14px;">
+<a href="https://youtube.com/@prof4.0stmg?si=fywFQySRD-AFr2OB" rel="noopener" style="color:var(--level-neon);font-weight:700;" target="_blank">▶ Chaîne YouTube</a>
+</p>
+<p style="margin-top:18px;font-size:11.5px;color:var(--muted);max-width:480px;margin-left:auto;margin-right:auto;">
+    © 2026 Prof 4.0 — Romain Pineau, auteur et créateur. Tous droits réservés.
   </p>
-  <p style="margin-top:18px;font-size:11.5px;color:var(--muted);max-width:480px;margin-left:auto;margin-right:auto;">
-    &copy; 2026 Prof 4.0 &mdash; Romain Pineau, auteur et cr&eacute;ateur. Tous droits r&eacute;serv&eacute;s.
-  </p>
-  <details style="margin-top:8px;max-width:480px;margin-left:auto;margin-right:auto;text-align:left;">
-    <summary style="cursor:pointer;color:var(--muted);text-decoration:underline;font-size:11px;text-align:center;list-style:none;">Mentions l&eacute;gales</summary>
-    <p style="margin-top:8px;font-size:11px;line-height:1.6;color:var(--muted);">
-      Les contenus originaux pr&eacute;sents sur ce site, notamment les cours, textes, exercices, corrig&eacute;s, supports graphiques et contenus audio et vid&eacute;o, sont prot&eacute;g&eacute;s par le droit d&rsquo;auteur. Toute reproduction, adaptation ou diffusion, totale ou partielle, sans autorisation pr&eacute;alable de l&rsquo;auteur est interdite, sous r&eacute;serve des exceptions pr&eacute;vues par la loi.
+<details style="margin-top:8px;max-width:480px;margin-left:auto;margin-right:auto;text-align:left;">
+<summary style="cursor:pointer;color:var(--muted);text-decoration:underline;font-size:11px;text-align:center;list-style:none;">Mentions légales</summary>
+<p style="margin-top:8px;font-size:11px;line-height:1.6;color:var(--muted);">
+      Les contenus originaux présents sur ce site, notamment les cours, textes, exercices, corrigés, supports graphiques et contenus audio et vidéo, sont protégés par le droit d’auteur. Toute reproduction, adaptation ou diffusion, totale ou partielle, sans autorisation préalable de l’auteur est interdite, sous réserve des exceptions prévues par la loi.
     </p>
-  </details>
+</details>
 </footer>
 </body>
 </html>
