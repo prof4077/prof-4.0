@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Rareté express — Jeu Économie 1re STMG, chapitre 1 · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#4CD97B;--eco-dim:#2F8A4E;--good:#4CD97B;--bg:#050806;--panel:#0a110c;--panel2:#0d1510;--line:#1a2c20;--txt:#EEF3EC;--muted:#8BA394;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(76,217,123,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(76,217,123,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#142010;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070a06;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(76,217,123,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#0a1406;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#0a1406;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#121c0e;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#142010;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#0a1406;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#080c06;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#080c06;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#080c06;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#080c06;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(76,217,123,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#080c06;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(76,217,123,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+
+/* ---- défis chronométrés et codes ---- */
+.drill .dr-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-family:'Rajdhani',sans-serif;font-weight:700;}
+.dr-t{color:var(--eco);font-size:15px;letter-spacing:.06em;text-transform:uppercase;}.dr-n{color:var(--muted);font-size:14px;white-space:nowrap;}
+.dr-tm{position:relative;height:8px;background:#14231a;border-radius:4px;margin:10px 0 28px;}
+.dr-tm i{display:block;height:100%;background:var(--eco);border-radius:4px;transition:width .1s linear;}
+.dr-tm i.hot{background:var(--bad);}
+.dr-tm span{position:absolute;right:0;top:12px;font-family:'Orbitron',sans-serif;font-size:12px;color:var(--warn);}
+.dr-ctx{font-size:13.5px;color:var(--muted);margin-bottom:6px;line-height:1.45;}
+.dr-qt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:21px;line-height:1.25;margin:4px 0 14px;}
+.dr-intro{font-size:15.5px;line-height:1.55;margin:6px 0 4px;}
+.dr-grid{display:grid;grid-template-columns:1fr;gap:8px;}.dr-grid.c2{grid-template-columns:1fr 1fr;}
+.dr-b{background:var(--panel2);border:1px solid var(--line);color:var(--txt);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;padding:12px 10px;border-radius:6px;cursor:pointer;text-align:center;line-height:1.2;transition:transform .1s,border-color .1s;}
+.dr-b:hover:not(:disabled){border-color:var(--eco);}.dr-b:active{transform:scale(.97);}
+.dr-b.ok{border-color:var(--good);background:rgba(76,217,123,.18);}.dr-b.ko{border-color:var(--bad);background:rgba(255,92,106,.16);}
+.dr-b:disabled{cursor:default;}
+.dr-f{margin-top:12px;min-height:24px;text-align:center;}
+.dr-ok{color:var(--good);font-weight:600;line-height:1.45;}.dr-ko{color:#ffb3ba;line-height:1.5;text-align:left;font-size:14.5px;background:rgba(255,92,106,.08);border-left:3px solid var(--bad);padding:8px 10px;margin-bottom:10px;}
+.dr-ko b{color:var(--txt);}
+.btn.sm{padding:8px 18px;font-size:14px;}
+.dr-num{display:flex;gap:8px;align-items:center;}.dr-num input,.cd-in input{flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);color:var(--txt);font-family:'Orbitron',sans-serif;font-size:18px;padding:11px 12px;border-radius:6px;}
+.dr-num input.ok{border-color:var(--good);}.dr-num input.ko{border-color:var(--bad);}
+.dr-num span{color:var(--muted);font-weight:700;}
+.cd-in{display:flex;gap:8px;margin:12px 0;}.cd-in input{text-transform:uppercase;letter-spacing:.12em;}
+.dr-rec{text-align:center;padding:6px 0 4px;}.dr-big{font-family:'Orbitron',sans-serif;font-weight:900;font-size:34px;color:var(--eco);}
+.dr-bonus{color:var(--warn);font-family:'Rajdhani',sans-serif;font-weight:700;margin-top:4px;}.dr-to{color:var(--bad);margin-top:4px;font-size:14px;}
+.dr-cor{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px;font-size:14px;}
+.dr-miss{list-style:none;padding:0;margin:0;text-align:left;}.dr-miss li{font-size:14px;line-height:1.45;padding:8px 0;border-top:1px solid var(--line);}.dr-miss small{color:var(--muted);}
+.doc{background:#0f1a13;border:1px solid var(--line);border-left:3px solid var(--warn);padding:10px 12px;margin:10px 0;font-size:14.5px;line-height:1.5;}
+.doc h4{margin:0 0 4px;font-family:'Rajdhani',sans-serif;font-size:15px;color:var(--warn);text-transform:uppercase;letter-spacing:.04em;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU — Rareté express (Économie 1re STMG, chapitre 1 : L'économie, science de la rareté)
+   Jeu télévisé en cinq manches chronométrées : besoins, biens et services, rareté et contraintes,
+   agents économiques, super finale. Toutes les notions viennent du cours du chapitre 1.
+   ===================================================================== */
+const N = ' ';
+const pct = s => s.tot ? Math.round(100 * s.ok / s.tot) : 0;
+
+const GAME = {
+  title: 'Rareté express',
+  brand: 'RARETÉ <span>EXPRESS</span>',
+  storeKey: 'ec1RareteFins',
+  backLink: '../../matieres/economie-1ere.html',
+  footer: 'Économie 1re STMG, chapitre 1',
+  kicker: 'Économie · 1re STMG · Chapitre 1',
+  debIntro: 'Chaque manche portait sur une partie du chapitre. Voici ce qu\'il faut retenir.',
+  cutText: '',
+  actWord: 'Manche',
+  pitch: `Bienvenue sur le plateau de «${N}Rareté express${N}», le jeu où le temps est… une ressource rare. Cinq manches chronométrées sur l'économie, science de la rareté. Chaque bonne réponse rapporte des points, les séries en rapportent plus, et le temps qu'il te reste à la fin d'une manche devient un bonus. Prêt${N}?`,
+  meta: '5 manches chronométrées · 12 minutes',
+  start: s => Object.assign(s, { score: 0, ok: 0, tot: 0, ko: 0, serie: 0, best: 0 }),
+  hud: [
+    { k: 'score', label: 'Score', short: 'Score', show: s => s.score.toLocaleString('fr-FR'), pct: s => s.score / 8, low: () => false },
+    { k: 'ok',    label: 'Réussite', short: 'Réussite', show: s => s.tot ? pct(s) + N + '%' : '—', pct: s => pct(s), low: s => s.tot > 0 && pct(s) < 50 },
+    { k: 'serie', label: 'Série', short: 'Série', show: s => s.serie + (s.best > s.serie ? ` <small>(max ${s.best})</small>` : ''), pct: s => s.serie * 10, low: () => false },
+    { k: 'ko',    label: 'Erreurs', short: 'Erreurs', show: s => s.ko, pct: s => s.ko * 5, low: s => s.ko > 10 }
+  ],
+  fail: () => null,
+  lock: () => null,
+  bilan: s => [['Score final', s.score.toLocaleString('fr-FR') + ' points'], ['Bonnes réponses', `${s.ok} / ${s.tot} (${pct(s)}${N}%)`], ['Meilleure série', s.best], ...Object.entries({ besoins: 'Manche 1 · Besoins', biens: 'Manche 2 · Biens et services', rarete: 'Manche 3 · Rareté et contraintes', agents: 'Manche 4 · Agents économiques', finale: 'Super finale' }).filter(([k]) => s.rounds[k]).map(([k, l]) => [l, `${s.rounds[k].ok} / ${s.rounds[k].n}`])],
+
+  characters: {
+    mila: { name: 'Mila', role: 'animatrice de Rareté express', color: '#4CD97B', body: '#2a6b45', hair: '#2a1a12', acc: 'clip' },
+    narr: { name: 'Plateau', role: '', color: '#4CD97B' }
+  },
+
+  acts: [
+  /* ------------------------------ MANCHE 1 ------------------------------ */
+  { num: 1, title: 'Les besoins', sub: 'Manche 1 · 10 questions · 60 secondes',
+    steps: [
+      { t: 'say', who: 'mila', text: `Première manche${N}! Un <em>besoin</em>, c'est un sentiment de manque que l'on cherche à combler. Les <em>besoins primaires</em> sont indispensables à la survie${N}: se nourrir, boire, se loger, se soigner. Les <em>besoins secondaires</em> ne sont pas vitaux, mais participent au bien-être${N}: communiquer, se divertir, voyager, faire du sport…` },
+      { t: 'drill', id: 'besoins', who: 'mila', title: 'Les besoins', time: 60, intro: 'Pour chaque situation : besoin <b>primaire</b> ou <b>secondaire</b> ?',
+        cats: [{ id: 'p', label: 'Primaire' }, { id: 's', label: 'Secondaire' }],
+        items: [
+          { q: 'Boire de l\'eau quand on a soif', a: 'p', ex: 'Boire est indispensable à la survie.' },
+          { q: 'Se faire soigner après une chute', a: 'p', ex: 'Se soigner conditionne directement la santé.' },
+          { q: 'Avoir un logement pour dormir à l\'abri', a: 'p', ex: 'Se loger fait partie des besoins essentiels.' },
+          { q: 'Manger trois repas par jour', a: 'p', ex: 'Se nourrir est un besoin vital.' },
+          { q: 'Porter un manteau chaud en plein hiver', a: 'p', ex: 'Se protéger du froid conditionne la santé et la sécurité.' },
+          { q: 'Partir une semaine en vacances à la mer', a: 's', ex: 'Voyager participe au bien-être, mais n\'est pas vital.' },
+          { q: 'Regarder une série en streaming', a: 's', ex: 'Se divertir est un besoin secondaire.' },
+          { q: 'S\'entraîner au handball dans un club', a: 's', ex: 'Pratiquer un sport relève de l\'épanouissement personnel.' },
+          { q: 'Apprendre à jouer de la guitare', a: 's', ex: 'Développer ses connaissances est un besoin secondaire.' },
+          { q: 'Discuter avec ses amis sur une messagerie', a: 's', ex: 'Communiquer est un besoin secondaire, important pour les relations sociales.' } ] }
+    ] },
+
+  /* ------------------------------ MANCHE 2 ------------------------------ */
+  { num: 2, title: 'Biens et services', sub: 'Manche 2 · 14 questions · 110 secondes',
+    steps: [
+      { t: 'say', who: 'mila', text: `Les <em>biens</em> sont matériels${N}: on peut les toucher, les transporter, les stocker. Un bien <em>non durable</em> disparaît vite (une bouteille d'eau), un bien <em>durable</em> sert plusieurs années (une voiture), un bien <em>de production</em> sert à produire (une machine). Les <em>services</em> sont des prestations immatérielles${N}: <em>marchands</em> s'ils sont payés par les clients, <em>non marchands</em> s'ils sont fournis gratuitement ou presque, financés surtout par les prélèvements obligatoires.` },
+      { t: 'drill', id: 'biens', who: 'mila', title: 'Biens et services', time: 110, intro: 'Classe chaque produit dans la bonne catégorie.',
+        cats: [{ id: 'bnd', label: 'Bien non durable' }, { id: 'bd', label: 'Bien durable' }, { id: 'bp', label: 'Bien de production' }, { id: 'sm', label: 'Service marchand' }, { id: 'snm', label: 'Service non marchand' }],
+        items: [
+          { q: 'Une bouteille d\'eau', a: 'bnd', ex: 'Elle est consommée en une seule utilisation.' },
+          { q: 'Un plein de carburant', a: 'bnd', ex: 'Il disparaît à l\'usage.' },
+          { q: 'Un sandwich', a: 'bnd', ex: 'Un repas est consommé rapidement.' },
+          { q: 'Un ordinateur portable', a: 'bd', ex: 'Il rend service pendant plusieurs années.' },
+          { q: 'Une voiture', a: 'bd', ex: 'Elle est utilisée de nombreuses fois avant d\'être remplacée.' },
+          { q: 'Un smartphone', a: 'bd', ex: 'C\'est un bien durable, utilisé pendant plusieurs années.' },
+          { q: 'Un robot de soudure dans une usine automobile', a: 'bp', ex: 'Il sert à fabriquer d\'autres biens.' },
+          { q: 'Le four professionnel d\'une boulangerie', a: 'bp', ex: 'Il participe à l\'activité productive de l\'entreprise.' },
+          { q: 'Un trajet en train', a: 'sm', ex: 'Une prestation immatérielle payée par le voyageur.' },
+          { q: 'Un abonnement à une plateforme de streaming', a: 'sm', ex: 'Un service vendu sur un marché, financé par les clients.' },
+          { q: 'Une coupe chez le coiffeur', a: 'sm', ex: 'Une prestation immatérielle vendue à son prix.' },
+          { q: 'Un cours dans un lycée public', a: 'snm', ex: 'L\'enseignement public est gratuit, financé par les prélèvements obligatoires.' },
+          { q: 'L\'intervention de la police', a: 'snm', ex: 'Un service non marchand d\'intérêt général.' },
+          { q: 'Un procès devant un tribunal', a: 'snm', ex: 'La justice est un service non marchand.' } ] }
+    ] },
+
+  /* ------------------------------ MANCHE 3 ------------------------------ */
+  { num: 3, title: 'Rareté et contraintes', sub: 'Manche 3 · 10 questions · 80 secondes',
+    steps: [
+      { t: 'say', who: 'mila', text: `Un <em>bien libre</em> est disponible gratuitement et en quantité suffisante pour tous, comme l'air. Un <em>bien économique</em> doit être produit, transformé ou acheminé${N}: il coûte des ressources. La <em>rareté</em>, ce n'est pas la disparition d'une ressource${N}: c'est qu'elle ne suffit pas à satisfaire tous les besoins. Elle oblige à faire des <em>choix</em>, sous trois <em>contraintes</em>${N}: l'argent, le temps et l'information.` },
+      { t: 'drill', id: 'rarete', who: 'mila', title: 'Rareté et contraintes', time: 80, shuffle: false, intro: 'D\'abord : bien libre ou bien économique ? Ensuite : quelle contrainte pèse sur le choix ?',
+        items: [
+          { q: 'L\'air que l\'on respire', opts: ['Bien libre', 'Bien économique'], a: 0, ex: 'Disponible gratuitement et en quantité suffisante pour tous.' },
+          { q: 'L\'eau potable du robinet', opts: ['Bien libre', 'Bien économique'], a: 1, ex: 'Elle doit être captée, traitée et acheminée : sa production engendre des coûts.' },
+          { q: 'L\'électricité', opts: ['Bien libre', 'Bien économique'], a: 1, ex: 'Sa production mobilise des ressources et engendre des coûts.' },
+          { q: 'Un réseau social « gratuit »', opts: ['Bien libre', 'Bien économique'], a: 1, ex: 'Il repose sur des infrastructures coûteuses, financées par la publicité et l\'exploitation des données.' },
+          { q: 'Le lithium d\'une batterie de smartphone', opts: ['Bien libre', 'Bien économique'], a: 1, ex: 'Une ressource présente en quantité limitée sur la planète.' },
+          { q: 'Inès veut un ordinateur à 1 200 €, elle n\'a que 600 € d\'économies.', opts: ['Contrainte financière', 'Contrainte de temps', 'Contrainte d\'information'], a: 0, ex: 'Le revenu disponible limite ce qu\'on peut acheter.' },
+          { q: 'Entre le lycée, son job au fast-food et le sport, Yanis n\'a plus une minute pour réviser.', opts: ['Contrainte financière', 'Contrainte de temps', 'Contrainte d\'information'], a: 1, ex: 'Une journée ne compte que vingt-quatre heures.' },
+          { q: 'Une entreprise hésite à lancer un produit : elle ignore comment réagiront ses concurrents.', opts: ['Contrainte financière', 'Contrainte de temps', 'Contrainte d\'information'], a: 2, ex: 'On décide souvent sans connaître toutes les conséquences.' },
+          { q: 'Léa achète un vélo d\'occasion sans pouvoir vérifier son état réel.', opts: ['Contrainte financière', 'Contrainte de temps', 'Contrainte d\'information'], a: 2, ex: 'Une information incomplète pèse sur la décision.' },
+          { q: 'La mairie doit choisir : rénover le gymnase ou agrandir la cantine. Elle ne peut pas tout faire. Comment appelle-t-on ce choix ?', opts: ['Un arbitrage', 'Une pénurie', 'Un besoin primaire'], a: 0, ex: 'Choisir une option en renonçant à une autre, faute de ressources suffisantes, c\'est un arbitrage.' } ] }
+    ] },
+
+  /* ------------------------------ MANCHE 4 ------------------------------ */
+  { num: 4, title: 'Les agents économiques', sub: 'Manche 4 · 14 questions · 110 secondes',
+    steps: [
+      { t: 'say', who: 'mila', text: `Les économistes regroupent les acteurs selon leur <em>fonction principale</em>. Les <em>ménages</em> consomment. Les <em>entreprises</em> produisent des biens et services marchands. Les <em>institutions financières</em> financent l'économie. Les <em>administrations publiques</em> produisent des services non marchands d'intérêt général. Les <em>ISBLSM</em> (associations, syndicats, ONG…) produisent des services non marchands pour les ménages, sans but lucratif.` },
+      { t: 'drill', id: 'agents', who: 'mila', title: 'Agents économiques', time: 110, intro: 'À quel agent économique appartient chaque acteur ?',
+        cats: [{ id: 'men', label: 'Ménages' }, { id: 'ent', label: 'Entreprises' }, { id: 'if', label: 'Institutions financières' }, { id: 'apu', label: 'Administrations publiques' }, { id: 'isb', label: 'ISBLSM' }],
+        items: [
+          { q: 'Une famille de quatre personnes', a: 'men', ex: 'Des personnes vivant dans un même logement : leur fonction principale est la consommation.' },
+          { q: 'Trois étudiants en colocation', a: 'men', ex: 'Une colocation est un ménage.' },
+          { q: 'Un plombier entrepreneur individuel', a: 'men', ex: 'Son activité n\'est pas séparée de son patrimoine personnel : il est rattaché aux ménages.' },
+          { q: 'Une boulangerie de quartier', a: 'ent', ex: 'Elle produit des biens marchands pour dégager un bénéfice.' },
+          { q: 'Airbus', a: 'ent', ex: 'Une grande entreprise industrielle.' },
+          { q: 'Une start-up qui développe une appli', a: 'ent', ex: 'Elle produit un service marchand et innove.' },
+          { q: 'Une banque qui accorde un prêt immobilier', a: 'if', ex: 'Elle collecte l\'épargne et la prête : elle finance l\'économie.' },
+          { q: 'Une compagnie d\'assurance', a: 'if', ex: 'Les assurances font partie des institutions financières.' },
+          { q: 'La mairie de ta ville', a: 'apu', ex: 'Une collectivité territoriale : elle produit des services d\'intérêt général.' },
+          { q: 'Un lycée public', a: 'apu', ex: 'Un établissement public qui produit un service non marchand.' },
+          { q: 'La Sécurité sociale', a: 'apu', ex: 'Un organisme de protection sociale, financé par les cotisations sociales.' },
+          { q: 'Les Restos du cœur', a: 'isb', ex: 'Une association caritative, sans but lucratif, financée par les dons.' },
+          { q: 'Un club de football amateur', a: 'isb', ex: 'Une association sportive, financée par les cotisations de ses adhérents.' },
+          { q: 'Un syndicat de salariés', a: 'isb', ex: 'Les syndicats font partie des ISBLSM.' } ] }
+    ] },
+
+  /* ------------------------------ FINALE ------------------------------ */
+  { num: 5, tag: 'Finale', title: 'La super finale', sub: '8 questions · 70 secondes · tout le chapitre', final: true,
+    steps: [
+      { t: 'say', who: 'mila', text: s => `Tu as ${s.score.toLocaleString('fr-FR')} points. Place à la super finale${N}: tout le chapitre, en huit questions. Les séries comptent double… enfin presque.` },
+      { t: 'drill', id: 'finale', who: 'mila', title: 'Super finale', time: 70, pts: 15, intro: 'Une seule bonne réponse par question.',
+        items: [
+          { q: 'La rareté signifie qu\'une ressource…', opts: ['a disparu', 'n\'est pas disponible en quantité suffisante pour satisfaire tous les besoins', 'est forcément très chère', 'est interdite à la vente'], a: 1, ex: 'Rare ne veut pas dire introuvable : la ressource ne suffit pas pour tous les besoins exprimés.' },
+          { q: 'Choisir une option en renonçant à une autre, c\'est…', opts: ['un arbitrage', 'une contrainte', 'un besoin', 'une pénurie'], a: 0, ex: 'L\'arbitrage est au cœur de l\'activité économique.' },
+          { q: 'La fonction principale des ménages est de…', opts: ['produire', 'consommer', 'financer', 'redistribuer'], a: 1, ex: 'Les ménages utilisent leurs revenus pour consommer.' },
+          { q: 'Les services non marchands sont surtout financés par…', opts: ['leurs clients', 'la publicité', 'les prélèvements obligatoires', 'les banques'], a: 2, ex: 'Impôts et cotisations sociales financent l\'enseignement public, la police, la justice.' },
+          { q: 'Pourquoi l\'accès à Internet est-il un bon exemple dans ce chapitre ?', opts: ['C\'est un bien libre', 'Les besoins évoluent avec la société', 'C\'est un bien de production', 'C\'est un besoin primaire depuis toujours'], a: 1, ex: 'Hier peu utile, aujourd\'hui difficile de s\'en passer : les besoins évoluent.' },
+          { q: 'Les ISBLSM se financent principalement grâce…', opts: ['à la vente de leurs produits', 'aux cotisations, aux dons et aux subventions', 'aux impôts qu\'elles prélèvent', 'aux crédits bancaires'], a: 1, ex: 'Leur but n\'est pas le profit.' },
+          { q: 'La fonction principale des institutions financières est de…', opts: ['financer l\'économie', 'produire des services d\'intérêt général', 'consommer', 'produire des biens marchands'], a: 0, ex: 'Elles collectent l\'épargne et la prêtent sous forme de crédits.' },
+          { q: 'Un entrepreneur individuel est classé parmi…', opts: ['les entreprises', 'les ménages', 'les administrations publiques', 'les ISBLSM'], a: 1, ex: 'Son activité n\'est pas juridiquement séparée de son patrimoine personnel.' } ] },
+      { t: 'say', who: 'mila', text: s => `C'est terminé${N}! ${s.score.toLocaleString('fr-FR')} points et ${pct(s)}${N}% de bonnes réponses. ${pct(s) >= 90 ? 'Un sans-faute ou presque : bravo !' : pct(s) >= 70 ? 'Une belle performance.' : pct(s) >= 50 ? 'Pas mal, mais quelques notions sont à revoir.' : 'Le chapitre mérite une nouvelle lecture avant de rejouer.'}` }
+    ] }
+  ],
+
+  endings: [
+    { id: 'or', when: s => pct(s) >= 90, title: 'Champion·ne de la rareté', stamp: 'Médaille d\'or', color: '#FFC64F',
+      text: s => `${pct(s)}${N}% de bonnes réponses. Besoins, biens et services, rareté, arbitrage, agents économiques${N}: tu maîtrises les bases du chapitre. Tente de battre ton score, ou passe au chapitre 2.` },
+    { id: 'argent', when: s => pct(s) >= 70, title: 'Bon économiste', stamp: 'Médaille d\'argent', color: '#C9D6CF',
+      text: s => `${pct(s)}${N}% de bonnes réponses. L'essentiel est acquis. Relis la liste «${N}À retenir${N}» de chaque manche pour viser l'or.` },
+    { id: 'bronze', when: s => pct(s) >= 50, title: 'Apprenti économiste', stamp: 'Médaille de bronze', color: '#D08A4C',
+      text: s => `${pct(s)}${N}% de bonnes réponses. Les grandes idées sont là, mais plusieurs classements restent hésitants. Relis la fiche du chapitre 1, puis rejoue.` },
+    { id: 'revoir', when: s => true, title: 'Encore une manche ?', stamp: 'À retravailler', color: '#FF5C6A',
+      text: s => `${pct(s)}${N}% de bonnes réponses. Pas de panique${N}: relis la fiche du chapitre 1, en particulier les catégories de biens et les agents économiques, puis retente ta chance.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['besoins'], title: 'Manche 1 — Les besoins', text: () => `Un <em>besoin</em> est un sentiment de manque que l\'on cherche à combler. Les <em>besoins primaires</em> sont indispensables à la survie, les <em>besoins secondaires</em> participent au bien-être. La frontière évolue avec la société : l\'accès à Internet, autrefois superflu, est devenu presque indispensable.`,
+      chain: () => ({ good: ['Sentiment de manque', 'Besoin', 'Biens et services', 'Satisfaction'], bad: [] }) },
+    { act: 2, needs: ['biens'], title: 'Manche 2 — Biens et services', text: () => `Les <em>biens</em> sont matériels : <em>non durables</em>, <em>durables</em> ou <em>de production</em>. Les <em>services</em> sont immatériels : <em>marchands</em> (payés par les clients) ou <em>non marchands</em> (gratuits ou presque, financés par les <em>prélèvements obligatoires</em>).`,
+      chain: () => ({ good: ['Bien ou service ?', 'Durée d\'utilisation', 'Qui le paie ?'], bad: [] }) },
+    { act: 3, needs: ['rarete'], title: 'Manche 3 — Rareté et contraintes', text: () => `Un <em>bien libre</em> est gratuit et abondant ; un <em>bien économique</em> doit être produit et coûte des ressources. La <em>rareté</em> naît de besoins illimités face à des ressources limitées. Elle impose des <em>choix</em> et des <em>arbitrages</em>, sous des <em>contraintes</em> financières, de temps et d\'information.`,
+      chain: () => ({ good: ['Besoins illimités', 'Ressources limitées', 'Rareté', 'Choix', 'Arbitrage'], bad: [] }) },
+    { act: 4, needs: ['agents'], title: 'Manche 4 — Les agents économiques', text: () => `Les <em>agents économiques</em> sont regroupés selon leur fonction principale : <em>ménages</em> (consommer), <em>entreprises</em> (produire des biens et services marchands), <em>institutions financières</em> (financer), <em>administrations publiques</em> (produire des services non marchands d\'intérêt général), <em>ISBLSM</em> (produire des services non marchands pour les ménages, sans but lucratif).`,
+      chain: () => ({ good: ['Ménages', 'Entreprises', 'Institutions financières', 'Administrations publiques', 'ISBLSM'], bad: [] }) }
+  ],
+  vocab: ['Besoin', 'Besoin primaire', 'Besoin secondaire', 'Bien durable', 'Bien non durable', 'Bien de production', 'Service marchand', 'Service non marchand', 'Prélèvements obligatoires', 'Bien libre', 'Bien économique', 'Rareté', 'Arbitrage', 'Contrainte', 'Agent économique', 'Ménages', 'Entreprises', 'Institutions financières', 'Administrations publiques', 'ISBLSM']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — le plateau télé et le grand chrono.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const G = '#4CD97B';
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Le plateau de Rareté express">
+    <rect width="360" height="200" fill="#050806"/><rect x="0" y="0" width="360" height="162" fill="#08100b"/>
+    ${[0, 1, 2, 3, 4, 5].map(i => `<path d="M${170 + i * 32},0 L${150 + i * 40},162" stroke="${G}" stroke-width="1" opacity=".08"/>`).join('')}
+    <rect x="178" y="22" width="150" height="66" rx="6" fill="#0d1a12" stroke="${G}" stroke-width="1.5"/>
+    <text x="232" y="61" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="900" font-size="13" fill="${G}">RARETÉ</text><text x="232" y="76" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="900" font-size="10" fill="#EEF3EC">EXPRESS</text>
+    <g transform="translate(298,55)"><circle r="17" fill="none" stroke="${G}" stroke-width="2.2"/><rect x="-3" y="-23" width="6" height="5" fill="${G}"/><path d="M0,0 L0,-11 M0,0 L8,5" stroke="#FFC64F" stroke-width="2.2" stroke-linecap="round"/></g>
+    <rect x="210" y="106" width="86" height="56" fill="#0f1a13" stroke="${G}" stroke-width="1.2"/>
+    <text x="253" y="128" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11" fill="#8BA394">MANCHE</text>
+    <text x="253" y="150" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="16" fill="#EEF3EC">${act.num === 5 ? 'FINALE' : act.num + ' / 4'}</text>
+    <rect x="0" y="162" width="360" height="38" fill="#060a07"/><line x1="0" y1="162" x2="360" y2="162" stroke="#1a2c20" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  /* espaces insécables fines dans les nombres du texte affiché (jamais dans le SVG ni les attributs) */
+  const fixNums = root => { const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentNode.closest('svg') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT }); let n;
+    while ((n = w.nextNode())) { const t = n.nodeValue.replace(/(\d) (?=\d{3}(?!\d))/g, '$1\u202f').replace(/(\d) (€|%)/g, '$1\u202f$2'); if (t !== n.nodeValue) n.nodeValue = t; } };
+  new MutationObserver(() => fixNums(app)).observe(app, { childList: true, subtree: true });
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  const FAST = /fast/.test(location.search), TF = /tfast/.test(location.search) ? 20 : 1;
+  const wait = ms => FAST ? 15 : ms;
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const norm = t => String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+  let TIMER = null; const stopTimer = () => { if (TIMER) { clearInterval(TIMER); TIMER = null; } };
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">${act.tag || (GAME.actWord || 'Acte') + ' ' + act.num} · ${act.title}</div></div>
+      <div id="hudw">${hud()}</div><div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function refreshHud() { const w = document.getElementById('hudw'); if (w) w.innerHTML = hud(); }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    stopTimer(); S = { flags: {}, rounds: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">${act.tag || (GAME.actWord || 'Acte') + ' ' + act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    stopTimer();
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'drill') {
+      lastDeltas = [];
+      let items = val(st.items, S).slice(); if (st.shuffle !== false) shuffle(items); if (st.n) items = items.slice(0, st.n);
+      const total = items.length, pts = st.pts || 10, T = (st.time || 0) * 1000;
+      let i = 0, ok = 0, miss = [], left = T, paused = false, over = false;
+      frame(val(st.who, S) || null, `<div class="box drill"><div class="dr-h"><span class="dr-t">${val(st.title, S)}</span><span class="dr-n" id="dn"></span></div>${T ? '<div class="dr-tm"><i id="dt"></i><span id="ds"></span></div>' : ''}<div class="dr-q" id="dq"></div><div class="dr-o" id="dop"></div><div class="dr-f" id="df"></div></div>`);
+      const $ = id => document.getElementById(id);
+      const keyLabel = (it, k) => it.opts ? it.opts[k] : ((it.cats || st.cats).find(c => c.id === k) || {}).label;
+      const tick = () => { if (!T) return; $('dt').style.width = (100 * left / T) + '%'; $('ds').textContent = Math.ceil(left / 1000) + ' s'; $('dt').className = left < T * 0.25 ? 'hot' : ''; };
+      function finish() {
+        if (over) return; over = true; stopTimer();
+        const answered = i, unanswered = total - answered;
+        let bonus = 0; if (T && !unanswered) bonus = Math.round(left / 1000) * (st.tbonus || 1);
+        S.score += bonus; S.tot += unanswered; S.rounds[st.id] = { ok, n: total };
+        H[st.id] = ok + '/' + total; refreshHud();
+        const list = miss.map(m => `<li><b>${m.q}</b><br>→ ${m.good}${m.ex ? `<br><small>${m.ex}</small>` : ''}</li>`).join('');
+        $('dq').innerHTML = `<div class="dr-rec"><div class="dr-big">${ok} / ${total}</div><div>${st.recap ? val(st.recap, S, ok, total) : (ok === total ? 'Sans faute !' : ok >= total * 0.7 ? 'Bien joué.' : 'À retravailler.')}</div>${bonus ? `<div class="dr-bonus">Bonus de temps : +${bonus} points</div>` : ''}${unanswered ? `<div class="dr-to">Temps écoulé : ${unanswered} question${unanswered > 1 ? 's' : ''} sans réponse</div>` : ''}</div>${list ? `<div class="dr-cor">À retenir</div><ul class="dr-miss">${list}</ul>` : ''}`;
+        $('dop').innerHTML = ''; $('df').innerHTML = `<button class="btn" id="go">Continuer ▸</button>`;
+        $('dn').textContent = '';
+        if (T) $('dt').parentNode.style.display = 'none';
+        $('go').onclick = next; window.scrollTo(0, 0);
+      }
+      function show() {
+        if (i >= total) return finish();
+        const it = items[i]; window.__ok = it.a; $('dn').textContent = (i + 1) + ' / ' + total; $('df').innerHTML = '';
+        $('dq').innerHTML = `${it.ctx ? `<div class="dr-ctx">${it.ctx}</div>` : ''}<div class="dr-qt">${it.q}</div>`;
+        if (it.num) {
+          $('dop').innerHTML = `<div class="dr-num"><input id="dni" inputmode="decimal" autocomplete="off" placeholder="Ta réponse"><span>${it.unit || ''}</span><button class="btn" id="dnv">OK</button></div>`;
+          const inp = $('dni'); inp.focus();
+          const sub = () => { const v = parseFloat(inp.value.replace(/\s/g, '').replace(',', '.')); if (isNaN(v)) return; answer(Math.abs(v - it.a) <= (it.tol != null ? it.tol : 0.051) ? it.a : v); };
+          $('dnv').onclick = sub; inp.onkeydown = e => { if (e.key === 'Enter') sub(); };
+        } else {
+          const keys = it.opts ? it.opts.map((_, k) => k) : (it.cats || st.cats).map(c => c.id);
+          $('dop').innerHTML = `<div class="dr-grid${keys.length > 3 && !it.opts ? ' c2' : keys.length === 2 && !it.opts ? ' c2' : ''}">${keys.map(k => `<button class="dr-b" data-k="${k}">${keyLabel(it, k)}</button>`).join('')}</div>`;
+          app.querySelectorAll('.dr-b').forEach(b => b.onclick = () => answer(it.opts ? +b.dataset.k : b.dataset.k));
+        }
+      }
+      function answer(k) {
+        if (paused || over) return;
+        const it = items[i], good = k === it.a; S.tot++;
+        if (!it.num) app.querySelectorAll('.dr-b').forEach(b => { b.disabled = true; const bk = it.opts ? +b.dataset.k : b.dataset.k; if (bk === it.a) b.classList.add('ok'); else if (bk === k) b.classList.add('ko'); });
+        else { const inp = $('dni'); inp.disabled = true; inp.classList.add(good ? 'ok' : 'ko'); }
+        const goodLabel = it.num ? (it.show || String(it.a).replace('.', ',')) + (it.unit ? ' ' + it.unit : '') : keyLabel(it, it.a);
+        if (good) {
+          ok++; S.ok++; S.serie++; S.best = Math.max(S.best, S.serie); S.score += pts + Math.min(S.serie - 1, 5) * 2; refreshHud();
+          $('df').innerHTML = `<div class="dr-ok">✓ ${it.okText || 'Exact'}${it.exOk ? ' — ' + it.ex : ''}</div>`;
+          i++; setTimeout(show, wait(it.exOk ? 1400 : 550));
+        } else {
+          S.serie = 0; S.ko++; refreshHud(); paused = true;
+          miss.push({ q: it.q, good: goodLabel, ex: it.ex });
+          $('df').innerHTML = `<div class="dr-ko">✗ Réponse : <b>${goodLabel}</b>${it.ex ? `<br>${it.ex}` : ''}</div><button class="btn sm" id="dnx">Suivant ▸</button>`;
+          $('dnx').onclick = () => { paused = false; i++; show(); };
+        }
+      }
+      if (st.intro) {
+        $('dq').innerHTML = `<div class="dr-intro">${val(st.intro, S)}</div>`;
+        $('df').innerHTML = `<button class="btn" id="dgo">${T ? 'Lancer le chrono ▸' : 'Commencer ▸'}</button>`;
+        $('dgo').onclick = begin; if (T) $('ds').textContent = Math.round(T / 1000) + ' s';
+      } else begin();
+      function begin() {
+        show();
+        if (T) { tick(); let last = Date.now(); TIMER = setInterval(() => { const now = Date.now(), d = (now - last) * TF; last = now; if (!paused && !over) { left -= d; if (left <= 0) { left = 0; tick(); finish(); } else tick(); } }, 100); }
+      }
+    } else if (st.t === 'code') {
+      lastDeltas = [];
+      const answers = [].concat(val(st.answer, S)).map(norm); let tries = 0, solved = false;
+      window.__code = [].concat(val(st.answer, S))[0];
+      frame(val(st.who, S) || null, `<div class="box code"><div class="prompt">${val(st.prompt, S)}</div><div class="cd-in"><input id="cin" autocomplete="off" autocapitalize="off" placeholder="${st.placeholder || 'Le code'}"><button class="btn" id="cgo">Valider</button></div><div id="cf"></div></div>`);
+      const $ = id => document.getElementById(id), inp = $('cin');
+      const done = (txt, cls) => { solved = true; inp.disabled = true; $('cgo').disabled = true; $('cf').innerHTML = `<div class="${cls}">${txt}</div><button class="btn" id="go">Continuer ▸</button>`; $('go').onclick = next; H[st.id] = tries; refreshHud(); };
+      const sub = () => {
+        if (solved || !inp.value.trim()) return;
+        if (answers.includes(norm(inp.value))) { const g = Math.max(st.min || 5, (st.pts || 30) - tries * 10); S.score += g; S.ok++; S.tot++; S.serie++; S.best = Math.max(S.best, S.serie); return done(`✓ ${val(st.win, S) || 'Code correct !'} <span class="dr-bonus">+${g} points</span>`, 'dr-ok'); }
+        tries++; S.ko++; S.serie = 0; refreshHud();
+        if (tries >= (st.max || 3)) { S.tot++; return done(`✗ Le bon code était <b>${[].concat(val(st.answer, S))[0]}</b>.${st.solution ? '<br>' + val(st.solution, S) : ''}`, 'dr-ko'); }
+        $('cf').innerHTML = `<div class="dr-ko">✗ Ce n'est pas ça (${tries} essai${tries > 1 ? 's' : ''} sur ${st.max || 3}).${tries >= 1 && st.hint ? `<br><b>Indice :</b> ${val(st.hint, S)}` : ''}</div>`;
+        inp.value = ''; inp.focus();
+      };
+      $('cgo').onclick = sub; inp.onkeydown = e => { if (e.key === 'Enter') sub(); };
+    } else if (st.t === 'arcade') {
+      lastDeltas = [];
+      app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">${act.tag || (GAME.actWord || 'Acte') + ' ' + act.num} · ${act.title}</div></div><div id="hudw">${hud()}</div>${st.intro ? `<div class="arc-intro">${val(st.intro, S)}</div>` : ''}<div class="arc" id="arc"></div>`;
+      let qok = 0, qn = 0;
+      const api = {
+        fast: FAST, auto: /auto/.test(location.search), S,
+        score(n) { S.score += n; refreshHud(); },
+        ask(q, ov) { return new Promise(res => {
+          window.__ok = q.a; const keys = q.opts ? q.opts.map((_, k) => k) : (q.cats || []).map(c => c.id);
+          const lab = k => q.opts ? q.opts[k] : q.cats.find(c => c.id === k).label;
+          ov.innerHTML = `<div class="arcq"><div class="dr-t">${q.title || 'Question'}</div><div class="dr-qt">${q.q}</div><div class="dr-grid">${keys.map(k => `<button class="dr-b" data-k="${k}">${lab(k)}</button>`).join('')}</div><div class="dr-f" id="arf"></div></div>`; ov.classList.add('on');
+          ov.querySelectorAll('.dr-b').forEach(b => b.onclick = () => {
+            const k = q.opts ? +b.dataset.k : b.dataset.k, good = k === q.a; qn++; S.tot++;
+            ov.querySelectorAll('.dr-b').forEach(x => { x.disabled = true; const xk = q.opts ? +x.dataset.k : x.dataset.k; if (xk === q.a) x.classList.add('ok'); else if (xk === k) x.classList.add('ko'); });
+            const close = () => { ov.classList.remove('on'); ov.innerHTML = ''; res(good); };
+            if (good) { qok++; S.ok++; S.serie++; S.best = Math.max(S.best, S.serie); S.score += 15; refreshHud(); ov.querySelector('#arf').innerHTML = `<div class="dr-ok">✓ ${q.okText || 'Exact'}${q.ex ? ' — ' + q.ex : ''}</div>`; setTimeout(close, wait(1300)); }
+            else { S.ko++; S.serie = 0; refreshHud(); ov.querySelector('#arf').innerHTML = `<div class="dr-ko">✗ Réponse : <b>${lab(q.a)}</b>${q.ex ? '<br>' + q.ex : ''}</div><button class="btn sm" id="dnx">Reprendre ▸</button>`; ov.querySelector('#dnx').onclick = close; }
+          }); }); },
+        end(r) {
+          H[st.id] = r.tag || 'fini'; S.rounds[st.id] = { ok: qok, n: qn, r }; refreshHud();
+          const el = document.getElementById('arc');
+          el.innerHTML = `<div class="box"><div class="dr-rec"><div class="dr-big">${val(st.endTitle, S, r) || 'Partie terminée'}</div><div>${val(st.endText, S, r) || ''}</div>${qn ? `<div class="dr-bonus">Questions : ${qok} / ${qn}</div>` : ''}</div><div style="text-align:center"><button class="btn" id="go">Continuer ▸</button></div></div>`;
+          document.getElementById('go').onclick = next; window.scrollTo(0, 0);
+        }
+      };
+      ARC[st.kind](document.getElementById('arc'), st, api);
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    stopTimer(); store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>La nuit au coffre — Jeu Économie 1re STMG, chapitre 8 · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#4CD97B;--eco-dim:#2F8A4E;--good:#4CD97B;--bg:#050806;--panel:#0a110c;--panel2:#0d1510;--line:#1a2c20;--txt:#EEF3EC;--muted:#8BA394;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(76,217,123,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(76,217,123,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#142010;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070a06;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(76,217,123,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#0a1406;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#0a1406;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#121c0e;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#142010;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#0a1406;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#080c06;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#080c06;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#080c06;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#080c06;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(76,217,123,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#080c06;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(76,217,123,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+
+/* ---- défis chronométrés et codes ---- */
+.drill .dr-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-family:'Rajdhani',sans-serif;font-weight:700;}
+.dr-t{color:var(--eco);font-size:15px;letter-spacing:.06em;text-transform:uppercase;}.dr-n{color:var(--muted);font-size:14px;white-space:nowrap;}
+.dr-tm{position:relative;height:8px;background:#14231a;border-radius:4px;margin:10px 0 28px;}
+.dr-tm i{display:block;height:100%;background:var(--eco);border-radius:4px;transition:width .1s linear;}
+.dr-tm i.hot{background:var(--bad);}
+.dr-tm span{position:absolute;right:0;top:12px;font-family:'Orbitron',sans-serif;font-size:12px;color:var(--warn);}
+.dr-ctx{font-size:13.5px;color:var(--muted);margin-bottom:6px;line-height:1.45;}
+.dr-qt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:21px;line-height:1.25;margin:4px 0 14px;}
+.dr-intro{font-size:15.5px;line-height:1.55;margin:6px 0 4px;}
+.dr-grid{display:grid;grid-template-columns:1fr;gap:8px;}.dr-grid.c2{grid-template-columns:1fr 1fr;}
+.dr-b{background:var(--panel2);border:1px solid var(--line);color:var(--txt);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;padding:12px 10px;border-radius:6px;cursor:pointer;text-align:center;line-height:1.2;transition:transform .1s,border-color .1s;}
+.dr-b:hover:not(:disabled){border-color:var(--eco);}.dr-b:active{transform:scale(.97);}
+.dr-b.ok{border-color:var(--good);background:rgba(76,217,123,.18);}.dr-b.ko{border-color:var(--bad);background:rgba(255,92,106,.16);}
+.dr-b:disabled{cursor:default;}
+.dr-f{margin-top:12px;min-height:24px;text-align:center;}
+.dr-ok{color:var(--good);font-weight:600;line-height:1.45;}.dr-ko{color:#ffb3ba;line-height:1.5;text-align:left;font-size:14.5px;background:rgba(255,92,106,.08);border-left:3px solid var(--bad);padding:8px 10px;margin-bottom:10px;}
+.dr-ko b{color:var(--txt);}
+.btn.sm{padding:8px 18px;font-size:14px;}
+.dr-num{display:flex;gap:8px;align-items:center;}.dr-num input,.cd-in input{flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);color:var(--txt);font-family:'Orbitron',sans-serif;font-size:18px;padding:11px 12px;border-radius:6px;}
+.dr-num input.ok{border-color:var(--good);}.dr-num input.ko{border-color:var(--bad);}
+.dr-num span{color:var(--muted);font-weight:700;}
+.cd-in{display:flex;gap:8px;margin:12px 0;}.cd-in input{text-transform:uppercase;letter-spacing:.12em;}
+.dr-rec{text-align:center;padding:6px 0 4px;}.dr-big{font-family:'Orbitron',sans-serif;font-weight:900;font-size:34px;color:var(--eco);}
+.dr-bonus{color:var(--warn);font-family:'Rajdhani',sans-serif;font-weight:700;margin-top:4px;}.dr-to{color:var(--bad);margin-top:4px;font-size:14px;}
+.dr-cor{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px;font-size:14px;}
+.dr-miss{list-style:none;padding:0;margin:0;text-align:left;}.dr-miss li{font-size:14px;line-height:1.45;padding:8px 0;border-top:1px solid var(--line);}.dr-miss small{color:var(--muted);}
+.doc{background:#0f1a13;border:1px solid var(--line);border-left:3px solid var(--warn);padding:10px 12px;margin:10px 0;font-size:14.5px;line-height:1.5;}
+.doc h4{margin:0 0 4px;font-family:'Rajdhani',sans-serif;font-size:15px;color:var(--warn);text-transform:uppercase;letter-spacing:.04em;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU — La nuit au coffre (Économie 1re STMG, chapitre 8 : Comment financer les besoins de l'économie ?)
+   Escape game : enfermé dans la salle des coffres d'une banque, l'élève doit ouvrir quatre coffres avant que la
+   lampe s'éteigne. Capacité et besoin de financement, secteurs institutionnels, autofinancement,
+   financement direct et indirect, désintermédiation. Chaque erreur coûte 5 minutes de batterie.
+   ===================================================================== */
+const N = ' ';
+const F = s => s.flags;
+const ch = (good, bad) => ({ good, bad });
+const minutes = s => Math.max(0, 60 - 5 * s.ko);
+const doc = (t, b) => `<div class="doc"><h4>${t}</h4>${b}</div>`;
+
+const GAME = {
+  title: 'La nuit au coffre',
+  brand: 'LA NUIT <span>AU COFFRE</span>',
+  storeKey: 'ec8CoffreFins',
+  backLink: '../../matieres/economie-1ere.html',
+  footer: 'Économie 1re STMG, chapitre 8',
+  kicker: 'Économie · 1re STMG · Chapitre 8 · Escape game',
+  debIntro: 'Chaque coffre correspondait à une partie du chapitre. Voici ce qu\'il faut retenir.',
+  cutText: 'La lampe s\'est éteinte avant l\'ouverture des quatre coffres. Relis la fiche du chapitre 8, puis retente ta chance.',
+  actWord: 'Coffre',
+  pitch: `Stage d'observation à la banque Crédit de Loire. 19${N}h${N}: la porte de la salle des coffres se referme derrière toi. La directrice, Mme Roche, te parle par l'interphone${N}: «${N}Le système ne s'ouvrira qu'avec les codes des quatre coffres. Tout est dans les dossiers. Ta lampe a une heure de batterie.${N}» Chaque erreur coûte 5 minutes.`,
+  meta: '4 coffres · 15 minutes · chaque erreur coûte 5 minutes',
+  start: s => Object.assign(s, { score: 0, ok: 0, tot: 0, ko: 0, serie: 0, best: 0, coffres: 0 }),
+  hud: [
+    { k: 'coffres', label: 'Coffres ouverts', short: 'Coffres', show: s => s.coffres + ' / 4', pct: s => s.coffres * 25, low: () => false },
+    { k: 'lampe',   label: 'Batterie de la lampe', short: 'Lampe', show: s => minutes(s) + N + 'min', pct: s => minutes(s) / 0.6, low: s => minutes(s) < 20 },
+    { k: 'score',   label: 'Score', short: 'Score', show: s => s.score, pct: s => s.score / 4, low: () => false },
+    { k: 'serie',   label: 'Série', short: 'Série', show: s => s.serie, pct: s => s.serie * 10, low: () => false }
+  ],
+  fail: s => minutes(s) <= 0 ? 'noir' : null,
+  lock: () => null,
+  bilan: s => [['Coffres ouverts', s.coffres + ' / 4'], ['Batterie restante', minutes(s) + ' minutes'], ['Erreurs', s.ko], ['Score', s.score]],
+
+  characters: {
+    roche: { name: 'Mme Roche', role: 'directrice d\'agence, à l\'interphone', color: '#FFC64F', body: '#2b3a5a', hair: '#a0a0a0', acc: 'clip' },
+    narr:  { name: 'Lampe torche', role: '', color: '#4CD97B' }
+  },
+
+  acts: [
+  /* ------------------------------ COFFRE 1 ------------------------------ */
+  { num: 1, title: 'Capacité ou besoin ?', sub: 'Le premier coffre',
+    steps: [
+      { t: 'say', who: 'roche', text: `Premier coffre. Le dossier posé dessus contient six clients. Un agent est en <em>capacité de financement</em> quand son épargne dépasse ce qu'il doit financer${N}; en <em>besoin de financement</em> dans le cas contraire.${doc('Dossier n°1 · six clients', '① Les Morel : 20 000 € d\'épargne, projet de travaux à 12 000 €<br>② Les Petit : 10 000 € d\'épargne, apport de 30 000 € pour une maison<br>③ Garage Duval : 40 000 € de bénéfices conservés, veut une machine à 70 000 €<br>④ M. Lenoir : 150 000 € d\'épargne, projet d\'achat à 400 000 €<br>⑤ Mme Kerbrat : 8 000 € d\'épargne, aucun projet<br>⑥ La commune de Saint-Loup : dépenses supérieures de 2 M€ à ses recettes')}` },
+      { t: 'drill', id: 'cb', who: 'roche', title: 'Capacité ou besoin ?', shuffle: false,
+        cats: [{ id: 'cap', label: 'Capacité de financement' }, { id: 'bes', label: 'Besoin de financement' }],
+        items: [
+          { q: '① Les Morel', a: 'cap', ex: '20 000 € d\'épargne > 12 000 € de projet.' },
+          { q: '② Les Petit', a: 'bes', ex: '10 000 € < 30 000 €.' },
+          { q: '③ Le garage Duval', a: 'bes', ex: 'Ses ressources propres ne couvrent pas l\'investissement.' },
+          { q: '④ M. Lenoir (150 000 € d\'épargne !)', a: 'bes', ex: 'Piège : une épargne importante ne suffit pas si le projet est encore plus important.' },
+          { q: '⑤ Mme Kerbrat', a: 'cap', ex: 'Son épargne n\'est utilisée pour aucun projet : elle peut financer d\'autres agents.' },
+          { q: '⑥ La commune de Saint-Loup', a: 'bes', ex: 'Dépenses supérieures aux recettes : un déficit, donc un besoin de financement.' } ] },
+      { t: 'code', id: 'c1', who: 'roche', pts: 40, placeholder: 'Un nombre',
+        prompt: `Le cadran du coffre demande${N}: «${N}Combien de clients du dossier sont en besoin de financement${N}?${N}»`,
+        answer: ['4'], hint: 'Reprends ton classement et compte les besoins.', solution: '②, ③, ④ et ⑥ : 4 clients.',
+        win: '②, ③, ④ et ⑥. Retenir : ne jamais confondre épargne et capacité de financement.' },
+      { t: 'event', who: 'narr', text: 'Le premier coffre s\'ouvre dans un déclic.', fx: { coffres: 1 } }
+    ] },
+
+  /* ------------------------------ COFFRE 2 ------------------------------ */
+  { num: 2, title: 'Les secteurs institutionnels', sub: 'Le deuxième coffre',
+    steps: [
+      { t: 'say', who: 'roche', text: `Deuxième coffre. Les économistes additionnent les situations individuelles par grands <em>secteurs institutionnels</em>${N}: ménages, sociétés non financières, sociétés financières, administrations publiques, ISBLSM.` },
+      { t: 'drill', id: 'sect', who: 'roche', title: 'Qui est généralement dans quelle situation ?', shuffle: false,
+        items: [
+          { q: 'L\'ensemble des ménages français est traditionnellement…', opts: ['en capacité de financement', 'en besoin de financement'], a: 0, ex: 'Chaque année, ils épargnent une partie de leur revenu disponible.' },
+          { q: 'Les sociétés non financières (les entreprises) sont souvent…', opts: ['en capacité de financement', 'en besoin de financement'], a: 1, ex: 'Leurs investissements dépassent généralement leurs ressources propres.' },
+          { q: 'Les administrations publiques sont fréquemment…', opts: ['en capacité de financement', 'en besoin de financement'], a: 1, ex: 'Quand leurs dépenses dépassent leurs recettes, c\'est le déficit public.' },
+          { q: 'Les ménages sont en capacité de financement. Donc chaque ménage l\'est aussi.', opts: ['Vrai', 'Faux'], a: 1, ex: 'Un ménage qui achète un logement peut être en besoin, même si l\'ensemble des ménages est en capacité.' } ] },
+      { t: 'say', who: 'roche', text: `Le cadran affiche un tableau.${doc('Pays de Loirance · situation financière (en milliards d\'euros)', 'Ménages : capacité de 80<br>Sociétés financières : capacité de 10<br>Sociétés non financières : besoin de 40<br>Administrations publiques : besoin de 70')}` },
+      { t: 'code', id: 'c2', who: 'roche', pts: 40, placeholder: 'En milliards',
+        prompt: `«${N}Additionne capacités et besoins. De combien de milliards la Nation est-elle en besoin de financement${N}?${N}»`,
+        answer: ['20', '20 milliards'], hint: 'Capacités : 80 + 10. Besoins : 40 + 70. Fais la différence.', solution: '90 − 110 = −20 : un besoin de financement de 20 milliards.',
+        win: '90 − 110 = −20. La Nation doit trouver 20 milliards à l\'extérieur du pays.' },
+      { t: 'event', who: 'narr', text: 'Deuxième coffre ouvert.', fx: { coffres: 1 } }
+    ] },
+
+  /* ------------------------------ COFFRE 3 ------------------------------ */
+  { num: 3, title: 'L\'autofinancement', sub: 'Le troisième coffre',
+    steps: [
+      { t: 'say', who: 'roche', text: `Troisième coffre. Le dossier de la menuiserie Bois d'Ouest${N}: 90${N}000${N}€ de bénéfices conservés, un projet d'atelier à 120${N}000${N}€.${doc('Formule', 'Taux d\'autofinancement = épargne de l\'entreprise ÷ investissement à financer × 100')}` },
+      { t: 'code', id: 'c3', who: 'roche', pts: 40, placeholder: 'En %',
+        prompt: `«${N}Quel est le taux d'autofinancement de Bois d'Ouest (en %)${N}?${N}»`,
+        answer: ['75', '75%', '75 %'], hint: '90 000 ÷ 120 000 × 100.', solution: '90 000 ÷ 120 000 × 100 = 75 %.',
+        win: '75 %. Bois d\'Ouest finance les trois quarts de son atelier seule ; il lui faut un financement externe pour le reste.' },
+      { t: 'drill', id: 'avlim', who: 'roche', title: 'Avantage ou limite ?', time: 60, intro: 'Classe chaque affirmation.',
+        cats: [{ id: 'aa', label: 'Avantage de l\'autofinancement' }, { id: 'al', label: 'Limite de l\'autofinancement' }, { id: 'ea', label: 'Avantage du financement externe' }, { id: 'el', label: 'Limite du financement externe' }],
+        items: [
+          { q: 'Aucun intérêt à verser', a: 'aa', ex: 'Pas de coût financier.' },
+          { q: 'On ne rend de comptes à personne', a: 'aa', ex: 'L\'agent conserve son autonomie.' },
+          { q: 'Une usine à plusieurs millions est rarement finançable ainsi', a: 'al', ex: 'Il dépend du niveau d\'épargne ou de bénéfices accumulés.' },
+          { q: 'Il peut ralentir le développement de l\'entreprise', a: 'al', ex: 'Il faut attendre d\'avoir assez de ressources.' },
+          { q: 'Réaliser tout de suite un projet plus cher que ses ressources', a: 'ea', ex: 'Un crédit ou une levée de capitaux permet d\'investir rapidement.' },
+          { q: 'Rembourser le capital et payer des intérêts', a: 'el', ex: 'Les intérêts sont le coût du financement externe.' },
+          { q: 'De nouveaux actionnaires veulent participer aux décisions', a: 'el', ex: 'Une perte d\'autonomie : une forme de dépendance financière.' } ] },
+      { t: 'event', who: 'narr', text: 'Troisième coffre ouvert. Plus qu\'un.', fx: { coffres: 1 } }
+    ] },
+
+  /* ------------------------------ COFFRE 4 ------------------------------ */
+  { num: 4, title: 'Direct ou indirect ?', sub: 'Le dernier coffre', final: true,
+    steps: [
+      { t: 'say', who: 'roche', text: `Dernier coffre. Attention, c'est là que mes stagiaires se trompent toujours${N}: le financement <em>direct</em> passe par les <em>marchés financiers</em>, sans banque. Le financement <em>indirect</em> passe par un intermédiaire, généralement une banque.` },
+      { t: 'drill', id: 'dirind', who: 'roche', title: 'Direct ou indirect ?', time: 60, intro: 'Classe chaque opération.',
+        cats: [{ id: 'dir', label: 'Financement direct' }, { id: 'ind', label: 'Financement indirect' }],
+        items: [
+          { q: 'Les Petit obtiennent un crédit immobilier auprès de leur banque', a: 'ind', ex: 'La banque prête l\'épargne qu\'elle a collectée : intermédiation bancaire.' },
+          { q: 'Airbus émet des obligations achetées par des investisseurs', a: 'dir', ex: 'Des titres financiers vendus sur les marchés financiers.' },
+          { q: 'Le garage Duval emprunte 30 000 € à sa banque', a: 'ind', ex: 'Le mode de financement le plus utilisé par les petites entreprises.' },
+          { q: 'Une grande entreprise vend de nouvelles actions en Bourse', a: 'dir', ex: 'Les investisseurs apportent directement les capitaux.' },
+          { q: 'L\'État émet des titres de dette achetés par des investisseurs', a: 'dir', ex: 'Il se finance sur les marchés financiers.' },
+          { q: 'L\'épargne d\'un livret réglementé finance le logement social via la banque', a: 'ind', ex: 'La banque collecte l\'épargne et la redirige.' } ] },
+      { t: 'code', id: 'c4', who: 'roche', pts: 50, placeholder: 'Un mot',
+        prompt: `Dernière inscription${N}: «${N}Depuis les années 1980, le financement direct se développe au détriment du financement indirect assuré par les banques. Ce phénomène s'appelle la… ?${N}»`,
+        answer: ['desintermediation', 'desintermediation bancaire', 'la desintermediation'], hint: 'Les banques jouent moins leur rôle d\'intermédiaire… dés-…', solution: 'La désintermédiation bancaire.',
+        win: 'La désintermédiation bancaire. Les banques restent pourtant essentielles pour les ménages et les petites entreprises : financements direct et indirect sont complémentaires.' },
+      { t: 'event', who: 'roche', text: s => `La porte blindée s'ouvre. «${N}Bravo. Il te restait ${minutes(s)} minutes de batterie. Tu peux finir ton stage.${N}»`, fx: { coffres: 1 } }
+    ] }
+  ],
+
+  endings: [
+    { id: 'noir', when: () => false, title: 'Le noir complet', stamp: 'Lampe éteinte', color: '#FF5C6A',
+      text: `La lampe s'éteint. Mme Roche vient t'ouvrir avec un soupir${N}: «${N}On reprendra les bases demain.${N}»` },
+    { id: 'expert', when: s => minutes(s) >= 45, title: 'L\'as du financement', stamp: 'Sortie express', color: '#FFC64F',
+      text: s => `Sorti avec ${minutes(s)} minutes de batterie. Capacité et besoin, secteurs institutionnels, autofinancement, financement direct et indirect${N}: Mme Roche te propose déjà un stage d'été.` },
+    { id: 'sorti', when: s => minutes(s) >= 25, title: 'Sorti du coffre', stamp: 'Libéré', color: '#4CD97B',
+      text: s => `Sorti avec ${minutes(s)} minutes de batterie. Relis les explications des coffres où tu as hésité.` },
+    { id: 'justesse', when: () => true, title: 'Sorti de justesse', stamp: 'In extremis', color: '#FFC64F',
+      text: s => `Il ne restait que ${minutes(s)} minutes. Relis la fiche du chapitre 8, en particulier la différence entre financement direct et indirect.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['c1'], title: 'Coffre 1 — Capacité et besoin de financement', text: () => `Un agent est en <em>capacité de financement</em> quand son épargne dépasse les dépenses ou investissements à financer, en <em>besoin de financement</em> dans le cas contraire. Ne pas confondre épargne et capacité : tout dépend du rapport entre l\'épargne et le projet.`,
+      chain: () => ({ good: ['Épargne > projet', 'Capacité de financement'], bad: ['Épargne < projet', 'Besoin de financement'] }) },
+    { act: 2, needs: ['c2'], title: 'Coffre 2 — Les secteurs institutionnels', text: () => `Les <em>secteurs institutionnels</em> regroupent les agents de même activité principale. Les <em>ménages</em> sont traditionnellement en capacité de financement ; les <em>sociétés non financières</em> et les <em>administrations publiques</em> (<em>déficit public</em>) souvent en besoin. La somme des capacités et des besoins donne la situation de la <em>Nation</em>.`,
+      chain: () => ({ good: ['Épargne des ménages', 'Collectée', 'Finance entreprises et État'], bad: [] }) },
+    { act: 3, needs: ['c3'], title: 'Coffre 3 — L\'autofinancement', text: () => `L\'<em>autofinancement</em> (financement interne) utilise des ressources propres : épargne des ménages, bénéfices conservés des entreprises. <em>Taux d\'autofinancement = épargne ÷ investissement × 100</em>. Il évite les intérêts et préserve l\'autonomie, mais il est limité aux ressources disponibles. Le <em>financement externe</em> permet d\'investir plus et plus vite, au prix d\'intérêts et d\'une certaine dépendance.`,
+      chain: () => ({ good: ['Autofinancement', 'Pas d\'intérêts', 'Autonomie'], bad: ['Ressources limitées', 'Projets reportés'] }) },
+    { act: 4, needs: ['c4'], title: 'Coffre 4 — Direct ou indirect', text: () => `Le <em>financement direct</em> met en relation, sur les <em>marchés financiers</em>, les agents à capacité et à besoin de financement (actions, obligations), sans banque. Le <em>financement indirect</em> passe par l\'<em>intermédiation bancaire</em>. Depuis les années 1980, la <em>désintermédiation bancaire</em> développe le financement direct, mais les deux restent complémentaires.`,
+      chain: () => ({ good: ['Marchés financiers', 'Financement direct'], bad: [] }) }
+  ],
+  vocab: ['Capacité de financement', 'Besoin de financement', 'Secteurs institutionnels', 'Déficit public', 'Autofinancement', 'Taux d\'autofinancement', 'Financement interne', 'Financement externe', 'Financement direct', 'Financement indirect', 'Marchés financiers', 'Intermédiation bancaire', 'Désintermédiation bancaire']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — la salle des coffres, éclairée par une lampe qui faiblit.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const G = '#4CD97B', l = minutes(S) / 60;
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="La salle des coffres">
+    <rect width="360" height="200" fill="#050806"/><rect x="0" y="0" width="360" height="162" fill="#0b0d10"/>
+    <path d="M60,90 L360,20 L360,160 Z" fill="#FFF3C4" opacity="${0.04 + 0.12 * l}"/>
+    ${[0, 1, 2, 3].map(i => { const x = 172 + i * 46, open = i < S.coffres; return `<g transform="translate(${x},44)"><rect width="40" height="74" rx="3" fill="#2a2e36" stroke="${open ? G : '#5a606b'}" stroke-width="2"/>${open ? `<rect x="2" y="2" width="12" height="70" fill="#14171c"/><circle cx="20" cy="30" r="5" fill="#FFC64F"/>` : `<circle cx="20" cy="30" r="9" fill="none" stroke="#8a8f96" stroke-width="2"/><line x1="20" y1="30" x2="26" y2="25" stroke="#8a8f96" stroke-width="2"/>`}<text x="20" y="64" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="${open ? G : '#8a8f96'}">${i + 1}</text></g>`; }).join('')}
+    <g transform="translate(250,140)"><rect x="-40" y="0" width="80" height="6" rx="3" fill="#1a1f26"/><rect x="-40" y="0" width="${80 * l}" height="6" rx="3" fill="${l > 0.33 ? G : '#FF5C6A'}"/></g>
+    <rect x="0" y="162" width="360" height="38" fill="#060a07"/><line x1="0" y1="162" x2="360" y2="162" stroke="#1a2c20" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  /* espaces insécables fines dans les nombres du texte affiché (jamais dans le SVG ni les attributs) */
+  const fixNums = root => { const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentNode.closest('svg') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT }); let n;
+    while ((n = w.nextNode())) { const t = n.nodeValue.replace(/(\d) (?=\d{3}(?!\d))/g, '$1\u202f').replace(/(\d) (€|%)/g, '$1\u202f$2'); if (t !== n.nodeValue) n.nodeValue = t; } };
+  new MutationObserver(() => fixNums(app)).observe(app, { childList: true, subtree: true });
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  const FAST = /fast/.test(location.search), TF = /tfast/.test(location.search) ? 20 : 1;
+  const wait = ms => FAST ? 15 : ms;
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const norm = t => String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+  let TIMER = null; const stopTimer = () => { if (TIMER) { clearInterval(TIMER); TIMER = null; } };
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">${act.tag || (GAME.actWord || 'Acte') + ' ' + act.num} · ${act.title}</div></div>
+      <div id="hudw">${hud()}</div><div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function refreshHud() { const w = document.getElementById('hudw'); if (w) w.innerHTML = hud(); }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    stopTimer(); S = { flags: {}, rounds: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">${act.tag || (GAME.actWord || 'Acte') + ' ' + act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    stopTimer();
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'drill') {
+      lastDeltas = [];
+      let items = val(st.items, S).slice(); if (st.shuffle !== false) shuffle(items); if (st.n) items = items.slice(0, st.n);
+      const total = items.length, pts = st.pts || 10, T = (st.time || 0) * 1000;
+      let i = 0, ok = 0, miss = [], left = T, paused = false, over = false;
+      frame(val(st.who, S) || null, `<div class="box drill"><div class="dr-h"><span class="dr-t">${val(st.title, S)}</span><span class="dr-n" id="dn"></span></div>${T ? '<div class="dr-tm"><i id="dt"></i><span id="ds"></span></div>' : ''}<div class="dr-q" id="dq"></div><div class="dr-o" id="dop"></div><div class="dr-f" id="df"></div></div>`);
+      const $ = id => document.getElementById(id);
+      const keyLabel = (it, k) => it.opts ? it.opts[k] : ((it.cats || st.cats).find(c => c.id === k) || {}).label;
+      const tick = () => { if (!T) return; $('dt').style.width = (100 * left / T) + '%'; $('ds').textContent = Math.ceil(left / 1000) + ' s'; $('dt').className = left < T * 0.25 ? 'hot' : ''; };
+      function finish() {
+        if (over) return; over = true; stopTimer();
+        const answered = i, unanswered = total - answered;
+        let bonus = 0; if (T && !unanswered) bonus = Math.round(left / 1000) * (st.tbonus || 1);
+        S.score += bonus; S.tot += unanswered; S.rounds[st.id] = { ok, n: total };
+        H[st.id] = ok + '/' + total; refreshHud();
+        const list = miss.map(m => `<li><b>${m.q}</b><br>→ ${m.good}${m.ex ? `<br><small>${m.ex}</small>` : ''}</li>`).join('');
+        $('dq').innerHTML = `<div class="dr-rec"><div class="dr-big">${ok} / ${total}</div><div>${st.recap ? val(st.recap, S, ok, total) : (ok === total ? 'Sans faute !' : ok >= total * 0.7 ? 'Bien joué.' : 'À retravailler.')}</div>${bonus ? `<div class="dr-bonus">Bonus de temps : +${bonus} points</div>` : ''}${unanswered ? `<div class="dr-to">Temps écoulé : ${unanswered} question${unanswered > 1 ? 's' : ''} sans réponse</div>` : ''}</div>${list ? `<div class="dr-cor">À retenir</div><ul class="dr-miss">${list}</ul>` : ''}`;
+        $('dop').innerHTML = ''; $('df').innerHTML = `<button class="btn" id="go">Continuer ▸</button>`;
+        $('dn').textContent = '';
+        if (T) $('dt').parentNode.style.display = 'none';
+        $('go').onclick = next; window.scrollTo(0, 0);
+      }
+      function show() {
+        if (i >= total) return finish();
+        const it = items[i]; window.__ok = it.a; $('dn').textContent = (i + 1) + ' / ' + total; $('df').innerHTML = '';
+        $('dq').innerHTML = `${it.ctx ? `<div class="dr-ctx">${it.ctx}</div>` : ''}<div class="dr-qt">${it.q}</div>`;
+        if (it.num) {
+          $('dop').innerHTML = `<div class="dr-num"><input id="dni" inputmode="decimal" autocomplete="off" placeholder="Ta réponse"><span>${it.unit || ''}</span><button class="btn" id="dnv">OK</button></div>`;
+          const inp = $('dni'); inp.focus();
+          const sub = () => { const v = parseFloat(inp.value.replace(/\s/g, '').replace(',', '.')); if (isNaN(v)) return; answer(Math.abs(v - it.a) <= (it.tol != null ? it.tol : 0.051) ? it.a : v); };
+          $('dnv').onclick = sub; inp.onkeydown = e => { if (e.key === 'Enter') sub(); };
+        } else {
+          const keys = it.opts ? it.opts.map((_, k) => k) : (it.cats || st.cats).map(c => c.id);
+          $('dop').innerHTML = `<div class="dr-grid${keys.length > 3 && !it.opts ? ' c2' : keys.length === 2 && !it.opts ? ' c2' : ''}">${keys.map(k => `<button class="dr-b" data-k="${k}">${keyLabel(it, k)}</button>`).join('')}</div>`;
+          app.querySelectorAll('.dr-b').forEach(b => b.onclick = () => answer(it.opts ? +b.dataset.k : b.dataset.k));
+        }
+      }
+      function answer(k) {
+        if (paused || over) return;
+        const it = items[i], good = k === it.a; S.tot++;
+        if (!it.num) app.querySelectorAll('.dr-b').forEach(b => { b.disabled = true; const bk = it.opts ? +b.dataset.k : b.dataset.k; if (bk === it.a) b.classList.add('ok'); else if (bk === k) b.classList.add('ko'); });
+        else { const inp = $('dni'); inp.disabled = true; inp.classList.add(good ? 'ok' : 'ko'); }
+        const goodLabel = it.num ? (it.show || String(it.a).replace('.', ',')) + (it.unit ? ' ' + it.unit : '') : keyLabel(it, it.a);
+        if (good) {
+          ok++; S.ok++; S.serie++; S.best = Math.max(S.best, S.serie); S.score += pts + Math.min(S.serie - 1, 5) * 2; refreshHud();
+          $('df').innerHTML = `<div class="dr-ok">✓ ${it.okText || 'Exact'}${it.exOk ? ' — ' + it.ex : ''}</div>`;
+          i++; setTimeout(show, wait(it.exOk ? 1400 : 550));
+        } else {
+          S.serie = 0; S.ko++; refreshHud(); paused = true;
+          miss.push({ q: it.q, good: goodLabel, ex: it.ex });
+          $('df').innerHTML = `<div class="dr-ko">✗ Réponse : <b>${goodLabel}</b>${it.ex ? `<br>${it.ex}` : ''}</div><button class="btn sm" id="dnx">Suivant ▸</button>`;
+          $('dnx').onclick = () => { paused = false; i++; show(); };
+        }
+      }
+      if (st.intro) {
+        $('dq').innerHTML = `<div class="dr-intro">${val(st.intro, S)}</div>`;
+        $('df').innerHTML = `<button class="btn" id="dgo">${T ? 'Lancer le chrono ▸' : 'Commencer ▸'}</button>`;
+        $('dgo').onclick = begin; if (T) $('ds').textContent = Math.round(T / 1000) + ' s';
+      } else begin();
+      function begin() {
+        show();
+        if (T) { tick(); let last = Date.now(); TIMER = setInterval(() => { const now = Date.now(), d = (now - last) * TF; last = now; if (!paused && !over) { left -= d; if (left <= 0) { left = 0; tick(); finish(); } else tick(); } }, 100); }
+      }
+    } else if (st.t === 'code') {
+      lastDeltas = [];
+      const answers = [].concat(val(st.answer, S)).map(norm); let tries = 0, solved = false;
+      window.__code = [].concat(val(st.answer, S))[0];
+      frame(val(st.who, S) || null, `<div class="box code"><div class="prompt">${val(st.prompt, S)}</div><div class="cd-in"><input id="cin" autocomplete="off" autocapitalize="off" placeholder="${st.placeholder || 'Le code'}"><button class="btn" id="cgo">Valider</button></div><div id="cf"></div></div>`);
+      const $ = id => document.getElementById(id), inp = $('cin');
+      const done = (txt, cls) => { solved = true; inp.disabled = true; $('cgo').disabled = true; $('cf').innerHTML = `<div class="${cls}">${txt}</div><button class="btn" id="go">Continuer ▸</button>`; $('go').onclick = next; H[st.id] = tries; refreshHud(); };
+      const sub = () => {
+        if (solved || !inp.value.trim()) return;
+        if (answers.includes(norm(inp.value))) { const g = Math.max(st.min || 5, (st.pts || 30) - tries * 10); S.score += g; S.ok++; S.tot++; S.serie++; S.best = Math.max(S.best, S.serie); return done(`✓ ${val(st.win, S) || 'Code correct !'} <span class="dr-bonus">+${g} points</span>`, 'dr-ok'); }
+        tries++; S.ko++; S.serie = 0; refreshHud();
+        if (tries >= (st.max || 3)) { S.tot++; return done(`✗ Le bon code était <b>${[].concat(val(st.answer, S))[0]}</b>.${st.solution ? '<br>' + val(st.solution, S) : ''}`, 'dr-ko'); }
+        $('cf').innerHTML = `<div class="dr-ko">✗ Ce n'est pas ça (${tries} essai${tries > 1 ? 's' : ''} sur ${st.max || 3}).${tries >= 1 && st.hint ? `<br><b>Indice :</b> ${val(st.hint, S)}` : ''}</div>`;
+        inp.value = ''; inp.focus();
+      };
+      $('cgo').onclick = sub; inp.onkeydown = e => { if (e.key === 'Enter') sub(); };
+    } else if (st.t === 'arcade') {
+      lastDeltas = [];
+      app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">${act.tag || (GAME.actWord || 'Acte') + ' ' + act.num} · ${act.title}</div></div><div id="hudw">${hud()}</div>${st.intro ? `<div class="arc-intro">${val(st.intro, S)}</div>` : ''}<div class="arc" id="arc"></div>`;
+      let qok = 0, qn = 0;
+      const api = {
+        fast: FAST, auto: /auto/.test(location.search), S,
+        score(n) { S.score += n; refreshHud(); },
+        ask(q, ov) { return new Promise(res => {
+          window.__ok = q.a; const keys = q.opts ? q.opts.map((_, k) => k) : (q.cats || []).map(c => c.id);
+          const lab = k => q.opts ? q.opts[k] : q.cats.find(c => c.id === k).label;
+          ov.innerHTML = `<div class="arcq"><div class="dr-t">${q.title || 'Question'}</div><div class="dr-qt">${q.q}</div><div class="dr-grid">${keys.map(k => `<button class="dr-b" data-k="${k}">${lab(k)}</button>`).join('')}</div><div class="dr-f" id="arf"></div></div>`; ov.classList.add('on');
+          ov.querySelectorAll('.dr-b').forEach(b => b.onclick = () => {
+            const k = q.opts ? +b.dataset.k : b.dataset.k, good = k === q.a; qn++; S.tot++;
+            ov.querySelectorAll('.dr-b').forEach(x => { x.disabled = true; const xk = q.opts ? +x.dataset.k : x.dataset.k; if (xk === q.a) x.classList.add('ok'); else if (xk === k) x.classList.add('ko'); });
+            const close = () => { ov.classList.remove('on'); ov.innerHTML = ''; res(good); };
+            if (good) { qok++; S.ok++; S.serie++; S.best = Math.max(S.best, S.serie); S.score += 15; refreshHud(); ov.querySelector('#arf').innerHTML = `<div class="dr-ok">✓ ${q.okText || 'Exact'}${q.ex ? ' — ' + q.ex : ''}</div>`; setTimeout(close, wait(1300)); }
+            else { S.ko++; S.serie = 0; refreshHud(); ov.querySelector('#arf').innerHTML = `<div class="dr-ko">✗ Réponse : <b>${lab(q.a)}</b>${q.ex ? '<br>' + q.ex : ''}</div><button class="btn sm" id="dnx">Reprendre ▸</button>`; ov.querySelector('#dnx').onclick = close; }
+          }); }); },
+        end(r) {
+          H[st.id] = r.tag || 'fini'; S.rounds[st.id] = { ok: qok, n: qn, r }; refreshHud();
+          const el = document.getElementById('arc');
+          el.innerHTML = `<div class="box"><div class="dr-rec"><div class="dr-big">${val(st.endTitle, S, r) || 'Partie terminée'}</div><div>${val(st.endText, S, r) || ''}</div>${qn ? `<div class="dr-bonus">Questions : ${qok} / ${qn}</div>` : ''}</div><div style="text-align:center"><button class="btn" id="go">Continuer ▸</button></div></div>`;
+          document.getElementById('go').onclick = next; window.scrollTo(0, 0);
+        }
+      };
+      ARC[st.kind](document.getElementById('arc'), st, api);
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    stopTimer(); store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

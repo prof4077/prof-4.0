@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>L'équipe — Jeu SGN 1re STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#5B8FFF;--eco-dim:#3355B8;--good:#4CD97B;--bg:#04060b;--panel:#090d17;--panel2:#0d1220;--line:#1d2540;--txt:#EEF3EC;--muted:#8B93AE;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(91,143,255,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(91,143,255,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#10182e;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(91,143,255,.5);background:rgba(91,143,255,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#05070c;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(91,143,255,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#070c1c;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#070c1c;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#0e1528;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#10182e;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#070c1c;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#060912;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#060912;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#060912;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#060912;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(91,143,255,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#060912;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(91,143,255,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — L'équipe (Sciences de gestion et numérique 1re STMG, thème 1)
+   Studio Nébuleuse, 6 mois avant la démo du jeu au grand salon de Paris.
+   Chaque mois, l'avancement du prototype progresse de 12 % × efficacité de l'équipe :
+     efficacité = motivation moyenne × énergie × cohésion × bon emploi des talents.
+   Jauges : avance (% du prototype), cohesion (0-100), energie (0-100), confiance (en toi, 0-100).
+   ===================================================================== */
+const N = ' ';
+const nb = n => Math.round(n).toLocaleString('fr-FR');
+const eur = n => Math.round(n).toLocaleString('fr-FR') + N + '€';
+const cl = (n, a, b) => Math.max(a, Math.min(b, n));
+const F = s => s.flags;
+const PERS = ['zoe', 'karim', 'lina'];
+const up = (p, d) => s => { if (!s.parti[p]) s.m[p] = cl(s.m[p] + d, 0, 100); };
+
+function efficacite(s) {
+  const ms = PERS.filter(p => !s.parti[p]).map(p => s.m[p]).concat([s.m.autres, s.m.autres, s.m.autres]);
+  const mot = ms.reduce((a, b) => a + b, 0) / ms.length;
+  let e = (.55 + mot / 100 * .7) * (.6 + s.energie / 250) * (.7 + s.cohesion / 333);
+  if (F(s).talents) e *= 1.08;
+  if (s.parti.zoe) e *= .75; if (s.parti.lina) e *= .95;
+  if (F(s).ideeLina) e *= 1.06;
+  return e;
+}
+function mois(s, n, opts) {
+  let av = 0, en = 0;
+  for (let i = 0; i < n; i++) { av += 12 * efficacite(s) + (opts && opts.crunch ? 8 : 0); en += (opts && opts.crunch ? -14 : F(s).rituel ? 1 : -2); }
+  return { av: Math.round(av), en };
+}
+function etat(s) {
+  const lab = { zoe: 'Zoé', karim: 'Karim', lina: 'Lina', autres: 'Les 3 autres' };
+  return `<span class="pay">${PERS.concat('autres').map(p => `<span>${lab[p]}</span><b${s.parti[p] ? ' style="color:var(--bad)"' : s.m[p] < 45 ? ' style="color:var(--bad)"' : ''}>${s.parti[p] ? 'partie' : 'motivation ' + Math.round(s.m[p])}</b>`).join('')}<span class="tot">Prototype</span><b class="tot">${Math.round(s.avance)}${N}% · efficacité ${Math.round(efficacite(s) * 100)}${N}%</b></span>`;
+}
+const ch = (good, bad) => ({ good, bad });
+
+const GAME = {
+  title: 'L\'équipe',
+  brand: 'L\'<span>ÉQUIPE</span>',
+  storeKey: 'sgnEquipeFins',
+  backLink: '../../matieres/sciences-de-gestion-numerique-1ere.html',
+  footer: 'Sciences de gestion et numérique 1re STMG, thème 1',
+  kicker: 'SGN · 1re STMG · Thème 1',
+  debIntro: 'Tu as dirigé six personnes, avec leurs caractères, leurs groupes et leurs attentes. Voici comment on appelle ce que tu as observé.',
+  cutText: 'Ta partie s\'est arrêtée avant la démo. Rejoue pour aller jusqu\'au salon.',
+  pitch: `Studio Nébuleuse, Bordeaux. 14 personnes, un premier jeu qui a plu, et un deuxième en préparation. On te nomme chef de projet d'une équipe de six. Dans six mois, vous présentez la démo au grand salon du jeu vidéo à Paris, devant les éditeurs. Le code, ce sont eux. Les faire travailler ensemble, c'est toi.`,
+  meta: '4 actes · 25 minutes',
+  start: s => Object.assign(s, { avance: 10, cohesion: 55, energie: 70, confiance: 50, mois: 0, parti: {}, m: { zoe: 62, karim: 66, lina: 52, autres: 60 } }),
+  hud: [
+    { k: 'avance',    label: 'Prototype', short: 'Prototype', show: s => Math.round(s.avance) + N + '%', pct: s => s.avance, low: s => s.avance < 10 + s.mois * 13, unit: N + 'pts' },
+    { k: 'cohesion',  label: 'Cohésion', short: 'Cohésion', show: s => Math.round(s.cohesion), pct: s => s.cohesion, low: s => s.cohesion < 40, clamp: true },
+    { k: 'energie',   label: 'Énergie', short: 'Énergie', show: s => Math.round(s.energie), pct: s => s.energie, low: s => s.energie < 35, clamp: true },
+    { k: 'confiance', label: 'Confiance en toi', short: 'Confiance', show: s => Math.round(s.confiance), pct: s => s.confiance, low: s => s.confiance < 35, clamp: true }
+  ],
+  fail: () => null,
+  lock: () => null,
+  bilan: s => [['Prototype', Math.round(s.avance) + N + '%'], ['Cohésion', Math.round(s.cohesion) + ' / 100'], ['Énergie', Math.round(s.energie) + ' / 100'], ['Départs', Object.keys(s.parti).map(p => ({ zoe: 'Zoé', karim: 'Karim', lina: 'Lina' })[p]).join(', ') || 'aucun']],
+
+  characters: {
+    zoe:   { name: 'Zoé', role: 'développeuse, la meilleure du studio', color: '#FF8AD1', body: '#5a1f4a', hair: '#1c1c22', acc: 'cap' },
+    karim: { name: 'Karim', role: 'graphiste, 15 ans de métier, aucun titre', color: '#FFC64F', body: '#5a3a22', hair: '#8a8f96', acc: 'box' },
+    lina:  { name: 'Lina', role: 'stagiaire en game design', color: '#4CD97B', body: '#2f7a4a', hair: '#c9a24a', acc: 'bun' },
+    sarah: { name: 'Sarah', role: 'fondatrice du studio', color: '#5B8FFF', body: '#2b3a5a', hair: '#3a2418', acc: 'clip' },
+    narr:  { name: 'Toi', role: '', color: '#5B8FFF' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Six personnes', sub: 'Le même message, six lectures différentes. Avant de diriger une équipe, il faut comprendre chaque personne.',
+    steps: [
+      { t: 'say', who: 'sarah', text: `Bienvenue chef. Ton équipe${N}: Zoé, la meilleure développeuse du studio, qui travaille seule avec un casque sur les oreilles. Karim, graphiste, quinze ans de métier, pas de titre mais tout le monde l'écoute. Lina, stagiaire, très douée et très discrète. Et trois autres, solides. Premier test${N}: le niveau 3 est trop lent, il faut le refaire d'ici vendredi.` },
+      { t: 'say', who: 'narr', text: `Tu envoies un mail à toute l'équipe${N}: «${N}Le niveau 3 rame. À reprendre pour vendredi.${N}» Une heure plus tard${N}:` },
+      { t: 'say', who: 'zoe', text: `«${N}Rame${N}». Super. Six mois de travail, et on m'explique par mail que mon code rame. Devant tout le monde.` },
+      { t: 'say', who: 'karim', text: `Pour vendredi${N}? Encore un chef qui ne sait pas combien de temps prend un décor. Je fais ça depuis quinze ans, ils ont tous dit «${N}pour vendredi${N}».` },
+      { t: 'say', who: 'lina', text: `(Elle ne répond pas. Elle reste jusqu'à 23${N}h pour refaire des éléments qui n'étaient pas à elle, persuadée que le mail la visait.)` },
+      { t: 'choice', id: 'mail', prompt: `Comment rattraper le coup${N}?`, options: [
+        { id: 'entretiens', label: 'Voir chacun, seul à seul, dix minutes', desc: 'Expliquer le problème, écouter, répartir le travail selon chacun.', fx: { confiance: 10, cohesion: 4 }, do: s => { up('zoe', 8)(s); up('karim', 6)(s); up('lina', 10)(s); },
+          chain: ch(['Zoé comprend qu\'on ne remet pas en cause son talent', 'Karim donne un délai réaliste : mardi', 'Lina découvre que le mail ne la visait pas', 'Chacun repart avec une tâche claire'], ['Une heure de ton temps']),
+          voix: [{ who: 'zoe', text: `OK. Expliqué comme ça, je vois le problème. Je le règle.` }, { who: 'karim', text: `Mardi, c'est faisable. Vendredi, c'était du vent.` }, { who: 'lina', text: `Ah… ce n'était pas pour moi${N}? J'ai passé la nuit dessus.` }] },
+        { id: 'reunion', label: 'Une réunion d\'équipe pour clarifier', desc: 'Tout le monde dans la même salle, tu réexpliques.', fx: { confiance: 4 }, do: s => { up('zoe', -2)(s); up('karim', 4)(s); },
+          chain: ch(['Tout le monde entend la même chose'], ['Zoé se sent à nouveau mise en cause devant les autres', 'Lina ne dit rien, comme d\'habitude']),
+          voix: [{ who: 'zoe', text: `(Elle fixe son écran toute la réunion.)` }, { who: 'karim', text: `Bon, au moins on sait ce que tu veux.` }] },
+        { id: 'rien', label: 'Laisser couler, ils sont grands', desc: 'Le message était clair.', fx: { confiance: -8, cohesion: -5 }, do: s => { up('zoe', -10)(s); up('lina', -8)(s); },
+          chain: ch(['Aucun temps perdu'], ['Chacun reste avec sa propre lecture du message', 'Zoé se sent humiliée', 'Lina s\'épuise sur un travail qu\'on ne lui demandait pas', 'Karim conclut que tu ne connais pas le métier']),
+          voix: [{ who: 'zoe', text: `Je fais ce qu'on me dit. Pas plus.` }, { who: 'karim', text: `Encore un.` }] } ] },
+      { t: 'say', who: 'sarah', text: `Il faut répartir le travail pour les mois à venir. Zoé est géniale seule, mais n'aime pas qu'on lui tienne la main. Lina a des idées de game design, mais tout le monde la cantonne aux tests. Karim aime transmettre.` },
+      { t: 'choice', id: 'repartition', prompt: `Comment répartir les rôles${N}?`, options: [
+        { id: 'talents', label: 'Selon les personnalités', desc: 'Zoé autonome sur le moteur. Lina en binôme avec Karim sur le game design. Karim mentor.', set: { talents: true }, fx: { cohesion: 5 }, do: s => { up('zoe', 6)(s); up('lina', 12)(s); up('karim', 8)(s); },
+          chain: ch(['Chacun fait ce pour quoi il est fait', 'Zoé travaille comme elle aime : seule et concentrée', 'Lina progresse auprès de Karim', 'Karim se sent reconnu'], ['Moins de contrôle direct de ta part']),
+          voix: [{ who: 'karim', text: `La petite a l'œil. Je vais lui apprendre deux trois trucs.` }, { who: 'lina', text: `Je vais enfin faire autre chose que des tests${N}!` }] },
+        { id: 'egalite', label: 'Tout le monde fait un peu de tout, à tour de rôle', desc: 'Pour que personne ne se sente lésé.', do: s => { up('zoe', -8)(s); up('lina', 3)(s); },
+          chain: ch(['Personne n\'a l\'impression d\'être lésé'], ['Zoé perd son temps sur des tâches où elle est moyenne', 'Les talents de chacun sont dilués']),
+          voix: [{ who: 'zoe', text: `Je dessine des arbres. Moi. Sérieusement.` }] },
+        { id: 'poste', label: 'Selon les fiches de poste', desc: 'Développeurs au code, graphistes aux graphismes, la stagiaire aux tests.', do: s => { up('lina', -10)(s); },
+          chain: ch(['Une organisation claire'], ['Lina reste aux tests, ses idées dorment', 'Personne ne sort de son rôle']),
+          voix: [{ who: 'lina', text: `D'accord. Les tests.` }] } ] },
+      { t: 'event', who: 'sarah', do: s => { s.rep = mois(s, 2); }, text: s => `<b>Deux mois plus tard.</b> L'équipe a avancé de ${s.rep.av}${N}%.${etat(Object.assign({}, s, { avance: s.avance + s.rep.av }))}`, fx: s => ({ avance: Math.min(s.rep.av, 100 - s.avance), energie: s.rep.en }) },
+      { t: 'event', who: 'narr', do: s => { s.mois = 2; }, text: `Deux mois. Place aux réunions.` }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Le groupe', sub: 'Un groupe pense parfois moins bien que chacun de ses membres. Et le vrai pouvoir n\'est pas toujours celui qu\'on croit.',
+    steps: [
+      { t: 'say', who: 'sarah', text: `Grande réunion${N}: quel style pour le jeu${N}? Karim propose un style dessiné à la main, superbe mais long à produire. Il présente son idée avec passion, puis vous passez au vote.` },
+      { t: 'choice', id: 'vote', prompt: `Comment faire décider l'équipe${N}?`, options: [
+        { id: 'main', label: 'Vote à main levée, tout de suite', desc: 'Simple et rapide.', do: s => { s.flags.conformisme = true; up('lina', -5)(s); },
+          chain: ch(['Décision rapide : 6 voix sur 6 pour l\'idée de Karim'], ['Chacun a regardé Karim avant de lever la main', 'Deux personnes avaient des doutes, aucune ne l\'a dit', 'Le style choisi va ralentir toute la production']),
+          voix: [{ who: 'karim', text: `Unanimité${N}! J'étais sûr que ça vous plairait.` }, { who: 'lina', text: `(Elle avait une autre idée, plus simple. Elle a levé la main comme les autres.)` }] },
+        { id: 'tour', label: 'Tour de table, en commençant par les plus jeunes, puis vote anonyme', desc: 'Chacun donne son avis avant d\'entendre celui de Karim.', set: { ideeLina: true }, fx: { cohesion: 5, confiance: 6 }, do: s => { up('lina', 15)(s); up('karim', -3)(s); },
+          chain: ch(['Lina, qui parle en premier, propose un style « papier découpé » plus rapide à produire', 'Les doutes s\'expriment avant que l\'avis du plus influent ne pèse', 'Le vote anonyme choisit l\'idée de Lina, enrichie par Karim'], ['Karim est un peu vexé']),
+          voix: [{ who: 'lina', text: `Je ne pensais pas qu'on m'écouterait.` }, { who: 'karim', text: `Son idée est meilleure que la mienne. Ça m'agace, mais elle est meilleure.` }] },
+        { id: 'decider', label: 'Décider toi-même', desc: 'C\'est toi le chef.', fx: { confiance: -4 }, do: s => { up('karim', -6)(s); },
+          chain: ch(['Une décision tranchée'], ['Personne ne se sent impliqué', 'Karim, qui a l\'oreille de tous, est contrarié']),
+          voix: [{ who: 'karim', text: `Pourquoi on fait des réunions, alors${N}?` }] } ] },
+      { t: 'say', who: 'zoe', text: `Karim veut des décors avec 40 couches d'animation. Mon moteur ne tient pas. Je le lui ai dit trois fois, il ne m'écoute pas. C'est lui ou moi.` },
+      { t: 'say', who: 'karim', text: `Zoé veut des décors en carton pour que son moteur tourne. Sans beauté, ce jeu ne vaut rien. Et elle me parle comme à un stagiaire.` },
+      { t: 'choice', id: 'conflit', prompt: `Le conflit Zoé – Karim${N}?`, options: [
+        { id: 'mediation', label: 'Les réunir et chercher une solution ensemble', desc: 'Chacun explique ses contraintes, vous cherchez ce qui satisfait les deux.', fx: { cohesion: 10, confiance: 6 }, do: s => { up('zoe', 6)(s); up('karim', 6)(s); },
+          chain: ch(['Chacun comprend la contrainte de l\'autre', 'Solution trouvée : 12 couches, et Zoé optimise le moteur pour les décors', 'Ils se respectent un peu plus'], ['Deux heures de discussion tendue']),
+          voix: [{ who: 'zoe', text: `Il ne savait pas que chaque couche pesait autant. Maintenant il sait.` }, { who: 'karim', text: `Elle a trouvé une astuce pour mes fonds animés. Pas mal, la gamine.` }] },
+        { id: 'trancher', label: 'Trancher pour Zoé : la technique d\'abord', desc: 'Le jeu doit tourner.', fx: { cohesion: -6 }, do: s => { up('zoe', 6)(s); up('karim', -14)(s); s.m.autres = cl(s.m.autres - 5, 0, 100); },
+          chain: ch(['Le jeu tourne'], ['Karim se sent désavoué', 'Les autres, qui le suivent, prennent son parti', 'Le studio se divise en deux camps']),
+          voix: [{ who: 'karim', text: `Très bien. Faites des jeux moches.` }] },
+        { id: 'laisser', label: 'Les laisser régler ça entre adultes', desc: '', fx: { cohesion: -10, energie: -6 }, do: s => { up('zoe', -12)(s); up('karim', -6)(s); },
+          chain: ch(['Tu ne prends pas parti'], ['Le conflit s\'envenime', 'L\'équipe se range derrière Karim, Zoé s\'isole', 'Chaque réunion devient pénible']),
+          voix: [{ who: 'zoe', text: `Je mets mon casque et je ne l'enlève plus.` }] } ] },
+      { t: 'say', who: 'narr', if: s => s.m.zoe < 45, text: `Zoé a un entretien chez un grand studio à Montréal.` },
+      { t: 'event', who: 'sarah', do: s => { s.rep = mois(s, 1); }, text: s => `<b>Un mois plus tard.</b> L'équipe a avancé de ${s.rep.av}${N}%.${etat(Object.assign({}, s, { avance: s.avance + s.rep.av }))}`, fx: s => ({ avance: Math.min(s.rep.av, 100 - s.avance), energie: s.rep.en }) },
+      { t: 'event', who: 'narr', do: s => { s.mois = 3; }, text: `Trois mois avant la démo.` }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Le studio', sub: 'Ce que dit la fiche de poste et ce qui se passe vraiment ne sont pas la même chose.',
+    steps: [
+      { t: 'event', who: 'zoe', if: s => s.m.zoe < 42 && !s.parti.zoe, do: s => { s.parti.zoe = true; s.flags.montreal = true; }, text: `J'ai accepté le poste à Montréal. Ici, je ne me sens ni écoutée ni à ma place. Bonne chance pour la démo.`, fx: { cohesion: -6, confiance: -8 } },
+      { t: 'say', who: 'sarah', text: s => `Le prototype est à ${Math.round(s.avance)}${N}%. Il en faut 90${N}% pour une démo crédible. Ici, avant chaque démo, on fait du «${N}crunch${N}»${N}: tout le monde reste le soir et le week-end. C'est la tradition. Personne ne te le demandera. Personne ne te l'interdira.` },
+      { t: 'choice', id: 'crunch', prompt: `Les trois derniers mois${N}?`, options: [
+        { id: 'crunch', label: 'Crunch : soirées et week-ends jusqu\'au salon', desc: '« Comme d\'habitude. »', do: s => { s.flags.crunch = true; },
+          chain: ch(['Beaucoup d\'heures en plus', 'Le prototype avance vite'], ['L\'énergie de l\'équipe s\'effondre', 'Les erreurs se multiplient, il faut les corriger', 'C\'est la culture du studio… et c\'est elle qui l\'épuise']),
+          voix: [{ who: 'karim', text: `Je connais. Trois mois de pizza froide.` }, { who: 'lina', text: `Je n'ai pas vu ma famille depuis trois semaines.` }] },
+        { id: 'scope', label: 'Réduire la démo : un niveau parfait plutôt que trois moyens', desc: 'Tu présentes l\'idée à l\'équipe et vous choisissez ensemble le niveau.', set: { scope: true, rituel: true }, fx: { avance: 12, cohesion: 5 },
+          chain: ch(['L\'objectif devient atteignable sans s\'épuiser', 'Moins de travail à faire, donc avancement relatif plus grand', 'L\'équipe a choisi elle-même le niveau'], ['Une démo plus courte', 'Il faut convaincre Sarah de rompre avec la tradition']),
+          voix: [{ who: 'sarah', text: `Pas de crunch${N}? Personne n'a jamais osé. Montre-moi que ça marche.` }, { who: 'zoe', text: `Un seul niveau, mais impeccable. J'adore.` }] },
+        { id: 'rien', label: 'Garder le rythme normal et croiser les doigts', desc: '35 heures, rien ne change.', set: { rituel: true },
+          chain: ch(['L\'équipe garde son énergie'], ['Rien ne garantit que le prototype sera prêt']),
+          voix: [{ who: 'sarah', text: `On verra bien.` }] } ] },
+      { t: 'say', who: 'lina', text: `Petite question${N}: ma convention de stage dit «${N}testeuse${N}». En vrai, depuis deux mois, je fais du game design avec Karim. Je n'ai rien contre, mais si ça ne compte pas, je ne pourrai pas le mettre sur mon CV.` },
+      { t: 'choice', id: 'lina', prompt: `Le travail de Lina${N}?`, options: [
+        { id: 'reconnaitre', label: 'Mettre à jour ses missions et l\'écrire dans son évaluation de stage', desc: 'Ce qu\'elle fait vraiment devient officiel.', do: s => { up('lina', 12)(s); s.m.autres = cl(s.m.autres + 3, 0, 100); },
+          chain: ch(['Ce qu\'elle fait réellement est reconnu', 'Elle pourra le valoriser', 'Les autres voient qu\'on regarde le vrai travail, pas seulement la fiche'], []),
+          voix: [{ who: 'lina', text: `Merci. Vraiment.` }] },
+        { id: 'fiche', label: 'S\'en tenir à la convention', desc: 'Les papiers sont les papiers.', do: s => { up('lina', -12)(s); },
+          chain: ch(['Rien à changer'], ['Lina fait un travail qui ne compte pas', 'Elle se demande pourquoi elle se donne autant']),
+          voix: [{ who: 'lina', text: `D'accord.` }] } ] },
+      { t: 'event', who: 'sarah', do: s => { s.rep = mois(s, 2, { crunch: F(s).crunch }); }, text: s => `<b>Deux mois plus tard.</b> L'équipe a avancé de ${s.rep.av}${N}%.${etat(Object.assign({}, s, { avance: s.avance + s.rep.av }))}${F(s).crunch ? 'Les soirées s\'enchaînent. Les cernes aussi.' : ''}`, fx: s => ({ avance: Math.min(s.rep.av, 100 - s.avance), energie: s.rep.en }) },
+      { t: 'event', who: 'narr', do: s => { s.mois = 5; if (s.energie < 30 && !s.parti.zoe) { s.parti.zoe = true; s.flags.burnout = true; } }, text: s => F(s).burnout ? `Zoé est en arrêt maladie. Épuisement professionnel. Elle ne reviendra pas avant le salon.` : `Un mois avant le salon.` }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'La paie', sub: 'Sarah te confie 18 000 € de primes et les entretiens annuels. Ce que tu récompenses, c\'est ce que tu obtiendras.',
+    steps: [
+      { t: 'say', who: 'sarah', text: `Tu as 18${N}000${N}€ de primes à distribuer à ton équipe pour l'année. Et tu fais les entretiens annuels. Comment veux-tu t'y prendre${N}?` },
+      { t: 'choice', id: 'prime', prompt: `Les 18${N}000${N}€${N}?`, options: [
+        { id: 'indiv', label: 'Primes individuelles selon la performance de chacun', desc: 'Zoé 7 000 €, Karim 4 000 €, les autres moins.', fx: { cohesion: -10 }, do: s => { up('zoe', 10)(s); up('lina', -8)(s); s.m.autres = cl(s.m.autres - 8, 0, 100); },
+          chain: ch(['Les meilleurs sont récompensés', 'Zoé se sent reconnue'], ['Chacun compare ce qu\'il a reçu', 'Pourquoi aider un collègue si seule ta performance compte ?', 'L\'entraide recule juste avant le salon']),
+          voix: [{ who: 'karim', text: `J'ai passé deux mois à former Lina. Ça ne compte pas, apparemment.` }, { who: 'zoe', text: `Merci. Mais je sens les regards.` }] },
+        { id: 'collect', label: 'Une prime collective, égale pour tous, si la démo est prête', desc: '3 000 € chacun.', fx: { cohesion: 10 }, do: s => { s.m.autres = cl(s.m.autres + 6, 0, 100); up('zoe', -4)(s); up('lina', 5)(s); },
+          chain: ch(['Tout le monde a intérêt à ce que l\'équipe réussisse', 'L\'entraide augmente'], ['Les plus investis trouvent injuste de gagner autant que les autres']),
+          voix: [{ who: 'zoe', text: `Je bosse deux fois plus que certains. Bon. Si on réussit tous, ça me va.` }, { who: 'karim', text: `Enfin une prime qui ne nous monte pas les uns contre les autres.` }] },
+        { id: 'mixte', label: 'Une part collective et une part individuelle', desc: '2 000 € chacun si la démo est prête, plus 6 000 € répartis selon des objectifs fixés avec chacun.', fx: { cohesion: 6 }, do: s => { up('zoe', 6)(s); up('karim', 5)(s); up('lina', 5)(s); s.m.autres = cl(s.m.autres + 3, 0, 100); },
+          chain: ch(['Un intérêt commun : réussir la démo', 'Une reconnaissance de l\'effort de chacun', 'Des objectifs discutés, donc acceptés'], ['Plus compliqué à expliquer']),
+          voix: [{ who: 'zoe', text: `Juste.` }, { who: 'lina', text: `Mon objectif, c'était le niveau 1. Je l'ai fait.` }] } ] },
+      { t: 'choice', id: 'entretien', prompt: `Les entretiens annuels${N}?`, options: [
+        { id: 'dialogue', label: 'Un vrai échange : bilan, objectifs, formation souhaitée', desc: 'Une heure avec chacun.', fx: { confiance: 8 }, do: s => { up('zoe', 5)(s); up('karim', 5)(s); up('lina', 6)(s); },
+          chain: ch(['Chacun sait ce qu\'on attend de lui', 'Chacun peut dire ce qu\'il attend du studio', 'Karim obtient une formation de directeur artistique'], ['Six heures de ton temps']),
+          voix: [{ who: 'karim', text: `Quinze ans que j'attendais qu'on me parle d'avenir.` }] },
+        { id: 'note', label: 'Une note de 1 à 5 et un classement de l\'équipe', desc: 'Rapide et objectif.', fx: { cohesion: -8, confiance: -4 }, do: s => { s.m.autres = cl(s.m.autres - 6, 0, 100); },
+          chain: ch(['Rapide'], ['Personne ne sait comment progresser', 'Le classement crée des rivalités', 'Le dernier se démotive']),
+          voix: [{ who: 'lina', text: `3 sur 5. Et je fais quoi avec ça${N}?` }] } ] },
+      { t: 'event', who: 'sarah', do: s => { s.rep = mois(s, 1, { crunch: F(s).crunch }); }, text: s => `<b>Le dernier mois.</b>${etat(Object.assign({}, s, { avance: s.avance + s.rep.av }))}`, fx: s => ({ avance: Math.min(s.rep.av, 100 - s.avance), energie: s.rep.en }) },
+      { t: 'event', who: 'narr', do: s => { s.mois = 6; if (s.energie < 30 && !s.parti.zoe) { s.parti.zoe = true; s.flags.burnout = true; } }, text: s => F(s).burnout ? `La veille du salon, Zoé fait un malaise. Épuisement professionnel. Elle ne sera pas là demain.` : `Le salon. Demain matin, les éditeurs.` }
+    ] },
+
+  /* ------------------------------ ACTE 5 ------------------------------ */
+  { num: 5, title: 'Le salon', sub: 'Dix minutes devant les éditeurs.', final: true,
+    steps: [
+      { t: 'say', who: 'sarah', text: s => `Prototype${N}: ${Math.round(s.avance)}${N}%. ${s.avance >= 90 ? 'La démo tourne sans un accroc.' : s.avance >= 75 ? 'La démo tourne, avec quelques bugs.' : 'La démo plante deux fois devant les éditeurs.'} ${s.parti.zoe ? 'Zoé n\'est pas là.' : ''}` }
+    ] }
+  ],
+
+  endings: [
+    { id: 'burnout', when: s => F(s).burnout, title: 'L\'équipe épuisée', stamp: 'Arrêt maladie', color: '#FF5C6A',
+      text: `Le crunch faisait partie de la culture du studio. Personne ne l'imposait, tout le monde le subissait. Ta meilleure développeuse s'est effondrée avant le salon. Le prototype était peut-être prêt, mais à quel prix${N}?` },
+    { id: 'divise', when: s => s.cohesion < 40, title: 'Deux camps', stamp: 'Équipe divisée', color: '#FFC64F',
+      text: `Le studio s'est coupé en deux. Les partisans de Karim d'un côté, Zoé seule de l'autre. Un conflit qu'on laisse pourrir ou qu'on tranche brutalement ne disparaît pas${N}: il se transforme en clans.` },
+    { id: 'reussite', when: s => s.avance >= 90 && s.cohesion >= 60 && s.energie >= 45, title: 'Démo réussie', stamp: 'Contrat signé', color: '#4CD97B',
+      text: s => `Un éditeur signe le soir même. Ton équipe arrive au salon en forme, soudée, fière. ${F(s).ideeLina ? 'Et le style « papier découpé » de Lina est ce que tout le monde retient.' : ''} Tu as compris chacun, laissé parler le groupe, réglé les conflits et récompensé ce qui comptait.` },
+    { id: 'retard', when: s => s.avance < 80, title: 'Pas prête', stamp: 'Démo ratée', color: '#FFC64F',
+      text: `La démo n'était pas prête. L'équipe a travaillé, mais pas assez bien ensemble${N}: des talents mal employés, des idées étouffées, des énergies gâchées.` },
+    { id: 'moyen', when: s => true, title: 'Une démo correcte', stamp: 'À suivre', color: '#5B8FFF',
+      text: s => `Un éditeur est intéressé, sans plus. ${s.energie < 45 ? 'L\'équipe est arrivée fatiguée.' : s.cohesion < 60 ? 'L\'équipe tient, mais sans élan commun.' : 'La démo manquait d\'un peu de finition.'}` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['mail', 'repartition'], title: 'Acte 1 — Six personnes', text: h => `Une <em>organisation</em> rassemble des <em>individus</em> différents. Chacun interprète la réalité à travers sa <em>perception</em> : le même mail a été lu comme une attaque, une demande irréaliste ou un reproche personnel. Les comportements dépendent aussi de la <em>personnalité</em> (Zoé préfère l\'autonomie), des <em>attitudes</em> et de la <em>motivation</em>. ${h.mail === 'entretiens' ? 'En voyant chacun, tu as tenu compte de ces différences.' : 'Sans tenir compte des perceptions de chacun, le malentendu s\'est installé.'} ${h.repartition === 'talents' ? 'Répartir les rôles selon les personnalités a libéré les compétences de chacun.' : 'Les talents de chacun ont été mal employés.'}`,
+      chain: () => ({ good: ['Comprendre chaque personne', 'Adapter le message et le rôle', 'Motivation'], bad: ['Un message pour tous', 'Perceptions différentes', 'Malentendus'] }) },
+    { act: 2, needs: ['vote', 'conflit'], title: 'Acte 2 — Le groupe', text: h => `Un <em>groupe</em> influence ses membres : par ses <em>normes</em> (les règles non écrites) et par le <em>conformisme</em> (on s\'aligne sur la majorité ou sur le plus influent). ${h.vote === 'main' ? 'Au vote à main levée, chacun a suivi Karim : c\'est le conformisme.' : h.vote === 'tour' ? 'En faisant parler les plus jeunes d\'abord et en votant à bulletin secret, tu as limité le conformisme, et l\'idée de Lina est sortie.' : ''} Karim n\'a aucun titre, mais il a du <em>pouvoir</em> : c\'est un <em>leader informel</em>, écouté pour son expérience. Les <em>conflits</em> font partie de la vie d\'un groupe ; ${h.conflit === 'mediation' ? 'la <em>médiation</em> a permis une solution où chacun gagnait.' : 'trancher ou laisser faire a divisé l\'équipe.'}`,
+      chain: () => ({ good: ['Faire parler chacun', 'Limiter le conformisme', 'Traiter le conflit', 'Coopération'], bad: ['Suivre le plus influent', 'Ignorer le conflit', 'Clans'] }) },
+    { act: 3, needs: ['crunch', 'lina'], title: 'Acte 3 — Le studio', text: h => `Chaque organisation a sa <em>culture</em> : ses valeurs, ses rituels, ses habitudes (ici, le crunch). Elle influence les comportements sans être écrite nulle part. Le <em>travail prescrit</em> (ce que dit la fiche de poste) diffère toujours du <em>travail réel</em> (ce que la personne fait vraiment) : ${h.lina === 'reconnaitre' ? 'tu as reconnu le travail réel de Lina.' : 'tu as ignoré le travail réel de Lina.'} Il faut concilier les besoins de l\'organisation (finir la démo) et ceux des individus (santé, vie personnelle) : ${h.crunch === 'crunch' ? 'le crunch a sacrifié les seconds aux premiers.' : h.crunch === 'scope' ? 'réduire l\'objectif a permis de concilier les deux.' : 'garder le rythme a protégé l\'équipe, sans garantir le résultat.'}`,
+      chain: () => ({ good: ['Reconnaître le travail réel', 'Concilier besoins de l\'organisation et des personnes'], bad: ['Culture d\'épuisement', 'Travail invisible', 'Épuisement'] }) },
+    { act: 4, needs: ['prime', 'entretien'], title: 'Acte 4 — La paie', text: h => `La <em>rémunération</em> comprend une part <em>fixe</em> (le salaire) et parfois une part <em>variable</em> (primes, intéressement). Une prime <em>individuelle</em> récompense la performance de chacun mais peut casser l\'entraide ; une prime <em>collective</em> pousse à coopérer mais peut sembler injuste aux plus investis. ${h.prime === 'mixte' ? 'Tu as combiné les deux.' : ''} L\'<em>évaluation</em> du travail, lors de l\'<em>entretien annuel</em>, sert à faire le bilan, à fixer des <em>objectifs</em> et à prévoir des formations. ${h.entretien === 'note' ? 'Une simple note ne dit à personne comment progresser.' : 'Un vrai échange donne à chacun une direction.'}`,
+      chain: () => ({ good: ['Récompenser ce qu\'on veut voir', 'Évaluer pour faire progresser'], bad: ['Mettre en compétition', 'Noter sans expliquer'] }) }
+  ],
+  vocab: ['Organisation', 'Individu / acteur', 'Perception', 'Personnalité', 'Attitude', 'Motivation', 'Groupe', 'Normes', 'Conformisme', 'Pouvoir', 'Leader informel', 'Conflit', 'Médiation', 'Culture d\'entreprise', 'Travail prescrit', 'Travail réel', 'Rémunération fixe / variable', 'Prime individuelle / collective', 'Évaluation', 'Entretien annuel']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — l'open space du studio, la motivation de chacun en couleur.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const B = '#5B8FFF', col = m => m >= 60 ? '#4CD97B' : m >= 45 ? '#FFC64F' : '#FF5C6A';
+  const pp = [['zoe', 'Zoé', 150], ['karim', 'Karim', 210], ['lina', 'Lina', 270]];
+  const desks = pp.map(([k, t, x]) => { const gone = S.parti && S.parti[k]; const c = gone ? '#3a3550' : col(S.m[k]);
+    return `<rect x="${x - 26}" y="104" width="52" height="8" rx="2" fill="#16203a"/><rect x="${x - 14}" y="80" width="28" height="20" rx="2" fill="#0b1020" stroke="${B}" stroke-opacity=".6"/>
+      <g opacity="${gone ? .35 : 1}"><circle cx="${x}" cy="${gone ? 140 : 62}" r="9" fill="#E8B58A"/><rect x="${x - 11}" y="${gone ? 150 : 71}" width="22" height="${gone ? 0 : 10}" rx="5" fill="${c}"/></g>
+      <text x="${x}" y="128" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11" fill="${c}">${gone ? t + ' (partie)' : t + ' ' + Math.round(S.m[k])}</text>`; }).join('');
+  const prog = Math.round(S.avance || 0);
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="L'équipe du studio">
+    <rect width="360" height="200" fill="#05070c"/><rect x="0" y="0" width="360" height="162" fill="#080b14"/>
+    <text x="215" y="22" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#8B93AE">STUDIO NÉBULEUSE · DÉMO DANS ${6 - (S.mois || 0)} MOIS</text>
+    <rect x="130" y="30" width="170" height="8" rx="4" fill="#16203a"/><rect x="130" y="30" width="${1.7 * Math.min(100, prog)}" height="8" rx="4" fill="${B}"/><text x="306" y="38" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="${B}">${prog}%</text>
+    ${desks}
+    <text x="215" y="150" text-anchor="middle" font-family="Rajdhani,sans-serif" font-size="10" fill="#8B93AE">+ 3 autres : ${Math.round(S.m.autres)}</text>
+    <rect x="0" y="162" width="360" height="38" fill="#060810"/><line x1="0" y1="162" x2="360" y2="162" stroke="#1d2540" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Rebond 2 — Jeu MSGN Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#7C6FFF;--eco-dim:#4B3FCC;--good:#4CD97B;--bg:#06050c;--panel:#0d0b18;--panel2:#110e20;--line:#241f3d;--txt:#EEF3EC;--muted:#8B86A8;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(124,111,255,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(124,111,255,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#1a1630;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(124,111,255,.5);background:rgba(124,111,255,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#08070f;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(124,111,255,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#0b0820;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#0b0820;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#161230;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#1a1630;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#0b0820;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#0a0816;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#0a0816;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#0a0816;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#0a0816;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(124,111,255,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#0a0816;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — Rebond 2 : La chaîne (MSGN Terminale, thème 1, chapitres 3 à 6)
+   L'atelier est simulé mois par mois (12 mois).
+     Chaîne à 4 postes : la production d'un mois = capacité du poste le plus lent.
+     Livraisons = commande de Domus, dans la limite de la production et du stock.
+     Résultat = ventes − coûts variables − stock − pénalités − retours − charges fixes.
+   Jauges : tre (€), qual (% sans retour), delai (% livré à l'heure), equipe (0-100).
+   ===================================================================== */
+const N = ' ';
+const eur = n => (n < 0 ? '−' : '') + Math.abs(Math.round(n)).toLocaleString('fr-FR') + N + '€';
+const sg = n => (n >= 0 ? '+' : '−') + Math.abs(Math.round(n)).toLocaleString('fr-FR') + N + '€';
+const nb = n => Math.round(n).toLocaleString('fr-FR');
+const pc = n => (Math.round(n * 10) / 10).toLocaleString('fr-FR') + N + '%';
+const cl = (n, a, b) => Math.max(a, Math.min(b, n));
+const F = s => s.flags;
+
+/* ---- Paramètres (modifiables) ---- */
+const POSTES = ['Réception et tri', 'Diagnostic', 'Réparation', 'Contrôle et emballage'];
+const CAP0 = [420, 240, 330, 380];          // téléphones par mois, au départ
+const ACHAT = 140, PIECES = 25;             // coût variable de base : 165 €
+const SAL_PROD = 12400, INDIRECT = 3600;    // charges fixes : 16 000 € par mois
+const SAL_OP = 2100;                        // un opérateur, charges comprises
+const DEPREC = 5.7;                         // un téléphone en stock perd 3 % de 190 € par mois
+const PEN_RETARD = 15, COUT_RETOUR = 60, COUT_ERREUR = 45;
+
+function orgF(s, mo) {
+  const o = F(s).org;
+  if (!o || mo < 10) return 1;
+  return o === 'taylor' ? (mo <= 11 ? 1.2 : 1.03) : o === 'lean' ? (mo === 10 ? 1.04 : 1.12) : 1.08;
+}
+function caps(s, mo) {
+  const f = F(s);
+  const c = [CAP0[0] * (f.rfid ? 1.2 : 1), CAP0[1] * (f.st2 ? 2 : 1) * (f.ia ? 1.25 : 1),
+    CAP0[2] * (f.rep3 ? 1.3 : 1) * (s.ecrans === 'reco' ? .85 : 1) * (f.source && mo === 3 ? .95 : 1), CAP0[3] * (f.emb ? 1.58 : 1)];
+  let g = orgF(s, mo) * (f.hs ? 1.1 : 1) * (s.equipe < 35 ? .9 : 1);
+  if (mo === 2 && f.jat) g *= .75;
+  if (f.erp && mo === 7) g *= f.formation ? .95 : .75;
+  if (mo === 11) g *= ({ interim: 1.3, heures: 1.2, equipes: 1.25 })[f.bf] || 1;
+  const r = c.map(x => x * g);
+  if (mo === 12) r[2] *= ({ taylor: .6, lean: .85, auto: .95 })[f.org] || .8;
+  return r.map(Math.round);
+}
+function taux(s, mo) {
+  const f = F(s); let r = 3;
+  if (mo >= 2 && !(f.lot && mo >= f.lot)) r += 1.5;
+  if (f.ctrl) r -= 1;
+  if (f.source && mo > 3) r -= 1.5;
+  if (f.certif && mo >= 6) r -= .8;
+  if (s.ecrans === 'origine') r -= .5; if (s.ecrans === 'reco') r += .5;
+  if (f.ia === 'vite') r += 1;
+  if (f.org === 'lean' && mo >= 11) r -= .4;
+  if (f.org === 'taylor' && mo >= 12) r += .6;
+  if (f.org === 'auto' && mo >= 10) r -= .3;
+  if (mo === 11 && f.bf === 'interim') r += 1.5;
+  if (s.equipe < 35) r += .7;
+  return Math.max(.8, Math.round(r * 10) / 10);
+}
+function cv(s, mo) {
+  const f = F(s);
+  let c = ACHAT + PIECES + (f.jat ? -2 : 0) + (f.lot && mo >= f.lot ? 3 : 0) + (f.ctrl ? 4 : 0) + (f.rfid ? .4 : 0);
+  if (s.ecrans === 'reco') c -= 15; if (s.ecrans === 'origine') c += 20;
+  if (f.org === 'lean' && mo >= 11) c -= 4;
+  return c;
+}
+function fixes(s, mo) {
+  const f = F(s);
+  return SAL_PROD + INDIRECT + (f.rep3 ? SAL_OP : 0) + (f.ctrl ? SAL_OP : 0) + (f.secu ? 600 : 0) + (f.hs ? 2000 : 0) + (f.erp ? 700 - 600 : 0) + (f.org === 'auto' ? 300 : 0);
+}
+function demande(s, mo) {
+  let d = mo <= 4 ? 300 : (s.commit || 300);
+  if (mo === 11) d = Math.round(d * 1.5);
+  if (mo === 11 && F(s).bf === 'prevenir') d = Math.round(d * .75);
+  if (mo === 12 && F(s).bf === 'prevenir') d += Math.round((s.commit || 300) * .5);
+  return d;
+}
+/* Un mois. Ne modifie pas s (le stock est passé et rendu). */
+function unMois(s, mo, stock) {
+  const c = caps(s, mo), cap = Math.min(...c), goulot = c.indexOf(cap), dem = demande(s, mo), pol = s.flux || 'tire';
+  const prod = pol === 'pousse' ? Math.min(cap, Math.round(dem * 1.15)) : pol === 'mixte' ? Math.min(cap, dem + Math.max(0, 100 - stock)) : Math.min(cap, dem);
+  const liv = Math.min(dem, prod + stock), st = stock + prod - liv;
+  const err = Math.round(liv * (F(s).erp && (mo > 7 || F(s).formation) ? .002 : .02));
+  const r = taux(s, mo), late = dem - liv + err;
+  const rev = liv * s.prix, var_ = prod * cv(s, mo), dep = st * DEPREC, pen = late * PEN_RETARD, ret = liv * r / 100 * COUT_RETOUR;
+  const qpen = r > 3 ? rev * .05 : 0, perdus = prod * (F(s).rfid ? .001 : .01) * 190, fx = fixes(s, mo);
+  const res = rev - var_ - dep - pen - err * COUT_ERREUR - ret - qpen - perdus - fx;
+  return { mo, c, cap, goulot, dem, prod, liv, st, err, r, late, rev, var_, dep, pen, ret, qpen, perdus, fx, res, del: Math.max(0, (liv - err) / dem * 100) };
+}
+function periode(s, n) {
+  let st = s.stock; const ms = [];
+  for (let i = 1; i <= n; i++) { const m = unMois(s, s.mois + i, st); st = m.st; ms.push(m); }
+  const sum = k => ms.reduce((a, m) => a + m[k], 0);
+  const R = { ms, n, st, res: sum('res'), dem: sum('dem'), liv: sum('liv'), prod: sum('prod'), late: sum('late') };
+  R.del = Math.max(0, (R.liv - sum('err')) / R.dem * 100); R.r = ms[n - 1].r; R.last = ms[n - 1];
+  let dEq = 0;
+  ms.forEach(m => { const o = F(s).org; dEq += (F(s).hs ? -5 : 0) + (F(s).source && m.mo > 3 ? 1 : 0) + (o === 'taylor' ? (m.mo >= 12 ? -14 : -2) : o === 'lean' ? 2 : o === 'auto' ? 3 : 0); });
+  R.dEq = dEq;
+  return R;
+}
+function fxPer(s) { const R = s.rep; return { tre: Math.round(R.res), qual: (100 - R.r) - s.qual, delai: Math.round(R.del) - s.delai, equipe: R.dEq }; }
+function commit(s) { const R = s.rep; s.mois += R.n; s.stock = R.st; s.hist.push({ m: s.mois, res: Math.round(R.res), q: 100 - R.r, d: Math.round(R.del) }); s.months = (s.months || []).concat(R.ms); }
+
+function tableau(s, titre) {
+  const R = s.rep, L = R.last, m = R.ms;
+  const row = (l, v, cls) => `<span${cls ? ` class="${cls}"` : ''}>${l}</span><b${cls ? ` class="${cls}"` : ''}>${v}</b>`;
+  const avg = k => m.reduce((a, x) => a + x[k], 0) / m.length;
+  return `<b>${titre}</b><span class="pay">${row('Commandé par Domus (par mois)', nb(avg('dem')))}${row(`Produit (poste le plus lent${N}: ${POSTES[L.goulot].toLowerCase()})`, nb(avg('prod')))}${row('Livré à l\'heure', pc(R.del))}${s.flux === 'pousse' || s.flux === 'mixte' ? row('Téléphones en stock', nb(R.st)) : ''}${row('Retours en panne', pc(R.r))}
+    ${row(`Ventes (${eur(s.prix)} pièce)`, '+' + eur(avg('rev')))}${row(`Achats et pièces (${eur(cv(s, L.mo))} pièce)`, '−' + eur(avg('var_')))}${avg('dep') > 5 ? row('Stock qui perd de la valeur', '−' + eur(avg('dep'))) : ''}${row('Pénalités de retard', '−' + eur(avg('pen')))}${avg('qpen') > 0 ? row('Pénalité qualité (5 % des ventes)', '−' + eur(avg('qpen'))) : ''}${row('Retours et erreurs d\'expédition', '−' + eur(avg('ret') + avg('err') * COUT_ERREUR + avg('perdus')))}${row('Charges fixes', '−' + eur(avg('fx')))}
+    ${row('Ce qui reste chaque mois', sg(R.res / R.n), 'tot')}${row(`Sur ${R.n} mois`, sg(R.res), 'tot')}</span>`;
+}
+function capsHtml(s, mo) {
+  const c = caps(s, mo), mn = Math.min(...c);
+  return `<span class="pay">${c.map((x, i) => `<span>${i + 1}. ${POSTES[i]}</span><b${x === mn ? ' style="color:var(--bad)"' : ''}>${nb(x)} / mois</b>`).join('')}</span>`;
+}
+const V = (y, d, r) => [{ who: 'yanis', text: y }, { who: 'vasseur', text: d }, { who: 'rocher', text: r }];
+const ch = (good, bad) => ({ good, bad });
+
+const GAME = {
+  title: 'Rebond 2',
+  brand: 'REBOND <span>2</span>',
+  storeKey: 'rebond2Fins',
+  backLink: '../../matieres/msgn-terminale.html',
+  footer: 'MSGN Terminale STMG, thème 1',
+  kicker: 'MSGN · Terminale STMG · Thème 1',
+  debIntro: 'Tu as utilisé ces notions pour faire tourner l\'atelier. Voici comment on les appelle en management et sciences de gestion.',
+  cutText: 'Ta partie s\'est arrêtée avant l\'audit de Domus. Rejoue pour aller au bout de l\'année.',
+  pitch: `Un an après sa création, Rebond reçoit la commande de sa vie${N}: Domus, une chaîne nationale, veut 300 téléphones reconditionnés par mois, vendus sous sa marque. Retards et pannes seront pénalisés. Tu diriges la production. Dans douze mois, Domus décide de renouveler… ou non.`,
+  meta: '5 actes · 30 minutes',
+  start: s => Object.assign(s, { tre: 40000, qual: 97, delai: 100, equipe: 65, mois: 0, stock: 0, prix: 250, commit: 300, hist: [], flux: null, ecrans: null }),
+  hud: [
+    { k: 'tre',    label: 'Trésorerie', short: 'Trésorerie', show: s => (s.tre / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + N + 'k€', pct: s => s.tre / 600, low: s => s.tre < 5000, unit: N + '€' },
+    { k: 'qual',   label: 'Qualité',    short: 'Qualité',    show: s => pc(s.qual), pct: s => (s.qual - 93) * 16, low: s => s.qual < 97, unit: N + 'pts' },
+    { k: 'delai',  label: 'Livré à l\'heure', short: 'Délais', show: s => s.delai + N + '%', pct: s => (s.delai - 70) * 3.4, low: s => s.delai < 95, unit: N + 'pts' },
+    { k: 'equipe', label: 'Moral de l\'équipe', short: 'Équipe', show: s => Math.round(s.equipe), pct: s => s.equipe, low: s => s.equipe < 35, clamp: true }
+  ],
+  fail: s => s.tre < -40000 ? 'faillite' : s.equipe <= 15 ? 'depart' : null,
+  lock: () => null,
+  bilan: s => { const l = s.months.slice(-3); return [['Trésorerie', eur(s.tre)], ['Qualité (3 derniers mois)', pc(100 - l.reduce((a, m) => a + m.r, 0) / 3)], ['Livré à l\'heure (3 derniers mois)', pc(l.reduce((a, m) => a + m.liv - m.err, 0) / l.reduce((a, m) => a + m.dem, 0) * 100)], ['Moral de l\'équipe', Math.round(s.equipe) + ' / 100']]; },
+
+  characters: {
+    ferhat: { name: 'Mme Ferhat', role: 'ta conseillère, pépinière d\'entreprises', color: '#B9A6FF', body: '#4B3FCC', hair: '#1c1c22', acc: 'clip' },
+    yanis:  { name: 'Yanis',  role: 'chef d\'atelier', color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'cap' },
+    lou:    { name: 'Lou',    role: 'technicienne', color: '#FF9D3D', body: '#B86A1F', hair: '#c9a24a', acc: 'bun' },
+    samir:  { name: 'Samir',  role: 'opérateur au tri', color: '#5BC8FF', body: '#2b5a7a', hair: '#1c1c22', acc: 'box' },
+    vasseur:{ name: 'Mme Vasseur', role: 'acheteuse chez Domus', color: '#FF5C6A', body: '#5a1f2a', hair: '#3a2418', acc: 'tie' },
+    rocher: { name: 'M. Rocher', role: 'ton banquier', color: '#5B8FFF', body: '#2b3a5a', hair: '#8a8f96', acc: 'tie' },
+    narr:   { name: 'Toi', role: '', color: '#7C6FFF' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Le flux', sub: 'Quatre postes, une seule chaîne. Elle ne va jamais plus vite que son maillon le plus lent.',
+    steps: [
+      { t: 'say', who: 'vasseur', text: `Le contrat est simple. 300 téléphones par mois, à 250${N}€ pièce. Chaque téléphone livré en retard vous coûte 15${N}€. Et si plus de 3${N}% reviennent en panne, nous retenons 5${N}% de votre facture du mois. Premier camion dans quatre semaines.` },
+      { t: 'say', who: 'yanis', text: s => `J'ai chronométré chaque poste pendant une semaine. Voilà combien de téléphones chacun peut traiter en un mois, avec l'équipe actuelle.${capsHtml(s, 1)}Chaque téléphone passe par les quatre postes, dans l'ordre.` },
+      { t: 'say', who: 'ferhat', text: `Vous avez 9${N}000${N}€ à investir, ou un salaire de plus à payer. Regardez bien ce tableau avant de dépenser quoi que ce soit${N}: un euro placé au mauvais endroit ne produira pas un téléphone de plus.` },
+      { t: 'choice', id: 'invest', prompt: `Où mettre ton argent${N}?`, options: [
+        { id: 'st2', label: 'Une deuxième station de diagnostic', desc: 'Achat : 9 000 €. Le diagnostic double sa capacité.', fx: { tre: -9000 }, set: { st2: true },
+          chain: s => ch(['Le diagnostic passe de 240 à 480 par mois', 'Les téléphones n\'attendent plus devant ce poste', `La chaîne sort ${Math.min(...caps(Object.assign({}, s, { flags: Object.assign({}, s.flags, { st2: true }) }), 1))} téléphones par mois`, 'Domus est livré'], ['9 000 € qui sortent tout de suite']),
+          voix: V(`Le diagnostic, c'est là que les téléphones s'entassaient. Je voyais la pile grandir chaque matin.`, `Si vos camions arrivent pleins, je n'ai rien d'autre à vous demander.`, `9${N}000${N}€ bien placés. C'est le poste qui bloquait.`) },
+        { id: 'rep3', label: 'Un réparateur de plus', desc: '2 100 € par mois, charges comprises. La réparation gagne 30 % de capacité.', set: { rep3: true },
+          chain: ch(['La réparation passe de 330 à 430 par mois'], ['Mais les téléphones arrivent du diagnostic au compte-gouttes : 240 par mois', 'Le nouveau réparateur attend une partie de la journée', 'La chaîne sort toujours 240 téléphones', '2 100 € de plus chaque mois, pour rien']),
+          voix: V(`Le nouveau est bon. Mais il passe la moitié de l'après-midi à attendre que le diagnostic lui envoie quelque chose.`, `Je reçois toujours 240 téléphones au lieu de 300.`, `Un salaire de plus, pas un téléphone de plus. Vous avez regardé le bon chiffre${N}?`) },
+        { id: 'emb', label: 'Une machine d\'emballage automatique', desc: 'Achat : 7 000 €. L\'emballage passe de 380 à 600 par mois.', fx: { tre: -7000 }, set: { emb: true },
+          chain: ch(['Un emballage ultra-rapide'], ['Ce poste n\'était pas le problème', 'Il reçoit toujours 240 téléphones par mois', 'La machine tourne à 40 % de sa capacité', '7 000 € qui ne livrent rien de plus']),
+          voix: V(`Elle est belle, la machine. Elle s'ennuie.`, `Joliment emballés, mais toujours 60 de moins que prévu chaque mois.`, `7${N}000${N}€ sur un poste qui avait déjà de l'avance.`) },
+        { id: 'hs', label: 'Des heures supplémentaires pour tout le monde', desc: '2 000 € par mois. Tous les postes gagnent 10 %. L\'équipe fatigue.', set: { hs: true },
+          chain: ch(['Tous les postes gagnent 10 %', 'Le diagnostic passe à 264 par mois'], ['Toujours loin des 300', '2 000 € chaque mois', 'L\'équipe s\'use, mois après mois']),
+          voix: V(`Les gars veulent bien, un temps. Pas toute l'année.`, `264, c'est mieux que 240. Ce n'est pas 300.`, `Vous payez tout le monde pour aller plus vite, alors qu'un seul poste bloque.`) } ] },
+      { t: 'say', who: 'ferhat', text: `Deuxième question${N}: quand produire. Domus commande 300 téléphones chaque mois, mais en novembre, pour le Black Friday, ce sera 50${N}% de plus. Et un téléphone qui attend sur une étagère perd environ 3${N}% de sa valeur chaque mois${N}: un nouveau modèle sort, l'ancien se vend moins cher.` },
+      { t: 'choice', id: 'flux', prompt: `Comment piloter la production${N}?`, options: [
+        { id: 'pousse', label: 'Produire d\'avance, et stocker', desc: 'Tu produis 15 % de plus que la commande, pour avoir toujours des téléphones prêts.', do: s => { s.flux = 'pousse'; },
+          chain: ch(['Les machines ne s\'arrêtent jamais', 'Un stock prêt pour les pics de commande'], ['Un stock qui grossit chaque mois', 'Chaque téléphone stocké perd de la valeur', 'De l\'argent immobilisé sur des étagères']),
+          voix: V(`Les étagères vont se remplir. Il faudra de la place.`, `Tant que j'ai mes 300, votre stock, c'est votre affaire.`, `Un stock, c'est de l'argent qui dort. Et là, il fond en dormant.`) },
+        { id: 'tire', label: 'Produire seulement ce que Domus commande', desc: 'Pas de stock : chaque téléphone produit part dans le camion.', do: s => { s.flux = 'tire'; },
+          chain: ch(['Aucun stock, aucune perte de valeur', 'Pas d\'argent immobilisé'], ['Aucune réserve si la demande grimpe', 'Le moindre problème se voit tout de suite sur les livraisons']),
+          voix: V(`On produit ce qui part. Propre. Mais si une machine lâche, on n'a rien d'avance.`, `Et en novembre, quand je vous en demanderai 450${N}?`, `Pas d'argent qui dort. Je préfère.`) },
+        { id: 'mixte', label: 'Produire la commande, plus une petite réserve de 100', desc: 'Un stock limité, gardé pour les imprévus.', do: s => { s.flux = 'mixte'; },
+          chain: ch(['Une réserve pour les imprévus', 'Un stock qui reste limité'], ['Un peu d\'argent immobilisé', 'Une réserve de 100 ne couvrira pas tout le pic de novembre']),
+          voix: V(`Cent téléphones d'avance, ça me laisse respirer.`, `C'est raisonnable.`, `Une réserve, pas un entrepôt. Bien.`) } ] },
+      { t: 'say', who: 'lou', text: `Et pour les pièces${N}? Le grossiste propose de nous livrer chaque matin exactement ce qu'il faut pour la journée. Ça nous fait 2${N}€ d'économie par téléphone, et plus aucun carton de pièces dans l'atelier. Sinon, on garde un mois d'avance en réserve.` },
+      { t: 'choice', id: 'appro', prompt: `Les pièces${N}?`, options: [
+        { id: 'jat', label: 'Livraison chaque matin, juste ce qu\'il faut', desc: '2 € économisés par téléphone, aucun stock de pièces.', set: { jat: true },
+          chain: ch(['2 € économisés par téléphone', 'Plus de place dans l\'atelier', 'Pas d\'argent bloqué en pièces'], ['Tout dépend du grossiste, chaque jour', 'Un seul retard de livraison arrête la chaîne']),
+          voix: V(`Si le camion n'arrive pas un matin, on regarde nos mains.`, `Vos fournisseurs, c'est votre affaire. Vos retards, c'est la mienne.`, `Moins de stock, moins d'argent bloqué. Tant que tout va bien.`) },
+        { id: 'secu', label: 'Garder un mois de pièces d\'avance', desc: 'Stockage et argent immobilisé : environ 600 € par mois.', set: { secu: true },
+          chain: ch(['La chaîne ne s\'arrête jamais faute de pièces', 'Tu encaisses les retards des fournisseurs'], ['600 € par mois', 'Des cartons partout']),
+          voix: V(`Au moins, on est tranquilles.`, `Je n'ai rien à redire.`, `600${N}€ par mois pour dormir tranquille. C'est une assurance.`) } ] },
+      { t: 'say', who: 'lou', if: s => s.flags.jat, text: `Mauvaise nouvelle${N}: le grossiste a un camion en panne et une grève à son entrepôt. Une semaine sans pièces. La chaîne tourne au ralenti tout le mois.` },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 2); }, text: s => `${tableau(s, 'Les deux premiers mois.')}${s.rep.ms[0].goulot === 1 && !s.flags.st2 ? 'Le diagnostic a encore bloqué toute la chaîne.' : ''}`, fx: fxPer },
+      { t: 'event', who: 'narr', do: commit, text: s => `Deux mois. Le compte affiche ${eur(s.tre)}.${s.stock > 0 ? ` ${s.stock} téléphones attendent en stock.` : ''}` }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'La qualité', sub: 'Domus compte chaque téléphone qui revient. Trouver la vraie cause vaut plus que punir quelqu\'un.',
+    steps: [
+      { t: 'say', who: 'vasseur', text: s => `Votre taux de retour du mois dernier${N}: ${pc(s.months[1].r)}. Le contrat dit 3${N}%. Nous avons retenu ${eur(s.months[1].qpen)} sur votre facture, et ce sera pareil chaque mois tant que ça dure.` },
+      { t: 'say', who: 'yanis', text: `On peut s'y prendre de trois façons. Tout vérifier à la fin, avant le carton. Ou faire en sorte que chaque poste vérifie son propre travail, pour que le défaut ne passe même pas au suivant. Ou viser la certification qualité, celle que réclament les grands clients.` },
+      { t: 'choice', id: 'qualite', prompt: `Ta démarche qualité${N}?`, options: [
+        { id: 'ctrl', label: 'Un contrôleur qui teste tout en fin de chaîne', desc: '2 100 €/mois de salaire. Chaque téléphone raté est refait : 4 € de plus par pièce.', set: { ctrl: true },
+          chain: ch(['Les défauts sont attrapés avant le carton', 'Moins de retours chez Domus'], ['On répare après coup ce qui a été mal fait', 'Le défaut, lui, continue d\'être fabriqué', '2 100 € par mois, plus 4 € par téléphone']),
+          voix: V(`On trie le bon du mauvais. Mais on continue de fabriquer du mauvais.`, `Moins de retours, c'est tout ce que je regarde.`, `Un salaire pour réparer ce qui n'aurait pas dû être cassé.`) },
+        { id: 'source', label: 'Chaque poste vérifie son travail avant de le passer', desc: 'Formation de l\'équipe : 3 000 €. Un mois un peu plus lent.', fx: { tre: -3000 }, set: { source: true },
+          chain: ch(['Le défaut est arrêté là où il naît', 'Chaque opérateur devient responsable de sa qualité', 'Moins de retours, sans contrôleur en plus'], ['3 000 € de formation', 'Le premier mois, la réparation ralentit']),
+          voix: V(`Samir a trouvé tout seul un connecteur mal clipsé que personne ne voyait. Ils aiment qu'on leur fasse confiance.`, `Une démarche sérieuse.`, `3${N}000${N}€ une fois, plutôt qu'un salaire tous les mois. Bien vu.`) },
+        { id: 'certif', label: 'Viser la certification qualité', desc: 'Consultant, procédures écrites, audit externe : 12 000 €. Effets dans quelques mois.', fx: { tre: -12000 }, set: { certif: true },
+          chain: ch(['Toutes les méthodes sont écrites et vérifiées', 'Un audit externe confirme ton sérieux', 'Un argument de poids pour négocier avec Domus'], ['12 000 €', 'Rien ne change avant plusieurs mois', 'Les pénalités continuent en attendant']),
+          voix: V(`Beaucoup de classeurs. Mais on saura enfin qui fait quoi, et comment.`, `Une entreprise certifiée, c'est un fournisseur que je garde.`, `12${N}000${N}€… J'espère que Domus vous le rendra en contrats.`) } ] },
+      { t: 'say', who: 'ferhat', text: `C'est bien, mais ça ne vous dit pas pourquoi ça casse. Avant d'agir, cherchez la cause. Elle vient forcément de quelque part${N}: des personnes, de la méthode, des pièces ou des machines. Lou a sorti les chiffres des deux derniers mois.` },
+      { t: 'say', who: 'lou', text: `<span class="pay"><span><b>Retours par opérateur</b></span><b></b><span>Samir · Léa · Malik · Jade</span><b>4,4 · 4,6 · 4,5 · 4,4${N}%</b><span><b>Retours par station</b></span><b></b><span>Station A · Station B</span><b>4,5 · 4,5${N}%</b><span><b>Retours par fournisseur de batteries</b></span><b></b><span>Cellia (habituel)</span><b>1,2${N}%</b><span>VoltX (depuis le mois 2, −2${N}€)</span><b style="color:var(--bad)">9,8${N}%</b><span><b>Panne la plus fréquente</b></span><b>batterie qui se vide</b></span>` },
+      { t: 'choice', id: 'cause', prompt: `D'où viennent les pannes${N}?`, options: [
+        { id: 'matiere', label: 'Des pièces : les batteries VoltX', desc: 'Revenir à Cellia, 3 € plus cher par téléphone, et exiger le numéro de lot sur chaque batterie.', do: s => { s.flags.lot = 3; },
+          chain: ch(['La vraie cause est supprimée', 'Les retours chutent dès le mois suivant', 'Chaque batterie a désormais son numéro de lot', 'La prochaine fois, tu sauras d\'où vient un problème'], ['3 € de plus par téléphone']),
+          voix: V(`9,8 contre 1,2. Les chiffres parlaient tout seuls.`, `Des retours qui baissent, enfin.`, `3${N}€ de plus par téléphone, contre 5${N}% de pénalité sur toute la facture. Le calcul est vite fait.`) },
+        { id: 'humain', label: 'Des opérateurs : il faut les recadrer', desc: 'Réunion, rappel des consignes, avertissement à la prochaine erreur.', fx: { equipe: -14 },
+          chain: ch(['Tu montres que tu réagis'], ['Les chiffres sont les mêmes pour les quatre opérateurs', 'Ils n\'y sont pour rien et le savent', 'Les retours ne baissent pas', 'L\'équipe se sent accusée à tort']),
+          voix: V(`Tu as vu les chiffres${N}? Ils sont tous à 4,5. Ce n'est pas eux.`, `Les retours n'ont pas bougé.`, `Vous avez cherché un coupable, pas une cause.`) },
+        { id: 'methode', label: 'De la méthode : réécrire les procédures', desc: 'Une semaine de travail pour Yanis, environ 1 000 €.', fx: { tre: -1000 },
+          chain: ch(['Des procédures plus claires'], ['La méthode n\'avait pas changé depuis des mois', 'Les pannes, elles, ont commencé au mois 2', 'Les retours ne baissent pas']),
+          voix: V(`Les procédures sont plus jolies. Les batteries, toujours aussi mauvaises.`, `Aucun changement de mon côté.`, `1${N}000${N}€ pour rien.`) },
+        { id: 'machine', label: 'Des machines : recalibrer les stations', desc: 'Intervention du fabricant : 1 500 €.', fx: { tre: -1500 },
+          chain: ch(['Des stations parfaitement réglées'], ['Les deux stations avaient le même taux', 'Ce n\'était pas elles', 'Les retours ne baissent pas']),
+          voix: V(`Le technicien n'a rien trouvé. Normal.`, `Aucun changement de mon côté.`, `1${N}500${N}€ pour rien.`) } ] },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 2); }, text: s => tableau(s, 'Mois 3 et 4.') + (s.flags.lot ? 'Les retours ont chuté dès que les batteries VoltX sont parties.' : 'Les retours n\'ont pas baissé. La cause est toujours là.'), fx: fxPer },
+      { t: 'event', who: 'narr', do: s => { commit(s); if (!s.flags.lot) { s.flags.lot = 5; s.flags.lotTard = true; } }, text: s => s.flags.lotTard ? `Quatre mois. Le compte affiche ${eur(s.tre)}. En triant les retours un par un, Lou finit par remarquer que presque toutes les batteries mortes sont des VoltX. Vous revenez à Cellia. Deux mois de pénalités pour rien.` : `Quatre mois. Le compte affiche ${eur(s.tre)}.` }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Les coûts', sub: 'Domus veut renégocier. Avant de répondre, il faut savoir combien coûte vraiment un téléphone.',
+    steps: [
+      { t: 'say', who: 'vasseur', text: `Bonne nouvelle${N}: nous voulons plus de téléphones. Mauvaise nouvelle pour vous${N}: un concurrent nous propose 215${N}€. Je vous demande le même prix. Et vous me dites combien vous pouvez nous livrer chaque mois.` },
+      { t: 'say', who: 'rocher', if: s => !s.flags.st2, text: s => `Je regarde vos chiffres${N}: depuis quatre mois, votre chaîne sort ${nb(Math.min(...caps(s, 5)))} téléphones, et c'est toujours le diagnostic qui bloque. Il est encore temps${N}: je peux vous prêter de quoi acheter la deuxième station.` },
+      { t: 'choice', id: 'rattrapage', if: s => !s.flags.st2, prompt: `La deuxième station de diagnostic${N}?`, options: [
+        { id: 'oui', label: 'L\'acheter maintenant', desc: '9 000 €, prêtés par la banque.', fx: { tre: -9000 }, set: { st2: true },
+          chain: s => ch(['Le diagnostic double sa capacité', `La chaîne passe à ${nb(Math.min(...caps(Object.assign({}, s, { flags: Object.assign({}, s.flags, { st2: true }) }), 5)))} téléphones par mois`], ['9 000 € de plus', 'Quatre mois de retards déjà payés']),
+          voix: V(`Enfin. La pile devant le diagnostic va fondre.`, `Je vais enfin recevoir mes camions complets${N}?`, `Mieux vaut tard que jamais.`) },
+        { id: 'non', label: 'Non, continuer ainsi', desc: 'Pas de nouvelle dépense.',
+          chain: ch(['Aucune dépense'], ['Le diagnostic bloque toujours la chaîne', 'Les retards continuent']), voix: V(`La pile est toujours là.`, `Toujours des camions incomplets.`, `Comme vous voudrez.`) } ] },
+      { t: 'say', who: 'ferhat', text: s => `Avant de répondre, calculons ce que vous coûte un téléphone. Il y a ce qui dépend du nombre de téléphones, et ce que vous payez chaque mois quoi qu'il arrive.<span class="pay"><span><b>Pour chaque téléphone</b></span><b></b><span>Achat du téléphone d'occasion</span><b>${eur(ACHAT)}</b><span>Pièces${s.flags.lot ? ' (batteries Cellia)' : ''}</span><b>${eur(cv(s, 5) - ACHAT)}</b><span><b>Chaque mois, quoi qu'il arrive</b></span><b></b><span>Salaires de l'atelier</span><b>${eur(SAL_PROD + (s.flags.rep3 ? SAL_OP : 0) + (s.flags.ctrl ? SAL_OP : 0))}</b><span>Loyer, énergie, assurance, comptable</span><b>${eur(INDIRECT + (s.flags.secu ? 600 : 0) + (s.flags.hs ? 2000 : 0))}</b></span>Le piège classique${N}: ne regarder que l'achat, les pièces et le travail des réparateurs. Avec 300 téléphones, on trouve environ ${eur(cv(s, 5) + SAL_PROD / 300)}. On se dit${N}: «${N}à 215${N}€, je gagne de l'argent${N}». Et on oublie le loyer, l'énergie, l'assurance, le comptable.` },
+      { t: 'qty', id: 'volume', prompt: 'Simule : combien de téléphones par mois ?', min: 150, max: 500, step: 10, def: 300, show: n => nb(n) + ' téléphones',
+        info: (s, n) => { const v = cv(s, 5), f = fixes(s, 5), cu = v + f / n, sr = Math.ceil(f / (215 - v));
+          return `Coût d'un téléphone, tout compris${N}: <b>${eur(v)} + ${eur(f)} ÷ ${n} = ${eur(cu)}</b><br>À 215${N}€, résultat du mois${N}: <b style="color:${(215 - v) * n - f >= 0 ? 'var(--good)' : 'var(--bad)'}">${sg((215 - v) * n - f)}</b><br>À 215${N}€, il faut vendre au moins <b>${sr > 0 ? nb(sr) : '∞'} téléphones</b> par mois pour ne pas perdre d'argent.`; },
+        resolve: (s, n) => ({ band: n < 300 ? 'bas' : n > 380 ? 'haut' : 'moyen', fx: {}, chain: ch(['Plus de téléphones', 'Les charges fixes se répartissent sur plus de téléphones', 'Le coût de chaque téléphone baisse'], ['Mais il faut pouvoir les produire']) }) },
+      { t: 'say', who: 'yanis', text: s => `Avant de promettre un chiffre à Domus, rappelle-toi ce que la chaîne sait sortir aujourd'hui${N}: <b>${nb(Math.min(...caps(s, 5)))} téléphones par mois</b>. Le poste le plus lent, maintenant, c'est ${POSTES[caps(s, 5).indexOf(Math.min(...caps(s, 5)))].toLowerCase()}.` },
+      { t: 'say', who: 'lou', text: `Il y a peut-être un moyen de baisser nos coûts. Aujourd'hui, on achète les écrans neufs, 35${N}€ pièce. On pourrait réparer nous-mêmes les écrans abîmés au lieu de les remplacer. Ou, à l'inverse, passer aux écrans d'origine du fabricant, plus chers mais irréprochables.` },
+      { t: 'choice', id: 'ecrans', prompt: `Les écrans${N}?`, options: [
+        { id: 'achat', label: 'Continuer à acheter des écrans compatibles', desc: 'Rien ne change : 35 € l\'écran.', do: s => { s.ecrans = 'achat'; },
+          chain: ch(['Aucun changement, aucun risque'], ['Aucune économie']), voix: V(`On garde ce qui marche.`, `Pas de changement de mon côté.`, `Prudent.`) },
+        { id: 'reco', label: 'Réparer les écrans nous-mêmes', desc: '15 € économisés par téléphone. Mais chaque réparation prend plus de temps.', do: s => { s.ecrans = 'reco'; },
+          chain: s => ch(['15 € de moins par téléphone', 'Un savoir-faire de plus dans l\'atelier'], ['La réparation perd 15 % de sa capacité', `Elle passe à environ ${nb(caps(Object.assign({}, s, { ecrans: 'reco' }), 5)[2])} téléphones par mois`, 'Un peu plus de retours au début']),
+          voix: V(`On sait faire. Mais c'est long, un écran. Mes réparateurs vont y passer du temps.`, `Tant que la qualité suit.`, `15${N}€ par téléphone, ça change complètement votre coût.`) },
+        { id: 'origine', label: 'Passer aux écrans d\'origine', desc: '20 € de plus par téléphone, beaucoup moins de pannes.', do: s => { s.ecrans = 'origine'; },
+          chain: ch(['Des écrans irréprochables', 'Moins de retours'], ['20 € de plus par téléphone', 'Ton coût monte au moment où Domus veut baisser son prix']),
+          voix: V(`Les plus beaux écrans du marché.`, `La qualité, j'aime. Mais je ne paierai pas plus.`, `Vous augmentez vos coûts au moment où votre client baisse son prix${N}?`) } ] },
+      { t: 'qty', id: 'commit', prompt: 'Combien t\'engages-tu à livrer chaque mois ?', min: 200, max: 450, step: 10, def: 300, show: n => nb(n) + ' / mois',
+        info: (s, n) => { const c = Math.min(...caps(s, 6)); return `Ta chaîne sait en sortir <b>${nb(c)}</b> par mois.<br>${n > c ? `<span style="color:var(--bad)">Tu promets ${n - c} téléphones de plus que tu ne sais en produire${N}: retards et pénalités assurés.</span>` : 'Tu peux tenir cette promesse.'}<br>Novembre${N}: Domus commandera 50${N}% de plus.`; },
+        resolve: (s, n) => { s.commit = n; const c = Math.min(...caps(s, 6)); return { band: n > c ? 'trop' : n < 290 ? 'bas' : 'ok', fx: {}, chain: n > c ? ch(['Un gros volume promis'], ['Plus que ta chaîne ne sait produire', 'Des retards chaque mois', 'Des pénalités sur chaque téléphone manquant']) : ch(['Une promesse que tu peux tenir', 'Tes charges fixes se répartissent sur ce volume'], []) }; } },
+      { t: 'say', who: 'ferhat', text: s => { const perf = s.qual >= 97 && s.delai >= 95; s.prixNego = s.flags.certif || perf ? 228 : 222;
+          return `Dernière chose, le prix. Vous pouvez accepter les 215${N}€, ou négocier. ${s.flags.certif ? 'Votre certification est un argument que le concurrent n\'a pas. ' : ''}${perf ? `Vos chiffres récents sont bons${N}: ${pc(s.qual)} de qualité, ${s.delai}${N}% de livraisons à l'heure. Ça pèse.` : `Vos chiffres récents ne vous aident pas${N}: ${pc(s.qual)} de qualité, ${s.delai}${N}% à l'heure.`}`; } },
+      { t: 'choice', id: 'prix', prompt: `Le prix${N}?`, options: [
+        { id: 'accepter', label: 'Accepter 215 €', desc: 'Le contrat est signé ce soir.', do: s => { s.prix = 215; },
+          chain: s => { const v = cv(s, 6), f = fixes(s, 6), cu = v + f / s.commit; return cu > 215 ? ch(['Le contrat est sécurisé'], [`Un téléphone te coûte ${eur(cu)}, tout compris, à ${s.commit} par mois`, `Tu en perds ${eur(cu - 215)} sur chacun`, 'Plus tu livres, plus tu perds']) : ch(['Le contrat est sécurisé', `Un téléphone te coûte ${eur(cu)}, tout compris`, `Il te reste ${eur(215 - cu)} par téléphone`], ['Une marge très mince']); },
+          voix: V(`J'espère que tu as bien fait le calcul.`, `Parfait. Ravie de continuer avec vous.`, `Montrez-moi votre coût de revient. Tout compris, pas seulement les pièces.`) },
+        { id: 'negocier', label: s => `Négocier : demander ${s.prixNego} €`, desc: 'Tu présentes tes chiffres de qualité et de délais.', do: s => { s.prix = s.prixNego; },
+          chain: s => ch([`Domus accepte ${s.prixNego} €`, s.prixNego === 228 ? 'Ta qualité et ta fiabilité ont un prix' : 'Domus reste prudent'], s.prixNego === 228 ? [] : ['Tes chiffres ne te permettaient pas d\'obtenir plus']),
+          voix: s => V(`Bien joué.`, s.prixNego === 228 ? `Vos chiffres sont bons. ${s.prixNego}${N}€, c'est d'accord.` : `${s.prixNego}${N}€, et c'est mon dernier mot. Améliorez vos délais.`, `Voilà ce que vaut une qualité qu'on peut prouver.`) },
+        { id: 'refuser', label: 'Refuser et garder 250 €', desc: 'Domus ne te commandera plus que 150 téléphones par mois.', do: s => { s.commit = 150; },
+          chain: ch(['Tu gardes ton prix'], ['Domus divise sa commande par deux', 'Tes charges fixes se répartissent sur 150 téléphones seulement', 'Chaque téléphone te coûte beaucoup plus cher']),
+          voix: V(`On va s'ennuyer, avec 150 par mois.`, `150 par mois, et le reste au concurrent.`, `Un bon prix sur trop peu de téléphones ne paie pas vos salaires.`) } ] },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 2); }, text: s => tableau(s, 'Mois 5 et 6.'), fx: fxPer },
+      { t: 'event', who: 'narr', do: commit, text: s => `Six mois. Le compte affiche ${eur(s.tre)}.` }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Le numérique', sub: 'Trois outils, trois promesses. Aucun ne règle un problème qu\'il ne vise pas.',
+    steps: [
+      { t: 'say', who: 'lou', text: s => `On a encore des soucis. Chaque mois, environ 2${N}% des colis partent avec une erreur${N}: mauvais modèle, mauvaise adresse. On tape les commandes dans un tableur, le stock dans un autre, les factures dans un troisième. Et on perd environ un téléphone sur cent dans l'atelier, on ne sait jamais où il est.` },
+      { t: 'say', who: 'ferhat', text: s => `Trois fournisseurs sont venus vous voir. Regardez où est votre problème avant de choisir. Votre chaîne aujourd'hui${N}:${capsHtml(s, 7)}` },
+      { t: 'choice', id: 'num1', prompt: `Premier outil${N}?`, options: [
+        { id: 'erp', label: 'Un logiciel de gestion unique', desc: 'Commandes, stock, achats et factures dans une seule base. 6 000 € d\'installation, 700 €/mois.', fx: { tre: -6000 }, set: { erp: true },
+          chain: ch(['Une seule saisie, partagée par tous', 'Les erreurs d\'expédition disparaissent presque', 'Lou ne passe plus deux jours par semaine à recopier : 600 € économisés par mois', 'Tu connais ton stock et tes coûts en temps réel'], ['6 000 €, puis 700 € par mois', 'Il faudra que tout le monde change ses habitudes']),
+          voix: V(`Si on m'apprend à m'en servir, je signe tout de suite.`, `Moins d'erreurs de livraison${N}? Enfin.`, `Une charge de plus, mais des erreurs en moins.`) },
+        { id: 'ia', label: 'Une IA qui note l\'état des téléphones sur photo', desc: 'Accélère le diagnostic de 25 %. 8 000 €.', fx: { tre: -8000 }, set: { ia: 'bien' },
+          chain: s => { const c = caps(s, 7), g = c.indexOf(Math.min(...c)); return g === 1 ? ch(['Le diagnostic va 25 % plus vite', 'C\'est justement ton poste le plus lent'], ['8 000 €']) : ch(['Le diagnostic va 25 % plus vite'], ['Le diagnostic n\'est pas ton poste le plus lent', `C'est ${POSTES[g].toLowerCase()} qui limite la chaîne`, 'Pas un téléphone de plus ne sortira', '8 000 €']); },
+          voix: V(`Elle va plus vite que Samir, c'est vrai. Samir, lui, se demande à quoi il va servir.`, `Pourquoi pas.`, `8${N}000${N}€… pour accélérer quel poste, exactement${N}?`) },
+        { id: 'rfid', label: 'Des étiquettes connectées sur chaque téléphone', desc: 'On sait où est chaque appareil, en temps réel. Le tri va 20 % plus vite. 4 000 €.', fx: { tre: -4000 }, set: { rfid: true },
+          chain: s => { const c = caps(s, 7), g = c.indexOf(Math.min(...c)); return ch(['Plus aucun téléphone perdu dans l\'atelier', 'Le tri va 20 % plus vite', 'Chaque téléphone a son historique'], g === 0 ? ['4 000 €'] : ['Le tri n\'est pas ton poste le plus lent', '4 000 €']); },
+          voix: V(`Fini de chercher le téléphone 4512 sous les cartons.`, `La traçabilité, j'apprécie.`, `4${N}000${N}€ pour retrouver un téléphone sur cent. Ça se calcule.`) },
+        { id: 'rien', label: 'Rien pour l\'instant', desc: 'Tu gardes ton argent.',
+          chain: ch(['Aucune dépense'], ['Les erreurs et les pertes continuent']), voix: V(`On continue avec nos tableurs, alors.`, `Les erreurs d'expédition continuent.`, `Vous économisez. Vous perdez aussi, chaque mois.`) } ] },
+      { t: 'choice', id: 'num2', if: () => H.num1 !== 'rien', prompt: `Un deuxième outil${N}?`, options: [
+        { id: 'erp', label: 'Le logiciel de gestion unique', desc: '6 000 € + 700 €/mois.', fx: { tre: -6000 }, set: { erp: true }, lock: s => s.flags.erp ? 'Déjà choisi' : null,
+          chain: ch(['Une seule saisie', 'Moins d\'erreurs d\'expédition'], ['6 000 € + 700 €/mois']), voix: V(`On range enfin nos tableurs.`, `Bien.`, `D'accord.`) },
+        { id: 'ia', label: 'L\'IA de diagnostic', desc: '8 000 €. Diagnostic +25 %.', fx: { tre: -8000 }, set: { ia: 'bien' }, lock: s => s.flags.ia ? 'Déjà choisi' : null,
+          chain: ch(['Diagnostic plus rapide'], ['8 000 €']), voix: V(`Samir s'inquiète.`, `Pourquoi pas.`, `Encore 8${N}000${N}€.`) },
+        { id: 'rfid', label: 'Les étiquettes connectées', desc: '4 000 €. Tri +20 %, plus de pertes.', fx: { tre: -4000 }, set: { rfid: true }, lock: s => s.flags.rfid ? 'Déjà choisi' : null,
+          chain: ch(['Plus de téléphones perdus', 'Tri plus rapide'], ['4 000 €']), voix: V(`On saura où est tout.`, `Bien.`, `D'accord.`) },
+        { id: 'stop', label: 'S\'arrêter là', desc: 'Un seul outil suffit.', chain: ch(['Tu gardes de la trésorerie'], []), voix: V(`Un chantier à la fois, c'est mieux.`, `Comme vous voulez.`, `Raisonnable.`) } ] },
+      { t: 'say', who: 'yanis', if: s => s.flags.erp, text: `Pour le logiciel, l'éditeur propose deux jours de formation pour toute l'équipe, 3${N}000${N}€. Sinon on l'installe vendredi et on se débrouille lundi.` },
+      { t: 'choice', id: 'formation', if: s => s.flags.erp, prompt: `Former l'équipe${N}?`, options: [
+        { id: 'oui', label: 'Former tout le monde avant de démarrer', desc: '3 000 € et deux jours de production en moins.', fx: { tre: -3000, equipe: 4 }, set: { formation: true },
+          chain: ch(['Chacun sait s\'en servir dès le premier jour', 'Les erreurs disparaissent tout de suite'], ['3 000 €', 'Un mois un peu plus lent']),
+          voix: V(`Deux jours, c'est rien. Tout le monde a compris.`, `La transition s'est faite sans que je la voie.`, `3${N}000${N}€ pour éviter un mois de chaos. Bonne affaire.`) },
+        { id: 'non', label: 'Installer et apprendre sur le tas', desc: 'Aucun frais.', fx: { equipe: -12 },
+          chain: ch(['Aucun frais'], ['Un mois de chaos', 'Commandes saisies deux fois, ou pas du tout', 'La production chute de 25 % ce mois-là', 'L\'équipe est furieuse']),
+          voix: V(`Personne ne sait où cliquer. Samir a ressaisi le même stock trois fois.`, `Que se passe-t-il chez vous${N}? La moitié des camions sont incomplets.`, `Vous avez économisé 3${N}000${N}€. Combien a coûté ce mois-ci${N}?`) } ] },
+      { t: 'say', who: 'samir', if: s => s.flags.ia, text: `On dit que l'IA va faire le tri à ma place. Je vais être viré${N}?` },
+      { t: 'choice', id: 'iaVite', if: s => s.flags.ia, prompt: `Comment introduire l'IA${N}?`, options: [
+        { id: 'bien', label: 'Expliquer, et entraîner l\'IA avec Samir', desc: 'Personne n\'est licencié. Samir aide à apprendre à l\'IA sur 5 000 photos, puis contrôle ses notes. 2 000 €.', fx: { tre: -2000, equipe: 6 },
+          chain: ch(['L\'IA apprend sur beaucoup d\'exemples', 'Ses notes sont fiables', 'Samir devient le contrôleur de l\'IA', 'Personne n\'a peur pour son poste'], ['2 000 €, et un mois de préparation']),
+          voix: V(`Samir est devenu le meilleur juge de l'IA. Il repère ses erreurs en une seconde.`, `Vos téléphones sont mieux notés qu'avant.`, `2${N}000${N}€ de plus, mais un outil qui marche.`) },
+        { id: 'vite', label: 'La lancer tout de suite', desc: 'L\'éditeur l\'a entraînée sur 500 photos. Pas de temps à perdre en explications.', do: s => { s.flags.ia = 'vite'; }, fx: { equipe: -10 },
+          chain: ch(['L\'IA tourne dès lundi'], ['Entraînée sur trop peu d\'exemples', 'Elle se trompe sur les rayures et les écrans', 'Des téléphones mal notés partent chez Domus', 'Samir pense qu\'on le remplace']),
+          voix: V(`Elle a noté «${N}parfait${N}» un écran fendu. Samir l'a vu. Il n'a rien dit.`, `Pourquoi recevons-nous des téléphones «${N}comme neufs${N}» rayés${N}?`, `Un outil mal préparé, c'est une dépense, pas un investissement.`) } ] },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 3); }, text: s => tableau(s, 'Mois 7 à 9.') + (s.flags.erp && !s.flags.formation ? 'Le mois 7 a été un chaos complet.' : ''), fx: fxPer },
+      { t: 'event', who: 'narr', do: commit, text: s => `Neuf mois. Le compte affiche ${eur(s.tre)}.` }
+    ] },
+
+  /* ------------------------------ ACTE 5 ------------------------------ */
+  { num: 5, title: 'L\'organisation', sub: 'Douze personnes, un pic de commandes et un absent. L\'organisation du travail se révèle quand tout va mal.',
+    steps: [
+      { t: 'say', who: 'yanis', text: `On est douze maintenant. Ça ne peut plus marcher comme quand on était trois. Il faut décider qui fait quoi, et qui décide de quoi.` },
+      { t: 'choice', id: 'org', prompt: `Comment organiser l'atelier${N}?`, options: [
+        { id: 'taylor', label: 'Un geste par poste, chronométré', desc: 'Chacun fait toujours la même tâche, la plus courte possible. Un consultant mesure chaque geste : 2 500 €.', fx: { tre: -2500 }, set: { org: 'taylor' },
+          chain: ch(['Chacun devient très rapide sur son geste', 'Production +20 % dès le premier mois', 'Facile à former : un geste s\'apprend en une heure'], ['Le même geste 400 fois par jour', 'L\'ennui, puis la lassitude', 'Personne ne sait faire le poste du voisin', 'Les absences et les départs augmentent']),
+          voix: V(`Samir ne fait plus que dévisser des écrans. Il m'a demandé combien de temps ça allait durer.`, `Vos cadences sont impressionnantes.`, `Productif, et peu cher en formation. À court terme.`) },
+        { id: 'lean', label: 'Chasser les gaspillages, avec l\'équipe', desc: 'Chaque semaine, l\'équipe repère ce qui fait perdre du temps ou de l\'argent et propose des améliorations. Formation : 4 000 €.', fx: { tre: -4000 }, set: { org: 'lean' },
+          chain: ch(['Les idées viennent de ceux qui font le travail', 'Moins d\'attentes, moins de déplacements, moins de pièces gâchées', 'Petits progrès chaque semaine, qui s\'additionnent', 'Coûts et pannes baissent'], ['4 000 € de formation', 'Les gains arrivent progressivement']),
+          voix: V(`Lou a déplacé les bacs de pièces d'un mètre. On gagne vingt minutes par jour. Et ça, c'était la première semaine.`, `Vos délais s'améliorent mois après mois.`, `Une amélioration qui ne coûte presque rien et qui dure.`) },
+        { id: 'auto', label: 'Des équipes autonomes, Yanis décide', desc: 'Deux équipes polyvalentes. Yanis organise le travail sans te demander. Formation à plusieurs postes : 3 000 €, prime de 300 €/mois pour Yanis.', fx: { tre: -3000, equipe: 6 }, set: { org: 'auto' },
+          chain: ch(['Chacun sait tenir plusieurs postes', 'Les décisions se prennent sur place, vite', 'L\'équipe se sent responsable', 'Un absent est remplacé tout de suite'], ['3 000 € de formation', 'Tu décides moins de choses toi-même', 'Gains de vitesse plus modestes']),
+          voix: V(`Merci de me faire confiance. Tu ne le regretteras pas.`, `Votre chef d'atelier répond à tout, tout de suite. Agréable.`, `Une prime et une formation${N}: un investissement sur les gens.`) } ] },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 1); }, text: s => tableau(s, 'Mois 10, première organisation.'), fx: fxPer },
+      { t: 'event', who: 'narr', do: commit, text: s => `Dix mois. Le compte affiche ${eur(s.tre)}.` },
+      { t: 'say', who: 'vasseur', text: s => `Black Friday${N}! Comme prévu, il me faut 50${N}% de plus ce mois-ci${N}: ${nb(demande(s, 11))} téléphones.${s.stock > 0 ? ` Vous avez ${s.stock} téléphones en stock, c'est déjà ça.` : ''}` },
+      { t: 'say', who: 'yanis', text: s => `La chaîne en sort ${nb(Math.min(...caps(s, 11)))} par mois, en temps normal. ${s.stock > 0 ? `Avec le stock, on peut en livrer ${nb(Math.min(...caps(s, 11)) + s.stock)}.` : 'Et on n\'a rien en stock.'} Il manque ${nb(Math.max(0, demande(s, 11) - Math.min(...caps(s, 11)) - s.stock))} téléphones.` },
+      { t: 'choice', id: 'bf', prompt: `Le pic de novembre${N}?`, options: [
+        { id: 'interim', label: 'Trois intérimaires pour le mois', desc: '8 400 €. +30 % de production. Ils ne connaissent pas le métier.', fx: { tre: -8400 }, set: { bf: 'interim' },
+          chain: ch(['+30 % de bras dès lundi'], ['8 400 €', 'Ils apprennent sur le tas', 'Plus d\'erreurs et de retours ce mois-là']),
+          voix: V(`Ils sont motivés, mais il faut tout leur montrer.`, `Je veux mes téléphones, et en bon état.`, `8${N}400${N}€ pour un mois.`) },
+        { id: 'heures', label: 'Heures supplémentaires pour tous', desc: '3 500 €. +20 % de production. L\'équipe finit épuisée.', fx: { tre: -3500, equipe: -12 }, set: { bf: 'heures' },
+          chain: ch(['+20 % avec des gens qui connaissent le métier'], ['3 500 €', 'Des semaines de 45 heures', 'Une équipe vidée en décembre']),
+          voix: V(`On va le faire. Mais on va le sentir.`, `Bien.`, `Ça coûte moins cher que des intérimaires. Pas en fatigue.`) },
+        { id: 'equipes', label: 'Laisser les équipes s\'organiser', desc: 'Les équipes polyvalentes proposent de travailler en horaires décalés. +25 %, 2 000 €.', fx: { tre: -2000, equipe: -2 }, set: { bf: 'equipes' }, lock: s => s.flags.org === 'auto' ? null : 'Il faut des équipes autonomes',
+          chain: ch(['L\'équipe a trouvé sa solution', '+25 % sans recruter', 'Tout le monde sait tenir plusieurs postes'], ['2 000 € de primes']),
+          voix: V(`On a fait le planning entre nous. Deux équipes, du matin au soir.`, `Impressionnant.`, `La solution est venue d'eux, et elle coûte peu.`) },
+        { id: 'prevenir', label: 'Prévenir Domus : une partie arrivera en décembre', desc: 'Tu livres trois quarts de la commande, le reste le mois suivant.', fx: { delai: -5 }, set: { bf: 'prevenir' },
+          chain: ch(['Aucun coût en plus', 'Domus est prévenu à l\'avance'], ['Domus manque de stock pour son plus gros mois', 'Décembre sera chargé', 'Tu perds des points pour le renouvellement']),
+          voix: V(`Honnête, au moins.`, `Vous me lâchez le mois où je vends le plus. Je m'en souviendrai à l'audit.`, `Pas de frais, mais un client mécontent.`) } ] },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 1); }, text: s => tableau(s, 'Novembre, le Black Friday.'), fx: fxPer },
+      { t: 'event', who: 'narr', do: commit, text: s => `Onze mois. Le compte affiche ${eur(s.tre)}.` },
+      { t: 'say', who: 'yanis', text: s => `Tuile${N}: Malik, notre meilleur réparateur, s'est cassé le poignet. Trois semaines d'arrêt. ${({ taylor: `Le problème, c'est que personne d'autre ne sait faire son geste. On a juste appris le nôtre.`, lean: `On va s'organiser, deux personnes connaissent à peu près son poste.`, auto: `Pas de panique, on est tous formés sur plusieurs postes. On se répartit son travail.` })[s.flags.org]}` },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 1); }, text: s => tableau(s, 'Décembre, avec un réparateur en moins.') + ({ taylor: 'La réparation a perdu 40 % de sa capacité. Et la lassitude se paie${N}: deux opérateurs ont déposé leur démission.', lean: 'La réparation a ralenti, sans s\'effondrer.', auto: 'La réparation a à peine ralenti.' })[s.flags.org].replace('${N}', N), fx: fxPer },
+      { t: 'event', who: 'narr', do: commit, text: s => `Un an. Le compte affiche ${eur(s.tre)}.` }
+    ] },
+
+  /* ------------------------------ ACTE 6 ------------------------------ */
+  { num: 6, title: 'L\'audit', sub: 'Mme Vasseur arrive avec son classeur. Elle a tout noté, mois par mois.', final: true,
+    steps: [
+      { t: 'say', who: 'vasseur', text: s => { const l = s.months.slice(-3); const q = 100 - l.reduce((a, m) => a + m.r, 0) / 3, d = l.reduce((a, m) => a + m.liv - m.err, 0) / l.reduce((a, m) => a + m.dem, 0) * 100;
+          s.lastQ = q; s.lastD = d; s.lastRes = s.months.filter(m => m.mo >= 5).reduce((a, m) => a + m.res, 0);
+          return `Voici votre année.<span class="pay">${s.hist.map(h => `<span>Jusqu'au mois ${h.m}</span><b>${sg(h.res)}</b>`).join('')}<span class="tot">Qualité, trois derniers mois</span><b class="tot">${pc(q)}</b><span class="tot">Livré à l'heure, trois derniers mois</span><b class="tot">${pc(d)}</b></span>Notre exigence${N}: au moins 97${N}% de qualité et 95${N}% de livraisons à l'heure.`; } },
+      { t: 'say', who: 'rocher', text: s => s.lastRes < 0 ? `Et de mon côté${N}: depuis le nouveau contrat, au mois 5, vous avez perdu ${eur(-s.lastRes)}. Vous travaillez beaucoup pour perdre de l'argent.` : `De mon côté${N}: depuis le nouveau contrat, au mois 5, vous avez gagné ${eur(s.lastRes)}. Votre trésorerie est à ${eur(s.tre)}.` }
+    ] }
+  ],
+
+  endings: [
+    { id: 'faillite', when: s => s.tre < -40000, cut: true, title: 'Faillite', stamp: 'Crédit coupé', color: '#FF5C6A',
+      text: s => `Ta trésorerie a dépassé la limite accordée par la banque. Tu ne peux plus payer les salaires de douze personnes. ${s.prix === 215 ? 'Tu vendais chaque téléphone moins cher qu\'il ne te coûtait vraiment.' : 'Les pertes de chaque mois se sont accumulées plus vite que tu ne pouvais les combler.'} Rebond est placé en redressement judiciaire.` },
+    { id: 'depart', when: s => s.equipe <= 15, cut: true, title: 'L\'atelier se vide', stamp: 'Démissions', color: '#FF5C6A',
+      text: `Un matin, trois lettres de démission sur ton bureau. Puis deux autres. Sans personne pour faire tourner les postes, la chaîne s'arrête, et Domus cherche un autre fournisseur.` },
+    { id: 'perte', when: s => s.lastRes < 0, title: 'Plus on vend, plus on perd', stamp: 'Vendu à perte', color: '#FFC64F',
+      text: s => `Domus est satisfait, mais M. Rocher ne l'est pas. ${s.prix <= 215 ? `À 215${N}€, ton prix couvrait l'achat, les pièces et les réparateurs, mais pas le loyer, l'énergie ni le reste. Chaque téléphone livré te faisait perdre de l'argent.` : s.commit < 250 ? 'Tes charges fixes étaient réparties sur trop peu de téléphones : chacun te coûtait plus cher qu\'il ne rapportait.' : 'Tes coûts ont grimpé plus vite que tes ventes.'}` },
+    { id: 'qualite', when: s => s.lastQ < 96.5, title: 'Pénalités', stamp: 'Non renouvelé', color: '#FF5C6A',
+      text: `Mme Vasseur referme son classeur. «${N}Trop de téléphones reviennent. Nos clients se plaignent à nous, pas à vous.${N}» Domus ne renouvelle pas le contrat.` },
+    { id: 'goulot', when: s => s.lastD < 90, title: 'Le goulot', stamp: 'Non renouvelé', color: '#FF5C6A',
+      text: s => `«${N}Vos téléphones sont bons. Mais il en manque un sur dix, chaque mois.${N}» Ta chaîne n'a jamais suivi ce que tu avais promis. Domus confie le contrat à un concurrent qui livre à l'heure.` },
+    { id: 'renouvele', when: s => s.lastQ >= 97 && s.lastD >= 95 && s.tre >= 0, title: 'Contrat renouvelé', stamp: 'Trois ans', color: '#4CD97B',
+      text: s => `Mme Vasseur sourit pour la première fois de l'année. «${N}Trois ans, et nous doublons les volumes.${N}» Ta chaîne livre à l'heure, ce qui en sort tient, et chaque téléphone rapporte plus qu'il ne coûte.${s.flags.certif ? ' Ta certification t\'ouvre déjà les portes d\'un opérateur téléphonique.' : ''}` },
+    { id: 'sursis', when: s => true, title: 'Renouvelé, sous conditions', stamp: 'Six mois d\'essai', color: '#FFC64F',
+      text: s => `«${N}Six mois de plus, pas trois ans.${N}» Domus te laisse une chance, sous surveillance. ${s.lastQ < 97 ? 'Ta qualité reste juste.' : ''} ${s.lastD < 95 ? 'Tes livraisons arrivent trop souvent en retard.' : ''} ${s.tre < 0 ? 'Et ta trésorerie est dans le rouge.' : ''}` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['invest', 'flux'], title: 'Acte 1 — Le flux', text: (h, s) => {
+        const i = h.invest !== 'st2' && h.rattrapage === 'oui' ? `Tu as d'abord investi ailleurs que sur le diagnostic, le <em>goulot d'étranglement</em> : le poste dont la capacité limite toute la chaîne. Pendant quatre mois, la production n'a pas bougé, jusqu'à ce que tu achètes enfin la deuxième station. La <em>capacité de production</em> d'une chaîne est celle de son poste le plus lent.` : h.invest === 'st2' ? 'Tu as investi sur le diagnostic, le <em>goulot d\'étranglement</em> : le poste dont la capacité limite toute la chaîne. C\'était le seul investissement qui augmentait la production.' : `Tu as investi ailleurs que sur le diagnostic, le <em>goulot d\'étranglement</em>. La <em>capacité de production</em> d\'une chaîne est celle de son poste le plus lent : améliorer un autre poste ne produit rien de plus.`;
+        const f = h.flux === 'pousse' ? 'En produisant au maximum pour stocker, tu as choisi la <em>production en flux poussé</em> : on produit d\'abord, on vend ensuite. Le stock rassure, mais il immobilise de l\'argent et perd de la valeur.' : h.flux === 'tire' ? 'En produisant seulement ce que Domus commandait, tu as choisi la <em>production en flux tiré</em> : c\'est la commande qui déclenche la production. Pas de stock, mais aucune réserve face à un pic.' : 'Avec ta réserve de 100 téléphones, tu as choisi un <em>stock de sécurité</em> : un flux tiré, avec une marge pour les imprévus.';
+        return `${i} ${f} Pour les pièces, ${h.appro === 'jat' ? 'tu as choisi le <em>juste-à-temps</em> : zéro stock, des coûts plus bas, mais une dépendance totale au fournisseur. Une semaine de retard, et la chaîne s\'est arrêtée.' : 'tu as gardé un stock de pièces : plus cher, mais la chaîne ne s\'est jamais arrêtée.'} Faire circuler les pièces et les téléphones, du fournisseur jusqu\'au camion de Domus, c\'est la <em>logistique</em>.`; },
+      chain: () => ({ good: ['Repérer le goulot', 'Investir sur ce poste', 'La capacité de toute la chaîne augmente'], bad: ['Investir ailleurs', 'Le goulot bloque toujours', 'Production inchangée'] }) },
+    { act: 2, needs: ['qualite', 'cause'], title: 'Acte 2 — La qualité', text: (h, s) => {
+        const q = h.qualite === 'ctrl' ? 'Avec un contrôleur en bout de chaîne, tu as fait du <em>contrôle qualité</em> : on trie les produits ratés après coup. Utile, mais on continue de fabriquer des défauts.' : h.qualite === 'source' ? 'En faisant vérifier chaque poste par celui qui y travaille, tu as choisi l\'<em>autocontrôle</em> et la qualité à la source : on empêche le défaut de naître plutôt que de le trier à la fin.' : 'En visant la <em>certification</em> (comme la norme ISO 9001), tu as construit une <em>démarche qualité</em> : des méthodes écrites, vérifiées par un organisme extérieur, qui rassurent les clients.';
+        const c = h.cause === 'matiere' ? 'Tu as trouvé la vraie cause grâce aux données.' : 'Tu as d\'abord accusé la mauvaise cause : les chiffres montraient pourtant que tous les opérateurs et toutes les stations avaient le même taux.';
+        return `${q} Pour chercher une cause, on passe en revue les grandes familles : la main-d\'œuvre, la méthode, la matière, le matériel et le milieu (les <em>5 M</em> du diagramme d\'Ishikawa, ou diagramme <em>causes-effet</em>). ${c} Savoir de quel lot vient chaque batterie, c\'est la <em>traçabilité</em>. Corriger la cause pour que le problème ne revienne pas, c\'est l\'<em>amélioration continue</em>. Le <em>taux de retour</em> est l\'<em>indicateur</em> qui mesurait ta qualité.`; },
+      chain: () => ({ good: ['Mesurer (taux de retour)', 'Chercher la cause (5 M)', 'Corriger à la source', 'Amélioration continue'], bad: ['Chercher un coupable', 'La cause reste', 'Les pénalités continuent'] }) },
+    { act: 3, needs: ['prix'], title: 'Acte 3 — Les coûts', text: (h, s) => {
+        return `Certains coûts suivent le nombre de téléphones : ce sont les <em>coûts variables</em> (achat, pièces). D\'autres restent les mêmes chaque mois : ce sont les <em>coûts fixes</em> (salaires, loyer, énergie). Les coûts qu\'on peut rattacher directement à un téléphone sont des <em>coûts directs</em> ; ceux qu\'il faut répartir (loyer, comptable) sont des <em>coûts indirects</em>. Tout additionner donne le <em>coût de revient</em>. Comme les coûts fixes se répartissent sur le volume, plus on produit, plus chaque téléphone coûte moins cher : c\'est pourquoi le volume promis à Domus comptait. Le nombre de téléphones à partir duquel on ne perd plus d\'argent s\'appelle le <em>seuil de rentabilité</em>. ${h.prix === 'accepter' ? 'En acceptant 215 €, tu as raisonné avec une partie seulement de tes coûts.' : h.prix === 'negocier' ? 'En négociant avec tes chiffres de qualité, tu as fait payer ta fiabilité.' : 'En refusant, tu as gardé ton prix mais réparti tes coûts fixes sur trop peu de téléphones.'} ${h.ecrans === 'reco' ? 'En réparant toi-même les écrans, tu as choisi de <em>faire</em> plutôt que d\'<em>acheter</em> : moins cher, mais plus de temps de travail.' : ''}`; },
+      chain: () => ({ good: ['Coûts variables + coûts fixes', 'Coût de revient', 'Prix > coût de revient', 'Marge'], bad: ['Oublier les coûts indirects', 'Prix sous le coût réel', 'Vendre à perte'] }) },
+    { act: 4, needs: ['num1'], title: 'Acte 4 — Le numérique', text: (h, s) => {
+        const t = [s.flags.erp && 'Le logiciel de gestion unique s\'appelle un <em>ERP</em> (ou <em>PGI</em>, progiciel de gestion intégré) : une seule base de données partagée par tous les services, qui supprime les ressaisies et les erreurs.', s.flags.ia && `L\'IA qui note les écrans est une <em>intelligence artificielle</em> : elle apprend à partir d\'exemples. ${s.flags.ia === 'vite' ? 'Entraînée sur trop peu de photos, elle s\'est trompée.' : 'Bien entraînée et contrôlée par Samir, elle est devenue fiable.'}`, s.flags.rfid && 'Les étiquettes connectées sont des <em>objets connectés</em> : ils transmettent des données en temps réel (où est le téléphone, par où il est passé).'].filter(Boolean);
+        return `${t.length ? t.join(' ') : 'Tu n\'as adopté aucun outil numérique : les erreurs d\'expédition et les téléphones perdus ont continué.'} Un outil numérique ne crée de la valeur que s\'il répond au vrai problème : accélérer un poste qui n\'est pas le goulot ne livre rien de plus. Et il change le travail des gens : ${h.formation === 'non' || h.iaVite === 'vite' ? 'sans formation ni explication, tu as provoqué chaos et inquiétude.' : 'accompagner l\'équipe (former, expliquer, rassurer) est ce qu\'on appelle la <em>conduite du changement</em>.'}`; },
+      chain: () => ({ good: ['Identifier le problème réel', 'Choisir l\'outil adapté', 'Former et rassurer', 'Gain réel'], bad: ['Outil à la mode', 'Mauvais poste ou équipe pas formée', 'Dépense sans effet'] }) },
+    { act: 5, needs: ['org'], title: 'Acte 5 — L\'organisation', text: (h, s) => {
+        const o = h.org === 'taylor' ? 'Avec un geste par poste, chronométré, tu as appliqué le <em>taylorisme</em> (l\'<em>organisation scientifique du travail</em>) : on découpe le travail en tâches simples et répétitives (<em>division horizontale</em>) et ce sont les chefs qui décident (<em>division verticale</em>). Très productif au début, il use les salariés et rend l\'atelier fragile : personne ne sait remplacer personne.' : h.org === 'lean' ? 'En chassant les gaspillages avec l\'équipe, tu as appliqué le <em>lean management</em> : supprimer tout ce qui n\'apporte pas de valeur (attentes, déplacements, stocks, défauts), grâce aux idées des salariés et à de petites améliorations continues (le <em>kaizen</em>).' : 'En confiant l\'organisation à Yanis et à des équipes formées sur plusieurs postes, tu as misé sur la <em>délégation</em> (confier une décision à quelqu\'un), l\'<em>autonomie</em> et la <em>polyvalence</em>. Moins spectaculaire, mais une équipe motivée qui encaisse les imprévus.';
+        return `${o} Le pic du Black Friday et l\'absence de Malik ont montré la vraie valeur de ton organisation : ce n\'est pas sa vitesse les bons jours, c\'est sa résistance les mauvais.`; },
+      chain: () => ({ good: ['Polyvalence et autonomie', 'Un absent est remplacé', 'La chaîne tient'], bad: ['Un geste par poste', 'Personne ne remplace l\'absent', 'La chaîne s\'effondre'] }) }
+  ],
+  vocab: ['Capacité de production', 'Goulot d\'étranglement', 'Flux poussé', 'Flux tiré', 'Stock de sécurité', 'Juste-à-temps', 'Logistique', 'Contrôle qualité', 'Autocontrôle', 'Démarche qualité', 'Certification (ISO 9001)', 'Diagramme causes-effet (5 M)', 'Traçabilité', 'Amélioration continue', 'Coûts fixes / variables', 'Coûts directs / indirects', 'Coût de revient', 'Seuil de rentabilité', 'Faire ou acheter', 'ERP (PGI)', 'Intelligence artificielle', 'Objets connectés', 'Conduite du changement', 'Taylorisme', 'Lean management', 'Kaizen', 'Délégation', 'Autonomie', 'Polyvalence']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — la chaîne à quatre postes, la file d'attente devant le goulot.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const V1 = '#7C6FFF', mo = Math.min(12, (S.mois || 0) + 1), c = caps(S, mo), mn = Math.min(...c), g = c.indexOf(mn);
+  const X = [128, 186, 244, 302];
+  let posts = '';
+  c.forEach((v, i) => {
+    const h = Math.round(Math.min(v, 650) / 650 * 48), bad = i === g, col = bad ? '#FF5C6A' : V1;
+    posts += `<rect x="${X[i] - 22}" y="46" width="44" height="28" rx="4" fill="#110e20" stroke="${col}"/>
+      <text x="${X[i]}" y="65" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="11" fill="${col}">${i + 1}</text>
+      <rect x="${X[i] - 16}" y="${150 - h}" width="32" height="${h}" fill="${col}" opacity=".35"/>
+      <text x="${X[i]}" y="${146 - h}" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11" fill="#EEF3EC">${v}</text>`;
+    if (i < 3) posts += `<line x1="${X[i] + 22}" y1="60" x2="${X[i + 1] - 22}" y2="60" stroke="#241f3d" stroke-width="3"/>`;
+  });
+  let pile = ''; const q = g > 0 ? Math.min(8, Math.round((c[g - 1] - mn) / 35)) : 0;
+  for (let i = 0; i < q; i++) pile += `<rect x="${X[g] - 20 + (i % 4) * 9}" y="${34 - Math.floor(i / 4) * 11}" width="6" height="9" rx="1.5" fill="#FF5C6A" opacity=".85"/>`;
+  const st = S.stock > 0 ? `<g>${Array.from({ length: Math.min(6, Math.ceil(S.stock / 40)) }, (_, i) => `<rect x="${336 + (i % 2) * 10}" y="${130 - Math.floor(i / 2) * 12}" width="8" height="10" fill="#FFC64F" opacity=".7"/>`).join('')}<text x="345" y="148" text-anchor="middle" font-family="Rajdhani,sans-serif" font-size="9" fill="#FFC64F">stock</text></g>` : '';
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="La chaîne de production de Rebond">
+    <rect width="360" height="200" fill="#08070f"/><rect x="0" y="0" width="360" height="162" fill="#0b0918"/>
+    <text x="215" y="16" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#8B86A8">CAPACITÉ PAR POSTE · TÉLÉPHONES / MOIS</text>
+    <line x1="100" y1="150" x2="330" y2="150" stroke="#241f3d"/>
+    ${posts}${pile}${st}
+    <rect x="0" y="162" width="360" height="38" fill="#0a0814"/><line x1="0" y1="162" x2="360" y2="162" stroke="#241f3d" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

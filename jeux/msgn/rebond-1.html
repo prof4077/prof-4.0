@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Rebond 1 — Jeu MSGN Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#7C6FFF;--eco-dim:#4B3FCC;--good:#4CD97B;--bg:#06050c;--panel:#0d0b18;--panel2:#110e20;--line:#241f3d;--txt:#EEF3EC;--muted:#8B86A8;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(124,111,255,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(124,111,255,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#1a1630;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(124,111,255,.5);background:rgba(124,111,255,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#08070f;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(124,111,255,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#0b0820;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#0b0820;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#161230;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#1a1630;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#0b0820;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#0a0816;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#0a0816;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#0a0816;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#0a0816;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(124,111,255,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#0a0816;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — Rebond 1 : Le lancement (MSGN Terminale, thème 1, questions 1.1 et 1.2)
+   Tout ce qui se modifie est ici. Le moteur (partie 3) n'a pas besoin d'être touché.
+   L'entreprise est simulée mois par mois, regroupés en trimestres :
+     demande  = clients potentiels (selon l'offre, le prix, l'emplacement, la réputation, l'innovation, la concurrence)
+     capacité = heures de travail disponibles ÷ heures nécessaires par unité
+     ventes   = le plus petit des deux ; résultat = marge − retours − charges fixes
+   Jauges : tre (trésorerie, €), qual (% d'unités sans retour), equipe (énergie, 0-100), repu (réputation, 0-100).
+   ===================================================================== */
+const N = ' ';
+const eur = n => (n < 0 ? '−' : '') + Math.abs(Math.round(n)).toLocaleString('fr-FR') + N + '€';
+const sg = n => (n >= 0 ? '+' : '−') + Math.abs(Math.round(n)).toLocaleString('fr-FR') + N + '€';
+const nb = n => Math.round(n).toLocaleString('fr-FR');
+const cl = (n, a, b) => Math.max(a, Math.min(b, n));
+
+/* ---- Paramètres économiques (modifiables) ---- */
+const MOD = {
+  vente: { u: 'téléphone vendu', us: 'téléphones vendus', base: 70, ref: 279, el: 1.8, cost: 185, h: 1.6, ret: 70, stock: 40 },
+  repar: { u: 'réparation', us: 'réparations', base: 130, ref: 69, el: 1.5, cost: 24, h: .9, ret: 30, stock: 0 },
+  flotte: { u: 'téléphone loué', us: 'téléphones loués', base: 14, ref: 27, el: 2, cost: 185, h: 1.5, ret: 60, stock: 0, setup: 49 }
+};
+const LOYER = { centre: 1400, zone: 650, partage: 350 };
+const AMENAG = { centre: 6000, zone: 2000, partage: 500 };
+const VIS = { vente: { centre: 1, zone: .45, partage: .3 }, repar: { centre: 1, zone: .5, partage: .35 }, flotte: { centre: .9, zone: 1, partage: 1 } };
+const SAL_TECH = 3300, SAL_LOU = 750, LOC_BANC = 380, DIVERS = 450, PRET = 230, LOGICIEL = 40;
+
+const m = s => MOD[s.offre || 'vente'];
+const F = s => s.flags;
+function unitCost(s) {
+  const r = s.offre === 'repar';
+  return m(s).cost + (F(s).batterie ? (r ? 8 : 18) : 0) - (F(s).reseau ? (r ? 6 : 12) : 0);
+}
+function charges(s) {
+  return LOYER[s.local] + (F(s).tech ? SAL_TECH : 0) + (F(s).lou ? SAL_LOU : 0) + (s.banc === 'louer' ? LOC_BANC : 0)
+    + (F(s).fichier ? LOGICIEL : 0) + DIVERS + PRET + (s.offre === 'flotte' ? 190 : 0) + (F(s).augm ? 560 : 0);
+}
+function capa(s) {   // heures de travail productives par mois
+  return 120 + (F(s).tech ? 150 : 0) + (F(s).lou ? (s.q < 1 ? 60 : (F(s).tech || F(s).process ? 110 : 80)) : 0);
+}
+function taux(s) {   // % d'unités qui reviennent en panne
+  let r = 6;
+  if (F(s).tech) r -= 3;
+  if (F(s).lou && s.q < 1) r += 1;
+  if (s.banc === 'outils') r += 4;
+  if (F(s).process) r -= 2;
+  if (F(s).batterie) r -= 1;
+  if (F(s).appli && s.q >= 1) r -= 1;
+  if (F(s).parti) r += F(s).process ? 1 : 5;
+  if (F(s).sousTraite && s.q === 1) r += 2;
+  return Math.max(1, r);
+}
+function inno(s) { return F(s).batterie ? 1.15 : F(s).appli ? (s.q < 1 ? .95 : 1.3) : 1; }
+function atouts(s) {  // ce que le concurrent ne peut pas copier
+  const a = [];
+  if (F(s).marque && !F(s).nomPerdu) a.push('ta marque déposée');
+  if (F(s).process) a.push('tes méthodes de test écrites');
+  if (F(s).fichier) a.push('ton fichier de clients');
+  if (F(s).reseau) a.push('ton réseau de fournisseurs');
+  if (F(s).tech) a.push(`le savoir-faire de ${s.techNom}`);
+  if (F(s).appli) a.push('ton appli de diagnostic');
+  if (F(s).batterie) a.push('ta garantie de deux ans');
+  if (s.repu >= 65) a.push('ta réputation');
+  return a;
+}
+function comp(s) {
+  if (s.q < 2) return 1;
+  if (F(s).riposte === 'differencier') return Math.min(1.1, .62 + .07 * atouts(s).length);
+  return .7;
+}
+function prixEff(s) { return s.prix * (F(s).riposte === 'baisser' && s.q >= 2 ? .8 : 1); }
+function demandeFactor(s, p) {
+  return VIS[s.offre][s.local] * (.5 + s.repu / 100) * inno(s) * comp(s) * Math.pow(m(s).ref / p, m(s).el) * (F(s).fichier && s.q >= 1 ? 1.08 : 1);
+}
+
+/* Un trimestre : calcule tout, ne modifie rien (le moteur applique ensuite les écarts). */
+function trimestre(s) {
+  const M = m(s), p = prixEff(s), uc = unitCost(s), r = taux(s), hpu = M.h * (s.banc === 'outils' ? 1.3 : 1), cap = capa(s), ch = charges(s);
+  const f = demandeFactor(s, p);
+  const R = { p, uc, r, ch, cap, hpu, q: s.q + 1 };
+  if (s.offre !== 'flotte') {
+    const dem = M.base * f, vol = Math.round(Math.min(dem, cap / hpu));
+    Object.assign(R, { dem: Math.round(dem), vol, lost: Math.max(0, Math.round(dem) - vol), marge: vol * (p - uc), ret: vol * r / 100 * M.ret });
+    R.mois = R.marge - R.ret - ch; R.total = 3 * R.mois; R.used = vol * hpu;
+  } else {
+    let parc = s.parc, cash = 0, nw = M.base * f, used = 0;
+    const maxNew = Math.max(0, (cap - parc * .1) / hpu);
+    const nm = Math.round(Math.min(nw, maxNew));
+    let loyers = 0, achats = 0, ret = 0, frais = 0;
+    for (let i = 0; i < 3; i++) { parc += nm; loyers += parc * (p - 3); achats += nm * uc; frais += nm * M.setup; ret += parc * r / 100 / 3 * M.ret; used += nm * hpu + parc * .1; }
+    Object.assign(R, { dem: Math.round(nw), vol: nm, lost: Math.max(0, Math.round(nw) - nm), parc0: s.parc, parc1: parc, loyers, achats, frais, ret, used: used / 3 });
+    R.total = loyers + frais - achats - ret - 3 * ch; R.mois = R.total / 3;
+  }
+  R.load = R.used / cap;
+  const seul = !F(s).tech && !F(s).lou;
+  R.dEq = seul ? (R.load > .8 ? -16 : -2) : (R.load > .95 ? -8 : 3);
+  R.dRep = cl(Math.round((4 - r) * 2), -12, 6) + (F(s).appli ? (s.q < 1 ? -4 : 2) : 0) + (s.offre !== 'flotte' && R.lost > R.dem * .25 ? -3 : 0);
+  return R;
+}
+function fxTrim(s) {
+  const R = s.rep;
+  return { tre: Math.round(R.total), qual: (100 - R.r) - s.qual, equipe: R.dEq, repu: R.dRep };
+}
+function apresTrim(s) {
+  const R = s.rep; s.q = R.q; s.hist.push(Math.round(R.total));
+  if (s.offre === 'flotte') s.parc = R.parc1;
+  s.lostTot += R.lost;
+}
+const LIEU = { centre: 'rue commerçante', zone: 'zone artisanale', partage: 'atelier partagé de la pépinière' };
+function rapport(s) {
+  const R = s.rep, M = m(s);
+  const capU = Math.floor(R.cap / R.hpu);
+  if (s.offre !== 'flotte') {
+    return `<span class="pay tick"><span>Clients intéressés par mois</span><b>${nb(R.dem)}</b><b></b>
+      <span>Ce que tu peux traiter (${R.cap}${N}h ÷ ${String(R.hpu).replace('.', ',')}${N}h)</span><b>${nb(capU)}</b><b></b>
+      <span>${M.us[0].toUpperCase() + M.us.slice(1)} par mois</span><b>${nb(R.vol)}</b><b>${R.lost ? `<small>${R.lost} perdus</small>` : ''}</b>
+      <span>Marge par unité (${eur(R.p)} − ${eur(R.uc)})</span><b>${eur(R.p - R.uc)}</b><b></b>
+      <span>Marge du mois</span><b>${eur(R.marge)}</b><b></b>
+      <span>Retours en panne (${R.r}${N}%)</span><b>−${eur(R.ret)}</b><b></b>
+      <span>Charges fixes du mois</span><b>−${eur(R.ch)}</b><b></b>
+      <span class="tot">Résultat du mois</span><b class="tot">${sg(R.mois)}</b><b class="tot"></b>
+      <span class="tot">Sur le trimestre</span><b class="tot">${sg(R.total)}</b><b class="tot"></b></span>`;
+  }
+  return `<span class="pay tick"><span>Nouveaux contrats par mois</span><b>${nb(R.vol)}</b><b>${R.lost ? `<small>${R.lost} perdus</small>` : ''}</b>
+    <span>Téléphones en location</span><b>${R.parc0} → ${R.parc1}</b><b></b>
+    <span>Loyers encaissés (${eur(R.p)} − 3${N}€ d'entretien)</span><b>+${eur(R.loyers)}</b><b></b>
+    <span>Frais de mise en service payés par les clients (${eur(MOD.flotte.setup)} par téléphone)</span><b>+${eur(R.frais)}</b><b></b>
+    <span>Achat des nouveaux téléphones (${eur(R.uc)} pièce)</span><b>−${eur(R.achats)}</b><b></b>
+    <span>Remplacements (${R.r}${N}%)</span><b>−${eur(R.ret)}</b><b></b>
+    <span>Charges fixes (3 mois)</span><b>−${eur(3 * R.ch)}</b><b></b>
+    <span class="tot">Sur le trimestre</span><b class="tot">${sg(R.total)}</b><b class="tot"></b></span>`;
+}
+function commentaire(s) {
+  const R = s.rep, M = m(s), c = [];
+  if (s.offre !== 'flotte') {
+    if (R.lost > R.dem * .15) c.push(`${R.lost} clients par mois repartent sans rien${N}: tu n'as pas assez d'heures de travail pour les servir.`);
+    else if (R.load < .5) c.push(`Tes équipes ne sont occupées qu'à ${Math.round(R.load * 100)}${N}%${N}: tu paies des heures qui ne servent à rien.`);
+    if (VIS[s.offre][s.local] < .6) c.push(`Peu de monde passe devant ta porte, en ${LIEU[s.local]}${N}: les clients ne te trouvent pas.`);
+  } else {
+    if (R.mois < 0) c.push(`Chaque nouveau contrat te coûte ${eur(R.uc - MOD.flotte.setup)} tout de suite (achat moins frais de mise en service) et ne te rapporte que ${eur(R.p - 3)} par mois. Plus tu signes, plus ta trésorerie baisse… pour l'instant.`);
+    c.push(`Ton parc loué rapporte déjà ${eur(R.parc1 * (R.p - 3))} par mois, qui tomberont chaque mois sans que tu aies à revendre quoi que ce soit.`);
+  }
+  if (R.r >= 7) c.push(`${R.r}${N}% de retours en panne, c'est trop${N}: chaque retour coûte de l'argent et un client mécontent.`);
+  if (R.dEq <= -14) c.push(`Tu travailles plus de soixante heures par semaine. Tu tiens, pour l'instant.`);
+  return c.join(' ');
+}
+const V = (n, r, nom, txt) => [{ who: 'nadia', text: n }, { who: 'rocher', text: r }, { nom, text: txt }];
+const ch = (good, bad) => ({ good, bad });
+const eq = s => s.flags.tech ? s.techNom : s.flags.lou ? 'Lou' : 'Toi';
+const Vq = (n, r, txt) => s => V(n, r, eq(s), txt);
+
+const GAME = {
+  title: 'Rebond 1',
+  brand: 'REBOND <span>1</span>',
+  storeKey: 'rebond1Fins',
+  backLink: '../../matieres/msgn-terminale.html',
+  footer: 'MSGN Terminale STMG, thème 1',
+  kicker: 'MSGN · Terminale STMG · Thème 1',
+  debIntro: 'Tu as utilisé ces notions pour lancer ton entreprise. Voici comment on les appelle en management et sciences de gestion.',
+  cutText: 'Ta partie s\'est arrêtée avant la fin de la première année. Rejoue pour aller jusqu\'au rendez-vous avec le banquier.',
+  pitch: `Tu as 24 ans, trois ans d'expérience chez un réparateur de téléphones et 10${N}000${N}€ d'économies. Tu crées Rebond, ton atelier de téléphones reconditionnés. Dans un an, ton banquier te demandera des comptes. Chaque décision, du prix à la personne que tu embauches, aura des conséquences mois après mois.`,
+  meta: '5 actes · 25 minutes',
+  start: s => Object.assign(s, { tre: 10000, qual: 94, equipe: 70, repu: 50, q: 0, parc: 0, prix: 279, hist: [], lostTot: 0, techNom: 'Yanis', nom: 'Rebond', offre: null, local: null, banc: null }),
+  hud: [
+    { k: 'tre',    label: 'Trésorerie', short: 'Trésorerie', show: s => (s.tre / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + N + 'k€', pct: s => s.tre / 300, low: s => s.tre < 3000, unit: N + '€' },
+    { k: 'qual',   label: 'Qualité',    short: 'Qualité',    show: s => s.qual + N + '%', pct: s => (s.qual - 85) * 6.7, low: s => s.qual < 94 },
+    { k: 'equipe', label: 'Énergie de l\'équipe', short: 'Équipe', show: s => Math.round(s.equipe), pct: s => s.equipe, low: s => s.equipe < 35, clamp: true },
+    { k: 'repu',   label: 'Réputation', short: 'Réputation', show: s => Math.round(s.repu), pct: s => s.repu, low: s => s.repu < 40, clamp: true }
+  ],
+  fail: s => s.tre < -3000 ? 'faillite' : s.equipe <= 15 ? 'epuise' : null,
+  lock: () => null,
+  bilan: s => [['Trésorerie', eur(s.tre)], ['Qualité', s.qual + N + '% sans retour'], s.offre === 'flotte' ? ['Téléphones en location', s.parc + ' (' + eur(s.parc * (s.prix - 3)) + '/mois)'] : ['Clients perdus faute de temps', nb(s.lostTot * 3)], ['Réputation', Math.round(s.repu) + ' / 100']],
+
+  characters: {
+    nadia:  { name: 'Mme Ferhat', role: 'chargée d\'accompagnement, pépinière d\'entreprises', color: '#B9A6FF', body: '#4B3FCC', hair: '#1c1c22', acc: 'clip' },
+    rocher: { name: 'M. Rocher',  role: 'ton banquier',              color: '#5B8FFF', body: '#2b3a5a', hair: '#8a8f96', acc: 'tie' },
+    yanis:  { name: 'Yanis',      role: 'technicien, 8 ans d\'expérience', color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'cap' },
+    karim:  { name: 'Karim',      role: 'technicien expérimenté',    color: '#4CD97B', body: '#2f6a7a', hair: '#3a2418', acc: 'cap' },
+    lou:    { name: 'Lou',        role: 'apprentie en BTS',          color: '#FF9D3D', body: '#B86A1F', hair: '#c9a24a', acc: 'bun' },
+    lemoine:{ name: 'Mme Lemoine', role: 'cliente',                  color: '#FF8AD1', body: '#B8508F', hair: '#d9d9d9', acc: 'bun' },
+    diallo: { name: 'Mme Diallo', role: 'adjointe au maire, chargée des achats', color: '#FFC64F', body: '#8a5a22', hair: '#1c1c22', acc: 'clip' },
+    kessler:{ name: 'M. Kessler', role: 'gérant de TéléPrix',        color: '#FF5C6A', body: '#1c1c22', hair: '#7a2f2f', acc: 'tie' },
+    narr:   { name: 'Toi', role: '', color: '#7C6FFF' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Le besoin', sub: 'Avant de vendre quoi que ce soit, il faut savoir à qui, et pour répondre à quel manque.',
+    steps: [
+      { t: 'say', who: 'nadia', text: `Bienvenue à la pépinière. Avant de parler d'argent, parlons de vos futurs clients. J'ai fait interroger 300 habitants et 20 entreprises de la ville. Lisez bien, tout est là.` },
+      { t: 'say', who: 'nadia', text: `<span class="pay"><span>Lycéens et étudiants</span><b>6 sur 10 ont un écran fissuré</b><span>Ce qu'ils peuvent payer pour un téléphone</span><b>200 à 300${N}€</b><span>Personnes de plus de 65 ans</span><b>veulent qu'on leur explique</b><span>Entreprises et mairie</span><b>changent leurs téléphones tous les 3 ans</b><span>Ce qu'elles détestent</span><b>avancer de grosses sommes</b><span>Téléphones cassés dans un tiroir</span><b>1 foyer sur 3</b><span>Réparateur le plus proche</span><b>à 25${N}km</b></span>Personne ne vous a demandé un «${N}téléphone reconditionné${N}». Ils vous ont dit ce qui leur manque. À vous de trouver la réponse.` },
+      { t: 'say', who: 'nadia', text: `Trois réponses sont possibles, et elles n'ont presque rien en commun. Selon ce que vous choisissez, ce ne sont ni les mêmes clients, ni le même moment où l'argent rentre, ni les mêmes dépenses au départ.` },
+      { t: 'choice', id: 'offre', prompt: `Que va proposer Rebond${N}?`, options: [
+        { id: 'vente', label: 'Vendre des téléphones reconditionnés aux particuliers', desc: 'Tu achètes des téléphones d\'occasion, tu les vérifies, tu les répares, tu les revends garantis. Le client paie une fois.',
+          do: s => { s.offre = 'vente'; s.prix = 279; },
+          chain: ch(['Des téléphones 30 à 50 % moins chers que le neuf', 'Le besoin des jeunes au petit budget', 'Une marge sur chaque téléphone vendu'], ['Il faut acheter un stock avant de vendre', 'Chaque mois, il faut retrouver de nouveaux clients', 'Les grands sites nationaux vendent la même chose']),
+          voix: V(`Votre client paie une fois, et repart. Le mois suivant, il faudra en trouver un autre. Tout votre succès tiendra à l'endroit où l'on vous voit.`, `Un modèle simple${N}: vous achetez environ 185${N}€, vous revendez plus cher. Je comprends, et je sais compter.`, 'Inès, 17 ans', `Si c'est garanti et à moins de 300 balles, je prends demain.`) },
+        { id: 'flotte', label: 'Louer des téléphones aux entreprises et à la mairie', desc: 'Un abonnement mensuel par téléphone, réparation et remplacement compris, pour deux ans. Le client paie chaque mois.',
+          do: s => { s.offre = 'flotte'; s.prix = 27; },
+          chain: ch(['Des contrats de 24 mois', 'De l\'argent qui rentre chaque mois, sans revendre', 'Les clients n\'avancent rien, c\'est ce qu\'ils voulaient'], ['C\'est toi qui achètes les téléphones, au départ', 'Il faut des mois pour récupérer chaque achat', 'Peu de clients, chacun compte beaucoup']),
+          voix: V(`Vous avez lu la ligne la plus importante${N}: les entreprises détestent avancer de l'argent. Vous allez l'avancer à leur place. C'est votre force… et votre risque.`, `Attention${N}: vous achetez un téléphone 185${N}€ aujourd'hui, il vous rapporte quelques euros par mois. Il me faudra un plan de trésorerie très précis.`, 'M. Arnaud, directeur d\'une PME', `Trente téléphones sans rien débourser, et réparés quand ils cassent${N}? Envoyez-moi une proposition.`) },
+        { id: 'repar', label: 'Réparer les téléphones des habitants', desc: 'Écran, batterie, connecteur de charge. Le client garde son téléphone et paie une intervention.',
+          do: s => { s.offre = 'repar'; s.prix = 69; },
+          chain: ch(['Presque pas de stock à acheter', 'Un départ peu coûteux', 'Un besoin immédiat : personne à moins de 25 km'], ['Le chiffre d\'affaires dépend de tes heures de travail', 'De petites sommes par client', 'Tout repose sur ton habileté']),
+          voix: V(`C'est le modèle le moins risqué au départ. Mais vous ne vendez pas un objet${N}: vous vendez une heure de votre savoir-faire. Et vos heures ne sont pas extensibles.`, `Peu d'investissement, j'aime ça. Mais combien de réparations pouvez-vous faire par jour, réellement${N}?`, 'M. Brun, 71 ans', `Mon téléphone, je le connais. Je veux juste qu'on me change l'écran sans m'en vendre un autre.`) } ] },
+      { t: 'say', who: 'nadia', text: s => `Faisons le point sur votre projet, en quatre cases. Si l'une d'elles est floue, aucun banquier ne vous suivra.<span class="pay">${{
+          vente: `<span>Ce que tu proposes</span><b>un téléphone garanti, moins cher</b><span>À qui</span><b>des particuliers au petit budget</b><span>Avec quoi</span><b>un stock, un atelier, une vitrine</b><span>Comment l'argent rentre</span><b>une fois, à chaque vente</b>`,
+          flotte: `<span>Ce que tu proposes</span><b>des téléphones sans avance, réparés</b><span>À qui</span><b>des entreprises, la mairie</b><span>Avec quoi</span><b>de l'argent pour acheter le parc</b><span>Comment l'argent rentre</span><b>chaque mois, pendant 2 ans</b>`,
+          repar: `<span>Ce que tu proposes</span><b>un téléphone réparé, vite</b><span>À qui</span><b>tous les habitants</b><span>Avec quoi</span><b>des outils, des pièces, du savoir-faire</b><span>Comment l'argent rentre</span><b>à chaque intervention</b>` }[s.offre]}</span>Il manque une chose${N}: pourquoi un client viendrait chez vous plutôt qu'ailleurs${N}?` },
+      { t: 'choice', id: 'plus', prompt: `Ce qui fera choisir Rebond${N}?`, options: [
+        { id: 'batterie', label: s => s.offre === 'repar' ? 'Des pièces de qualité d\'origine, garanties deux ans' : 'Une batterie neuve dans chaque téléphone, garantie deux ans',
+          desc: s => `Tu améliores ce qui existe déjà. Coût${N}: +${s.offre === 'repar' ? 8 : 18}${N}€ par ${m(s).u}.`, set: { batterie: true },
+          chain: ch(['Le défaut n°1 de l\'occasion disparaît', 'Moins de pannes, donc moins de retours', 'Un argument simple à comprendre'], ['Chaque unité coûte un peu plus cher', 'Un concurrent peut faire pareil assez vite']),
+          voix: V(`Vous n'inventez rien, vous améliorez nettement. C'est souvent ce qui marche le mieux, et le plus vite.`, `Coût connu, effet prévisible. Je n'ai rien contre.`, 'Inès, 17 ans', `La batterie, c'est exactement ce qui me fait peur dans l'occasion.`) },
+        { id: 'appli', label: 'Une appli qui surveille le téléphone et prévient avant la panne', desc: 'Quelque chose que personne ne propose. Développement par un indépendant : 6 000 €, et les premières versions ont toujours des bugs.',
+          fx: { tre: -6000 }, set: { appli: true },
+          chain: ch(['Un service que personne d\'autre n\'a', 'Les clients restent en contact avec toi', 'Très difficile à copier rapidement'], ['6 000 € dépensés avant la première vente', 'Les premières versions vont planter', 'Il faut du temps pour que les clients comprennent']),
+          voix: V(`Vous changez la façon même de vivre avec son téléphone. Si ça prend, vous serez seul sur ce terrain. Si ça ne prend pas, vous aurez brûlé un cinquième de votre budget.`, `6${N}000${N}€ pour une idée que personne n'a testée. Je vais vous regarder de très près.`, 'M. Brun, 71 ans', `Une appli${N}? Il faudra me l'installer, hein.`) },
+        { id: 'prix', label: 'Rien de plus : être simplement le moins cher', desc: 'Aucune dépense supplémentaire. Tu choisiras un prix bas.',
+          chain: ch(['Aucun coût en plus', 'Le prix parle à tout le monde'], ['Rien qui te distingue vraiment', 'Le premier qui baisse plus que toi te prend tes clients']),
+          voix: V(`Être le moins cher n'est pas une idée, c'est une position. Et quelqu'un finit toujours par être moins cher que vous.`, `Petites marges, gros volumes. Il faudra beaucoup de clients.`, 'Inès, 17 ans', `Moins cher, moi je suis pour. Mais je reviendrai seulement si ça marche.`) } ] },
+      { t: 'qty', id: 'prix',
+        prompt: s => s.offre === 'vente' ? 'Ton prix moyen par téléphone ?' : s.offre === 'repar' ? 'Ton prix moyen par réparation ?' : 'Ton loyer mensuel par téléphone ?',
+        min: s => ({ vente: 219, repar: 45, flotte: 19 })[s.offre], max: s => ({ vente: 339, repar: 99, flotte: 35 })[s.offre], step: 1,
+        def: s => s.flags.prix && !s.flags.batterie && !s.flags.appli ? ({ vente: 239, repar: 55, flotte: 23 })[s.offre] : ({ vente: 279, repar: 69, flotte: 27 })[s.offre],
+        show: n => eur(n),
+        info: (s, n) => {
+          const old = s.prix; s.prix = n; const tmp = Object.assign({}, s, { local: s.offre === 'flotte' ? 'zone' : 'centre', repu: 50, q: 0 });
+          const d = m(s).base * demandeFactor(tmp, n); s.prix = old;
+          return s.offre === 'flotte'
+            ? `Ce qu'un téléphone te rapporte chaque mois${N}: <b>${eur(n - 3)}</b><br>Il te coûte <b>${eur(unitCost(s))}</b> à l'achat, moins ${eur(MOD.flotte.setup)} de frais payés par le client${N}: remboursé en <b>${Math.ceil((unitCost(s) - MOD.flotte.setup) / (n - 3))} mois</b><br>Nouveaux contrats estimés${N}: <b>${Math.round(d)} par mois</b>`
+            : `Marge par ${m(s).u}${N}: <b>${eur(n)} − ${eur(unitCost(s))} = ${eur(n - unitCost(s))}</b><br>Clients estimés${N}: <b>${Math.round(d)} par mois</b><br>Marge totale estimée${N}: <b>${eur(d * (n - unitCost(s)))} par mois</b>`;
+        },
+        resolve: (s, n) => {
+          s.prix = n; const ref = m(s).ref, band = n < ref * .92 ? 'bas' : n > ref * 1.08 ? 'haut' : 'moyen';
+          return { band, chain: band === 'bas' ? ch(['Prix bas', 'Plus de clients', 'Plus de travail'], ['Petite marge sur chacun', 'Il faudra être très efficace']) : band === 'haut' ? ch(['Grosse marge sur chacun'], ['Moins de clients', 'Il faudra justifier ce prix']) : ch(['Un prix dans la moyenne', 'Ni trop de clients, ni trop peu'], ['Rien d\'original non plus']), fx: {} };
+        } }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Les ressources', sub: '30 000 € pour démarrer. Certaines choses s\'achètent, d\'autres se louent, d\'autres encore ne s\'achètent pas du tout.',
+    steps: [
+      { t: 'say', who: 'rocher', text: `Je vous prête 12${N}000${N}€ sur cinq ans, à condition que vous mettiez vos 10${N}000${N}€ d'économies. La pépinière ajoute un prêt d'honneur de 8${N}000${N}€, sans intérêts. Vous démarrez avec 30${N}000${N}€. Je vous accorde aussi un découvert de 3${N}000${N}€. Au-delà, je coupe.` },
+      { t: 'event', who: 'rocher', text: `L'argent est sur votre compte. Remboursement${N}: 230${N}€ par mois, dès le premier mois.`, fx: { tre: 20000 } },
+      { t: 'event', who: 'rocher', if: s => s.offre === 'flotte', text: `Votre modèle de location m'inquiète et m'intéresse à la fois${N}: vous allez acheter des téléphones bien avant qu'ils vous rapportent. Je vous prête 10${N}000${N}€ de plus, uniquement pour acheter votre parc. Remboursement${N}: 190${N}€ par mois. Ce sera tout${N}: pas un euro de plus.`, fx: { tre: 10000 } },
+      { t: 'say', who: 'nadia', text: s => `Trois décisions concrètes${N}: où vous installer, avec quel matériel, avec qui. Puis deux autres, qui ne se voient pas mais comptent autant. ${s.offre === 'flotte' ? 'Rappelez-vous qui sont vos clients${N}: ils ne passeront jamais devant votre porte, c\'est vous qui irez les voir.' : 'Rappelez-vous${N}: vos clients doivent vous trouver.'}` },
+      { t: 'choice', id: 'local', prompt: `Où installer l'atelier${N}?`, options: [
+        { id: 'centre', label: 'Une boutique dans la rue commerçante', desc: 'Vitrine, passage, accueil des clients. Loyer 1 400 €/mois, travaux 6 000 €.', fx: { tre: -6000 }, do: s => { s.local = 'centre'; },
+          chain: s => s.offre === 'flotte' ? ch(['Une belle vitrine'], ['Tes clients sont des entreprises : ils ne passent pas devant', 'Tu paies le passage sans t\'en servir', '1 400 € chaque mois']) : ch(['Des centaines de passants par jour', 'On te voit, on entre', 'Les clients te trouvent sans publicité'], ['1 400 € de loyer, chaque mois', '6 000 € de travaux avant d\'ouvrir']),
+          voix: s => V(s.offre === 'flotte' ? `Une vitrine pour vendre des contrats à des directeurs d'entreprise${N}? Ils ne flânent pas rue Gambetta.` : `Votre vitrine sera votre meilleure publicité. Elle a un prix, chaque mois.`, `1${N}400${N}€ par mois, c'est votre plus grosse dépense fixe. Il faudra la couvrir avant de gagner le premier euro.`, 'Le propriétaire', `Le bail est de neuf ans. On signe${N}?`) },
+        { id: 'zone', label: 'Un local en zone artisanale', desc: 'Grand, pratique, loin du centre. Loyer 650 €/mois, travaux 2 000 €.', fx: { tre: -2000 }, do: s => { s.local = 'zone'; },
+          chain: s => s.offre === 'flotte' ? ch(['Loyer modéré', 'De la place pour stocker le parc', 'Tes clients ne viennent pas : aucun besoin de vitrine']) : ch(['Loyer modéré', 'De la place pour travailler'], ['Personne ne passe devant', 'Les clients doivent faire exprès de venir']),
+          voix: s => V(s.offre === 'flotte' ? `Parfait pour votre modèle${N}: vos clients signent dans leur bureau, pas dans le vôtre.` : `Vous économisez sur le loyer. Vous le paierez peut-être en clients qui ne vous trouvent pas.`, `650${N}€, c'est raisonnable.`, 'Un voisin garagiste', `Ici, à part les livreurs, personne ne passe.`) },
+        { id: 'partage', label: 'Un poste dans l\'atelier partagé de la pépinière', desc: 'Un établi, des machines communes, pas d\'accueil clients. 350 €/mois, 500 € d\'installation.', fx: { tre: -500 }, do: s => { s.local = 'partage'; },
+          chain: s => s.offre === 'flotte' ? ch(['Le moins cher possible', 'Les conseils de la pépinière à côté'], ['Peu de place pour stocker']) : ch(['Le moins cher possible', 'Les conseils de la pépinière'], ['Aucune vitrine, aucun passage', 'Les clients ne savent pas que tu existes']),
+          voix: s => V(`Vous serez à côté de mon bureau. Pratique pour moi aussi${N}!`, `Vos charges seront minuscules. Votre visibilité aussi.`, 'Un autre créateur', `On partage la machine à café et le bruit. Bienvenue.`) } ] },
+      { t: 'choice', id: 'banc', prompt: `Le matériel de diagnostic et de réparation${N}?`, options: [
+        { id: 'acheter', label: 'Acheter une station professionnelle', desc: 'Diagnostic automatique, machine à séparer les écrans. 9 000 €, à toi pour dix ans.', fx: { tre: -9000 }, do: s => { s.banc = 'acheter'; },
+          chain: ch(['Matériel fiable et rapide', 'Il t\'appartient', 'Aucun loyer à payer ensuite'], ['9 000 € qui sortent tout de suite', 'Moins de réserve en cas de coup dur']),
+          voix: V(`Vous possédez votre outil. Mais il vous reste combien sur le compte, maintenant${N}?`, `Un bien durable, j'aime. Une trésorerie vide, beaucoup moins.`, 'Le vendeur', `Garantie trois ans. Après, c'est vous qui payez les réparations.`) },
+        { id: 'louer', label: 'Louer la même station', desc: '380 €/mois, entretien et remplacement compris. Rien à payer d\'avance.', do: s => { s.banc = 'louer'; },
+          chain: ch(['Le même matériel, tout de suite', 'Ta trésorerie reste intacte', 'Panne ? Le loueur remplace'], ['380 € chaque mois, pour toujours', 'Il ne t\'appartiendra jamais']),
+          voix: V(`Vous payez l'usage, pas la propriété. Au démarrage, c'est souvent plus prudent.`, `Une charge fixe de plus. Mais un compte qui respire.`, 'Le loueur', `Et si vous grandissez, on vous en met une deuxième.`) },
+        { id: 'outils', label: 'S\'équiper d\'outils simples', desc: 'Tournevis de précision, station de chauffe, multimètre. 1 200 €.', fx: { tre: -1200 }, do: s => { s.banc = 'outils'; },
+          chain: ch(['Presque rien à dépenser'], ['Chaque téléphone prend 30 % de temps en plus', 'Les pannes cachées passent inaperçues', 'Plus de retours, plus de clients déçus']),
+          voix: V(`Vous économisez sur ce qui fait la qualité de votre travail. Je vous préviens, c'est un pari.`, `1${N}200${N}€, très bien. Mais combien de retours sous garantie${N}?`, 'Un réparateur du quartier', `Sans station de diagnostic, une batterie fatiguée, tu ne la vois pas. Le client, si.`) } ] },
+      { t: 'say', who: 'yanis', text: `Salut. J'ai vu ton annonce. Huit ans chez un réparateur agréé, je démonte un téléphone les yeux fermés. Je demande 2${N}400${N}€ net. Ça te fait autour de 3${N}300${N}€ par mois, charges comprises.` },
+      { t: 'say', who: 'lou', text: `Bonjour${N}! Je cherche une entreprise pour mon BTS en alternance. Je ne sais pas encore grand-chose, mais j'apprends vite. Avec les aides, je vous coûterais environ 750${N}€ par mois. Je serai deux semaines sur trois à l'atelier.` },
+      { t: 'choice', id: 'rh', prompt: `Avec qui démarrer${N}?`, options: [
+        { id: 'yanis', label: 'Embaucher Yanis', desc: 'Expérience, vitesse, qualité. 3 300 €/mois.', set: { tech: true },
+          chain: ch(['Deux fois plus d\'heures de travail', 'Un œil expert : beaucoup moins de pannes ratées', 'Tu peux t\'occuper des clients'], ['3 300 € chaque mois, qu\'il y ait du travail ou non', 'Tout son savoir est dans sa tête']),
+          voix: V(`Yanis vous apporte des heures, mais surtout ce qui ne s'achète pas en magasin${N}: huit ans de gestes et de pannes vues. Gardez-le.`, `Un salaire, c'est la charge la plus lourde et la plus difficile à réduire. Il faudra du chiffre d'affaires dès le premier mois.`, 'Yanis', `Je commence lundi. Tu verras, les retours, on va les diviser par deux.`) },
+        { id: 'lou', label: 'Prendre Lou en apprentissage', desc: 'Peu coûteuse, mais il faudra la former. 750 €/mois.', set: { lou: true },
+          chain: ch(['Une aide pour un coût faible', 'Elle progressera chaque mois', 'Tu formes quelqu\'un à ta façon de faire'], ['Au début, elle te prendra du temps', 'Plus d\'erreurs les premiers mois']),
+          voix: V(`Vous investissez dans des compétences qui n'existent pas encore. Dans six mois, elles vaudront de l'or… si vous avez pris le temps de transmettre.`, `750${N}€, je valide. C'est raisonnable.`, 'Lou', `Merci${N}! Je note tout, promis.`) },
+        { id: 'seul', label: 'Démarrer seul', desc: 'Aucun salaire à verser. Tu fais tout : achats, réparations, clients, comptes.',
+          chain: ch(['Aucune charge de personnel', 'Chaque euro gagné reste dans l\'entreprise'], ['Tes heures sont limitées', 'Tu es à la fois technicien, vendeur et comptable', 'Personne pour te remplacer si tu tombes malade']),
+          voix: V(`C'est ce que font beaucoup de créateurs. C'est aussi pourquoi beaucoup s'épuisent la première année.`, `Pas de salaire, des charges minimales. Pour moi, c'est rassurant.`, 'Ta sœur', `Et tes week-ends, tu les mets où${N}?`) } ] },
+      { t: 'event', who: 'nadia', if: s => s.offre !== 'flotte', do: s => { s.stockCost = Math.round(m(s).stock * unitCost(s) + (s.offre === 'repar' ? 2000 : 0)); },
+        text: s => s.offre === 'vente' ? `Il vous faut un premier stock à vendre${N}: 40 téléphones à ${eur(unitCost(s))} pièce. Sans eux, votre vitrine est vide.` : `Il vous faut un premier stock de pièces${N}: écrans, batteries, connecteurs. 2${N}000${N}€.`,
+        fx: s => ({ tre: -s.stockCost }) },
+      { t: 'say', who: 'nadia', text: `Tout ce que vous venez d'acheter ou de louer se voit et se touche. Il reste un mois avant l'ouverture. Assez pour bâtir deux choses qui ne se voient pas. Une ce mois-ci, une le suivant.` },
+      { t: 'choice', id: 'imm1', prompt: `Premier chantier avant l'ouverture${N}?`, options: [
+        { id: 'marque', label: 'Déposer le nom « Rebond » et le logo', desc: 'Dépôt à l\'INPI, l\'office des marques : 190 €. Personne d\'autre ne pourra utiliser ce nom pour des téléphones.', fx: { tre: -190 }, set: { marque: true },
+          chain: ch(['Le nom t\'appartient officiellement', 'Pour dix ans, renouvelable', 'Tu peux interdire à un autre de l\'utiliser'], ['190 €, et une après-midi de démarches']),
+          voix: Vq(`Votre nom deviendra votre réputation. Sans dépôt, il appartient au premier qui le dépose.`, `190${N}€ pour protéger tout ce que vous allez construire${N}? C'est le meilleur placement du dossier.`, `Un nom officiel, un logo à nous. Ça devient sérieux.`) },
+        { id: 'process', label: 'Écrire tes méthodes de travail', desc: 'Une fiche de test en 42 points, une procédure par panne, des photos à chaque étape.', set: { process: true },
+          chain: ch(['Ce que tu sais faire est écrit', 'Chaque téléphone est vérifié de la même façon', 'Un nouveau peut apprendre seul'], ['Des soirées entières à écrire', 'Ça ne rapporte rien tout de suite']),
+          voix: Vq(`Ce que vous savez faire ne vous appartient vraiment que lorsque c'est écrit. Sinon, ça part avec la personne qui le sait.`, `Je ne vois pas de chiffre là-dedans. Mais je vois moins de retours.`, `Avec une fiche, plus besoin de se demander si on a oublié de tester le micro.`) },
+        { id: 'fichier', label: 'Monter un fichier de clients', desc: 'Un logiciel qui garde, avec leur accord, les coordonnées et l\'historique de chaque client. 40 €/mois.', set: { fichier: true },
+          chain: ch(['Tu sais qui a acheté quoi, et quand', 'Tu peux les relancer au bon moment', 'Ceux qui reviennent coûtent moins cher à attirer'], ['40 € chaque mois', 'Il faut le remplir à chaque client']),
+          voix: V(`Un client qui revient vaut bien plus qu'un client à conquérir. Encore faut-il savoir qui il est.`, `40${N}€ par mois, si ça ramène trois clients, c'est payé.`, 'Inès, 17 ans', `Vous me prévenez quand ma garantie arrive à la fin${N}? Trop bien.`) },
+        { id: 'reseau', label: 'Négocier avec des fournisseurs', desc: 'Un accord avec une ressourcerie qui te réserve ses téléphones et un grossiste en pièces.', set: { reseau: true },
+          chain: ch(['Des téléphones et des pièces moins chers', 'Un approvisionnement garanti', 'Une relation qu\'un nouveau venu n\'aura pas'], ['Tu t\'engages à acheter régulièrement']),
+          voix: V(`Une relation de confiance avec un fournisseur, ça ne se copie pas en un mois.`, `−12${N}€ par téléphone, sur un an, ça fait une somme.`, 'Mme Roche, ressourcerie', `On vous met de côté les meilleurs, chaque lundi.`) } ] },
+      { t: 'choice', id: 'imm2', prompt: `Second chantier, le mois suivant${N}?`, options: [
+        { id: 'marque', label: 'Déposer le nom « Rebond » et le logo', desc: '190 € à l\'INPI.', fx: { tre: -190 }, set: { marque: true }, lock: s => s.flags.marque ? 'Déjà fait' : null,
+          chain: ch(['Le nom t\'appartient officiellement', 'Tu peux interdire à un autre de l\'utiliser'], ['190 €']), voix: V(`Votre nom est protégé. Ce sera utile plus tôt que vous ne le croyez.`, `Bien.`, 'Ta sœur', `Ça fait sérieux, «${N}marque déposée${N}».`) },
+        { id: 'process', label: 'Écrire tes méthodes de travail', desc: 'Fiche de test en 42 points, procédures, photos.', set: { process: true }, lock: s => s.flags.process ? 'Déjà fait' : null,
+          chain: ch(['Ton savoir-faire est écrit', 'Moins d\'oublis, moins de retours', 'Un nouveau peut apprendre seul'], ['Des soirées entières']), voix: Vq(`Le savoir-faire écrit reste dans l'entreprise, quoi qu'il arrive.`, `Moins de retours, je signe.`, `On a enfin une méthode, la même pour tout le monde.`) },
+        { id: 'fichier', label: 'Monter un fichier de clients', desc: '40 €/mois.', set: { fichier: true }, lock: s => s.flags.fichier ? 'Déjà fait' : null,
+          chain: ch(['Tu connais tes clients', 'Tu peux les relancer'], ['40 € par mois']), voix: V(`Vos clients ne seront plus des inconnus.`, `Si ça fait revenir des clients, c'est rentable.`, 'Inès, 17 ans', `Vous m'enverrez un message pour la révision${N}?`) },
+        { id: 'reseau', label: 'Négocier avec des fournisseurs', desc: 'Ressourcerie et grossiste en pièces.', set: { reseau: true }, lock: s => s.flags.reseau ? 'Déjà fait' : null,
+          chain: ch(['Des coûts plus bas', 'Un approvisionnement garanti'], ['Un engagement d\'achat']), voix: V(`Une relation qui prendra des mois à quiconque voudrait vous imiter.`, `Des coûts plus bas, j'aime.`, 'Mme Roche, ressourcerie', `Marché conclu.`) } ] },
+      { t: 'event', who: 'nadia', do: s => { s.qual = 100 - taux(s); }, text: s => {
+          const v = [s.local === 'centre' ? 'une boutique en centre-ville' : s.local === 'zone' ? 'un local en zone artisanale' : 'un poste en atelier partagé', s.banc === 'acheter' ? 'une station de diagnostic (à toi)' : s.banc === 'louer' ? 'une station de diagnostic (louée)' : 'des outils simples', s.offre !== 'flotte' ? (s.offre === 'vente' ? '40 téléphones en stock' : 'un stock de pièces') : 'aucun stock', `${eur(s.tre)} sur le compte`];
+          if (s.flags.tech) v.push('Yanis'); if (s.flags.lou) v.push('Lou'); v.push('toi');
+          const i = [s.flags.marque && 'un nom protégé', s.flags.process && 'des méthodes écrites', s.flags.fichier && 'un fichier de clients', s.flags.reseau && 'des fournisseurs fidèles', s.flags.tech && 'huit ans d\'expérience (celle de Yanis)', s.flags.appli && 'une appli unique', s.flags.batterie && 'une promesse de garantie'].filter(Boolean);
+          return `Voici ce que possède Rebond le jour de l'ouverture.<span class="pay"><span><b>Ce qui se voit</b></span><b></b>${v.map(x => `<span>${x}</span><b>✓</b>`).join('')}<span><b>Ce qui ne se voit pas</b></span><b></b>${i.length ? i.map(x => `<span>${x}</span><b>✓</b>`).join('') : '<span>rien pour l\'instant</span><b>—</b>'}</span>Tout est prêt. On ouvre lundi.`; } }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Ouvrir', sub: 'Six mois d\'activité. Les chiffres vont te dire si tes choix tenaient debout.',
+    steps: [
+      { t: 'event', who: 'nadia', do: s => { s.rep = trimestre(s); }, text: s => `<b>Premier trimestre.</b> ${s.offre === 'flotte' ? 'Voici les comptes des trois premiers mois.' : 'Voici à quoi a ressemblé un mois type.'}${rapport(s)}${commentaire(s)}`, fx: fxTrim },
+      { t: 'event', who: 'narr', do: apresTrim, text: s => s.flags.appli ? `L'appli a planté chez un client sur cinq. Le développeur corrige. Les clients attendent de voir.` : `Trois mois de passés. Le compte affiche ${eur(s.tre)}.` },
+      { t: 'say', who: 'lemoine', if: s => taux(s) >= 6, text: s => `Mon ${s.offre === 'repar' ? 'écran que vous avez changé' : 'téléphone'} est retombé en panne au bout de trois semaines. C'est la deuxième fois. Je veux être remboursée, et je vais le dire à tout le monde.` },
+      { t: 'choice', id: 'plainte', if: s => taux(s) >= 6, prompt: `Mme Lemoine${N}?`, options: [
+        { id: 'corriger', label: 'Rembourser, et revoir toute ta façon de tester', desc: s => s.flags.process ? 'Tes méthodes existent : tu les renforces. 300 € de remboursement.' : 'Tu écris enfin une procédure de test, point par point. 300 € et des soirées.', fx: { tre: -300, repu: 4, equipe: -5 }, set: { process: true, corrige: true },
+          chain: ch(['Une cliente remboursée', 'Tu cherches pourquoi ça casse', 'Une procédure écrite pour tout le monde', 'Moins de retours à l\'avenir'], ['300 € et du temps']),
+          voix: V(`Vous avez traité la cause, pas seulement la cliente. C'est la différence entre réparer et s'améliorer.`, `300${N}€ aujourd'hui pour éviter des dizaines de retours demain${N}: bon calcul.`, 'Mme Lemoine', `Bon. Vous avez été corrects. Je ne dirai rien de mal.`) },
+        { id: 'rembourser', label: 'Rembourser, sans rien changer', desc: '300 €. Le client a raison, on passe à autre chose.', fx: { tre: -300 },
+          chain: ch(['Une cliente apaisée'], ['La cause de la panne est toujours là', 'D\'autres retours vont suivre']),
+          voix: V(`Vous avez éteint un feu. La source est toujours là.`, `300${N}€. Et le prochain, combien${N}?`, 'Mme Lemoine', `Merci. J'espère que le prochain tiendra.`) },
+        { id: 'refuser', label: 'Refuser : la panne vient sûrement d\'une chute', desc: 'Aucun frais.', fx: { repu: -12 },
+          chain: ch(['Pas un euro de dépensé'], ['Un avis à une étoile en ligne', 'Lu par des centaines de clients potentiels', 'La réputation baisse']),
+          voix: V(`Une étoile, c'est un client perdu. Lue par cent personnes, c'est cent clients qui hésitent.`, `Vous avez gardé 300${N}€. Combien de ventes avez-vous perdues${N}?`, 'Avis Google, 1 étoile', `«${N}Arnaque. Fuyez.${N}» — 47 personnes ont trouvé cet avis utile.`) } ] },
+      { t: 'say', who: 'diallo', text: s => ({
+          vente: `La mairie renouvelle les téléphones de 40 agents. Nous voulons du reconditionné, c'est dans notre plan climat. 40 téléphones à 239${N}€, livrés dans un mois. Nous payons, comme toujours, à 60 jours.`,
+          flotte: `La mairie veut équiper 40 agents, en location, à votre tarif. Contrat de 24 mois. Il nous les faut dans un mois.`,
+          repar: `La mairie a 40 téléphones de service en panne dans un placard. Nous vous les confions tous, à ${eur(Math.round(s.prix * .9))} l'intervention, à rendre dans un mois. Paiement à 60 jours.` })[s.offre] },
+      { t: 'say', who: 'nadia', text: s => {
+          const R = s.rep, libre = Math.max(0, Math.round(R.cap - R.used + 20)), besoin = Math.round(40 * R.hpu);
+          s.mairieOK = libre >= besoin;
+          return `Avant de répondre, regardez vos heures. Ce contrat demande environ <b>${besoin}${N}heures</b> de travail. Sur le mois qui vient, il vous en reste <b>${libre}</b> de libres. ${s.offre === 'vente' ? `Et il faut acheter les 40 téléphones${N}: <b>${eur(40 * unitCost(s))}</b> qui sortent tout de suite, alors que la mairie ne paiera que dans deux mois.` : s.offre === 'flotte' ? `Et il faut acheter les 40 téléphones${N}: <b>${eur(40 * unitCost(s))}</b>. La mairie paie tout de suite les frais de mise en service (${eur(40 * MOD.flotte.setup)})${N}; le reste ne vous reviendra que loyer après loyer. Il vous reste ${eur(s.tre)} sur le compte.` : 'Les pièces, vous les avancez aussi, et la mairie ne paiera que dans deux mois.'}`; } },
+      { t: 'choice', id: 'mairie', prompt: `Le contrat de la mairie${N}?`, options: [
+        { id: 'oui', label: 'Accepter et tout faire toi-même', desc: s => s.mairieOK ? 'Tu as les heures. Tu as l\'argent ?' : 'Tu n\'as pas assez d\'heures. Il faudra rogner sur le reste… ou être en retard.',
+          fx: s => Object.assign({ tre: -40 * (unitCost(s) - (s.offre === 'flotte' ? MOD.flotte.setup : 0)) }, s.mairieOK ? { repu: 4 } : { repu: -10, equipe: -12 }),
+          do: s => { s.flags.mairie = true;
+            if (s.offre === 'vente') s.creance = 40 * 239; else if (s.offre === 'repar') s.creance = Math.round(40 * s.prix * .9); else s.parc += 40;
+            if (!s.mairieOK) { if (s.creance) s.creance = Math.round(s.creance * .9); s.flags.retard = true; } },
+          chain: s => s.mairieOK ? ch(['Un gros client, d\'un coup', 'Une référence à montrer aux autres', s.offre === 'flotte' ? '40 loyers de plus chaque mois' : 'Une belle somme… dans deux mois'], [s.offre === 'repar' ? 'Les pièces sortent de ta caisse maintenant' : `${eur(40 * unitCost(s))} sortent de ta caisse maintenant`, 'Ta trésorerie baisse avant de remonter'])
+            : ch(['Un gros client'], ['Pas assez d\'heures pour tout faire', 'Les clients habituels attendent', 'Livraison en retard : pénalité de 10 %', 'Une équipe à bout']),
+          voix: s => s.mairieOK ? V(`Un client public, c'est une vitrine. Mais regardez votre compte entre aujourd'hui et le jour où il paie.`, `Vous avancez l'argent, la mairie paiera… plus tard. C'est entre les deux que les entreprises meurent.`, 'Mme Diallo', `Parfait. Bon de commande dans votre boîte ce soir.`)
+            : V(`Vous avez promis plus que vous ne pouviez faire. Le retard vous coûte de l'argent et votre réputation.`, `Une pénalité de retard, dès votre premier gros contrat. Ça commence mal.`, 'Mme Diallo', `Trois semaines de retard. Nous nous en souviendrons pour le prochain appel d'offres.`) },
+        { id: 'sous', label: 'Accepter en confiant une partie à un grossiste', desc: 'Il prépare la moitié des téléphones. Tu gagnes deux fois moins dessus, et tu ne contrôles pas son travail.',
+          fx: s => ({ tre: -40 * (unitCost(s) - (s.offre === 'flotte' ? MOD.flotte.setup : 0)) - (s.offre === 'repar' ? 400 : 800), repu: 2 }),
+          do: s => { s.flags.mairie = true; s.flags.sousTraite = true;
+            if (s.offre === 'vente') s.creance = 40 * 239; else if (s.offre === 'repar') s.creance = Math.round(40 * s.prix * .9); else s.parc += 40; },
+          chain: ch(['Le contrat est tenu dans les délais', 'Tes clients habituels ne sont pas lésés'], ['Le grossiste prend sa part', 'Tu ne contrôles pas la qualité de son travail', 'Ses erreurs porteront ton nom']),
+          voix: V(`Faire faire plutôt que faire${N}: c'est une vraie solution quand on manque de bras. À condition de vérifier ce qu'on vous livre.`, `Moins de marge, mais pas de retard. Je préfère.`, 'Mme Diallo', `Livré à l'heure. Un ou deux appareils un peu fatigués, mais bon.`) },
+        { id: 'non', label: 'Refuser poliment', desc: 'Tu restes sur ta clientèle actuelle.',
+          chain: ch(['Aucun risque pour ta trésorerie', 'Tes clients habituels sont bien servis'], ['Un gros client parti ailleurs', 'Une référence en moins']),
+          voix: V(`Parfois, dire non est la décision la plus sage. Parfois, c'est passer à côté. Vous seul savez où vous en êtes.`, `Prudent.`, 'Mme Diallo', `Dommage. Nous verrons avec un fournisseur de Lyon.`) } ] },
+      { t: 'event', who: 'nadia', do: s => { s.rep = trimestre(s); }, text: s => `<b>Deuxième trimestre.</b>${rapport(s)}${s.creance ? `La mairie a payé${N}: <b>+${eur(s.creance)}</b>. ` : ''}${commentaire(s)}`, fx: s => { const f = fxTrim(s); if (s.creance) { f.tre += s.creance; s.creance = 0; } return f; } },
+      { t: 'event', who: 'narr', do: apresTrim, text: s => `Six mois. Le compte affiche ${eur(s.tre)}.` },
+      { t: 'say', who: 'nadia', if: s => !s.flags.tech && !s.flags.lou && s.equipe < 62, text: `Vous avez une mine terrible. Vous dormez combien${N}? Vous travaillez six jours sur sept, vous refusez des clients, et vous faites la compta le dimanche. Il est temps de vous faire aider.` },
+      { t: 'choice', id: 'renfort', if: s => !s.flags.tech && !s.flags.lou && s.equipe < 62, prompt: `Te faire aider${N}?`, options: [
+        { id: 'lou', label: 'Prendre une apprentie', desc: 'Lou cherche toujours une entreprise. 750 €/mois.', set: { lou: true }, fx: { equipe: 15 },
+          chain: ch(['Une aide pour un coût faible', 'Quelques heures de souffle'], ['Il faudra la former']), voix: V(`Enfin. Prenez le temps de lui transmettre ce que vous savez.`, `750${N}€, c'est supportable.`, 'Lou', `Je commence quand vous voulez${N}!`) },
+        { id: 'karim', label: 'Embaucher un technicien expérimenté', desc: 'Yanis a trouvé ailleurs, mais Karim est disponible. 3 300 €/mois.', do: s => { s.techNom = 'Karim'; }, set: { tech: true }, fx: { equipe: 20 },
+          chain: ch(['Deux fois plus d\'heures', 'Moins de pannes ratées'], ['3 300 € chaque mois']), voix: V(`Vous récupérez du temps et de la qualité. Votre trésorerie le supportera-t-elle${N}?`, `Un salaire de plus. Montrez-moi le chiffre d'affaires qui va avec.`, 'Karim', `Montre-moi l'atelier, je m'occupe du reste.`) },
+        { id: 'tenir', label: 'Tenir encore un peu', desc: 'Pas de salaire en plus.', fx: { equipe: -6 },
+          chain: ch(['Aucune charge en plus'], ['La fatigue s\'accumule', 'Les erreurs aussi']), voix: V(`Je vous aurai prévenu.`, `C'est votre santé, c'est aussi ma créance.`, 'Ta sœur', `Tu as raté mon anniversaire.`) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'La copie', sub: 'Tout ce qui se voit peut être copié. Reste à savoir ce qui ne se voit pas.',
+    steps: [
+      { t: 'say', who: 'kessler', text: s => s.offre === 'flotte' ? `Bonjour. Je dirige TéléPrix, une chaîne de quinze magasins. Nous lançons «${N}TéléPrix Pro${N}», la location de téléphones aux entreprises. 20${N}% moins cher que vous. Je voulais vous le dire en face.` : `Bonjour, voisin. J'ouvre un TéléPrix à 300${N}mètres. Même offre que vous, 20${N}% moins cher. Nous avons quinze magasins, nous achetons par milliers. Je voulais vous le dire en face.` },
+      { t: 'say', who: 'nadia', if: s => s.flags.marque, text: `Et regardez sa nouvelle publicité${N}: «${N}TéléPrix Rebond+${N}». Il a essayé de vous prendre votre nom. Mais vous l'avez déposé. Votre avocate lui écrit, il retire le nom en huit jours.` },
+      { t: 'event', who: 'nadia', if: s => s.flags.marque, text: `Votre nom vous appartient. Il ne pouvait rien y faire.`, fx: { repu: 3 } },
+      { t: 'say', who: 'nadia', if: s => !s.flags.marque, text: `Mauvaise nouvelle. TéléPrix a déposé la marque «${N}Rebond${N}» pour les téléphones, il y a deux mois. Vous ne l'aviez pas fait. Il vous met en demeure de changer de nom, sinon il vous attaque pour contrefaçon.` },
+      { t: 'choice', id: 'nom', if: s => !s.flags.marque, prompt: `Ton nom${N}?`, options: [
+        { id: 'changer', label: 'Changer de nom', desc: 'Nouvelle enseigne, nouveau site, nouveaux cartons. 2 500 €. Tes clients ne te reconnaîtront plus.', fx: { tre: -2500, repu: -15 }, do: s => { s.nom = 'Phénix'; s.flags.nomPerdu = true; },
+          chain: ch(['Plus de risque de procès'], ['2 500 € de frais', 'Tout ce que tes clients connaissaient disparaît', 'Les avis en ligne parlent d\'un nom qui n\'existe plus', 'Tu repars presque de zéro en notoriété']),
+          voix: V(`Six mois de bouche-à-oreille, envolés. C'était le prix de 190${N}€ non dépensés.`, `2${N}500${N}€ imprévus. Et des clients perdus.`, 'Inès, 17 ans', `Phénix${N}? C'est vous, Rebond${N}? Ah, je ne savais pas.`) },
+        { id: 'racheter', label: 'Lui racheter la marque', desc: 'Il accepte de te la céder pour 5 000 €.', fx: { tre: -5000 }, set: { marque: true },
+          chain: ch(['Tu gardes ton nom et tes clients'], ['5 000 € payés à ton concurrent', 'Pour un nom qui t\'aurait coûté 190 €']),
+          voix: V(`Vous avez payé vingt-six fois le prix. Mais vous gardez ce qui compte${N}: le nom que vos clients connaissent.`, `5${N}000${N}€ qui partent chez votre concurrent. Ça me fait mal pour vous.`, 'M. Kessler', `Ravi de faire affaire avec vous.`) },
+        { id: 'attaquer', label: 'Attaquer son dépôt devant la justice', desc: 'Il a déposé ton nom en sachant que tu l\'utilisais : c\'est un dépôt de mauvaise foi. Avocate : 6 000 €, 18 mois de procédure.', fx: { tre: -6000, equipe: -6 }, set: { proces: true },
+          chain: ch(['Le droit est de ton côté : il savait', 'Tu gardes ton nom pendant la procédure', 'Tu devrais récupérer ta marque'], ['6 000 € d\'avocate', '18 mois d\'incertitude', 'Du temps et de l\'énergie en moins pour l\'atelier']),
+          voix: V(`Vous avez sans doute raison. Mais avoir raison coûte cher et prend du temps.`, `6${N}000${N}€ dans un procès plutôt que dans l'atelier. J'espère que vous le gagnerez.`, 'Ton avocate', `Il savait que vous existiez, il l'a même écrit dans un mail. Nous avons de bonnes chances.`) } ] },
+      { t: 'say', who: s => s.techNom === 'Karim' ? 'karim' : 'yanis', if: s => s.flags.tech, text: s => `Il faut que je te dise un truc. Kessler m'a proposé de prendre la direction de son atelier. 400${N}€ de plus par mois. J'ai pas encore dit oui.` },
+      { t: 'choice', id: 'debauche', if: s => s.flags.tech, prompt: s => `${s.techNom} veut partir${N}?`, options: [
+        { id: 'aligner', label: 'T\'aligner : +400 € net par mois', desc: 'Environ 560 € de plus par mois, charges comprises.', set: { augm: true }, fx: { equipe: 5 },
+          chain: ch(['Il reste', 'Son savoir-faire reste'], ['560 € de charges en plus, chaque mois', 'Il reste pour l\'argent, pas pour le projet']),
+          voix: s => V(`Vous l'avez gardé. La prochaine fois que quelqu'un lui offrira plus, vous ferez quoi${N}?`, `Une charge fixe de plus. Il faudra la couvrir.`, s.techNom, `OK, je reste. Merci.`) },
+        { id: 'associer', label: 'Lui confier l\'atelier et 10 % des bénéfices', desc: 'Il devient responsable, il décide de l\'organisation, il touche une part de ce que Rebond gagne.', set: { associe: true }, fx: { equipe: 14 },
+          chain: ch(['Il devient responsable de l\'atelier', 'Il gagne plus quand Rebond gagne plus', 'Il a une raison de rester'], ['Tu partages une partie des bénéfices', 'Tu décides moins seul']),
+          voix: s => V(`Vous n'avez pas acheté sa présence, vous lui avez donné un intérêt à rester. C'est plus solide.`, `Pas de charge fixe en plus${N}: il ne gagne que si vous gagnez. Malin.`, s.techNom, `Responsable d'atelier${N}? Alors on fait les choses bien. Donne-moi un mois.`) },
+        { id: 'laisser', label: 'Le laisser partir', desc: 'Pas de surenchère. Tu économises son salaire.', do: s => { s.flags.tech = false; s.flags.parti = true; }, fx: s => ({ equipe: -10, repu: s.flags.process ? -2 : -6 }),
+          chain: s => s.flags.process ? ch(['Tu économises 3 300 € par mois', 'Tes méthodes écrites restent à l\'atelier'], ['Moins d\'heures de travail', 'Il emporte son expérience chez ton concurrent']) : ch(['Tu économises 3 300 € par mois'], ['Il part avec tout ce qu\'il savait', 'Rien n\'était écrit', 'Les pannes difficiles, plus personne ne sait les voir', 'Et c\'est ton concurrent qui en profite']),
+          voix: s => V(s.flags.process ? `Heureusement, ce qu'il savait est en partie écrit. Le reste, Kessler vient de l'acheter.` : `Huit ans de savoir-faire viennent de traverser la rue. Rien n'était écrit. Vous allez le sentir dès la semaine prochaine.`, `Moins de charges. Mais moins d'heures et plus de retours, c'est ça${N}?`, s.techNom, `Sans rancune. Bonne chance.`) } ] },
+      { t: 'say', who: 'nadia', text: s => { const a = atouts(s); return `Maintenant, TéléPrix. Il peut copier votre offre, votre vitrine et votre prix. ${a.length ? `Mais il ne peut pas copier en un mois${N}: ${a.join(', ')}.` : `Et franchement, je ne vois pas ce qu'il ne pourrait pas copier chez vous.`}${s.offre === 'flotte' ? ` Et vos clients actuels sont liés à vous par des contrats de deux ans${N}: il ne peut viser que les nouveaux.` : ''}`; } },
+      { t: 'choice', id: 'riposte', prompt: `Face à TéléPrix${N}?`, options: [
+        { id: 'baisser', label: 'Baisser tes prix de 20 %', desc: s => `Ton prix passe de ${eur(s.prix)} à ${eur(s.prix * .8)}. Ton coût, lui, reste à ${eur(unitCost(s))}.`, set: { riposte: 'baisser' },
+          chain: s => ch(['Même prix que TéléPrix', 'Tu gardes tes clients'], [`Ta marge par ${m(s).u} passe de ${eur(s.prix - unitCost(s))} à ${eur(s.prix * .8 - unitCost(s))}`, 'Lui achète par milliers, ses coûts sont plus bas que les tiens', 'S\'il baisse encore, tu ne peux plus suivre']),
+          voix: V(`Vous vous battez sur le seul terrain où il est plus fort que vous${N}: le volume.`, `Faites-moi le calcul de votre marge, maintenant. Je l'ai fait${N}: elle a fondu.`, 'M. Kessler', `Moins 20${N}%${N}? Très bien. Lundi, je fais moins 25.`) },
+        { id: 'differencier', label: 'Miser sur ce qu\'il ne peut pas copier', desc: s => { const n = atouts(s).length; return n >= 4 ? 'Tu as de vrais atouts. Tu les mets en avant, sans toucher à ton prix.' : n ? `Tu n'as que ${n} atout${n > 1 ? 's' : ''} à mettre en avant. Est-ce assez ?` : 'Tu ne vois pas bien lesquels…'; }, set: { riposte: 'differencier' },
+          chain: s => { const a = atouts(s); return a.length >= 4 ? ch(['Tu gardes ton prix et ta marge', `Tu mets en avant : ${a.slice(0, 3).join(', ')}…`, 'Les clients voient la différence', 'Il peut copier ton prix, pas tout ça']) : ch(['Tu gardes ton prix'], [a.length ? `Seulement : ${a.join(', ')}` : 'Rien de vraiment différent', 'Pour le client, vous vous ressemblez', 'Il choisit le moins cher']); },
+          voix: s => atouts(s).length >= 4 ? V(`Voilà à quoi servait tout ce qui ne se voyait pas${N}: c'est maintenant que ça rapporte.`, `Vous gardez votre marge. Bonne nouvelle.`, 'Inès, 17 ans', `TéléPrix est moins cher, mais chez vous je sais à qui je parle.`) : V(`Pour se différencier, il faut avoir quelque chose de différent. Vous auriez dû le construire avant.`, `Même prix qu'avant, moins de clients. Je m'inquiète.`, 'Inès, 17 ans', `Franchement, c'est pareil, et c'est moins cher en face.`) },
+        { id: 'ignorer', label: 'Ne rien changer', desc: 'Tu continues comme avant et tu laisses passer l\'orage.', set: { riposte: 'ignorer' },
+          chain: ch(['Aucun coût'], ['Une partie de tes clients traverse la rue', 'Rien ne les retient']),
+          voix: V(`Ne rien faire, c'est laisser le client décider seul. Et seul, il regarde le prix.`, `Je verrai bien vos chiffres le trimestre prochain.`, 'M. Kessler', `Merci pour vos clients.`) } ] },
+      { t: 'event', who: 'nadia', do: s => { s.rep = trimestre(s); }, text: s => `<b>Troisième trimestre</b>, avec TéléPrix en face.${rapport(s)}${commentaire(s)}`, fx: fxTrim },
+      { t: 'event', who: 'narr', do: apresTrim, text: s => `Neuf mois. Le compte affiche ${eur(s.tre)}.` },
+      { t: 'event', who: 'nadia', do: s => { s.rep = trimestre(s); }, text: s => `<b>Quatrième trimestre.</b>${rapport(s)}${commentaire(s)}`, fx: fxTrim },
+      { t: 'event', who: 'narr', do: s => { apresTrim(s); if (s.flags.associe && s.hist[3] > 0) { s.prime = Math.round(s.hist.reduce((a, b) => a + b, 0) * .1); if (s.prime > 0) s.tre -= s.prime; } }, text: s => `Un an. Le compte affiche ${eur(s.tre)}.${s.prime > 0 ? ` (Après versement à ${s.techNom} de ses 10${N}%${N}: ${eur(s.prime)}.)` : ''}` }
+    ] },
+
+  /* ------------------------------ ACTE 5 ------------------------------ */
+  { num: 5, title: 'Le banquier', sub: 'Un an jour pour jour. M. Rocher a vos comptes sous les yeux.', final: true,
+    steps: [
+      { t: 'say', who: 'rocher', text: s => `Voici votre année, trimestre par trimestre.<span class="pay">${s.hist.map((h, i) => `<span>Trimestre ${i + 1}</span><b>${sg(h)}</b>`).join('')}<span class="tot">Trésorerie aujourd'hui</span><b class="tot">${eur(s.tre)}</b></span>${s.offre === 'flotte' ? `Et surtout, ${s.parc} téléphones en location, qui vous rapportent ${eur(s.parc * (s.prix - 3))} par mois pendant encore un à deux ans, sans rien revendre.` : `${nb(s.lostTot * 3)} clients sont repartis sans être servis, faute de temps.`}` },
+      { t: 'say', who: 'rocher', text: s => s.flags.proces ? `Votre avocate m'a écrit${N}: le dépôt de TéléPrix devrait être annulé. Vous aurez votre nom. Il vous aura coûté cher.` : s.flags.nomPerdu ? `Phénix… Vous avez perdu six mois de notoriété pour un dépôt à 190${N}€. Je l'ai noté.` : `Votre nom vous appartient. C'est un actif, même s'il n'apparaît dans aucun tiroir.` },
+      { t: 'say', who: 'nadia', text: s => { const a = atouts(s); return `Il y a un an, vous aviez ${eur(30000)} et une idée. Aujourd'hui, ce qui fait la valeur de ${s.nom} ne tient pas seulement dans votre compte${N}: ${a.length ? a.join(', ') : 'malheureusement, pas grand-chose d\'autre'}.`; } }
+    ] }
+  ],
+
+  /* ------------------------------ FINS (ordre de priorité) ------------------------------ */
+  endings: [
+    { id: 'faillite', when: s => s.tre < -3000, cut: true, title: 'Cessation de paiements', stamp: 'Compte bloqué', color: '#FF5C6A',
+      text: s => `Ton découvert dépasse ce que la banque accepte. Tu ne peux plus payer ${s.flags.tech ? 'le salaire, ' : ''}le loyer, ni tes fournisseurs. ${s.offre === 'flotte' && s.parc > 60 ? 'Le plus cruel${N}: ton parc loué commençait à rapporter. Tu as manqué d\'argent avant de récolter.' : 'Tes dépenses fixes étaient trop lourdes pour ce que ton activité rapportait.'} ${s.nom} ferme.` },
+    { id: 'epuise', when: s => s.equipe <= 15, cut: true, title: 'Épuisé', stamp: 'Arrêt maladie', color: '#FF5C6A',
+      text: `Un matin, tu n'arrives pas à te lever. Ton médecin t'arrête un mois. L'atelier reste fermé${N}: personne d'autre ne sait le faire tourner. Une entreprise qui repose sur une seule personne s'arrête avec elle.` },
+    { id: 'cle', when: s => s.flags.parti && !s.flags.process, title: 'L\'homme-clé', stamp: 'Savoir-faire perdu', color: '#FFC64F',
+      text: s => `Depuis le départ de ${s.techNom}, les retours ont explosé. Les pannes délicates, plus personne ne sait les voir. Rien n'était écrit. Et ce savoir-faire travaille désormais pour TéléPrix, de l'autre côté de la rue.` },
+    { id: 'prixcasse', when: s => s.flags.riposte === 'baisser' && s.hist[3] < 0, title: 'La guerre des prix', stamp: 'Marge fondue', color: '#FFC64F',
+      text: s => `Tu as suivi TéléPrix sur les prix. Lui achète par milliers, toi par dizaines. À chaque baisse, ta marge fond plus vite que la sienne. Ton dernier trimestre est passé dans le rouge${N}: tu travailles autant, mais ta marge ne couvre plus tes charges.` },
+    { id: 'seul', when: s => !s.flags.tech && !s.flags.lou && s.equipe < 45, title: 'Indispensable', stamp: 'Tout repose sur toi', color: '#FFC64F',
+      text: s => `Sur le papier, ${s.nom} tient${s.tre > 10000 ? ', et gagne même de l\'argent' : ''}. M. Rocher pose pourtant une seule question${N}: «${N}Et si vous tombez malade${N}?${N}» Personne d'autre ne sait faire tourner l'atelier. Ta première ressource, c'est toi, et tu l'uses jusqu'à la corde.` },
+    { id: 'solide', when: s => (s.offre === 'flotte' ? s.parc >= 140 && s.tre >= 0 : s.tre >= 12000) && s.repu >= 58 && s.qual >= 96 && s.equipe >= 40, title: s => `${s.nom} est lancé`, stamp: 'Prêt accordé', color: '#4CD97B',
+      text: s => `M. Rocher referme le dossier. «${N}Je vous prête de quoi ouvrir un deuxième atelier.${N}» Ton offre répondait à un vrai besoin, tes ressources étaient adaptées à ton modèle, et tu avais bâti ce qu'un concurrent ne peut pas copier en un trimestre.` },
+    { id: 'survie', when: s => true, title: 'Toujours debout', stamp: 'Sous surveillance', color: '#7C6FFF',
+      text: s => `${s.nom} a passé sa première année, ce que beaucoup d'entreprises ne font pas. Mais M. Rocher reste prudent${N}: «${N}Revenez me voir dans six mois.${N}» Relis tes chiffres trimestre par trimestre${N}: ils te disent quelle décision t'a coûté le plus.` }
+  ],
+
+  /* ------------------------------ DÉBRIEF (h = choix du joueur) ------------------------------ */
+  debrief: [
+    { act: 1, needs: ['offre'], title: 'Acte 1 — Le besoin', text: (h, s) => {
+        const o = { vente: 'des téléphones reconditionnés, c\'est-à-dire un <em>bien</em>', flotte: 'la location de téléphones avec entretien : un <em>bien</em> et un <em>service</em> réunis', repar: 'la réparation, c\'est-à-dire un <em>service</em>' }[h.offre];
+        const i = h.plus === 'batterie' ? 'Avec la batterie neuve garantie, tu as choisi une <em>innovation incrémentale</em> : tu améliores un produit qui existe déjà. Peu risquée, rapide, mais facile à imiter.' : h.plus === 'appli' ? 'Avec l\'appli qui prévient les pannes, tu as tenté une <em>innovation de rupture</em> : un usage nouveau. Coûteuse et risquée au départ, difficile à copier ensuite.' : 'En misant seulement sur le prix, tu n\'as pas innové : rien ne te distinguait d\'un concurrent moins cher.';
+        return `Les habitants n\'ont pas demandé un produit : ils ont exprimé des <em>besoins</em>, c\'est-à-dire des manques (un écran cassé, un petit budget, ne pas avancer d\'argent). Ton offre y répondait par ${o}. ${i} Les quatre cases de Mme Ferhat décrivent ton <em>modèle économique</em> (business model) : la <em>proposition de valeur</em> (ce que tu apportes), les clients visés, les ressources nécessaires, et la façon dont l\'argent rentre et sort. Vente ponctuelle ou abonnement mensuel : la même activité, deux modèles économiques qui n\'ont ni les mêmes risques ni le même rythme de trésorerie.`; },
+      chain: () => ({ good: ['Besoin (un manque)', 'Offre (bien ou service)', 'Proposition de valeur', 'Revenus'], bad: ['Sans besoin réel', 'Aucun client', 'Aucun modèle ne tient'] }) },
+    { act: 2, needs: ['local', 'banc', 'rh'], title: 'Acte 2 — Les ressources', text: (h, s) => {
+        const b = h.banc === 'acheter' ? 'En achetant la station, tu as acquis une ressource durable, mais immobilisé 9 000 € de trésorerie.' : h.banc === 'louer' ? 'En louant la station, tu as payé l\'usage sans la propriété : une charge chaque mois, mais une trésorerie préservée.' : 'Avec des outils simples, tu as économisé sur la ressource qui fait ta qualité.';
+        const imm = [s.flags.marque && 'la <em>marque</em> déposée', s.flags.process && 'le <em>savoir-faire</em> écrit (formalisé)', s.flags.fichier && 'le fichier de clients', s.flags.reseau && 'les <em>partenariats</em> avec tes fournisseurs'].filter(Boolean);
+        return `Une organisation combine des <em>ressources tangibles</em>, qui se voient et se touchent : <em>matérielles</em> (local, station, stock), <em>financières</em> (tes 30 000 €), <em>humaines</em> (toi${h.rh === 'yanis' ? ', Yanis' : h.rh === 'lou' ? ', Lou' : ''}). Et des <em>ressources intangibles</em>, invisibles : <em>compétences</em>, <em>savoir-faire</em>, marque, <em>réputation</em>, relations. ${b} Tes ressources intangibles construites avant l\'ouverture : ${imm.length ? imm.join(', ') : 'aucune'}. Les ressources doivent être <em>adaptées au modèle</em> : une vitrine sert à vendre aux passants, pas à louer des téléphones à des entreprises ; un salarié expérimenté coûte cher si l\'activité ne demande pas ses heures.`; },
+      chain: () => ({ good: ['Ressources tangibles', 'Matérielles, financières, humaines', 'Se voient, s\'achètent, se louent'], bad: ['Ressources intangibles', 'Savoir-faire, marque, réputation, relations', 'Se construisent, se copient mal'] }) },
+    { act: 3, needs: ['mairie'], title: 'Acte 3 — Ouvrir', text: (h, s) => {
+        const mr = h.mairie === 'oui' ? (s.flags.retard ? 'En acceptant la mairie sans avoir les heures, tu as dépassé ta <em>capacité de production</em> : retard, pénalité, équipe épuisée.' : 'En acceptant la mairie, tu as dû avancer l\'argent avant d\'être payé : c\'est le décalage entre dépenses et encaissements qui fragilise la trésorerie.') : h.mairie === 'sous' ? 'En confiant une partie du contrat à un grossiste, tu as choisi de <em>faire faire</em> plutôt que de faire : plus de capacité, moins de marge, moins de contrôle sur la qualité.' : 'En refusant la mairie, tu as protégé ta trésorerie et tes clients habituels, au prix d\'une belle référence.';
+        return `Chaque trimestre suivait la même logique : la demande (clients intéressés) d\'un côté, ta <em>capacité de production</em> (heures disponibles ÷ heures par unité) de l\'autre. Tu ne vends que le plus petit des deux. Trop peu d\'heures : tu perds des clients. Trop d\'heures : tu paies des salaires inutiles. ${mr} Le <em>taux de retour</em> mesure la <em>qualité</em> : chaque panne coûte de l\'argent et des clients. ${h.plainte === 'corriger' ? 'Face à Mme Lemoine, tu as traité la cause et non seulement la plainte : c\'est une démarche d\'<em>amélioration continue</em>.' : ''}`; },
+      chain: () => ({ good: ['Demande', 'Capacité de production', 'Ventes réelles', 'Résultat'], bad: ['Qualité insuffisante', 'Retours', 'Coûts et clients perdus'] }) },
+    { act: 4, needs: ['riposte'], title: 'Acte 4 — La copie', text: (h, s) => {
+        const n = h.nom === 'changer' ? 'Faute de dépôt, ton nom appartenait au premier qui l\'a déposé : en France, la marque appartient à celui qui la dépose à l\'INPI. Tu as perdu une partie de ta réputation avec lui.' : h.nom === 'racheter' ? 'Faute de dépôt, tu as dû racheter ton propre nom vingt-six fois son prix.' : h.nom === 'attaquer' ? 'Tu as attaqué un dépôt fait de mauvaise foi : le droit te protège, mais lentement et chèrement.' : 'Ton dépôt de marque t\'a protégé en huit jours.';
+        const d = h.debauche === 'laisser' ? (s.flags.process ? 'Quand ton technicien est parti, ses méthodes écrites sont restées : le savoir-faire formalisé appartient à l\'entreprise.' : 'Quand ton technicien est parti, tout son savoir-faire est parti avec lui : rien n\'était écrit.') : h.debauche === 'associer' ? 'En confiant l\'atelier et une part des bénéfices à ton technicien, tu as fidélisé une <em>compétence</em> clé en liant son intérêt à celui de l\'entreprise.' : h.debauche === 'aligner' ? 'Tu as retenu ton technicien par le salaire : efficace, mais coûteux et fragile.' : '';
+        return `TéléPrix pouvait copier tout ce qui se voit : l\'offre, la vitrine, le prix. ${n} ${d} Ce qui protège une entreprise, ce sont les ressources <em>rares et difficiles à imiter</em> : savoir-faire, marque, réputation, relations, fichier de clients. Elles sont à l\'origine d\'un <em>avantage concurrentiel</em> durable. ${h.riposte === 'baisser' ? 'En baissant tes prix, tu t\'es battu sur le seul terrain où ton concurrent, qui achète par milliers, était plus fort.' : h.riposte === 'differencier' ? 'En misant sur ce qui ne se copie pas, tu as fait jouer ces ressources.' : 'En ne faisant rien, tu as laissé le client comparer seulement les prix.'}`; },
+      chain: () => ({ good: ['Ressources rares et difficiles à imiter', 'Différence durable', 'Avantage concurrentiel'], bad: ['Ressources faciles à copier', 'Concurrence sur le prix', 'Marge qui fond'] }) }
+  ],
+  vocab: ['Besoin', 'Bien / service', 'Innovation de produit', 'Innovation incrémentale', 'Innovation de rupture', 'Modèle économique', 'Proposition de valeur', 'Ressources tangibles', 'Ressources intangibles', 'Ressources matérielles, financières, humaines', 'Compétences', 'Savoir-faire', 'Marque', 'Réputation', 'Capacité de production', 'Faire ou faire faire', 'Qualité', 'Amélioration continue', 'Avantage concurrentiel']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — la rue, l'atelier, et TéléPrix qui ouvre en face.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const V1 = '#7C6FFF', nom = (S.nom || 'REBOND').toUpperCase();
+  let shop = '';
+  if (!S.local) {
+    shop = `<g font-family="Rajdhani,sans-serif" font-weight="700" font-size="11" text-anchor="middle">
+      <rect x="140" y="40" width="62" height="56" rx="6" fill="#0d0b18" stroke="${V1}" stroke-dasharray="3 4"/><text x="171" y="64" fill="${V1}" font-size="9.5">ÉTUDIANTS</text><text x="171" y="80" fill="#8B86A8" font-size="9">petit budget</text>
+      <rect x="208" y="40" width="62" height="56" rx="6" fill="#0d0b18" stroke="${V1}" stroke-dasharray="3 4"/><text x="239" y="64" fill="${V1}" font-size="9.5">SENIORS</text><text x="239" y="80" fill="#8B86A8" font-size="9">être aidés</text>
+      <rect x="276" y="40" width="74" height="56" rx="6" fill="#0d0b18" stroke="${V1}" stroke-dasharray="3 4"/><text x="313" y="64" fill="${V1}" font-size="9.5">ENTREPRISES</text><text x="313" y="80" fill="#8B86A8" font-size="9">ne rien avancer</text>
+      <text x="248" y="124" fill="#8B86A8" font-size="12">${S.offre ? '→ ' + { vente: 'vente', flotte: 'location', repar: 'réparation' }[S.offre] : 'Quel besoin ?'}</text></g>`;
+  } else {
+    const w = S.local === 'centre' ? 150 : S.local === 'zone' ? 160 : 120, x = 140;
+    const body = S.local === 'zone' ? `<rect x="${x}" y="44" width="${w}" height="118" fill="#0d0b18" stroke="#241f3d"/><rect x="${x + 20}" y="84" width="${w - 40}" height="78" fill="#110e20" stroke="${V1}" stroke-width="1"/>${[0, 1, 2, 3, 4, 5].map(i => `<line x1="${x + 20}" y1="${92 + i * 12}" x2="${x + w - 20}" y2="${92 + i * 12}" stroke="#241f3d"/>`).join('')}`
+      : S.local === 'centre' ? `<rect x="${x}" y="50" width="${w}" height="112" fill="#0d0b18" stroke="#241f3d"/><rect x="${x + 12}" y="82" width="${w - 50}" height="60" fill="#14102a" stroke="${V1}"/><rect x="${x + w - 32}" y="96" width="22" height="66" fill="#110e20" stroke="${V1}"/>`
+      : `<rect x="${x - 4}" y="34" width="${w + 70}" height="128" fill="#0d0b18" stroke="#241f3d"/><text x="${x + 60}" y="50" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="#8B86A8">PÉPINIÈRE D'ENTREPRISES</text><rect x="${x + 6}" y="96" width="${w - 20}" height="40" fill="#14102a" stroke="${V1}"/>`;
+    const sign = `<rect x="${x + 10}" y="${S.local === 'partage' ? 60 : S.local === 'zone' ? 54 : 58}" width="${w - 20}" height="20" fill="#0b0820" stroke="${S.flags.nomPerdu ? '#FFC64F' : V1}"/><text x="${x + w / 2}" y="${S.local === 'partage' ? 74 : S.local === 'zone' ? 68 : 72}" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="10" fill="${S.flags.nomPerdu ? '#FFC64F' : V1}">${nom}</text>`;
+    const n = Math.min(8, Math.round(((S.rep && S.rep.vol) || 10) / (S.offre === 'repar' ? 25 : S.offre === 'flotte' ? 3 : 12)));
+    let phones = ''; for (let i = 0; i < n; i++) phones += `<rect x="${x + 18 + i * 9}" y="${S.local === 'partage' ? 116 : S.local === 'zone' ? 140 : 120}" width="6" height="11" rx="1.5" fill="${V1}" opacity=".85"/>`;
+    const team = [S.flags.tech && '#4CD97B', S.flags.lou && '#FF9D3D'].filter(Boolean).map((c, i) => `<g transform="translate(${x + w - 60 + i * 16},${S.local === 'partage' ? 128 : 150})"><circle r="5" cy="-14" fill="#E8B58A"/><rect x="-5" y="-9" width="10" height="13" rx="3" fill="${c}"/></g>`).join('');
+    const tp = act.num >= 4 ? `<rect x="306" y="70" width="54" height="92" fill="#1a0b0f" stroke="#FF5C6A"/><rect x="306" y="78" width="54" height="16" fill="#FF5C6A"/><text x="333" y="90" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="7.5" fill="#1a0b0f">TÉLÉPRIX</text><text x="333" y="120" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="900" font-size="13" fill="#FF5C6A">−20%</text>` : '';
+    shop = body + sign + phones + team + tp;
+  }
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="L'atelier ${S.nom}">
+    <rect width="360" height="200" fill="#08070f"/><rect x="0" y="0" width="360" height="162" fill="#0b0918"/>
+    ${shop}
+    <rect x="0" y="162" width="360" height="38" fill="#0a0814"/><line x1="0" y1="162" x2="360" y2="162" stroke="#241f3d" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

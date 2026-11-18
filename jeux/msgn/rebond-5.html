@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Rebond 5 — Jeu MSGN Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#7C6FFF;--eco-dim:#4B3FCC;--good:#4CD97B;--bg:#06050c;--panel:#0d0b18;--panel2:#110e20;--line:#241f3d;--txt:#EEF3EC;--muted:#8B86A8;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(124,111,255,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(124,111,255,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#1a1630;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(124,111,255,.5);background:rgba(124,111,255,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#08070f;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(124,111,255,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#0b0820;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#0b0820;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#161230;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#1a1630;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#0b0820;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#0a0816;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#0a0816;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#0a0816;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#0a0816;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(124,111,255,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#0a0816;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — Rebond 5 : Le territoire (MSGN Terminale, thème 3, chapitres 2 et 4)
+   Simulation mois par mois (12 mois) :
+     ventes en propre (site + boutique) × 30 € de marge
+     ventes sur la plateforme × (60 € − commission)
+     + abonnements / revente entre particuliers ; − charges fixes.
+   Jauges : tre (€), equipe (cohésion 0-100), ancrage (ancrage local 0-100),
+            dependance (% des ventes passant par la plateforme, plus bas = mieux).
+   ===================================================================== */
+const N = ' ';
+const eur = n => (n < 0 ? '−' : '') + Math.abs(Math.round(n)).toLocaleString('fr-FR') + N + '€';
+const sg = n => (n >= 0 ? '+' : '−') + Math.abs(Math.round(n)).toLocaleString('fr-FR') + N + '€';
+const nb = n => Math.round(n).toLocaleString('fr-FR');
+const cl = (n, a, b) => Math.max(a, Math.min(b, n));
+const F = s => s.flags;
+
+/* ---- Paramètres ---- */
+const PROPRE = 1000, MARGE = 30, PRIX = 270, MARGE_PLATF = 60, FIXES = 27000;
+
+function com(s, mo) { return mo >= 7 ? .20 : .15; }
+function propre(s, mo) {
+  const f = F(s); let k = f.platf === 'tout' ? .55 : f.platf === 'partiel' ? .85 : 1;
+  if (f.quitte && mo >= 7) k = f.platf === 'tout' ? Math.min(1, .55 + .06 * (mo - 6)) : Math.min(1, .85 + .05 * (mo - 6));
+  if (f.atelier2 && mo >= 10) k += f.atelier2 === 'metro' ? .45 : .3;
+  if (f.club && mo >= 10) k += .15;
+  return PROPRE * k;
+}
+function platf(s, mo) {
+  const f = F(s); if (!f.platf || f.platf === 'non' || mo < 4) return 0;
+  if (f.quitte && mo >= 7) return 0;
+  let v = f.platf === 'tout' ? 1500 : 600;
+  if (mo >= 7 && !f.pub) v *= .4;
+  return v;
+}
+function unMois(s, mo) {
+  const f = F(s), p = propre(s, mo), q = platf(s, mo);
+  const mp = MARGE + (f.ressourcerie && mo >= 10 ? 1.5 : 0), mq = MARGE_PLATF - PRIX * com(s, mo);
+  const abo = f.modele === 'abo' && mo >= 4 ? (mo - 3) * 60 * 5 : 0;
+  const c2c = f.modele === 'c2c' && mo >= 4 ? Math.min(220, (mo - 3) * 30) * 15 : 0;
+  const fx = FIXES + (f.tele === 'equite' || f.fractureReglee ? 600 : 0) - (f.tele === 'total' ? 1500 : 0) + (f.pub && mo >= 7 ? 2000 : 0)
+    + (f.atelier2 && mo >= 10 ? (f.atelier2 === 'metro' ? 9500 : 6500) : 0) + (f.lycee && mo >= 10 ? 300 : 0) + (f.modele === 'abo' && mo >= 4 ? 500 : 0);
+  const res = p * mp + q * mq + abo + c2c - fx;
+  return { mo, p, q, mp, mq, abo, c2c, fx, res, dep: q / (p + q) * 100 };
+}
+function periode(s, n) { const ms = []; for (let i = 1; i <= n; i++) ms.push(unMois(s, s.mois + i)); return { ms, n, res: ms.reduce((a, m) => a + m.res, 0), dep: ms[n - 1].dep }; }
+function fxPer(s) {
+  const R = s.rep, f = F(s); let dEq = 0;
+  R.ms.forEach(m => { dEq += f.tele === 'refus' ? -3 : f.tele === 'charte' ? (f.fractureReglee ? 2 : -1) : f.tele === 'equite' ? 3 : (m.mo >= 4 ? (f.fractureReglee ? -1 : -4) : 1); });
+  if (f.atelier2 === 'metro') dEq -= R.ms.filter(m => m.mo >= 10).length * 3;
+  if (f.lycee) dEq += R.ms.filter(m => m.mo >= 10).length;
+  return { tre: Math.round(R.res), equipe: dEq, dependance: Math.round(R.dep) - s.dependance };
+}
+function commit(s) { s.mois += s.rep.n; s.hist.push({ m: s.mois, res: Math.round(s.rep.res) }); }
+function tableau(s, titre) {
+  const R = s.rep, a = k => R.ms.reduce((x, m) => x + m[k], 0) / R.n, row = (l, v, c) => `<span${c ? ' class="tot"' : ''}>${l}</span><b${c ? ' class="tot"' : ''}>${v}</b>`, L = R.ms[R.n - 1];
+  return `<b>${titre}</b><span class="pay">${row('Ventes en propre par mois (site, boutiques)', nb(a('p')))}${row(`Marge (${eur(L.mp)} par téléphone)`, '+' + eur(a('p') * L.mp))}${a('q') > 0 ? row('Ventes sur la plateforme par mois', nb(a('q'))) + row(`Marge plateforme (${eur(L.mq)} après ${Math.round(com(s, L.mo) * 100)}${N}% de commission)`, '+' + eur(a('q') * L.mq)) : ''}${a('abo') > 0 ? row('Abonnements', '+' + eur(a('abo'))) : ''}${a('c2c') > 0 ? row('Commissions revente entre particuliers', '+' + eur(a('c2c'))) : ''}${row('Charges fixes', '−' + eur(a('fx')))}${row('Ce qui reste chaque mois', sg(R.res / R.n), 1)}${row(`Sur ${R.n} mois`, sg(R.res), 1)}${a('q') > 0 ? row('Part des ventes via la plateforme', Math.round(R.dep) + N + '%', 1) : ''}</span>`;
+}
+const V = (e, t, a) => [{ who: 'yanis', text: e }, { who: 'lea', text: t }, { who: 'ferhat', text: a }].filter(v => v.text !== '—');
+const ch = (good, bad) => ({ good, bad });
+
+const GAME = {
+  title: 'Rebond 5',
+  brand: 'REBOND <span>5</span>',
+  storeKey: 'rebond5Fins',
+  backLink: '../../matieres/msgn-terminale.html',
+  footer: 'MSGN Terminale STMG, thème 3',
+  kicker: 'MSGN · Terminale STMG · Thème 3',
+  debIntro: 'Tu as utilisé ces notions pour faire grandir Rebond dans son époque et sur son territoire. Voici comment on les appelle en management et sciences de gestion.',
+  cutText: 'Ta partie s\'est arrêtée avant la fin de l\'année. Rejoue pour aller jusqu\'au bilan.',
+  pitch: `Rebond a 40 salariés et vend 1${N}000 téléphones par mois. Les bureaux veulent télétravailler, une grande plateforme veut vendre tes téléphones, et deux villes te courtisent pour ton deuxième atelier. Une année pour grandir, sans perdre ton équipe, ta liberté ni tes racines.`,
+  meta: '3 actes · 25 minutes',
+  start: s => Object.assign(s, { tre: 50000, equipe: 60, ancrage: 40, dependance: 0, mois: 0, hist: [] }),
+  hud: [
+    { k: 'tre',        label: 'Trésorerie', short: 'Trésorerie', show: s => (s.tre / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + N + 'k€', pct: s => s.tre / 1000, low: s => s.tre < 5000, unit: N + '€' },
+    { k: 'equipe',     label: 'Cohésion', short: 'Cohésion', show: s => Math.round(s.equipe), pct: s => s.equipe, low: s => s.equipe < 45, clamp: true },
+    { k: 'ancrage',    label: 'Ancrage local', short: 'Ancrage', show: s => Math.round(s.ancrage), pct: s => s.ancrage, low: s => s.ancrage < 35, clamp: true },
+    { k: 'dependance', label: 'Dépendance plateforme', short: 'Dépendance', show: s => Math.round(s.dependance) + N + '%', pct: s => s.dependance, low: s => s.dependance > 50, inv: true, unit: N + 'pts' }
+  ],
+  fail: () => null,
+  lock: () => null,
+  bilan: s => [['Trésorerie', eur(s.tre)], ['Cohésion de l\'équipe', Math.round(s.equipe) + ' / 100'], ['Ancrage local', Math.round(s.ancrage) + ' / 100'], ['Ventes via la plateforme', Math.round(s.dependance) + N + '%']],
+
+  characters: {
+    ferhat: { name: 'Mme Ferhat', role: 'ta conseillère', color: '#B9A6FF', body: '#4B3FCC', hair: '#1c1c22', acc: 'clip' },
+    yanis:  { name: 'Yanis', role: 'directeur de l\'atelier', color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'cap' },
+    lea:    { name: 'Léa', role: 'responsable du service client', color: '#FF8AD1', body: '#B8508F', hair: '#3a2418', acc: 'clip' },
+    malik:  { name: 'Malik', role: 'réparateur', color: '#FFC64F', body: '#8a5a22', hair: '#1c1c22', acc: 'box' },
+    platf:  { name: 'Victor', role: 'PhoneMarket, place de marché nationale', color: '#FF5C6A', body: '#1c1c22', hair: '#8a8f96', acc: 'tie' },
+    maire:  { name: 'Mme Ruiz', role: 'maire de Saint-Aubin (12 000 habitants)', color: '#FFC64F', body: '#5a3a22', hair: '#8a8f96', acc: 'clip' },
+    metro:  { name: 'M. Delorme', role: 'agence de développement de la métropole', color: '#5B8FFF', body: '#2b3a5a', hair: '#1c1c22', acc: 'tie' },
+    narr:   { name: 'Toi', role: '', color: '#7C6FFF' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Travailler autrement', sub: 'Les uns peuvent travailler de chez eux, les autres non. Une même entreprise, deux réalités.',
+    steps: [
+      { t: 'say', who: 'lea', text: `Au service client et à la comptabilité, on est huit. Tout notre travail se fait sur ordinateur. On perd une heure et demie par jour dans les bouchons. On voudrait télétravailler.` },
+      { t: 'say', who: 'malik', text: `Et nous, à l'atelier${N}? On ne va pas réparer des téléphones dans notre salon. Si eux restent chez eux, on est quoi, nous${N}? Les bonnes poires${N}?` },
+      { t: 'choice', id: 'tele', prompt: `Le télétravail${N}?`, options: [
+        { id: 'refus', label: 'Refuser : tout le monde au bureau', desc: 'Même règle pour tous.', do: s => { s.flags.tele = 'refus'; },
+          chain: ch(['Une règle identique pour tous', 'L\'atelier ne se sent pas lésé'], ['Les bureaux se sentent incompris', 'Les meilleurs profils regardent ailleurs, où le télétravail est possible', 'Le recrutement se complique']),
+          voix: V(`L'atelier est rassuré.`, `Deux collègues ont déjà des entretiens ailleurs.`, `Refuser par principe une demande légitime, c'est risquer de perdre ceux qui pourraient en profiter.`) },
+        { id: 'charte', label: 'Une charte : 2 jours par semaine, droit à la déconnexion', desc: 'Pas de mail après 19 h, des jours fixes, l\'équipement fourni.', do: s => { s.flags.tele = 'charte'; s.flags.fracture = true; }, fx: { equipe: 3 },
+          chain: ch(['Les bureaux gagnent du temps et de la sérénité', 'Des règles claires : jours fixes, déconnexion', 'Ils restent liés à l\'équipe trois jours par semaine'], ['L\'atelier n\'a rien, lui', 'Un sentiment d\'injustice peut s\'installer']),
+          voix: V(`Les gars de l'atelier font la tête.`, `On est plus efficaces, et on voit encore tout le monde.`, `Un bon cadre pour les bureaux. Et l'atelier${N}?`) },
+        { id: 'equite', label: 'Une charte, et une contrepartie pour l\'atelier', desc: '2 jours de télétravail pour les bureaux, horaires choisis et une journée libérée par mois pour l\'atelier. 600 €/mois.', do: s => { s.flags.tele = 'equite'; }, fx: { equipe: 6 },
+          chain: ch(['Chacun gagne de la souplesse, sous une forme adaptée à son métier', 'Personne ne se sent oublié', 'Une seule équipe, deux façons de travailler'], ['600 € par mois']),
+          voix: V(`Malik choisit maintenant ses horaires. Il ne parle plus des bureaux.`, `Tout le monde y gagne quelque chose.`, `L'équité, ce n'est pas donner la même chose à tous. C'est donner à chacun ce qui convient à son travail.`) },
+        { id: 'total', label: 'Liberté totale : chacun travaille d\'où il veut', desc: 'Les bureaux peuvent rester chez eux tous les jours. Tu loues des bureaux plus petits : 1 500 € d\'économie par mois.', do: s => { s.flags.tele = 'total'; s.flags.fracture = true; }, fx: { equipe: 2 },
+          chain: ch(['Un vrai gain de temps pour les bureaux', '1 500 € économisés chaque mois'], ['On ne se croise plus', 'Les nouveaux sont formés à distance, mal', 'L\'isolement s\'installe au bout de quelques mois', 'L\'atelier et les bureaux deviennent deux mondes']),
+          voix: V(`Je n'ai pas vu Léa depuis six semaines.`, `Au début c'était génial. Maintenant, je parle à mon chat.`, `Le télétravail sans limites peut couper les liens qui font tenir une équipe.`) } ] },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 3); }, text: s => tableau(s, 'Les trois premiers mois.'), fx: fxPer },
+      { t: 'event', who: 'narr', do: commit, text: s => `Trois mois. Le compte affiche ${eur(s.tre)}.` },
+      { t: 'event', who: 'lea', if: s => F(s).tele === 'refus', text: `Deux personnes du service client sont parties chez un concurrent qui propose deux jours de télétravail. Il faut recruter et former.`, fx: { tre: -12000, equipe: -4 } },
+      { t: 'say', who: 'malik', if: s => F(s).fracture, text: `Je vais être honnête${N}: à l'atelier, on a l'impression qu'il y a deux entreprises. Ceux qui ont droit au confort, et nous.` },
+      { t: 'choice', id: 'fracture', if: s => F(s).fracture, prompt: `Le malaise de l'atelier${N}?`, options: [
+        { id: 'regler', label: 'Ouvrir des contreparties pour l\'atelier', desc: 'Horaires choisis, une journée libérée par mois. 600 €/mois.', set: { fractureReglee: true }, fx: { equipe: 6 },
+          chain: ch(['L\'atelier se sent enfin pris en compte'], ['Un coût en plus']), voix: V(`Ça a calmé tout le monde.`, `—`, `Mieux vaut tard que jamais.`) },
+        { id: 'ignorer', label: 'Ça leur passera', desc: '',
+          chain: ch(['Aucun coût'], ['Le ressentiment grandit', 'Les bureaux et l\'atelier ne se parlent plus']), voix: V(`Ça ne leur passe pas.`, `—`, `Un malaise qu'on ignore ne disparaît pas.`) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'La plateforme', sub: 'Des millions de clients à portée de clic. Mais chez quelqu\'un d\'autre, et selon ses règles.',
+    steps: [
+      { t: 'say', who: 'platf', text: `PhoneMarket, 8 millions de visiteurs par mois. Mettez vos téléphones chez nous et vous vendez dans toute la France dès lundi. Nous prenons 15${N}% du prix de vente. C'est tout. Nous nous occupons du paiement, de la pub, des avis.` },
+      { t: 'say', who: 'ferhat', text: `Faites le calcul. Sur votre site, un téléphone vous rapporte 30${N}€ une fois tout payé. Sur la plateforme, pas de frais de publicité ni d'expédition à votre charge${N}: 60${N}€… moins 15${N}% de 270${N}€, soit 40${N}€. Il reste 20${N}€. Moins par téléphone, mais beaucoup plus de téléphones. Et une question${N}: qui fixe les règles${N}?` },
+      { t: 'choice', id: 'platf', prompt: `PhoneMarket${N}?`, options: [
+        { id: 'tout', label: 'Tout miser sur la plateforme', desc: 'Tout ton stock en ligne chez eux. Environ 1 500 ventes en plus par mois. Une partie de tes clients habituels y passera aussi.', do: s => { s.flags.platf = 'tout'; },
+          chain: ch(['Des ventes dans toute la France', 'Des volumes énormes, tout de suite'], ['Tes propres clients prennent l\'habitude d\'acheter chez PhoneMarket', 'Ton site perd presque la moitié de ses ventes', 'Ce n\'est plus toi qui connais tes clients, c\'est la plateforme', 'Tu dépends de règles que tu ne fixes pas']),
+          voix: V(`On ne fait plus que préparer des colis PhoneMarket.`, `Les clients nous appellent… pour des commandes PhoneMarket qu'on ne peut pas modifier.`, `Vous avez multiplié vos ventes. Vous avez aussi confié votre avenir à quelqu'un d'autre.`) },
+        { id: 'partiel', label: 'Y vendre une partie seulement', desc: 'Un tiers du stock, environ 600 ventes en plus par mois. Ton site reste ton canal principal.', do: s => { s.flags.platf = 'partiel'; },
+          chain: ch(['Des ventes en plus', 'Ton site reste ton canal principal', 'Tu peux te retirer sans tout perdre'], ['Moins de volume qu\'en misant tout', 'Quelques clients passent quand même chez PhoneMarket']),
+          voix: V(`Un bon complément.`, `On garde la main sur nos clients.`, `Utiliser la plateforme sans en dépendre. C'est un équilibre.`) },
+        { id: 'non', label: 'Rester sur ton propre site', desc: 'Tu gardes tes clients et ta marge.', do: s => { s.flags.platf = 'non'; },
+          chain: ch(['Tu gardes tes clients, leurs données, ta marge', 'Aucune règle imposée par un autre'], ['Pas de croissance rapide', 'Tes concurrents y sont, eux']),
+          voix: V(`Rien ne change.`, `On connaît nos clients.`, `Indépendant, mais il faudra trouver la croissance ailleurs.`) } ] },
+      { t: 'say', who: 'ferhat', text: `Autre idée. Beaucoup de jeunes ne veulent plus posséder un téléphone, ils veulent l'utiliser, comme on écoute de la musique sans acheter de disques. Et des milliers de particuliers revendent leurs vieux téléphones entre eux, sans garantie.` },
+      { t: 'choice', id: 'modele', prompt: `Un nouveau service${N}?`, options: [
+        { id: 'abo', label: 'Un abonnement : un téléphone pour 12 € par mois', desc: 'Le client paie l\'usage, Rebond reste propriétaire, répare et remplace. Lancement : 5 000 €, puis 500 €/mois.', fx: { tre: -5000 }, set: { modele: 'abo' },
+          chain: ch(['Des revenus qui tombent chaque mois', 'Les téléphones reviennent chez toi en fin de contrat : tu les reconditionnes encore', 'Le client n\'a plus à avancer 270 €'], ['5 000 € au départ', 'Les revenus montent lentement, abonné après abonné']),
+          voix: V(`Les téléphones nous reviennent, on leur donne une troisième vie.`, `Les étudiants adorent : 12${N}€, c'est un forfait.`, `Vendre l'usage plutôt que le bien${N}: c'est l'économie de la fonctionnalité.`) },
+        { id: 'c2c', label: 'Un service de revente entre particuliers, vérifié par Rebond', desc: 'Les particuliers vendent entre eux, Rebond teste et garantit le téléphone. 15 € par transaction. Lancement : 4 000 €.', fx: { tre: -4000, ancrage: 8 }, set: { modele: 'c2c' },
+          chain: ch(['Les particuliers se font confiance grâce à ta vérification', 'Tu gagnes sur chaque échange sans acheter de stock', 'Des habitants qui se rencontrent localement'], ['4 000 € au départ', 'Petites sommes par transaction']),
+          voix: V(`Le samedi, la boutique est pleine de gens qui échangent leurs téléphones.`, `—`, `Vous organisez l'échange entre particuliers en y apportant ce qui manquait${N}: la confiance.`) },
+        { id: 'rien', label: 'Pas de nouveau service', desc: '',
+          chain: ch(['Aucun coût'], ['Aucun nouveau revenu']), voix: V(`On continue comme avant.`, `—`, `D'accord.`) } ] },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 3); }, text: s => tableau(s, 'Mois 4 à 6.'), fx: fxPer },
+      { t: 'event', who: 'narr', do: commit, text: s => `Six mois. Le compte affiche ${eur(s.tre)}.` },
+      { t: 'say', who: 'platf', if: s => ['tout', 'partiel'].includes(F(s).platf), text: `Bonjour. Petite information${N}: à partir du mois prochain, notre commission passe à 20${N}%. Et notre algorithme de classement mettra en avant les vendeurs qui achètent notre publicité. 2${N}000${N}€ par mois. C'est dans les conditions générales que vous avez acceptées.` },
+      { t: 'say', who: 'ferhat', if: s => ['tout', 'partiel'].includes(F(s).platf), text: s => `À 20${N}%, il vous reste ${eur(MARGE_PLATF - PRIX * .2)} par téléphone vendu chez eux. Sans leur publicité, vous tombez en page 5 et vos ventes chez eux fondent. ${F(s).platf === 'tout' ? 'Et vos propres clients ont pris l\'habitude d\'aller chez eux.' : ''}` },
+      { t: 'choice', id: 'regles', if: s => ['tout', 'partiel'].includes(F(s).platf), prompt: `Les nouvelles règles${N}?`, options: [
+        { id: 'payer', label: 'Payer la publicité pour rester visible', desc: '2 000 € par mois.', set: { pub: true },
+          chain: ch(['Tu restes en première page'], [`Il ne te reste que ${eur(MARGE_PLATF - PRIX * .2)} par téléphone`, '2 000 € de plus chaque mois', 'Et rien n\'empêche la plateforme de changer encore ses règles']),
+          voix: V(`On travaille autant pour gagner trois fois moins.`, `—`, `Vous payez pour garder une place que la plateforme vous avait donnée gratuitement. C'est elle qui décide.`) },
+        { id: 'subir', label: 'Accepter, sans payer la publicité', desc: 'Tu restes, mais en page 5.',
+          chain: ch(['Aucun coût en plus'], ['L\'algorithme te relègue en page 5', 'Tes ventes chez eux chutent de 60 %', 'Avec une marge réduite sur le reste']),
+          voix: V(`Les commandes PhoneMarket ont fondu.`, `—`, `L'algorithme décide qui est visible. Et il n'est pas neutre.`) },
+        { id: 'quitter', label: 'Quitter la plateforme', desc: 'Tu rapatries tout sur ton site et tu relances tes propres clients.', set: { quitte: true }, fx: { tre: -3000 },
+          chain: s => F(s).platf === 'tout' ? ch(['Tu reprends ta liberté'], ['Tes clients ont pris l\'habitude de PhoneMarket', 'Ils ne reviennent sur ton site que lentement', 'Plusieurs mois de ventes en berne']) : ch(['Tu reprends ta liberté', 'Ton site était resté ton canal principal', 'Tu retrouves vite tes ventes'], ['Tu perds les ventes en plus']),
+          voix: s => V(F(s).platf === 'tout' ? `Le site redémarre doucement. Très doucement.` : `On revient à ce qu'on savait faire.`, `—`, F(s).platf === 'tout' ? `Quand on a tout misé sur un seul partenaire, partir coûte cher.` : `Vous aviez gardé une porte de sortie. Elle vous sert aujourd'hui.`) } ] },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 3); }, text: s => tableau(s, 'Mois 7 à 9.'), fx: fxPer },
+      { t: 'event', who: 'narr', do: commit, text: s => `Neuf mois. Le compte affiche ${eur(s.tre)}.` },
+      { t: 'event', who: 'lea', if: s => F(s).tele === 'total', text: `Trois nouveaux au service client ont démissionné cette année. Ils disent qu'ils n'ont jamais vraiment rencontré l'équipe.`, fx: { tre: -9000, equipe: -5 } }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Le territoire', sub: 'Un deuxième atelier. Où l\'installer, et avec qui, dira ce que Rebond veut être.',
+    steps: [
+      { t: 'say', who: 'metro', text: `Installez-vous dans la métropole. 600${N}000 habitants, des clients partout, une gare TGV. Le loyer est plus cher, oui, 9${N}500${N}€ par mois tout compris. Et il faudra recruter dans un marché tendu, mais c'est le prix du dynamisme.` },
+      { t: 'say', who: 'maire', text: `Saint-Aubin, à 40${N}minutes. Un ancien garage qui nous appartient, rénové, à loyer modéré. La région vous verse 30${N}000${N}€ si vous créez 8 emplois ici. Un lycée professionnel avec une section électronique, une ressourcerie, des entreprises qui cherchent des téléphones pour leurs salariés. Et 11${N}% de chômage.` },
+      { t: 'choice', id: 'atelier2', prompt: `Le deuxième atelier${N}?`, options: [
+        { id: 'metro', label: 'Dans la métropole', desc: 'Plus de clients. 9 500 €/mois. Recrutement difficile. Travaux : 20 000 €.', fx: { tre: -20000, ancrage: -10 }, set: { atelier2: 'metro' },
+          chain: ch(['Un marché plus grand : +45 % de ventes en propre', 'Une adresse prestigieuse'], ['9 500 € par mois', 'Les techniciens sont rares et changent souvent d\'employeur', 'Tu n\'y connais personne', 'Tu t\'éloignes de ton territoire d\'origine']),
+          voix: V(`Trois recrutements, deux départs en trois mois. Ils sont tous débauchés par les concurrents.`, `—`, `Vous allez là où sont les clients. Mais pas là où sont vos liens.`) },
+        { id: 'ville', label: 'À Saint-Aubin', desc: 'Moins de clients en boutique. 6 500 €/mois. Aide de la région : 30 000 € pour 8 emplois. Travaux : 12 000 €.', fx: { tre: 18000, ancrage: 15 }, set: { atelier2: 'ville' },
+          chain: ch(['30 000 € d\'aide, contre 8 emplois locaux', 'Un loyer modéré', 'Des partenaires potentiels à deux pas', 'Une ville qui a besoin de toi, et qui te le rend'], ['Moins de clients de passage : +30 % de ventes en propre', 'Il faut s\'intégrer dans un réseau local']),
+          voix: V(`La maire est venue à l'inauguration avec la moitié du conseil municipal.`, `—`, `Vous apportez des emplois, le territoire vous apporte des aides, des locaux et des partenaires. C'est un échange.`) },
+        { id: 'aucun', label: 'Ne pas ouvrir de deuxième atelier', desc: 'Tu consolides ce que tu as.',
+          chain: ch(['Aucun risque'], ['Aucune croissance', 'Saint-Aubin choisit un autre projet']), voix: V(`On reste entre nous.`, `—`, `Prudent.`) } ] },
+      { t: 'say', who: 'ferhat', if: s => F(s).atelier2, text: s => `Autour de ${F(s).atelier2 === 'ville' ? 'Saint-Aubin' : 'votre nouvel atelier'}, plusieurs acteurs veulent travailler avec vous. Chacun apporte quelque chose, chacun attend quelque chose. Vous avez le temps de bâtir deux partenariats cette année.` },
+      { t: 'choice', id: 'part1', if: s => F(s).atelier2, prompt: `Premier partenariat${N}?`, options: [
+        { id: 'lycee', label: 'Le lycée professionnel', desc: 'Des apprentis formés chez toi, un atelier pédagogique. 300 €/mois de tutorat.', set: { lycee: true }, fx: s => ({ ancrage: F(s).atelier2 === 'metro' ? 6 : 12 }),
+          chain: ch(['Tu formes tes futurs techniciens', 'Les jeunes du coin ont un débouché', 'Le lycée t\'envoie ses meilleurs élèves'], ['Du temps de tutorat']),
+          voix: V(`Les apprentis sont super. Deux veulent rester après leur diplôme.`, `—`, `Le lycée gagne des stages, vous gagnez des compétences. Le territoire garde ses jeunes.`) },
+        { id: 'ressourcerie', label: 'La ressourcerie', desc: 'Elle collecte les vieux téléphones des habitants et emploie des personnes en insertion. +1,50 € de marge par téléphone.', set: { ressourcerie: true }, fx: s => ({ ancrage: F(s).atelier2 === 'metro' ? 6 : 12 }),
+          chain: ch(['Des téléphones collectés près de chez toi, moins chers', 'Des emplois d\'insertion soutenus', 'Moins de déchets dans la ville'], ['Des volumes irréguliers']),
+          voix: V(`Les lundis, on récupère deux caisses de téléphones du quartier.`, `—`, `Vous transformez les déchets de la ville en ressources, avec des emplois en prime.`) },
+        { id: 'club', label: 'Le club des entreprises locales', desc: 'Les entreprises du coin cherchent des téléphones pour leurs salariés. +15 % de ventes.', set: { club: true }, fx: s => ({ ancrage: F(s).atelier2 === 'metro' ? 5 : 10 }),
+          chain: ch(['Des clients professionnels à deux pas', 'Un réseau d\'entraide entre dirigeants'], ['Des réunions le soir']),
+          voix: V(`Trois PME nous ont commandé leurs flottes.`, `—`, `Les entreprises d'un même territoire ont intérêt à travailler ensemble.`) },
+        { id: 'universite', label: 'L\'université (recherche sur les batteries)', desc: 'Un projet commun pour prolonger la vie des batteries. Subvention de recherche en fin d\'année.', set: { universite: true }, fx: s => ({ ancrage: F(s).atelier2 === 'metro' ? 4 : 8 }),
+          chain: ch(['Une innovation qui pourrait te distinguer', 'Une subvention de recherche'], ['Les résultats arriveront dans plusieurs années']),
+          voix: V(`Deux doctorants passent leurs journées à l'atelier.`, `—`, `Un pari sur l'avenir, partagé avec la recherche publique.`) } ] },
+      { t: 'choice', id: 'part2', if: s => F(s).atelier2, prompt: `Second partenariat${N}?`, options: [
+        { id: 'lycee', label: 'Le lycée professionnel', desc: 'Apprentis, 300 €/mois de tutorat.', set: { lycee: true }, fx: s => ({ ancrage: F(s).atelier2 === 'metro' ? 6 : 12 }), lock: s => F(s).lycee ? 'Déjà fait' : null, chain: ch(['Tu formes tes futurs techniciens'], ['Du temps de tutorat']), voix: V(`Les apprentis arrivent.`, `—`, `Bien.`) },
+        { id: 'ressourcerie', label: 'La ressourcerie', desc: '+1,50 € par téléphone, emplois d\'insertion.', set: { ressourcerie: true }, fx: s => ({ ancrage: F(s).atelier2 === 'metro' ? 6 : 12 }), lock: s => F(s).ressourcerie ? 'Déjà fait' : null, chain: ch(['Approvisionnement local'], []), voix: V(`Les caisses arrivent.`, `—`, `Bien.`) },
+        { id: 'club', label: 'Le club des entreprises locales', desc: '+15 % de ventes.', set: { club: true }, fx: s => ({ ancrage: F(s).atelier2 === 'metro' ? 5 : 10 }), lock: s => F(s).club ? 'Déjà fait' : null, chain: ch(['Clients professionnels locaux'], []), voix: V(`Les PME commandent.`, `—`, `Bien.`) },
+        { id: 'universite', label: 'L\'université', desc: 'Recherche sur les batteries.', set: { universite: true }, fx: s => ({ ancrage: F(s).atelier2 === 'metro' ? 4 : 8 }), lock: s => F(s).universite ? 'Déjà fait' : null, chain: ch(['Innovation à long terme'], []), voix: V(`Les doctorants arrivent.`, `—`, `Bien.`) } ] },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 3); }, text: s => tableau(s, 'Mois 10 à 12.'), fx: s => { const f = fxPer(s); if (F(s).universite) f.tre += 15000; return f; } },
+      { t: 'event', who: 'narr', do: commit, text: s => `Un an. Le compte affiche ${eur(s.tre)}.${F(s).universite ? ' (Dont 15 000 € de subvention de recherche.)' : ''}` }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Le bilan', sub: 'Un an. Ce que Rebond a gagné, et à qui elle doit ce qu\'elle est.', final: true,
+    steps: [
+      { t: 'say', who: 'ferhat', text: s => `Voici votre année.<span class="pay">${s.hist.map(h => `<span>Jusqu'au mois ${h.m}</span><b>${sg(h.res)}</b>`).join('')}<span class="tot">Part des ventes via PhoneMarket</span><b class="tot">${Math.round(s.dependance)}${N}%</b><span class="tot">Cohésion</span><b class="tot">${Math.round(s.equipe)} / 100</b><span class="tot">Ancrage local</span><b class="tot">${Math.round(s.ancrage)} / 100</b></span>` },
+      { t: 'say', who: 'maire', if: s => F(s).atelier2 === 'ville', text: s => `Huit emplois à Saint-Aubin${F(s).lycee ? ', des apprentis de notre lycée' : ''}${F(s).ressourcerie ? ', des téléphones collectés chez nos habitants' : ''}. Vous faites partie de la ville, maintenant.` }
+    ] }
+  ],
+
+  endings: [
+    { id: 'prisonnier', when: s => s.dependance >= 55, title: 'Prisonnier de la plateforme', stamp: 'Dépendance', color: '#FF5C6A',
+      text: s => `Plus de la moitié de tes ventes passent par PhoneMarket. C'est elle qui fixe ta commission, ta visibilité et tes clients. Le jour où elle change ses règles, tu n'as plus le choix${N}: c'est elle qui décide de ce que vaut Rebond.` },
+    { id: 'fracture', when: s => F(s).fracture && !F(s).fractureReglee && s.equipe < 50, title: 'L\'atelier fracturé', stamp: 'Deux entreprises en une', color: '#FFC64F',
+      text: `Les bureaux et l'atelier ne se parlent plus. Les uns travaillent de chez eux, les autres se sentent oubliés. Le télétravail n'était pas le problème${N}: c'est de ne l'avoir pensé que pour une partie de l'équipe.` },
+    { id: 'deracine', when: s => F(s).atelier2 === 'metro' && s.ancrage < 50, title: 'Déraciné', stamp: 'Sans attaches', color: '#FFC64F',
+      text: `Ton atelier de la métropole vend bien, mais il change de techniciens tous les trois mois et ne connaît personne. Rebond est partout et nulle part${N}: une entreprise de plus dans une grande ville.` },
+    { id: 'pilier', when: s => s.ancrage >= 62 && s.equipe >= 58 && s.dependance <= 30 && s.tre >= 0, title: 'Pilier du territoire', stamp: 'Ancré et libre', color: '#4CD97B',
+      text: s => `Rebond grandit sans perdre son âme${N}: une équipe qui se sent juste, des clients qui t'appartiennent, et un territoire qui te soutient parce que tu le soutiens. ${F(s).atelier2 === 'ville' ? 'À Saint-Aubin, on parle de «${N}nos téléphones${N}».' : ''}` },
+    { id: 'fragile', when: s => true, title: 'Croissance fragile', stamp: 'À consolider', color: '#7C6FFF',
+      text: s => `Rebond a grandi, mais sur des bases incomplètes${N}: ${s.ancrage < 62 ? 'tu n\'as pas vraiment construit de liens avec ton territoire' : s.equipe < 58 ? 'ton équipe n\'est pas soudée' : s.dependance > 30 ? 'tu dépends trop d\'un seul canal de vente' : 'ta trésorerie est juste'}.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['tele'], title: 'Acte 1 — Travailler autrement', text: h => `Le <em>télétravail</em> est une transformation des <em>modes de travail</em> rendue possible par le numérique. Il fait gagner du temps et de l\'autonomie, mais il peut <em>isoler</em> et affaiblir le <em>collectif de travail</em>. Une <em>charte</em> fixe les règles (jours, équipement) et le <em>droit à la déconnexion</em> protège la vie personnelle. ${h.tele === 'equite' || h.fracture === 'regler' ? 'En prévoyant des contreparties pour l\'atelier, tu as recherché l\'<em>équité</em> entre des métiers qui ne peuvent pas tous télétravailler.' : h.tele === 'refus' ? 'En refusant, tu as évité la fracture, mais perdu des salariés attirés par plus de souplesse.' : 'Sans contrepartie pour l\'atelier, tu as créé deux catégories de salariés : c\'est la <em>fracture</em> entre « télétravaillables » et les autres.'}`,
+      chain: () => ({ good: ['Des règles claires', 'Une contrepartie pour chaque métier', 'Équipe unie'], bad: ['Avantage pour les uns seulement', 'Sentiment d\'injustice', 'Équipe divisée'] }) },
+    { act: 2, needs: ['platf', 'modele'], title: 'Acte 2 — La plateforme', text: h => `PhoneMarket est une <em>plateforme numérique</em> : elle met en relation des vendeurs et des acheteurs et se rémunère par une <em>commission</em>. Elle profite de l\'<em>effet de réseau</em> : plus il y a d\'acheteurs, plus les vendeurs viennent, et inversement. Mais c\'est elle qui fixe les règles et son <em>algorithme</em> de classement décide qui est visible. ${h.platf === 'tout' ? 'En misant tout sur elle, tu es devenu <em>dépendant</em>.' : h.platf === 'partiel' ? 'En n\'y mettant qu\'une partie de tes ventes, tu as gardé ton indépendance.' : 'En restant chez toi, tu as gardé tes clients et tes données.'} ${h.modele === 'abo' ? 'L\'abonnement relève de l\'<em>économie de la fonctionnalité</em> : on vend l\'<em>usage</em> d\'un bien plutôt que sa <em>propriété</em>, comme les abonnements de musique en ligne.' : h.modele === 'c2c' ? 'La revente entre particuliers relève de l\'<em>économie collaborative</em> : des particuliers échangent entre eux, ici avec la confiance apportée par Rebond.' : 'Tu n\'as pas exploré les nouveaux <em>modes de consommation</em> : l\'usage plutôt que la propriété, ou les échanges entre particuliers.'}`,
+      chain: () => ({ good: ['Plusieurs canaux de vente', 'Clients et données à soi', 'Liberté de choix'], bad: ['Un seul canal', 'Règles fixées par un autre', 'Dépendance'] }) },
+    { act: 3, needs: ['atelier2'], title: 'Acte 3 — Le territoire', text: h => `Une entreprise n\'est pas posée « hors sol » : elle s\'inscrit dans un <em>territoire</em> qui lui apporte des <em>ressources</em> (main-d\'œuvre, locaux, aides publiques, fournisseurs) et auquel elle apporte des emplois et de l\'activité. ${h.atelier2 === 'ville' ? 'À Saint-Aubin, la région t\'a aidé contre des emplois locaux : c\'est un échange entre l\'entreprise et les <em>collectivités territoriales</em>.' : h.atelier2 === 'metro' ? 'Dans la métropole, tu as trouvé des clients, mais aussi un marché du travail tendu et aucun réseau.' : 'Sans deuxième atelier, tu n\'as pas développé ton ancrage.'} L\'ensemble des acteurs qui travaillent ensemble autour d\'une activité (entreprises, écoles, recherche, associations, collectivités) forme un <em>écosystème</em>. Chacun y trouve son intérêt : c\'est une logique de <em>coopération</em> et de <em>partenariat</em>, qui crée des effets positifs pour tous.`,
+      chain: () => ({ good: ['Ressources du territoire', 'Partenariats', 'Écosystème', 'Ancrage'], bad: ['Pas de liens locaux', 'Recrutement difficile', 'Entreprise déracinée'] }) }
+  ],
+  vocab: ['Télétravail', 'Charte de télétravail', 'Droit à la déconnexion', 'Collectif de travail', 'Équité', 'Plateforme numérique', 'Commission', 'Effet de réseau', 'Algorithme de classement', 'Dépendance', 'Économie de la fonctionnalité', 'Usage / propriété', 'Économie collaborative', 'Territoire', 'Collectivités territoriales', 'Aides publiques', 'Écosystème', 'Partenariat', 'Coopération']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — Rebond entre la ville, la plateforme et Saint-Aubin.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const V1 = '#7C6FFF', f = S.flags, dep = Math.round(S.dependance || 0);
+  const pl = f.platf && f.platf !== 'non' ? `<rect x="292" y="20" width="62" height="40" rx="5" fill="#1a0b0f" stroke="#FF5C6A"/><text x="323" y="36" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="7.5" fill="#FF5C6A">PHONEMARKET</text><text x="323" y="52" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11" fill="#FF5C6A">${f.quitte ? 'quitté' : dep + ' % des ventes'}</text><line x1="270" y1="78" x2="300" y2="58" stroke="#FF5C6A" stroke-dasharray="3 3"/>` : '';
+  const a2 = f.atelier2 ? `<rect x="${f.atelier2 === 'ville' ? 296 : 296}" y="104" width="58" height="38" rx="4" fill="#110e20" stroke="${f.atelier2 === 'ville' ? '#4CD97B' : '#5B8FFF'}"/><text x="325" y="122" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="${f.atelier2 === 'ville' ? '#4CD97B' : '#5B8FFF'}">${f.atelier2 === 'ville' ? 'ST-AUBIN' : 'MÉTROPOLE'}</text><text x="325" y="135" text-anchor="middle" font-family="Rajdhani,sans-serif" font-size="9" fill="#8B86A8">atelier 2</text><line x1="270" y1="100" x2="296" y2="118" stroke="#241f3d" stroke-width="2"/>` : '';
+  const parts = [['lycee', 'LYCÉE'], ['ressourcerie', 'RESSOURC.'], ['club', 'CLUB'], ['universite', 'UNIV.']].filter(([k]) => f[k]).map(([k, t], i) => `<rect x="${140 + i * 0}" y="${22 + i * 22}" width="56" height="18" rx="3" fill="#0d1a12" stroke="#4CD97B"/><text x="168" y="${35 + i * 22}" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="9" fill="#4CD97B">${t}</text><line x1="196" y1="${31 + i * 22}" x2="210" y2="80" stroke="#4CD97B" stroke-opacity=".4"/>`).join('');
+  const ws = f.tele ? `<text x="240" y="138" text-anchor="middle" font-family="Rajdhani,sans-serif" font-size="10" fill="#8B86A8">${({ refus: 'tous au bureau', charte: '2 j. de télétravail', equite: 'télétravail + atelier', total: 'télétravail total' })[f.tele]}</text>` : '';
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Rebond et son territoire">
+    <rect width="360" height="200" fill="#08070f"/><rect x="0" y="0" width="360" height="162" fill="#0b0918"/>
+    <rect x="208" y="66" width="64" height="56" rx="5" fill="#0b0820" stroke="${V1}" stroke-width="1.5"/><text x="240" y="90" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="10" fill="${V1}">REBOND</text><text x="240" y="106" text-anchor="middle" font-family="Rajdhani,sans-serif" font-size="9" fill="#8B86A8">40 salariés</text>
+    ${pl}${a2}${parts}${ws}
+    <rect x="0" y="162" width="360" height="38" fill="#0a0814"/><line x1="0" y1="162" x2="360" y2="162" stroke="#241f3d" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

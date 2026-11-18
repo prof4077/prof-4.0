@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Le diagnostic — Jeu Management 1re STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#7CFF3D;--eco-dim:#4FA81F;--good:#4CD97B;--bg:#050704;--panel:#0b0f09;--panel2:#0f150c;--line:#1d2a17;--txt:#EEF3EC;--muted:#8B9A80;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(124,255,61,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(124,255,61,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#142010;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(124,255,61,.5);background:rgba(124,255,61,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070a06;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(124,255,61,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#0a1406;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#0a1406;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#121c0e;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#142010;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#0a1406;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#080c06;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#080c06;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#080c06;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#080c06;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(124,255,61,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#080c06;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(124,255,61,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — Le diagnostic (Management 1re STMG, thème 2)
+   Station de ski Les Crêtes (1 200 m). L'élève enquête (20 jours), fixe un cap et un objectif,
+   choisit ses indicateurs, puis vit trois saisons simulées.
+   Une saison (k€) : hiver = 4 000 × enneigement utile × effets ; été = selon la stratégie ;
+                     charges = 3 800 (dont neige de culture 1 500) + remboursement des investissements.
+   Jauges : tre (k€), visiteurs (milliers par an), neige (% du chiffre d'affaires dépendant de la neige),
+            ca (confiance du conseil d'administration).
+   ===================================================================== */
+const N = ' ';
+const ke = n => (n < 0 ? '−' : '') + (Math.abs(Math.round(n)) >= 1000 ? (Math.abs(n) / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 2 }) + N + 'M€' : Math.abs(Math.round(n)).toLocaleString('fr-FR') + N + 'k€');
+const sk = n => (n >= 0 ? '+' : '−') + ke(Math.abs(n));
+const nb = n => Math.round(n).toLocaleString('fr-FR');
+const F = s => s.flags;
+const knows = (s, id) => (s.faits || []).includes(id);
+
+/* ---- Les sources d'enquête et ce qu'elles révèlent ---- */
+const FAITS = {
+  famille:  { k: 'force',       t: 'L\'école de ski est réputée pour les enfants : 8 familles sur 10 reviennent' },
+  equipe:   { k: 'force',       t: 'Une équipe locale très attachée à la station' },
+  dette:    { k: 'force',       t: 'Presque pas de dettes : la station peut emprunter pour investir' },
+  canons:   { k: 'faiblesse',   t: 'La neige de culture coûte 40 % des charges, et le prix de l\'eau et de l\'électricité grimpe' },
+  telesiege:{ k: 'faiblesse',   t: 'Le télésiège principal date de 1984' },
+  resto:    { k: 'faiblesse',   t: 'Restauration jugée médiocre, aucun hébergement récent' },
+  climat:   { k: 'menace',      t: '30 jours de neige naturelle en moins en 30 ans. À 1 200 m, vers 2040, un hiver sur deux sans assez de neige' },
+  eau:      { k: 'menace',      t: 'Les préfets limitent de plus en plus les prélèvements d\'eau pour la neige de culture lors des sécheresses' },
+  valhaut:  { k: 'menace',      t: 'Val-Haut (1 800 m, à 40 min) investit 30 M€ et casse ses prix enfants' },
+  ete:      { k: 'opportunite', t: 'Randonnée et VTT en montagne : +40 % de réservations en 5 ans dans le massif' },
+  lac:      { k: 'opportunite', t: 'Aucune station du massif n\'a de lac aménagé pour la baignade, alors que les citadins fuient la chaleur' },
+  region:   { k: 'opportunite', t: 'La région finance 50 % des projets qui rendent les stations moins dépendantes de la neige' }
+};
+const SOURCES = [
+  { id: 'compta',  label: 'Le comptable', cost: 4, desc: 'Les comptes des dix dernières années.', faits: ['canons', 'dette'] },
+  { id: 'moniteurs', label: 'Les moniteurs et les perchmen', cost: 3, desc: 'Ceux qui sont sur les pistes tous les jours.', faits: ['famille', 'telesiege'] },
+  { id: 'meteo',   label: 'Les relevés de Météo-France', cost: 3, desc: '30 ans de mesures d\'enneigement.', faits: ['climat'] },
+  { id: 'tourisme',label: 'L\'office du tourisme', cost: 2, desc: 'Les réservations du massif, hiver et été.', faits: ['ete'] },
+  { id: 'concurrents', label: 'Les stations voisines', cost: 4, desc: 'Visites, tarifs, projets.', faits: ['valhaut', 'lac'] },
+  { id: 'clients', label: 'Une enquête auprès des clients', cost: 4, desc: '500 questionnaires au pied des pistes.', faits: ['famille', 'resto'] },
+  { id: 'rh',      label: 'Le service du personnel', cost: 2, desc: 'Qui travaille ici, et pourquoi.', faits: ['equipe'] },
+  { id: 'etat',    label: 'La préfecture et la région', cost: 3, desc: 'Lois, règles, aides publiques.', faits: ['eau', 'region'] }
+];
+
+/* ---- Une saison ---- */
+const NEIGE = [0, .95, .45, .75];   // enneigement naturel des saisons 1, 2, 3
+function saison(s, y) {
+  const f = F(s), st = s.strat;
+  let utile = NEIGE[y];
+  if (st === 'neige') utile = y === 2 ? .62 : Math.max(utile, 1);     // les canons compensent, sauf restrictions d'eau en sécheresse
+  else utile = Math.max(utile, Math.min(.85, utile + .25));              // neige de culture actuelle
+  let hiver = 4000 * utile * (st === 'neige' ? 1.08 : 1) * (st === 'prix' ? .93 : 1) * (y >= 2 && st === 'prix' ? .9 : 1) * (st === 'gamme' && y >= 2 ? 1.12 : 1) * (s.objectif === 'irrealiste' ? .96 : 1);
+  if (st !== 'prix' && y >= 2) hiver *= .95;   // Val-Haut attire une partie des familles
+  let ete = 400;
+  if (st === 'quatre') ete = [0, 900, 1500, 1900][y] * (knows(s, 'lac') ? 1.15 : 1) * (knows(s, 'ete') ? 1.1 : .9);
+  if (st === 'gamme' && y >= 2) ete = 650;
+  if (s.correction === 'ete' && y === 3) ete += 350;
+  const canons = 1500 * (st === 'neige' ? 1.15 : 1) * (y === 2 && st !== 'neige' ? 1.1 : 1);
+  const annuite = st === 'neige' ? 700 : st === 'quatre' ? (knows(s, 'region') ? 180 : 360) : st === 'gamme' ? 520 : 0;
+  const charges = 2300 + canons + annuite + (st === 'quatre' ? 250 : 0) + (st === 'gamme' && y >= 2 ? 200 : 0);
+  const res = hiver + ete - charges;
+  const visiteurs = (60 * utile * (st === 'prix' ? 1.1 : 1)) + ete / 20;
+  return { y, utile, hiver, ete, canons, annuite, charges, res, visiteurs, dep: Math.round(hiver / (hiver + ete) * 100) };
+}
+function tableauSaison(s, R) {
+  const row = (l, v, c) => `<span${c ? ' class="tot"' : ''}>${l}</span><b${c ? ' class="tot"' : ''}>${v}</b>`;
+  return `<span class="pay">${row('Neige utile sur la saison', Math.round(R.utile * 100) + N + '%')}${row('Chiffre d\'affaires d\'hiver', ke(R.hiver))}${row('Chiffre d\'affaires d\'été', ke(R.ete))}${row('Neige de culture', '−' + ke(R.canons))}${R.annuite ? row('Remboursement de l\'investissement', '−' + ke(R.annuite)) : ''}${row('Autres charges', '−' + ke(R.charges - R.canons - R.annuite))}${row('Résultat de la saison', sk(R.res), 1)}</span>`;
+}
+/* Ce que montre le tableau de bord, selon les indicateurs choisis */
+function tdb(s, R) {
+  const ind = s.indic || [], L = {
+    ca_ete: ['Chiffre d\'affaires d\'été', ke(R.ete)], neige: ['Part du chiffre d\'affaires liée à la neige', R.dep + N + '%'], resultat: ['Résultat', sk(R.res)],
+    visiteurs: ['Visiteurs', nb(R.visiteurs) + N + '000'], satisf: ['Satisfaction des clients', (R.res > 0 ? 7.6 : 6.8).toLocaleString('fr-FR') + ' / 10'], forfaits: ['Prix moyen du forfait', (s.strat === 'prix' ? 31 : 36) + N + '€'] };
+  return `<span class="pay">${ind.map(i => `<span>${L[i][0]}</span><b>${L[i][1]}</b>`).join('') || '<span>Aucun indicateur suivi</span><b>—</b>'}</span>`;
+}
+const ch = (good, bad) => ({ good, bad });
+const V = (m, c, p) => [{ who: 'marc', text: m }, { who: 'compta', text: c }, { who: 'faure', text: p }].filter(v => v.text);
+
+const GAME = {
+  title: 'Le diagnostic',
+  brand: 'LE <span>DIAGNOSTIC</span>',
+  storeKey: 'diagnosticFins',
+  backLink: '../../matieres/management-1ere.html',
+  footer: 'Management 1re STMG, thème 2',
+  kicker: 'Management · 1re STMG · Thème 2',
+  debIntro: 'Tu as enquêté, fixé un cap et suivi tes résultats. Voici comment on appelle ces étapes en management stratégique.',
+  cutText: 'Ta partie s\'est arrêtée avant la troisième saison. Rejoue pour aller jusqu\'au conseil d\'administration.',
+  pitch: `Tu prends la direction des Crêtes, une petite station de ski familiale à 1${N}200${N}m. 60${N}000 skieurs par an, 40 salariés, des pistes que tout le village aime. Mais la neige se fait rare. Le conseil d'administration veut ton plan. Tu as 20 jours pour comprendre la situation, puis trois saisons pour prouver que tu avais vu juste.`,
+  meta: '4 actes · 25 minutes',
+  start: s => Object.assign(s, { tre: 1500, visiteurs: 80, neige: 90, ca: 60, faits: [], hist: [], strat: null, objectif: null, indic: [] }),
+  hud: [
+    { k: 'tre',       label: 'Trésorerie', short: 'Trésorerie', show: s => ke(s.tre), pct: s => s.tre / 40, low: s => s.tre < 300, unit: N + 'k€' },
+    { k: 'visiteurs', label: 'Visiteurs (milliers)', short: 'Visiteurs', show: s => nb(s.visiteurs) + N + 'k', pct: s => s.visiteurs / 1.4, low: s => s.visiteurs < 60, unit: N + 'k' },
+    { k: 'neige',     label: 'Dépendance à la neige', short: 'Neige', show: s => Math.round(s.neige) + N + '%', pct: s => s.neige, low: s => s.neige > 80, inv: true, unit: N + 'pts' },
+    { k: 'ca',        label: 'Confiance du conseil', short: 'Conseil', show: s => Math.round(s.ca), pct: s => s.ca, low: s => s.ca < 40, clamp: true }
+  ],
+  fail: () => null,
+  lock: () => null,
+  bilan: s => [['Trésorerie', ke(s.tre)], ['Résultats des 3 saisons', s.hist.map(h => sk(h)).join(' · ')], ['Dépendance à la neige', Math.round(s.neige) + N + '%'], ['Confiance du conseil', Math.round(s.ca) + ' / 100']],
+
+  characters: {
+    faure:  { name: 'Mme Faure', role: 'présidente du conseil d\'administration', color: '#FFC64F', body: '#5a3a22', hair: '#8a8f96', acc: 'clip' },
+    marc:   { name: 'Marc', role: 'chef des pistes, 25 ans de maison', color: '#5BC8FF', body: '#c0392b', hair: '#3a2418', acc: 'cap' },
+    compta: { name: 'M. Bonnet', role: 'comptable', color: '#B9A6FF', body: '#2b3a5a', hair: '#8a8f96', acc: 'tie' },
+    narr:   { name: 'Toi', role: '', color: '#7CFF3D' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'L\'enquête', sub: 'Vingt jours pour comprendre. Tu ne sauras que ce que tu auras cherché.',
+    steps: [
+      { t: 'say', who: 'faure', text: `Bienvenue. Le conseil ne vous demande pas de gérer la saison prochaine, ça, l'équipe sait faire. Il vous demande où sera la station dans dix ans, et comment y aller. Vous présenterez votre plan dans un mois. D'ici là, enquêtez.` },
+      { t: 'say', who: 'marc', text: `Mon avis${N}? Il faut des canons à neige neufs, et le problème est réglé. Mais c'est toi le patron.` },
+      { t: 'pick', id: 'enquete', prompt: 'Où passer tes 20 jours d\'enquête ?', budget: 20, unit: 'jours', unitLabel: 'Temps d\'enquête', go: 'Mener l\'enquête ▸', min: 1,
+        options: () => SOURCES.map(x => ({ id: x.id, label: x.label, cost: x.cost, desc: x.desc })),
+        resolve: (s, ids) => {
+          const fs = [...new Set(ids.flatMap(i => SOURCES.find(x => x.id === i).faits))]; s.faits = fs; s.sources = ids;
+          return { fx: {} };
+        } },
+      { t: 'say', who: 'narr', text: s => {
+          const g = k => (s.faits || []).filter(f => FAITS[f].k === k).map(f => `<span>${FAITS[f].t}</span><b></b>`).join('') || '<span><i>Rien trouvé</i></span><b></b>';
+          return `Voici ce que ton enquête a révélé.<span class="pay"><span><b>Dans la station · ce qui va bien</b></span><b></b>${g('force')}<span><b>Dans la station · ce qui va mal</b></span><b></b>${g('faiblesse')}<span><b>Autour de la station · ce qui menace</b></span><b></b>${g('menace')}<span><b>Autour de la station · ce qui s'ouvre</b></span><b></b>${g('opportunite')}</span>${s.faits.length < 12 ? `Tu as découvert ${s.faits.length} éléments sur 12. Les autres existent, que tu les connaisses ou non.` : 'Tu as tout découvert.'}`; } }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Le cap', sub: 'Ton plan devant le conseil : une direction, un objectif, des indicateurs.',
+    steps: [
+      { t: 'choice', id: 'strat', prompt: `Quelle direction pour les dix prochaines années${N}?`, options: [
+        { id: 'neige', label: 'Tout miser sur la neige : canons neufs et retenue d\'eau', desc: 'Investissement de 6 M€ emprunté, remboursé 700 k€ par an. Les pistes restent blanches.', do: s => { s.strat = 'neige'; },
+          chain: s => ch(['Les skieurs retrouvent des pistes garanties', 'Rien ne change dans le métier de la station'], [knows(s, 'climat') ? 'Tu sais pourtant que la neige naturelle recule' : 'Tu ignores à quel point la neige naturelle recule', knows(s, 'eau') ? 'Tu sais que l\'eau peut être rationnée lors des sécheresses' : 'Tu ignores que l\'eau peut être rationnée', 'La station dépend encore plus de l\'hiver', '700 k€ à rembourser chaque année']),
+          voix: s => V(`Voilà, ça c'est un plan${N}!`, `700${N}k€ par an pendant dix ans. Il ne faudra pas rater d'hiver.`, knows(s, 'climat') ? `Vous avez lu les relevés de Météo-France et vous choisissez quand même la neige${N}? Expliquez-moi.` : `Le conseil vous suit. Nous espérons que vous avez tout regardé.`) },
+        { id: 'quatre', label: 'Devenir une station des quatre saisons', desc: 'Lac aménagé, pistes de VTT, sentiers, accueil de groupes l\'été. 3 M€ d\'investissement.', do: s => { s.strat = 'quatre'; },
+          chain: s => ch([knows(s, 'climat') ? 'Tu réponds à la menace que tu as identifiée : le recul de la neige' : 'Tu réduis la dépendance à la neige', knows(s, 'ete') ? 'Tu t\'appuies sur une demande qui grandit : +40 % de VTT et de randonnée' : 'Tu paries sur l\'été sans chiffres', knows(s, 'lac') ? 'Un lac aménagé, que personne n\'a dans le massif' : 'Un projet comme d\'autres', knows(s, 'region') ? 'La région finance la moitié : seulement 1,5 M€ à emprunter' : 'Tu empruntes les 3 M€ en entier (tu ignores l\'aide de la région)'], ['L\'été démarre lentement', 'Il faut apprendre un nouveau métier']),
+          voix: s => V(`Des VTT${N}? On est des skieurs, nous… Bon. On apprendra.`, knows(s, 'region') ? `Avec la subvention, l'emprunt est raisonnable.` : `3${N}M€ empruntés, c'est lourd. Il n'y avait pas d'aide${N}?`, `Un vrai changement de cap. Le conseil est prêt à vous suivre, si vous savez mesurer vos progrès.`) },
+        { id: 'gamme', label: 'Monter en gamme : résidence de tourisme et restaurant', desc: 'Avec un promoteur. 4 M€ pour la station, remboursés 520 k€ par an.', do: s => { s.strat = 'gamme'; },
+          chain: s => ch([knows(s, 'resto') ? 'Tu corriges une faiblesse que tes clients t\'ont signalée' : 'Des clients plus aisés', 'Des clients qui dépensent plus'], ['La station reste dépendante de la neige', knows(s, 'climat') ? 'Une résidence neuve dans une station qui perd sa neige' : 'Tu ne sais pas combien d\'hivers il reste']),
+          voix: s => V(`Un restaurant correct, enfin.`, `520${N}k€ par an. Il faudra du monde.`, `Intéressant. Mais vos clients viendront-ils sans neige${N}?`) },
+        { id: 'prix', label: 'Baisser les prix enfants pour tenir face à Val-Haut', desc: 'Forfait enfant −40 %. Aucun investissement.', do: s => { s.strat = 'prix'; },
+          chain: s => ch(['Plus de familles', 'Aucune dette'], [knows(s, 'valhaut') ? 'Val-Haut a 30 M€ pour tenir une guerre des prix, toi non' : 'Tu ignores que Val-Haut casse déjà ses prix', 'Chaque forfait rapporte moins', 'La neige, elle, continue de reculer']),
+          voix: s => V(`Plus de gamins sur les pistes, j'aime.`, `Plus de monde, moins de recettes. Je fais les calculs…`, `Vous répondez à un concurrent, pas à l'avenir de la station.`) } ] },
+      { t: 'say', who: 'faure', text: `Maintenant, l'objectif. Le conseil veut une phrase qu'il pourra vérifier dans trois ans.` },
+      { t: 'choice', id: 'objectif', prompt: `Ton objectif écrit dans le plan${N}?`, options: [
+        { id: 'vague', label: s => s.strat === 'quatre' ? '« Développer l\'activité d\'été »' : s.strat === 'neige' ? '« Garantir de la neige »' : s.strat === 'gamme' ? '« Monter en gamme »' : '« Attirer plus de familles »', desc: 'Clair, simple, tout le monde est d\'accord.', do: s => { s.objectif = 'vague'; },
+          chain: ch(['Tout le monde est d\'accord'], ['Combien ? Pour quand ? Comment le mesurer ?', 'Dans trois ans, personne ne pourra dire si c\'est réussi', 'Impossible de savoir s\'il faut corriger en cours de route']),
+          voix: V(`Ça me va.`, `Et je mesure ça comment, moi${N}?`, `Une intention n'est pas un objectif. Le conseil ne pourra rien évaluer.`) },
+        { id: 'smart', label: s => s.strat === 'quatre' ? '« Faire passer le chiffre d\'affaires d\'été de 0,4 à 1,5 M€ en 3 saisons, mesuré à chaque fin d\'été »' : s.strat === 'neige' ? '« Ouvrir 110 jours par hiver pendant 3 saisons, mesuré chaque fin d\'hiver »' : s.strat === 'gamme' ? '« Faire passer la dépense moyenne par client de 38 à 50 € en 3 saisons »' : '« Accueillir 15 % de familles en plus en 3 saisons, sans baisser le chiffre d\'affaires »',
+          desc: 'Précis, chiffré, avec une échéance et une façon de le mesurer.', do: s => { s.objectif = 'smart'; }, fx: { ca: 10 },
+          chain: ch(['On sait exactement ce qu\'on vise', 'On sait quand et comment vérifier', 'Ambitieux mais atteignable', 'On pourra corriger en cours de route'], ['Si tu rates, ça se verra']),
+          voix: V(`Au moins, on sait ce qu'on doit faire.`, `Ça, je peux le suivre chaque saison.`, `Voilà un objectif. Le conseil le vote.`) },
+        { id: 'irrealiste', label: '« Devenir la première station des Alpes dès l\'an prochain »', desc: 'Pour motiver les troupes.', do: s => { s.objectif = 'irrealiste'; }, fx: { ca: -8 },
+          chain: ch(['Ça fait rêver'], ['Personne n\'y croit, même pas l\'équipe', 'Un objectif inatteignable démotive au lieu de motiver', 'Le conseil s\'inquiète de ton sérieux']),
+          voix: V(`La première des Alpes${N}? Avec un télésiège de 1984${N}?`, `Je ne vais pas mettre ça dans les comptes.`, `Un objectif doit être ambitieux, pas absurde.`) } ] },
+      { t: 'pick', id: 'indic', prompt: 'Quels indicateurs suivre dans ton tableau de bord ?', budget: 3, unit: 'indicateurs', unitLabel: 'Place dans le tableau de bord', go: 'Valider ▸', min: 1,
+        options: () => [
+          { id: 'ca_ete', label: 'Chiffre d\'affaires d\'été', cost: 1 }, { id: 'neige', label: 'Part du chiffre d\'affaires liée à la neige', cost: 1 }, { id: 'resultat', label: 'Résultat de la saison', cost: 1 },
+          { id: 'visiteurs', label: 'Nombre de visiteurs', cost: 1 }, { id: 'satisf', label: 'Satisfaction des clients', cost: 1 }, { id: 'forfaits', label: 'Prix moyen du forfait', cost: 1 } ],
+        resolve: (s, ids) => { s.indic = ids; const bon = s.strat === 'quatre' ? ['ca_ete', 'neige'] : s.strat === 'neige' ? ['resultat', 'neige'] : s.strat === 'gamme' ? ['resultat', 'satisf'] : ['resultat', 'forfaits']; s.tdbOk = bon.every(b => ids.includes(b)); return { fx: s.tdbOk ? { ca: 4 } : {} }; } },
+      { t: 'say', who: 'faure', text: s => `Le conseil vote votre plan. ${s.objectif === 'smart' ? 'Avec un objectif clair, nous saurons où vous en êtes.' : s.objectif === 'vague' ? 'Votre objectif reste un peu flou, mais nous verrons.' : 'Votre objectif nous laisse perplexes.'} Rendez-vous à la fin de chaque saison.` }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Trois saisons', sub: 'Le plan rencontre la réalité. Ton tableau de bord te dira, ou non, ce qui se passe.',
+    steps: [
+      { t: 'event', who: 'compta', do: s => { s.rep = saison(s, 1); }, text: s => `<b>Saison 1.</b> Un hiver correct, enfin.${tableauSaison(s, s.rep)}`, fx: s => ({ tre: Math.round(s.rep.res) - (s.strat === 'neige' ? 0 : 0), visiteurs: Math.round(s.rep.visiteurs) - s.visiteurs, neige: s.rep.dep - s.neige }) },
+      { t: 'event', who: 'narr', do: s => { s.hist.push(Math.round(s.rep.res)); }, text: s => `Ton tableau de bord, fin de saison 1${N}:${tdb(s, s.rep)}` },
+      { t: 'event', who: 'compta', do: s => { s.rep = saison(s, 2); }, text: s => `<b>Saison 2.</b> Un hiver catastrophique${N}: pluie en janvier, 12°C en février, sécheresse. ${s.strat === 'neige' ? 'La préfecture limite les prélèvements d\'eau${N}: tes canons neufs ne tournent qu\'à moitié.'.replace('${N}', N) : 'Les canons tournent quand ils peuvent.'}${tableauSaison(s, s.rep)}`, fx: s => ({ tre: Math.round(s.rep.res), visiteurs: Math.round(s.rep.visiteurs) - s.visiteurs, neige: s.rep.dep - s.neige, ca: s.rep.res < -500 ? -15 : s.rep.res < 0 ? -6 : 4 }) },
+      { t: 'event', who: 'narr', do: s => { s.hist.push(Math.round(s.rep.res)); }, text: s => `Ton tableau de bord, fin de saison 2${N}:${tdb(s, s.rep)}${s.tdbOk ? 'Tes indicateurs te montrent exactement où tu en es.' : 'Tes indicateurs ne te disent pas grand-chose sur ce qui compte pour ton plan.'}` },
+      { t: 'say', who: 'faure', text: s => s.objectif === 'smart' && s.tdbOk ? `Le conseil a comparé vos résultats à votre objectif. ${s.strat === 'quatre' ? `L'été progresse, ${ke(s.rep.ete)} pour un objectif de 1,5${N}M€. Que proposez-vous pour la dernière saison${N}?` : `L'écart est net. Que proposez-vous pour la dernière saison${N}?`}` : `Le conseil vous demande où vous en êtes par rapport à votre objectif. ${s.objectif === 'smart' ? 'Votre objectif était clair, mais vos indicateurs ne permettent pas de répondre.' : 'Personne ne sait vraiment répondre${N}: l\'objectif n\'était pas mesurable.'.replace('${N}', N)} Que proposez-vous${N}?` },
+      { t: 'choice', id: 'correction', prompt: `Pour la saison 3${N}?`, options: [
+        { id: 'ete', label: 'Renforcer l\'été : festival, séminaires d\'entreprise', desc: '+350 k€ de chiffre d\'affaires d\'été visés.', do: s => { s.correction = 'ete'; },
+          chain: s => s.tdbOk && s.objectif === 'smart' ? ch(['Tu corriges en t\'appuyant sur tes chiffres', 'L\'écart à l\'objectif se réduit']) : ch(['Tu tentes quelque chose'], ['Sans chiffres fiables, tu agis un peu au hasard']),
+          voix: V(`Un festival${N}? Pourquoi pas.`, ``, `Bien.`) },
+        { id: 'rien', label: 'Garder le cap sans rien changer', desc: '', do: s => { s.correction = 'rien'; },
+          chain: ch(['La stratégie garde sa cohérence'], ['Si elle dérape, rien ne la remet sur les rails']), voix: V(`On continue.`, ``, `Comme vous voulez.`) },
+        { id: 'neige', label: 'Acheter des canons en plus pour rattraper l\'hiver', desc: '500 k€.', fx: { tre: -500 }, do: s => { s.correction = 'neige'; },
+          chain: s => ch(['Un peu plus de neige si l\'hiver est froid'], ['Encore plus de dépendance à l\'hiver', knows(s, 'eau') ? 'Tu sais pourtant que l\'eau est rationnée en sécheresse' : 'Tu ignores que l\'eau sera rationnée']),
+          voix: V(`Des canons, enfin${N}!`, `500${N}k€ de plus…`, `Vous doublez la mise sur ce qui vient d'échouer${N}?`) } ] },
+      { t: 'event', who: 'compta', do: s => { s.rep = saison(s, 3); }, text: s => `<b>Saison 3.</b> Un hiver moyen.${tableauSaison(s, s.rep)}`, fx: s => ({ tre: Math.round(s.rep.res), visiteurs: Math.round(s.rep.visiteurs) - s.visiteurs, neige: s.rep.dep - s.neige }) },
+      { t: 'event', who: 'narr', do: s => { s.hist.push(Math.round(s.rep.res)); }, text: s => `Ton tableau de bord, fin de saison 3${N}:${tdb(s, s.rep)}` }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Le conseil', sub: 'Trois saisons plus tard, Mme Faure relit ton plan.', final: true,
+    steps: [
+      { t: 'say', who: 'faure', text: s => `Votre objectif était${N}: ${s.objectif === 'smart' ? 'précis' : s.objectif === 'vague' ? 'une intention' : 'un rêve'}. ${s.objectif === 'smart' ? (s.strat === 'quatre' ? `Vous visiez 1,5${N}M€ l'été. Vous avez fait ${ke(s.rep.ete)}. ${s.rep.ete >= 1500 ? 'Objectif atteint.' : 'Objectif manqué.'}` : 'Nous avons pu comparer, saison après saison.') : 'Nous ne pouvons pas dire si vous l\'avez atteint.'} Résultats des trois saisons${N}: ${s.hist.map(sk).join(', ')}.` }
+    ] }
+  ],
+
+  endings: [
+    { id: 'mur', when: s => s.strat === 'neige' || s.correction === 'neige' && s.strat !== 'quatre', title: 'Tout schuss dans le mur', stamp: 'Diagnostic ignoré', color: '#FF5C6A',
+      text: s => `${knows(s, 'climat') ? 'Tu savais que la neige reculait. ' : 'Tu n\'as pas regardé les relevés de Météo-France. '}Tu as misé encore plus sur l'hiver, et l'hiver t'a lâché. Une stratégie qui ne tient pas compte de son environnement finit par le subir.` },
+    { id: 'guerre', when: s => s.strat === 'prix', title: 'La guerre des prix', stamp: 'Marge perdue', color: '#FFC64F',
+      text: `Val-Haut avait 30${N}M€ pour baisser ses prix, toi aucun. Tu as attiré des familles en sacrifiant tes recettes, sans rien préparer pour les hivers sans neige.` },
+    { id: 'flou', when: s => s.objectif !== 'smart', title: 'Objectif flou', stamp: 'Impossible à évaluer', color: '#FFC64F',
+      text: `Le conseil hésite à te renouveler sa confiance. Non pas parce que tu as échoué${N}: parce que personne ne peut dire si tu as réussi. Un objectif qu'on ne peut pas mesurer ne sert ni à décider, ni à corriger.` },
+    { id: 'reussite', when: s => s.strat === 'quatre' && s.tdbOk && s.tre >= 800, title: 'Les Crêtes, quatre saisons', stamp: 'Plan reconduit', color: '#4CD97B',
+      text: s => `Le conseil vote à l'unanimité la suite de ton plan. Ton enquête t'avait montré ${knows(s, 'climat') ? 'la neige qui recule' : 'les risques'}${knows(s, 'ete') ? ' et l\'été qui grandit' : ''}. Tu as fixé un objectif mesurable, suivi les bons indicateurs, et corrigé quand il le fallait. La station dépend désormais de la neige pour ${Math.round(s.neige)}${N}% de ses recettes.` },
+    { id: 'moyen', when: s => true, title: 'Un plan à moitié', stamp: 'Sous surveillance', color: '#7C6FFF',
+      text: s => `La station tient, mais le conseil reste prudent${N}: ${s.strat === 'gamme' ? 'ta résidence neuve dépend toujours d\'hivers enneigés.' : !s.tdbOk ? 'tes indicateurs ne t\'ont pas permis de piloter ton plan.' : 'tes résultats sont en dessous de ce que ton diagnostic permettait.'}` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['enquete'], title: 'Acte 1 — L\'enquête', text: (h, s) => `La <em>stratégie</em>, ce sont les grandes décisions qui engagent l\'organisation sur le long terme pour atteindre sa finalité. Avant de décider, il faut faire un <em>diagnostic stratégique</em>. Le <em>diagnostic interne</em> recense les <em>forces</em> et les <em>faiblesses</em> de l\'organisation : ses <em>ressources</em> (argent, matériel, personnes) et ses <em>compétences</em> (savoir-faire, réputation). Le <em>diagnostic externe</em> recense les <em>opportunités</em> et les <em>menaces</em> de l\'<em>environnement</em> : le climat, les lois, la concurrence, les modes de vie. Réunis, ils forment la <em>matrice SWOT</em> (Strengths, Weaknesses, Opportunities, Threats). Tu as découvert ${s.faits.length} éléments sur 12${knows(s, 'climat') ? '' : ', mais pas la menace principale : le recul de la neige'}. Un diagnostic incomplet mène à des choix aveugles.`,
+      chain: () => ({ good: ['Enquêter largement', 'Forces, faiblesses (interne)', 'Opportunités, menaces (externe)', 'Matrice SWOT'], bad: ['Enquête partielle', 'Menace ignorée', 'Mauvais choix'] }) },
+    { act: 2, needs: ['strat', 'objectif'], title: 'Acte 2 — Le cap', text: (h, s) => `Le diagnostic sert à choisir une direction : s\'appuyer sur ses forces pour saisir les opportunités, et réduire ses faiblesses face aux menaces. ${s.strat === 'quatre' ? 'Diversifier vers l\'été répondait directement à la menace climatique.' : s.strat === 'neige' ? 'Miser sur la neige allait contre la principale menace.' : s.strat === 'prix' ? 'Baisser les prix répondait à un concurrent, pas à l\'environnement.' : 'Monter en gamme corrigeait une faiblesse, sans répondre à la menace principale.'} Un bon <em>objectif</em> est <em>SMART</em> : <em>spécifique</em>, <em>mesurable</em>, <em>atteignable</em>, <em>réaliste</em>, <em>temporellement défini</em>. ${h.objectif === 'smart' ? 'Le tien l\'était.' : h.objectif === 'vague' ? 'Le tien n\'était pas mesurable.' : 'Le tien n\'était ni atteignable ni réaliste.'} Les <em>indicateurs</em> réunis dans un <em>tableau de bord</em> permettent de suivre l\'objectif.`,
+      chain: () => ({ good: ['Diagnostic', 'Direction cohérente', 'Objectif SMART', 'Indicateurs adaptés'], bad: ['Objectif flou', 'Indicateurs inutiles', 'Pilotage à l\'aveugle'] }) },
+    { act: 3, needs: ['correction'], title: 'Acte 3 — Trois saisons', text: (h, s) => `<em>Évaluer</em>, c\'est comparer les résultats aux objectifs, grâce aux indicateurs. Si l\'écart est trop grand, on <em>corrige</em> : c\'est le <em>pilotage</em>. ${s.tdbOk && s.objectif === 'smart' ? 'Ton tableau de bord t\'a montré l\'écart à temps.' : 'Sans objectif mesurable ou sans les bons indicateurs, tu as piloté sans instruments.'} ${h.correction === 'neige' ? 'En rachetant des canons après l\'hiver sans neige, tu as renforcé ta dépendance à la menace identifiée.' : ''} Le processus est une boucle : diagnostic → objectifs → actions → évaluation → correction.`,
+      chain: () => ({ good: ['Mesurer', 'Comparer à l\'objectif', 'Corriger'], bad: ['Ne rien mesurer', 'Découvrir trop tard', 'Subir'] }) }
+  ],
+  vocab: ['Stratégie', 'Diagnostic stratégique', 'Diagnostic interne', 'Diagnostic externe', 'Forces / faiblesses', 'Opportunités / menaces', 'Matrice SWOT', 'Ressources', 'Compétences', 'Environnement', 'Objectif SMART', 'Indicateur', 'Tableau de bord', 'Évaluation', 'Pilotage', 'Correction']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — la montagne, la limite de la neige qui remonte, le lac en été.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const y = S.rep ? S.rep.y : 0, u = S.rep ? S.rep.utile : .9;
+  const snowY = 40 + (1 - u) * 60;
+  const lac = S.strat === 'quatre' && y >= 1 ? `<ellipse cx="300" cy="148" rx="48" ry="9" fill="#2b6a9a" opacity=".8"/><text x="300" y="151" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="9" fill="#EEF3EC">LAC</text>` : '';
+  const val = S.faits && S.faits.includes('valhaut') ? `<text x="352" y="28" text-anchor="end" font-family="Rajdhani,sans-serif" font-size="9" fill="#FF5C6A">Val-Haut 1 800 m →</text>` : '';
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="La station des Crêtes">
+    <rect width="360" height="200" fill="#070a10"/><rect x="0" y="0" width="360" height="162" fill="#0a0f18"/>
+    <defs><clipPath id="mt"><polygon points="110,160 215,30 330,160"/></clipPath></defs>
+    <polygon points="110,160 215,30 330,160" fill="#2a3240"/>
+    <rect x="100" y="0" width="240" height="${snowY}" fill="#EEF3EC" clip-path="url(#mt)" opacity=".9"/>
+    <line x1="140" y1="${snowY}" x2="300" y2="${snowY}" stroke="#7CFF3D" stroke-dasharray="3 3" opacity=".7"/><text x="146" y="${snowY - 4}" font-family="Rajdhani,sans-serif" font-weight="700" font-size="9" fill="#7CFF3D">limite de la neige</text>
+    <line x1="170" y1="150" x2="240" y2="70" stroke="#FFC64F" stroke-width="1.5"/>${[0, 1, 2].map(i => `<rect x="${182 + i * 20}" y="${130 - i * 23}" width="6" height="5" fill="#FFC64F"/>`).join('')}
+    ${lac}${val}<text x="120" y="24" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#8B9A80">LES CRÊTES · 1 200 m${y ? ' · SAISON ' + y : ''}</text>
+    <rect x="0" y="162" width="360" height="38" fill="#080b06"/><line x1="0" y1="162" x2="360" y2="162" stroke="#1d2a17" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Les comptes — Jeu Gestion et finance Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#5FB8B0;--eco-dim:#3A7F79;--good:#4CD97B;--bg:#040808;--panel:#091010;--panel2:#0c1515;--line:#173030;--txt:#EEF3EC;--muted:#8BA8A5;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(95,184,176,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(95,184,176,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#142010;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(95,184,176,.5);background:rgba(95,184,176,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070a06;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(95,184,176,.09), rgba(8,16,16,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#041010;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#041010;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#0e1c1b;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#142010;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#041010;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#060c0c;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#060c0c;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#060c0c;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#060c0c;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(95,184,176,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#060c0c;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(95,184,176,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — Les comptes (Gestion et finance, Terminale STMG, thème 1)
+   Cadence, fabricant de vélos, 12 salariés. L'élève tient les comptes d'une année.
+   Le résultat de l'exercice part de 80 k€ « avant inventaire » ; chaque choix de clôture le modifie.
+   Un choix fidèle donne le résultat juste ; un choix « arrangé » flatte le résultat… jusqu'à l'année suivante.
+   Jauges : res (résultat de l'exercice, k€), fidele (image fidèle des comptes, 0-100),
+            banque (confiance du banquier, 0-100), si (efficacité du système d'information, 0-100).
+   ===================================================================== */
+const N = ' ';
+const ke = n => (n < 0 ? '−' : '') + (Math.round(Math.abs(n) * 10) / 10).toLocaleString('fr-FR') + N + 'k€';
+const sk = n => (n >= 0 ? '+' : '−') + ke(Math.abs(n));
+const F = s => s.flags;
+const ch = (good, bad) => ({ good, bad });
+const V = (...a) => a;
+
+const GAME = {
+  title: 'Les comptes',
+  brand: 'LES <span>COMPTES</span>',
+  storeKey: 'gfComptesFins',
+  backLink: '../../matieres/gestion-finance-terminale.html',
+  footer: 'Gestion et finance, Terminale STMG, thème 1',
+  kicker: 'Gestion et finance · Terminale STMG · Thème 1',
+  debIntro: 'Tu as tenu, arrêté et présenté les comptes d\'une entreprise. Voici comment on appelle ce que tu as fait.',
+  cutText: 'Ta partie s\'est arrêtée avant le rendez-vous à la banque. Rejoue pour aller au bout.',
+  pitch: `Cadence fabrique des vélos à Angers. 12 salariés, 1,45${N}M€ de ventes par an. Tu viens d'arriver comme responsable administratif et financier. Ta mission${N}: tenir les comptes de l'année, puis les arrêter au 31 décembre. En janvier, la banque les lira avant d'accorder un prêt. Le patron, lui, a sa petite idée du résultat qu'il aimerait voir.`,
+  meta: '4 actes · 20 minutes',
+  start: s => Object.assign(s, { res: 80, fidele: 40, banque: 50, si: 30, impot: 0 }),
+  hud: [
+    { k: 'res',    label: 'Résultat de l\'exercice', short: 'Résultat', show: s => ke(s.res), pct: s => 50 + s.res / 2, low: s => s.res < 0, unit: N + 'k€' },
+    { k: 'fidele', label: 'Image fidèle', short: 'Fidélité', show: s => Math.round(s.fidele), pct: s => s.fidele, low: s => s.fidele < 50, clamp: true },
+    { k: 'banque', label: 'Confiance de la banque', short: 'Banque', show: s => Math.round(s.banque), pct: s => s.banque, low: s => s.banque < 40, clamp: true },
+    { k: 'si',     label: 'Système d\'information', short: 'Système', show: s => Math.round(s.si), pct: s => s.si, low: s => s.si < 40, clamp: true }
+  ],
+  fail: () => null,
+  lock: () => null,
+  bilan: s => [['Résultat de l\'exercice', ke(s.res)], ['Image fidèle', Math.round(s.fidele) + ' / 100'], ['Confiance de la banque', Math.round(s.banque) + ' / 100'], ['Système d\'information', Math.round(s.si) + ' / 100']],
+
+  characters: {
+    patron: { name: 'M. Ferrand', role: 'fondateur et dirigeant de Cadence', color: '#FFC64F', body: '#5a3a22', hair: '#8a8f96', acc: 'tie' },
+    expert: { name: 'Mme Lambert', role: 'expert-comptable du cabinet', color: '#B9A6FF', body: '#2b3a5a', hair: '#3a2418', acc: 'clip' },
+    banque: { name: 'M. Duval', role: 'chargé d\'affaires, banque', color: '#5B8FFF', body: '#2b3a5a', hair: '#1c1c22', acc: 'tie' },
+    magasin:{ name: 'Léo', role: 'responsable du stock', color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'box' },
+    narr:   { name: 'Toi', role: '', color: '#5FB8B0' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Le système', sub: 'Avant de compter juste, il faut savoir où sont les chiffres.',
+    steps: [
+      { t: 'say', who: 'patron', text: `Bienvenue. Les factures sont dans ces trois cartons. Ma femme saisissait tout dans un tableur le dimanche. Elle a arrêté. Débrouillez-vous.` },
+      { t: 'say', who: 'expert', text: `Attention${N}: depuis septembre 2026, toutes les entreprises doivent pouvoir recevoir des factures électroniques de leurs fournisseurs, et elles devront bientôt en émettre. Le papier, c'est fini. Comment comptez-vous organiser l'information comptable${N}?` },
+      { t: 'choice', id: 'si', prompt: `Le système d'information comptable${N}?`, options: [
+        { id: 'tableur', label: 'Reprendre le tableur', desc: 'Gratuit. Tu saisis chaque facture à la main.', set: { si: 'tableur' }, fx: { si: 5, banque: -3 },
+          chain: ch(['Aucun coût'], ['Chaque facture saisie à la main : des heures, et des erreurs', 'Aucun lien entre les ventes, la banque et la comptabilité', 'Les factures électroniques reçues doivent être ressaisies']),
+          voix: V({ who: 'expert', text: `Une saisie à la main, c'est une erreur tous les cent chiffres. Vous en aurez des milliers.` }) },
+        { id: 'logiciel', label: 'Un logiciel comptable relié à la banque et aux factures électroniques', desc: '120 € par mois. Les factures arrivent directement, les opérations bancaires se rapprochent toutes seules.', set: { si: 'logiciel' }, fx: { si: 45, fidele: 10, banque: 5 },
+          chain: ch(['Chaque facture n\'est enregistrée qu\'une fois, automatiquement', 'Le relevé de banque se rapproche seul des écritures', 'Les comptes sont à jour chaque jour, pas chaque trimestre', 'Tu respectes l\'obligation de facture électronique'], ['120 € par mois', 'Il faut tout paramétrer au départ']),
+          voix: V({ who: 'expert', text: `Parfait. Les données sont saisies une seule fois, à la source. C'est la base d'une information fiable.` }) },
+        { id: 'cabinet', label: 'Tout confier au cabinet d\'expertise comptable', desc: '900 € par mois. Tu envoies les pièces, ils font le reste.', set: { si: 'cabinet' }, fx: { si: 25, fidele: 8, banque: 3 },
+          chain: ch(['Des professionnels tiennent les comptes', 'Tu gagnes du temps'], ['900 € par mois', 'Tu ne vois tes chiffres qu\'une fois par trimestre', 'Pour piloter au jour le jour, tu es aveugle']),
+          voix: V({ who: 'expert', text: `Avec plaisir. Mais vous ne verrez vos chiffres que quand nous aurons fini.` }) } ] },
+      { t: 'event', who: 'expert', if: s => F(s).si === 'tableur', text: `En faisant le point de juin, je trouve une vente de 8${N}k€ saisie deux fois dans le tableur. Le chiffre d'affaires était faux depuis trois mois. Personne ne l'avait vu.`, fx: { fidele: -10, si: -5 } },
+      { t: 'say', who: 'narr', text: s => `Chaque opération de Cadence s'enregistre désormais ${F(s).si === 'logiciel' ? 'automatiquement' : 'à la main'}. Quand Cadence vend 20 vélos à 1${N}200${N}€ hors taxes à un magasin qui paiera dans 60 jours, deux choses changent en même temps${N}: Cadence possède une somme à recevoir de 28${N}800${N}€ (avec la TVA), et ses ventes augmentent de 24${N}000${N}€. Rien ne bouge sans contrepartie.` }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'La machine', sub: 'Une machine de 60 000 € ne s\'use pas en un jour. Ses comptes non plus.',
+    steps: [
+      { t: 'say', who: 'patron', text: `En janvier, j'ai acheté la nouvelle machine à souder les cadres${N}: 60${N}000${N}€ hors taxes, plus 4${N}000${N}€ pour l'installer, plus 2${N}000${N}€ pour former les gars. Elle va tourner au moins cinq ans. Bon, comptablement, vous mettez tout en charges cette année${N}: comme ça on paie moins d'impôt.` },
+      { t: 'choice', id: 'machine', prompt: `Comment enregistrer la machine${N}?`, options: [
+        { id: 'immo', label: 'L\'enregistrer comme un bien durable et répartir son coût sur 5 ans', desc: 'Prix + installation (64 000 €) dans les biens de l\'entreprise, usure de 12 800 € par an. La formation (2 000 €) est une charge de l\'année.', set: { machine: 'immo' }, fx: { res: -14.8, fidele: 10, banque: 5 },
+          chain: ch(['La machine figure parmi ce que possède Cadence, pour sa valeur', 'Son usure est comptée chaque année, pendant 5 ans', 'Chaque année supporte une part de son coût : celle qui correspond à son usage', 'L\'installation fait partie du prix de la machine, pas la formation'], ['Le résultat de cette année baisse de 14,8 k€']),
+          voix: V({ who: 'expert', text: `Exactement ce qu'il faut. La machine sert cinq ans, son coût se répartit sur cinq ans.` }, { who: 'patron', text: `Bon. Si c'est la règle…` }) },
+        { id: 'charges', label: 'Tout passer en charges cette année, comme le demande le patron', desc: '66 000 € de charges dès cette année.', set: { machine: 'charges' }, fx: { res: -66, fidele: -20, banque: -5 },
+          chain: ch(['Moins d\'impôt cette année'], ['Une machine de 60 000 € disparaît des comptes alors qu\'elle tourne à l\'atelier', 'Le résultat de cette année est artificiellement écrasé', 'Les quatre années suivantes paraîtront trop belles', 'L\'administration fiscale n\'accepte pas qu\'un bien durable de cette valeur passe en charges']),
+          voix: V({ who: 'expert', text: `Je ne peux pas valider ça. Un contrôle fiscal requalifierait tout, avec des pénalités.` }, { who: 'patron', text: `Tout le monde le fait${N}!` }) },
+        { id: 'rien', label: 'Ne compter aucune usure pour l\'instant', desc: 'La machine est neuve : on commencera à compter son usure l\'an prochain. Résultat plus flatteur.', set: { machine: 'rien' }, fx: { res: -2, fidele: -15, banque: -5 },
+          chain: ch(['Le résultat reste élevé'], ['La machine s\'use dès qu\'elle tourne', 'Cette année ne supporte aucune part de son coût', 'Le résultat est surévalué']),
+          voix: V({ who: 'expert', text: `Elle tourne depuis janvier. Elle s'use depuis janvier.` }) } ] },
+      { t: 'choice', id: 'duree', if: s => F(s).machine === 'immo', prompt: `Sur combien d'années répartir son coût${N}?`, options: [
+        { id: '5', label: 'Sur 5 ans : sa durée réelle d\'utilisation', desc: '12 800 € par an.', fx: { fidele: 5 },
+          chain: ch(['L\'usure comptée correspond à l\'usage réel'], []), voix: V({ who: 'expert', text: `C'est ce que dit le fabricant et ce que vous prévoyez.` }) },
+        { id: '3', label: 'Sur 3 ans', desc: '21 300 € par an : un résultat plus bas, donc moins d\'impôt.', fx: { res: -8.5, fidele: -8, banque: -3 },
+          chain: ch(['Moins d\'impôt pendant 3 ans'], ['La machine durera 5 ans : les comptes ne disent pas la vérité']), voix: V({ who: 'expert', text: `Vous choisissez la durée qui vous arrange, pas celle de la machine.` }) },
+        { id: '10', label: 'Sur 10 ans', desc: '6 400 € par an : un résultat plus beau.', fx: { res: 6.4, fidele: -8, banque: -3 },
+          chain: ch(['Un résultat plus flatteur'], ['La machine sera usée bien avant 10 ans', 'Il restera une valeur dans les comptes pour une machine bonne à jeter']), voix: V({ who: 'expert', text: `Dans 6 ans, vous aurez une machine à la casse qui vaut encore 25${N}600${N}€ dans vos comptes.` }) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Le 31 décembre', sub: 'Arrêter les comptes, c\'est regarder en face ce que vaut vraiment l\'entreprise ce jour-là.',
+    steps: [
+      { t: 'say', who: 'patron', text: `Le rendez-vous à la banque est le 15 janvier. On demande 150${N}000${N}€ pour agrandir l'atelier. Il me faut un beau résultat, vous comprenez${N}? Au moins 70${N}k€.` },
+      { t: 'say', who: 'magasin', text: `J'ai compté le stock à la main ce matin. Le logiciel dit 240 vélos finis. Il y en a 232. Huit manquent${N}: deux abîmés au chargement, six… je ne sais pas. Coût de fabrication${N}: 700${N}€ chacun.` },
+      { t: 'choice', id: 'stock', prompt: `Le stock${N}?`, options: [
+        { id: 'reel', label: 'Retenir le stock réellement compté : 232 vélos', desc: '5 600 € de stock en moins.', fx: { res: -5.6, fidele: 8, banque: 3 },
+          chain: ch(['Les comptes montrent ce qui existe vraiment dans l\'entrepôt', 'Tu découvres une perte à expliquer : vols ? erreurs ?'], ['Le résultat baisse de 5,6 k€']), voix: V({ who: 'expert', text: `L'inventaire physique fait foi. C'est son rôle.` }) },
+        { id: 'theorique', label: 'Garder le chiffre du logiciel : 240', desc: 'Les huit vélos réapparaîtront peut-être.', fx: { fidele: -10, banque: -4 },
+          chain: ch(['Le résultat ne bouge pas'], ['Les comptes affichent huit vélos qui n\'existent pas', 'La perte est cachée, et la cause aussi']), voix: V({ who: 'magasin', text: `Ils ne vont pas réapparaître, hein.` }) } ] },
+      { t: 'say', who: 'expert', text: `Mauvaise nouvelle${N}: Vélo Planet, qui vous doit 18${N}000${N}€ hors taxes, vient d'être placé en redressement judiciaire. D'expérience, vous récupérerez au mieux 30${N}% de la somme, et dans deux ans.` },
+      { t: 'choice', id: 'creance', prompt: `La somme due par Vélo Planet${N}?`, options: [
+        { id: 'depreciation', label: 'Constater dès maintenant la perte probable : 70 %', desc: '12 600 € de perte probable comptée cette année.', fx: { res: -12.6, fidele: 10, banque: 8 },
+          chain: ch(['Les comptes ne promettent pas un argent qui ne viendra pas', 'Le risque est connu aujourd\'hui : il est compté aujourd\'hui', 'Si Vélo Planet paie plus, ce sera une bonne surprise'], ['Le résultat baisse de 12,6 k€']), voix: V({ who: 'expert', text: `Vous faites preuve de prudence. C'est un principe comptable, pas une faiblesse.` }) },
+        { id: 'ignorer', label: 'Garder la somme entière : ils paieront peut-être', desc: 'Rien ne change.', fx: { fidele: -14, banque: -6 },
+          chain: ch(['Le résultat ne bouge pas'], ['Les comptes annoncent 18 000 € qui ne viendront presque pas', 'La perte tombera l\'an prochain, d\'un coup']), voix: V({ who: 'expert', text: `Vous savez déjà que cet argent est perdu. Les comptes doivent le dire.` }) } ] },
+      { t: 'say', who: 'expert', text: `Autre chose${N}: un client s'est blessé à cause d'une soudure défectueuse et vous attaque en justice. Votre avocate estime que vous devrez probablement payer environ 10${N}000${N}€, le jugement tombera l'an prochain.` },
+      { t: 'choice', id: 'litige', prompt: `Le procès${N}?`, options: [
+        { id: 'provision', label: 'Mettre de côté dans les comptes les 10 000 € probables', desc: 'Une charge probable, au montant estimé, comptée cette année.', fx: { res: -10, fidele: 10, banque: 8 },
+          chain: ch(['Le risque est connu et chiffré : il apparaît dans les comptes', 'L\'an prochain, le jugement ne fera pas de trou dans le résultat'], ['Le résultat baisse de 10 k€']), voix: V({ who: 'expert', text: `C'est exactement le rôle d'une provision.` }) },
+        { id: 'attendre', label: 'Attendre le jugement', desc: 'On verra l\'an prochain.', fx: { fidele: -12, banque: -8 },
+          chain: ch(['Le résultat ne bouge pas'], ['Un risque probable et chiffré est caché à la banque', 'L\'an prochain, 10 000 € tomberont d\'un coup']), voix: V({ who: 'expert', text: `La banque vous demandera s'il y a des litiges en cours. Que répondrez-vous${N}?` }) } ] },
+      { t: 'say', who: 'expert', text: `Dernier point. Le 20 décembre, vous avez payé 6${N}000${N}€ d'assurance pour toute l'année prochaine.` },
+      { t: 'choice', id: 'assurance', prompt: `L'assurance payée d'avance${N}?`, options: [
+        { id: 'cca', label: 'La rattacher à l\'année prochaine, qu\'elle couvre', desc: 'Payée cette année, mais elle concerne l\'an prochain : elle ne pèse pas sur le résultat de cette année.', fx: { fidele: 7, banque: 2 },
+          chain: ch(['Chaque année supporte ses propres charges', 'Le résultat de cette année n\'est ni gonflé ni réduit à tort'], []), voix: V({ who: 'expert', text: `Indépendance des exercices. Parfait.` }) },
+        { id: 'charge', label: 'La compter dans les charges de cette année, puisqu\'elle est payée', desc: '6 000 € de charges en plus cette année.', fx: { res: -6, fidele: -6 },
+          chain: ch(['Plus simple'], ['Cette année supporte une charge qui concerne l\'année suivante', 'Le résultat de cette année est faux, celui de l\'an prochain aussi']), voix: V({ who: 'expert', text: `Payer et consommer, ce n'est pas la même chose.` }) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'La banque', sub: 'Les comptes annuels sur le bureau de M. Duval.', final: true,
+    steps: [
+      { t: 'say', who: 'expert', text: s => `Voici le compte de résultat simplifié de l'année.<span class="pay"><span>Résultat avant les opérations d'inventaire</span><b>${ke(80)}</b>${s.H_lines || ''}<span class="tot">Résultat de l'exercice</span><b class="tot">${ke(s.res)}</b></span>${s.fidele >= 80 && H.duree === '5' ? 'Je peux attester que ces comptes donnent une image fidèle de Cadence.' : s.fidele >= 55 ? 'J\'ai des réserves sur certains choix.' : 'Je refuse de signer ces comptes en l\'état.'}` },
+      { t: 'say', who: 'banque', text: s => {
+          const ok = s.fidele >= 80 && H.duree === '5' && s.res > 0, maq = s.fidele < 55;
+          s.verdict = maq ? 'refus' : ok ? 'oui' : 'prudent';
+          return maq ? `Votre expert-comptable n'a pas voulu signer. Dans ces conditions, je ne peux pas vous prêter un euro. Revenez quand vos comptes seront fiables.` : ok ? `${s.res < 70 ? 'Le résultat est plus modeste que ce que M. Ferrand annonçait, mais ' : ''}vos comptes sont clairs, prudents, et votre expert les a validés. Vous avez anticipé vos risques. Je vous prête les 150${N}000${N}€.` : `Les comptes sont acceptables, avec des réserves. Je vous prête 80${N}000${N}€, pas plus, avec une garantie personnelle de M. Ferrand.`; } }
+    ] }
+  ],
+
+  endings: [
+    { id: 'fisc', when: s => F(s).machine === 'charges', title: 'Redressement fiscal', stamp: 'Contrôle fiscal', color: '#FF5C6A',
+      text: `Deux ans plus tard, un contrôle fiscal. La machine de 60${N}000${N}€ passée en charges est requalifiée${N}: Cadence doit l'impôt économisé, plus des intérêts de retard et une majoration. Les comptes ne sont pas un outil pour payer moins d'impôt${N}: ils doivent dire ce qui s'est passé.` },
+    { id: 'maquille', when: s => s.fidele < 55, title: 'Les comptes arrangés', stamp: 'Prêt refusé', color: '#FF5C6A',
+      text: s => `Tu as obtenu le «${N}beau résultat${N}» que voulait le patron. Mais ${[F(s).H_stock && 'les vélos manquants', F(s).H_creance && 'la créance perdue', F(s).H_litige && 'le procès'].filter(Boolean).join(', ') || 'les risques cachés'} sont toujours là. L'expert-comptable a refusé de signer, la banque a refusé le prêt, et l'an prochain, tout ce qui a été caché tombera d'un coup.` },
+    { id: 'fidele', when: s => s.verdict === 'oui', title: 'Des comptes qui inspirent confiance', stamp: 'Prêt accordé', color: '#4CD97B',
+      text: s => `Le résultat est de ${ke(s.res)}, moins que ce qu'espérait M. Ferrand. Mais chaque chiffre est vrai, chaque risque est compté, et la banque l'a vu. Une entreprise qui montre ses difficultés obtient plus de confiance qu'une entreprise qui les cache.` },
+    { id: 'moyen', when: s => true, title: 'Des comptes à moitié justes', stamp: 'Prêt réduit', color: '#5FB8B0',
+      text: `La banque prête, mais moins et avec des garanties. Certains de tes choix ont arrangé le résultat ou simplifié la réalité. La confiance se gagne chiffre par chiffre.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['si'], title: 'Acte 1 — Le système', text: h => `La comptabilité fait partie du <em>système d\'information comptable</em> (SIC) : l\'ensemble des moyens qui collectent, enregistrent, traitent et restituent l\'information financière de l\'entreprise. ${h.si === 'logiciel' ? 'Avec un <em>progiciel comptable</em> relié à la banque et aux factures électroniques, chaque donnée n\'est saisie qu\'une fois, à la source : c\'est la <em>dématérialisation</em>.' : h.si === 'tableur' ? 'Avec un tableur et une saisie manuelle, les erreurs se multiplient et passent inaperçues.' : 'En externalisant au cabinet, tu as gagné en fiabilité, mais perdu la vision au jour le jour.'} La <em>facturation électronique</em> devient obligatoire en France, par étapes depuis 2026. Chaque opération est enregistrée selon le principe de la <em>partie double</em> : elle modifie toujours au moins deux <em>comptes</em> (la créance sur le client et les ventes, par exemple).`,
+      chain: () => ({ good: ['Pièce justificative', 'Saisie unique', 'Enregistrement en partie double', 'Information fiable'], bad: ['Saisie manuelle', 'Erreurs', 'Comptes faux'] }) },
+    { act: 2, needs: ['machine'], title: 'Acte 2 — La machine', text: h => `Un bien qui sert durablement à l\'entreprise est une <em>immobilisation</em>. On l\'inscrit à son <em>coût d\'acquisition</em> (prix d\'achat et frais nécessaires à sa mise en service, comme l\'installation ; la formation, elle, est une charge). Son usure est constatée chaque année par l\'<em>amortissement</em>, sur sa <em>durée d\'utilisation</em> : ici, 12 800 € par an en <em>amortissement linéaire</em> sur 5 ans. Cette charge annuelle s\'appelle la <em>dotation aux amortissements</em>. ${h.machine === 'immo' ? (h.duree === '5' ? 'Tu as choisi la durée réelle d\'utilisation.' : 'Tu as choisi une durée qui ne correspond pas à l\'usage réel.') : h.machine === 'charges' ? 'Passer un bien durable en charges fausse les comptes et n\'est pas admis fiscalement.' : 'Ne compter aucune usure surévalue le résultat.'}`,
+      chain: () => ({ good: ['Immobilisation', 'Coût d\'acquisition', 'Amortissement sur la durée d\'utilisation'], bad: ['Tout en charges', 'Ou aucune usure', 'Résultat faux'] }) },
+    { act: 3, needs: ['stock', 'creance', 'litige', 'assurance'], title: 'Acte 3 — Le 31 décembre', text: h => `À la <em>clôture de l\'exercice</em>, on fait l\'<em>inventaire</em> : on vérifie que les comptes correspondent à la réalité. Le <em>stock</em> est compté physiquement${h.stock === 'reel' ? ', et c\'est ce chiffre qui compte' : ''}. Une créance qui risque de ne pas être payée est <em>dépréciée</em> (créance douteuse) ; un risque probable et chiffrable fait l\'objet d\'une <em>provision</em> : c\'est le <em>principe de prudence</em>. Une charge payée d\'avance pour l\'année suivante devient une <em>charge constatée d\'avance</em> : c\'est le principe d\'<em>indépendance des exercices</em>. Tous ces principes visent une <em>image fidèle</em> de l\'entreprise.`,
+      chain: () => ({ good: ['Inventaire', 'Prudence', 'Indépendance des exercices', 'Image fidèle'], bad: ['Cacher les pertes', 'Gonfler le résultat', 'Tout tombe l\'an prochain'] }) },
+    { act: 4, needs: ['assurance'], finalOnly: true, title: 'Acte 4 — La banque', text: () => `Les <em>comptes annuels</em> comprennent le <em>bilan</em> (ce que l\'entreprise possède et ce qu\'elle doit, à la date de clôture), le <em>compte de résultat</em> (les produits et les charges de l\'année, dont la différence est le <em>résultat</em>) et l\'<em>annexe</em> (les explications). Ils sont lus par les <em>parties prenantes</em> : banquiers, associés, administration fiscale, fournisseurs. C\'est pourquoi ils doivent être <em>réguliers</em>, <em>sincères</em> et donner une <em>image fidèle</em>.`,
+      chain: () => ({ good: ['Comptes fiables', 'Lus par les partenaires', 'Confiance'], bad: ['Comptes arrangés', 'Méfiance', 'Financement refusé'] }) }
+  ],
+  vocab: ['Système d\'information comptable', 'Progiciel comptable', 'Dématérialisation', 'Facturation électronique', 'Partie double', 'Compte', 'Immobilisation', 'Coût d\'acquisition', 'Amortissement linéaire', 'Dotation aux amortissements', 'Durée d\'utilisation', 'Clôture de l\'exercice', 'Inventaire', 'Stock', 'Dépréciation des créances', 'Provision', 'Principe de prudence', 'Charge constatée d\'avance', 'Indépendance des exercices', 'Image fidèle', 'Bilan', 'Compte de résultat', 'Annexe']
+};
+let H = {};
+
+/* Lignes du compte de résultat, calculées au moment de l'acte 4 */
+GAME.acts[3].steps.unshift({ t: 'event', who: 'narr', do: s => {
+  const L = [];
+  if (F(s).machine === 'immo') L.push(['Usure de la machine' + (H.duree === '3' ? ' (sur 3 ans)' : H.duree === '10' ? ' (sur 10 ans)' : ''), H.duree === '3' ? -21.3 : H.duree === '10' ? -6.4 : -12.8], ['Formation', -2]);
+  if (F(s).machine === 'charges') L.push(['Machine passée en charges', -66]);
+  if (F(s).machine === 'rien') L.push(['Formation', -2]);
+  if (H.stock === 'reel') L.push(['Vélos manquants à l\'inventaire', -5.6]); else F(s).H_stock = true;
+  if (H.creance === 'depreciation') L.push(['Perte probable sur Vélo Planet', -12.6]); else F(s).H_creance = true;
+  if (H.litige === 'provision') L.push(['Provision pour le procès', -10]); else F(s).H_litige = true;
+  if (H.assurance === 'charge') L.push(['Assurance de l\'an prochain', -6]);
+  s.H_lines = L.map(([l, v]) => `<span>${l}</span><b>${sk(v)}</b>`).join('');
+}, text: `Le 10 janvier. Les comptes sont arrêtés.` });
+
+/* =====================================================================
+   2. DÉCOR — l'atelier de vélos et la balance de la fidélité.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const G = '#5FB8B0', f = Math.round(S.fidele), tilt = (f - 60) / 3;
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Les comptes de Cadence">
+    <rect width="360" height="200" fill="#050909"/><rect x="0" y="0" width="360" height="162" fill="#081010"/>
+    <text x="235" y="22" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#8BA8A5">CADENCE · EXERCICE EN COURS</text>
+    <g transform="translate(180,96)"><circle cx="-18" cy="20" r="16" fill="none" stroke="${G}" stroke-width="2"/><circle cx="26" cy="20" r="16" fill="none" stroke="${G}" stroke-width="2"/><path d="M-18,20 L0,0 L26,20 M0,0 L-6,-12 M0,0 L18,0" stroke="${G}" stroke-width="2" fill="none"/></g>
+    <g transform="translate(300,80)"><line x1="0" y1="-30" x2="0" y2="40" stroke="#8BA8A5" stroke-width="2"/><g transform="rotate(${-tilt})"><line x1="-36" y1="-30" x2="36" y2="-30" stroke="${G}" stroke-width="2"/><rect x="-46" y="-30" width="20" height="12" fill="#4CD97B" opacity=".7"/><rect x="26" y="-30" width="20" height="12" fill="#FF5C6A" opacity=".7"/></g><text x="0" y="56" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="${f >= 70 ? '#4CD97B' : f >= 55 ? '#FFC64F' : '#FF5C6A'}">image fidèle ${f}</text></g>
+    <text x="180" y="150" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="12" fill="#EEF3EC">${ke(S.res)}</text>
+    <rect x="0" y="162" width="360" height="38" fill="#060a0a"/><line x1="0" y1="162" x2="360" y2="162" stroke="#173030" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

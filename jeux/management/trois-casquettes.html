@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Trois casquettes — Jeu Management 1re STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#7CFF3D;--eco-dim:#4FA81F;--good:#4CD97B;--bg:#050704;--panel:#0b0f09;--panel2:#0f150c;--line:#1d2a17;--txt:#EEF3EC;--muted:#8B9A80;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(124,255,61,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(124,255,61,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#142010;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(124,255,61,.5);background:rgba(124,255,61,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070a06;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(124,255,61,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#0a1406;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#0a1406;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#121c0e;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#142010;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#0a1406;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#080c06;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#080c06;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#080c06;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#080c06;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(124,255,61,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#080c06;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(124,255,61,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — Trois casquettes (Management 1re STMG, thème 1)
+   Trois organisations d'une même ville, simulées mois par mois (12 mois) :
+     La Fournée (boulangerie, entreprise privée) : ventes − achats − salaires − loyer − énergie
+     La médiathèque (organisation publique) : dépenses de fonctionnement face au budget voté
+     Coup de pouce (association) : bénévoles × 4 enfants chacun face aux demandes des familles
+   Jauges : four (trésorerie de la boulangerie), media (satisfaction des usagers),
+            asso (part des enfants aidés), ville (lien entre les habitants).
+   ===================================================================== */
+const N = ' ';
+const eur = n => (n < 0 ? '−' : '') + Math.abs(Math.round(n)).toLocaleString('fr-FR') + N + '€';
+const sg = n => (n >= 0 ? '+' : '−') + Math.abs(Math.round(n)).toLocaleString('fr-FR') + N + '€';
+const nb = n => Math.round(n).toLocaleString('fr-FR');
+const cl = (n, a, b) => Math.max(a, Math.min(b, n));
+const F = s => s.flags;
+
+/* ---- La Fournée ---- */
+function fournee(s, mo) {
+  const f = F(s);
+  let cli = 300 * ({ seul: .9, special: 1.05, poly: 1.03 })[f.orga || 'seul'];
+  if (f.prixPlus && mo >= 2) cli *= .95;
+  if (f.horairesF && mo >= 2) cli *= .92;
+  if (mo >= 8) cli *= .85;
+  if (f.snack === 'usine' && mo >= 5 && mo < 8) cli *= 1.12;
+  if (f.snack === 'usine' && mo >= 8) cli *= .95;
+  if (f.snack === 'lycee' && mo >= 5) cli *= 1.08;
+  if (f.click && mo >= 8) cli *= 1.06;
+  const ticket = 4.2 + (f.prixPlus && mo >= 2 ? .25 : 0);
+  const ca = 26 * cli * ticket, achats = ca * .3;
+  const energie = mo < 2 ? 1400 : f.four ? 2300 : f.contrat ? 3000 : f.horairesF ? 2900 : 3500;
+  const autres = 14000 + 1800 + 2000 + (f.four && mo >= 2 ? 450 : 0) + (f.snack && mo >= 5 ? 900 : 0) + (f.click && mo >= 8 ? 150 : 0);
+  const don = f.invendus && mo >= 8 ? 300 : 0;
+  return { cli, ca, achats, energie, autres, don, res: ca - achats - energie - autres + don };
+}
+/* ---- La médiathèque ---- */
+const BUDGET_M = 5000; // budget de fonctionnement voté : 60 000 € par an
+function media(s, mo) {
+  const f = F(s);
+  let dep = 3000 + (mo < 2 ? 1500 : f.horairesM ? 2400 : 3750) + (f.lieuChaud && mo >= 2 && mo <= 4 ? 500 : 0) + (f.jeunes === 'numerique' && mo >= 5 ? 400 : 0) + (f.jeunes === 'soir' && mo >= 5 ? 700 : 0) + 0;
+  const budget = BUDGET_M + (f.rallonge && mo >= 3 ? (f.lieuChaud ? 2000 : 1500) : 0);
+  return { dep, budget, ecart: budget - dep };
+}
+/* ---- Coup de pouce ---- */
+function asso(s, mo) {
+  const f = F(s);
+  const dem = mo >= 8 ? 130 : 80, cap = s.benevoles * 4, aides = Math.min(dem, cap);
+  let rec = 100 + (f.don ? 250 : 0) + (f.subv && mo >= 6 ? 4000 / 7 : 0) + (f.cotisPlus && mo >= 2 ? 60 : 0) + (f.mecenat && mo >= 8 ? 300 : 0);
+  const dep = 350 + (mo < 2 ? 150 : 380) + (f.formation && mo >= 5 ? 100 : 0);
+  return { dem, cap, aides, rec, dep, res: rec - dep, taux: aides / dem * 100 };
+}
+function periode(s, n) {
+  const ms = [];
+  for (let i = 1; i <= n; i++) { const mo = s.mois + i; ms.push({ mo, b: fournee(s, mo), m: media(s, mo), a: asso(s, mo) }); }
+  const sum = g => ms.reduce((x, m) => x + g(m), 0);
+  return { ms, n, resB: sum(m => m.b.res), ecartM: sum(m => m.m.ecart), resA: sum(m => m.a.res), L: ms[n - 1] };
+}
+function fxPer(s) {
+  const R = s.rep, f = F(s), L = R.L;
+  let dM = 0; R.ms.forEach(m => { dM += (f.horairesM && m.mo >= 2 ? -3 : 0) + (f.lieuChaud && m.mo >= 2 && m.mo <= 4 ? 2 : 0) + (f.jeunes && f.jeunes !== 'rien' && m.mo >= 5 ? 2 : 0) + (f.emploi && m.mo >= 8 ? 2 : 0) + (m.mo >= 8 && !f.emploi ? -1 : 0); });
+  return { four: Math.round(R.resB), media: dM, asso: Math.round(L.a.taux) - s.asso };
+}
+function commit(s) {
+  const R = s.rep; s.mois += R.n; s.tresoM += R.ecartM; s.tresoA += R.resA;
+  s.hist.push({ m: s.mois, b: Math.round(R.resB), m2: Math.round(s.tresoM), a: Math.round(s.tresoA) });
+}
+function tableau(s, titre) {
+  const R = s.rep, L = R.L, row = (l, v, c) => `<span${c ? ' class="tot"' : ''}>${l}</span><b${c ? ' class="tot"' : ''}>${v}</b>`;
+  const avg = g => R.ms.reduce((x, m) => x + g(m), 0) / R.n;
+  return `<b>${titre}</b><span class="pay">${row('<b>La Fournée</b>', '')}${row('Clients par jour', nb(avg(m => m.b.cli)))}${row('Ventes du mois', eur(avg(m => m.b.ca)))}${row('Achats, salaires, loyer, énergie', '−' + eur(avg(m => m.b.achats + m.b.energie + m.b.autres)))}${row(`Bénéfice sur ${R.n} mois`, sg(R.resB), 1)}
+    ${row('<b>La médiathèque</b>', '')}${row('Dépenses par mois', eur(avg(m => m.m.dep)))}${row('Budget voté par mois', eur(avg(m => m.m.budget)))}${row(s.tresoM + R.ecartM >= 0 ? 'Reste du budget annuel' : 'Dépassement du budget annuel', eur(Math.abs(s.tresoM + R.ecartM)), 1)}
+    ${row('<b>Coup de pouce</b>', '')}${row('Bénévoles', nb(s.benevoles))}${row('Enfants aidés / familles qui demandent', `${nb(L.a.aides)} / ${nb(L.a.dem)}`)}${row('Caisse de l\'association', eur(s.tresoA + R.resA), 1)}</span>`;
+}
+const ch = (good, bad) => ({ good, bad });
+
+const GAME = {
+  title: 'Trois casquettes',
+  brand: 'TROIS <span>CASQUETTES</span>',
+  storeKey: 'troisCasquettesFins',
+  backLink: '../../matieres/management-1ere.html',
+  footer: 'Management 1re STMG, thème 1',
+  kicker: 'Management · 1re STMG · Thème 1',
+  debIntro: 'Tu as dirigé trois organisations très différentes. Voici comment on appelle ce que tu as fait, en management.',
+  cutText: 'Ta partie s\'est arrêtée avant la fin de l\'année. Rejoue pour aller jusqu\'au bilan.',
+  pitch: `À Vernay, 15${N}000 habitants, tu vas vivre une année avec trois casquettes. Gérant de La Fournée, la boulangerie de la place. Directeur de la médiathèque municipale. Président de Coup de pouce, l'association d'aide aux devoirs. Les mêmes tempêtes vont frapper les trois. Elles n'y répondront pas de la même façon.`,
+  meta: '4 actes · 25 minutes',
+  start: s => Object.assign(s, { four: 15000, media: 65, asso: 100, ville: 55, mois: 0, hist: [], tresoM: 0, tresoA: 6000, benevoles: 22 }),
+  hud: [
+    { k: 'four',  label: 'Caisse de La Fournée', short: 'Boulangerie', show: s => (s.four / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + N + 'k€', pct: s => s.four / 400, low: s => s.four < 3000, unit: N + '€' },
+    { k: 'media', label: 'Satisfaction des usagers', short: 'Médiathèque', show: s => Math.round(s.media), pct: s => s.media, low: s => s.media < 45, clamp: true },
+    { k: 'asso',  label: 'Enfants aidés', short: 'Association', show: s => Math.round(s.asso) + N + '%', pct: s => s.asso, low: s => s.asso < 70, unit: N + 'pts' },
+    { k: 'ville', label: 'Lien entre les habitants', short: 'Ville', show: s => Math.round(s.ville), pct: s => s.ville, low: s => s.ville < 40, clamp: true }
+  ],
+  fail: s => s.four < -15000 ? 'faillite' : null,
+  lock: () => null,
+  bilan: s => [['Caisse de La Fournée', eur(s.four)], ['Budget de la médiathèque', s.tresoM >= 0 ? 'respecté' : 'dépassé de ' + eur(-s.tresoM)], ['Enfants aidés', Math.round(s.asso) + N + '%'], ['Lien entre les habitants', Math.round(s.ville) + ' / 100']],
+
+  characters: {
+    ines:   { name: 'Inès', role: 'vendeuse à La Fournée', color: '#FF8AD1', body: '#B8508F', hair: '#3a2418', acc: 'bun' },
+    hugo:   { name: 'Hugo', role: 'boulanger à La Fournée', color: '#FFC64F', body: '#d9d9d9', hair: '#1c1c22', acc: 'cap' },
+    elu:    { name: 'M. Perrin', role: 'adjoint au maire chargé de la culture', color: '#5B8FFF', body: '#2b3a5a', hair: '#8a8f96', acc: 'tie' },
+    agent:  { name: 'Sophie', role: 'bibliothécaire', color: '#5BC8FF', body: '#2b5a7a', hair: '#c9a24a', acc: 'clip' },
+    benev:  { name: 'Mme Diop', role: 'bénévole à Coup de pouce depuis 8 ans', color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'bun' },
+    parent: { name: 'M. Leroy', role: 'père de deux enfants', color: '#FF9D3D', body: '#B86A1F', hair: '#3a2418', acc: 'box' },
+    narr:   { name: 'Toi', role: '', color: '#7CFF3D' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Trois maisons', sub: 'Une boulangerie, une médiathèque, une association. Trois façons d\'agir ensemble.',
+    steps: [
+      { t: 'say', who: 'narr', text: `<span class="pay"><span><b>La Fournée</b></span><b>boulangerie</b><span>Pourquoi elle existe</span><b>vendre du pain et gagner de l'argent</b><span>D'où vient l'argent</span><b>ses ventes</b><span>Qui décide</span><b>toi, le propriétaire</b><span>Équipe</span><b>4 salariés</b></span>` },
+      { t: 'say', who: 'narr', text: `<span class="pay"><span><b>La médiathèque</b></span><b>service de la mairie</b><span>Pourquoi elle existe</span><b>donner accès à la culture à tous</b><span>D'où vient l'argent</span><b>les impôts, via la mairie</b><span>Qui décide</span><b>le conseil municipal, élu</b><span>Équipe</span><b>6 agents de la ville</b></span>` },
+      { t: 'say', who: 'narr', text: `<span class="pay"><span><b>Coup de pouce</b></span><b>association loi 1901</b><span>Pourquoi elle existe</span><b>aider les enfants à faire leurs devoirs</b><span>D'où vient l'argent</span><b>cotisations, dons, subventions</b><span>Qui décide</span><b>les adhérents, en assemblée générale</b><span>Équipe</span><b>22 bénévoles, aucun salarié</b></span>` },
+      { t: 'say', who: 'hugo', text: `Patron, il faut qu'on s'organise. On est cinq, et chaque matin c'est la pagaille${N}: deux personnes pétrissent, personne n'ouvre la boutique à 6${N}h${N}30, et à midi la file déborde sur le trottoir.` },
+      { t: 'choice', id: 'orga', prompt: `Comment organiser La Fournée${N}?`, options: [
+        { id: 'seul', label: 'Tout superviser toi-même, au fil de la journée', desc: 'Tu dis à chacun quoi faire, quand ça se présente.', set: { orga: 'seul' },
+          chain: ch(['Tu gardes le contrôle de tout'], ['Personne ne sait à l\'avance ce qu\'il doit faire', 'Tu passes ta journée à répondre aux questions', 'La file s\'allonge à midi, des clients partent']),
+          voix: [{ who: 'hugo', text: `On t'attend pour tout. Et quand tu es au fournil, la boutique est seule.` }, { who: 'ines', text: `Ce midi, huit clients sont partis sans rien acheter.` }] },
+        { id: 'special', label: 'Répartir les rôles et faire un planning', desc: 'Hugo et l\'apprenti au fournil dès 4 h, Inès et Lina en boutique, toi aux commandes et aux comptes.', set: { orga: 'special' },
+          chain: ch(['Chacun sait ce qu\'il doit faire, et quand', 'Le travail est divisé selon les compétences', 'Le planning coordonne les tâches', 'La file avance, plus de clients servis'], ['Si quelqu\'un est absent, son poste est découvert']),
+          voix: [{ who: 'hugo', text: `Enfin, chacun son poste. Le pain sort à l'heure.` }, { who: 'ines', text: `À midi on est deux au comptoir, ça change tout.` }] },
+        { id: 'poly', label: 'Que tout le monde sache tout faire, et se répartir chaque matin', desc: 'Une réunion de 5 minutes à l\'ouverture.', set: { orga: 'poly' },
+          chain: ch(['Chacun peut remplacer l\'autre', 'Une réunion rapide coordonne la journée'], ['Moins de spécialisation : un peu moins efficace', 'Il faut du temps pour former tout le monde']),
+          voix: [{ who: 'hugo', text: `Inès fait une baguette correcte maintenant. Pas comme moi, mais correcte.` }, { who: 'ines', text: `Le matin, on se répartit en deux minutes.` }] } ] },
+      { t: 'event', who: 'narr', do: s => { s.rep = periode(s, 1); }, text: s => tableau(s, 'Le premier mois.'), fx: fxPer },
+      { t: 'event', who: 'narr', do: commit, text: `Un mois. Chaque maison a trouvé son rythme. Jusqu'à la lettre du fournisseur d'électricité.` }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'La facture', sub: 'La même facture d\'énergie arrive dans les trois maisons. Chacune a ses propres marges de manœuvre.',
+    steps: [
+      { t: 'say', who: 'narr', text: `Le prix de l'électricité est multiplié par 2,5. À La Fournée, le four tourne seize heures par jour${N}: la facture passe de 1${N}400 à 3${N}500${N}€ par mois. À la médiathèque, de 1${N}500 à 3${N}750${N}€. À Coup de pouce, qui paie une part du local, de 150 à 380${N}€.` },
+      { t: 'choice', id: 'energieF', prompt: `La Fournée${N}: que fais-tu${N}?`, options: [
+        { id: 'prix', label: 'Augmenter les prix de 25 centimes en moyenne', desc: 'Tu décides seul, dès lundi.', set: { prixPlus: true },
+          chain: ch(['Tu es libre de fixer tes prix', 'Ta recette par client augmente'], ['Quelques clients vont voir ailleurs']),
+          voix: [{ who: 'ines', text: `Deux clients ont râlé. Les autres ont compris.` }, { nom: 'Une cliente', text: `25 centimes de plus… Bon, c'est partout pareil.` }] },
+        { id: 'four', label: 'Emprunter pour un four qui consomme moins', desc: 'Prêt de 20 000 € sur 4 ans : 450 € par mois. La facture tombe à 2 300 €.', set: { four: true },
+          chain: ch(['La facture baisse durablement', 'Les prix restent les mêmes pour les clients'], ['Un emprunt à rembourser pendant 4 ans']),
+          voix: [{ who: 'hugo', text: `Il cuit mieux, en plus.` }, { nom: 'Le banquier', text: `Un investissement qui se rembourse par les économies. Je signe.` }] },
+        { id: 'horaires', label: 'Allumer le four moins longtemps, moins de variétés', desc: 'La facture tombe à 2 900 €. Moins de choix en vitrine.', set: { horairesF: true },
+          chain: ch(['Une économie immédiate'], ['Moins de choix pour les clients', 'Certains vont à la boulangerie concurrente']),
+          voix: [{ who: 'hugo', text: `Plus de pain aux céréales l'après-midi. Ça ne plaît pas.` }, { nom: 'Une cliente', text: `Il n'y a plus jamais de pain de seigle${N}?` }] },
+        { id: 'contrat', label: 'Renégocier le contrat d\'électricité', desc: 'Une demi-journée de démarches. La facture passe à 3 000 €.', set: { contrat: true },
+          chain: ch(['Une économie sans rien changer pour les clients'], ['Une économie limitée']),
+          voix: [{ who: 'hugo', text: `C'est déjà ça.` }, { nom: 'Le fournisseur', text: `Tarif professionnel négocié, c'est fait.` }] } ] },
+      { t: 'say', who: 'agent', text: `À la médiathèque, avec cette facture, on dépasse notre budget de 2${N}250${N}€ par mois. Le budget, c'est le conseil municipal qui l'a voté. On ne peut pas le dépasser sans son accord.` },
+      { t: 'choice', id: 'energieM', prompt: `La médiathèque${N}: que fais-tu${N}?`, options: [
+        { id: 'tarif', label: 'Faire payer l\'abonnement 15 € par an (il est gratuit)', desc: 'Tu le proposes à M. Perrin, l\'adjoint au maire.', do: s => { s.flags.tarifRefuse = true; s.flags.rallonge = true; }, fx: { media: -3 },
+          chain: ch(['Une nouvelle recette'], ['Ce n\'est pas toi qui décides : c\'est le conseil municipal', 'Les élus refusent : la gratuité garantit l\'accès de tous', 'Ils accordent une petite rallonge… et te demandent de mieux préparer tes propositions']),
+          voix: [{ who: 'elu', text: `Faire payer les familles modestes pour lire${N}? Pas sous ce mandat. Je vous accorde 1${N}500${N}€ par mois de plus, cette fois.` }, { who: 'agent', text: `On s'en doutait un peu.` }] },
+        { id: 'horaires', label: 'Fermer le lundi et le jeudi matin', desc: 'Moins de chauffage et d\'éclairage : la dépense baisse de 1 350 € par mois.', set: { horairesM: true },
+          chain: ch(['Le budget est respecté'], ['Moins de service pour les habitants', 'Les scolaires du jeudi n\'ont plus de créneau', 'Les usagers sont mécontents']),
+          voix: [{ who: 'agent', text: `Les instituteurs du jeudi sont furieux.` }, { nom: 'Un usager', text: `Fermé${N}? Encore${N}?` }] },
+        { id: 'lieuchaud', label: 'Demander une rallonge, en faisant de la médiathèque un « lieu chaud » cet hiver', desc: 'Ouvrir plus largement aux personnes seules ou mal chauffées. Un dossier chiffré présenté au conseil municipal.', set: { lieuChaud: true, rallonge: true }, fx: { ville: 6, media: 3 },
+          chain: ch(['Tu proposes un projet d\'intérêt général, chiffré', 'Le conseil municipal vote 2 000 € par mois de plus', 'Les plus fragiles ont un endroit chaud et accueillant'], ['Un peu plus de dépenses pendant l\'hiver']),
+          voix: [{ who: 'elu', text: `Voilà un dossier que je peux défendre en conseil. Voté à l'unanimité.` }, { nom: 'Mme Garnier, 82 ans', text: `Je viens tous les après-midi. Il fait bon, et on discute.` }] } ] },
+      { t: 'say', who: 'benev', text: `À Coup de pouce, notre caisse ne tiendra pas l'année avec 380${N}€ de chauffage par mois. On n'a pas de clients, nous. On a des familles.` },
+      { t: 'choice', id: 'energieA', prompt: `Coup de pouce${N}: que fais-tu${N}?`, options: [
+        { id: 'cotis', label: 'Passer la cotisation de 10 à 25 € par an', desc: 'Décision à voter en assemblée générale.', set: { cotisPlus: true }, do: s => { s.benevoles = s.benevoles; s.flags.familles = true; }, fx: { ville: -3 },
+          chain: ch(['Un peu plus d\'argent dans la caisse'], ['Les familles les plus modestes hésitent à revenir', 'C\'est justement elles que l\'association veut aider', 'Le vote en assemblée est tendu']),
+          voix: [{ who: 'benev', text: `En assemblée, une maman a dit qu'elle ne pourrait plus venir. On a voté quand même.` }, { who: 'parent', text: `25${N}€ par enfant, pour moi c'est 50${N}€. C'est beaucoup.` }] },
+        { id: 'don', label: 'Lancer un appel aux dons auprès des habitants et des commerçants', desc: 'Affiches, réseaux, un stand au marché. Les dons sont en partie déductibles des impôts.', set: { don: true }, fx: { ville: 4 },
+          chain: ch(['Les habitants participent', 'Environ 250 € de dons par mois', 'L\'association se fait mieux connaître'], ['Du temps de bénévoles pour l\'organiser']),
+          voix: [{ who: 'benev', text: `Même le kiosquier a donné 20${N}€.` }, { who: 'parent', text: `J'ai mis 5${N}€. C'est tout ce que je peux, mais je voulais aider.` }] },
+        { id: 'subv', label: 'Demander une subvention à la mairie', desc: 'Un dossier à monter, une décision dans 4 mois : 4 000 €.', set: { subv: true },
+          chain: ch(['4 000 € si le dossier est accepté', 'La mairie soutient une action d\'intérêt général'], ['Il faut tenir 4 mois en attendant', 'Il faudra rendre des comptes sur l\'usage de l\'argent']),
+          voix: [{ who: 'benev', text: `Douze pages de formulaire. Mais c'est envoyé.` }, { who: 'elu', text: `Votre dossier est solide. Il passera au conseil de juin.` }] } ] },
+      { t: 'event', who: 'narr', do: s => { s.rep = periode(s, 3); }, text: s => tableau(s, 'Mois 2 à 4.'), fx: fxPer },
+      { t: 'event', who: 'narr', do: commit, text: `Quatre mois. L'hiver est passé.` }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Diriger', sub: 'Dans chaque maison, il faut fixer un cap, décider et faire avancer les autres.',
+    steps: [
+      { t: 'say', who: 'ines', text: `Une idée pour La Fournée${N}: un comptoir de sandwichs le midi. Il nous faut une vitrine réfrigérée, 8${N}000${N}€, et 900${N}€ par mois de frais. Mais pour qui${N}? Les 300 ouvriers de l'usine Mécatec, à 200 mètres, ou les 800 élèves du lycée, à 500 mètres${N}?` },
+      { t: 'choice', id: 'snack', prompt: `Le comptoir du midi${N}?`, options: [
+        { id: 'usine', label: 'Pour les ouvriers de l\'usine', desc: 'Juste à côté, gros appétits, pause de 45 minutes.', fx: { four: -8000 }, set: { snack: 'usine' },
+          chain: ch(['Une clientèle toute proche', '+12 % de clients dès le mois suivant'], ['Toute ta nouvelle activité dépend d\'une seule usine']),
+          voix: [{ who: 'ines', text: `À midi, c'est plein de bleus de travail. Super ambiance.` }, { who: 'hugo', text: `Il paraît que Mécatec a perdu un gros client. Espérons que ça tienne.` }] },
+        { id: 'lycee', label: 'Pour les lycéens', desc: 'Un peu plus loin, petits budgets, mais 800 élèves tous les jours de l\'année.', fx: { four: -8000 }, set: { snack: 'lycee', snackLycee: true },
+          chain: ch(['Une clientèle nombreuse et régulière', '+8 % de clients', 'Qui ne dépend pas d\'une seule entreprise'], ['Des petits budgets, une formule à 5 €']),
+          voix: [{ who: 'ines', text: `La formule à 5${N}€ cartonne. Ils viennent en bande.` }, { who: 'hugo', text: `Le lycée, il sera encore là dans dix ans.` }] },
+        { id: 'non', label: 'Ne pas se lancer', desc: 'Tu gardes ta trésorerie.',
+          chain: ch(['Aucun risque'], ['Aucune nouvelle recette']), voix: [{ who: 'ines', text: `Dommage, j'y croyais.` }] } ] },
+      { t: 'say', who: 'elu', text: `Pour la médiathèque, le conseil municipal a fixé un objectif${N}: 20${N}% de jeunes inscrits en plus d'ici l'été. C'est à vous de trouver comment.` },
+      { t: 'choice', id: 'jeunes', prompt: `Attirer les jeunes${N}?`, options: [
+        { id: 'numerique', label: 'Un espace jeux vidéo et ateliers numériques', desc: '400 € par mois de matériel et d\'animation.', set: { jeunes: 'numerique' }, fx: { media: 6 },
+          chain: ch(['Les ados viennent pour jouer, restent pour le reste', 'Les ateliers numériques servent aussi aux adultes'], ['400 € par mois sur un budget déjà serré']),
+          voix: [{ who: 'agent', text: `Le mercredi, on a 40 ados. Il y a un an, on en avait 4.` }, { who: 'elu', text: `Objectif atteint en trois mois. Bravo.` }] },
+        { id: 'soir', label: 'Ouvrir jusqu\'à 21 h deux soirs par semaine', desc: 'Heures supplémentaires des agents : 700 € par mois.', set: { jeunes: 'soir' }, fx: { media: 3 },
+          chain: ch(['Les lycéens peuvent réviser après les cours'], ['700 € par mois', 'Les agents finissent tard']),
+          voix: [{ who: 'agent', text: `Les soirs de révision, c'est plein. Les autres soirs, un peu moins.` }, { who: 'elu', text: `Les chiffres progressent.` }] },
+        { id: 'rien', label: 'Ne rien changer', desc: 'Le budget est déjà serré.', set: { jeunes: 'rien' }, fx: { media: -4 },
+          chain: ch(['Aucune dépense'], ['L\'objectif fixé par les élus n\'est pas atteint', 'Il faudra s\'en expliquer en conseil']),
+          voix: [{ who: 'elu', text: `Les élus attendaient un plan. Ils n'en ont pas eu.` }] } ] },
+      { t: 'say', who: 'benev', text: `À Coup de pouce, on s'épuise. Quatre bénévoles ont arrêté cet hiver. Ils ne sont pas payés, eux${N}: s'ils ne se sentent pas utiles et reconnus, ils partent.` },
+      { t: 'choice', id: 'benevoles', prompt: `Garder les bénévoles${N}?`, options: [
+        { id: 'formation', label: 'Une formation et une soirée de remerciement', desc: 'Formation à l\'aide aux devoirs avec une enseignante, attestation de bénévolat, soirée annuelle. 100 € par mois.', set: { formation: true }, do: s => { s.benevoles = 25; },
+          chain: ch(['Les bénévoles se sentent compétents et reconnus', 'Personne d\'autre ne part', 'Les anciens recrutent leurs amis : 25 bénévoles'], ['100 € par mois pris sur la caisse']),
+          voix: [{ who: 'benev', text: `L'attestation, mon petit-fils l'a mise dans son CV pour Parcoursup.` }, { who: 'parent', text: `Ma fille adore Mme Diop.` }] },
+        { id: 'etudiants', label: 'Recruter des étudiants bénévoles à l\'université voisine', desc: 'Un stand à la fac, une affiche.', set: { etudiants: true }, do: s => { s.benevoles = 28; },
+          chain: ch(['Six étudiants arrivent : 28 bénévoles', 'Des bénévoles jeunes et proches des élèves'], ['Ils partent l\'été, et ne reviendront pas tous', 'Les anciens, eux, sont toujours aussi fatigués']),
+          voix: [{ who: 'benev', text: `Les étudiants sont super. On verra en septembre.` }] },
+        { id: 'rien', label: 'Faire avec moins de monde', desc: '', do: s => { s.benevoles = 18; },
+          chain: ch(['Aucun effort'], ['18 bénévoles pour 80 enfants', 'Certaines familles restent sur liste d\'attente']),
+          voix: [{ who: 'benev', text: `On a dû refuser trois enfants cette semaine.` }, { who: 'parent', text: `On est sur liste d'attente. Mon fils redouble peut-être.` }] } ] },
+      { t: 'event', who: 'narr', do: s => { if (s.flags.familles) s.benevoles -= 0; s.rep = periode(s, 3); }, text: s => tableau(s, 'Mois 5 à 7.'), fx: fxPer },
+      { t: 'event', who: 'narr', do: commit, text: `Sept mois. Et une rumeur parcourt la ville.` }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'La fermeture', sub: 'L\'usine ferme. 300 emplois. Toute la ville change, et tes trois maisons avec elle.',
+    steps: [
+      { t: 'event', who: 'narr', do: s => { if (F(s).etudiants) s.benevoles -= 6; }, text: s => `Mécatec ferme. 300 personnes perdent leur emploi. ${F(s).etudiants ? 'L\'été est passé : la moitié des étudiants bénévoles ne sont pas revenus. ' : ''}${F(s).snack === 'usine' ? 'Ton comptoir du midi perd tous ses clients d\'un coup. ' : ''}À La Fournée, les clients achètent moins. À la médiathèque, des dizaines de personnes viennent chercher un ordinateur pour écrire leur CV. À Coup de pouce, les demandes passent de 80 à 130 enfants${N}: les parents n'ont plus les moyens des cours particuliers.` },
+      { t: 'choice', id: 'fournee', prompt: `La Fournée face à la crise${N}?`, options: [
+        { id: 'click', label: 'Commande en ligne et retrait sans attendre', desc: 'Un service simple pour garder les clients pressés. 150 € par mois.', set: { click: true },
+          chain: ch(['Tu t\'adaptes à de nouvelles habitudes', '+6 % de clients'], ['Un abonnement de plus']),
+          voix: [{ who: 'ines', text: `Les commandes du samedi matin, c'est devenu la moitié du chiffre.` }] },
+        { id: 'licencier', label: 'Réduire l\'équipe : ne pas renouveler le contrat de Lina', desc: '2 300 € de salaire en moins par mois.', do: s => { s.flags.lina = true; }, fx: { ville: -3 },
+          chain: ch(['Des charges en moins'], ['Une personne de plus au chômage dans une ville qui en compte déjà 300', 'La file du midi s\'allonge']),
+          voix: [{ who: 'ines', text: `Lina pleurait en partant.` }, { who: 'hugo', text: `On est trois maintenant. Ça va être dur.` }] },
+        { id: 'rien', label: 'Tenir sans rien changer', desc: '',
+          chain: ch(['Aucun coût'], ['Les ventes baissent avec la ville']), voix: [{ who: 'hugo', text: `On fait le dos rond.` }] } ] },
+      { t: 'say', who: 'agent', text: `Une idée me trotte dans la tête. Et si nos trois maisons travaillaient ensemble${N}? La Fournée jette des invendus chaque soir. Coup de pouce cherche des goûters et une salle plus grande. Nous, on a des salles vides le soir, et des chômeurs qui ont besoin d'aide pour leur CV.` },
+      { t: 'choice', id: 'coop', prompt: `Faire coopérer tes trois maisons${N}?`, options: [
+        { id: 'oui', label: 'Oui : un partenariat entre les trois', desc: 'La Fournée donne ses invendus pour les goûters (le don ouvre droit à une réduction d\'impôt). Coup de pouce s\'installe à la médiathèque le soir. La médiathèque ouvre un atelier « emploi » avec les bénévoles, financé par France Travail.', set: { invendus: true, emploi: true, coop: true }, do: s => { s.benevoles += 6; }, fx: { ville: 15, media: 6 },
+          chain: ch(['Chaque maison apporte ce qu\'elle a en trop', 'Les invendus deviennent des goûters, plutôt que des déchets', 'Coup de pouce gagne une salle et des bénévoles (des chômeurs qui veulent aider)', 'La médiathèque devient le cœur de la ville'], ['Il faut coordonner trois organisations aux règles différentes', 'La convention doit être votée en conseil municipal']),
+          voix: [{ who: 'benev', text: `Six anciens de Mécatec sont devenus bénévoles. L'un d'eux était ingénieur, il fait des maths avec les collégiens.` }, { who: 'elu', text: `Une boulangerie, une association et un service public main dans la main. Le préfet veut venir voir.` }, { who: 'parent', text: `Mon fils fait ses devoirs à la médiathèque, avec un goûter. Moi, j'ai refait mon CV dans la salle d'à côté.` }] },
+        { id: 'non', label: 'Non : chacun gère sa crise', desc: 'Trois organisations, trois logiques, trop compliqué.',
+          chain: ch(['Chacun garde son indépendance'], ['Les invendus partent à la poubelle', 'Coup de pouce reste à l\'étroit, avec trop d\'enfants pour ses bénévoles', 'La médiathèque gère seule l\'afflux de chômeurs']),
+          voix: [{ who: 'benev', text: `On a refusé 40 enfants.` }, { who: 'agent', text: `Dommage. On avait tout pour s'entraider.` }] } ] },
+      { t: 'event', who: 'narr', do: s => { s.rep = periode(s, 5); }, text: s => tableau(s, 'Mois 8 à 12.'), fx: s => { const f = fxPer(s); if (F(s).lina) f.four += 5 * 2300; if (F(s).subv) { } return f; } },
+      { t: 'event', who: 'narr', do: commit, text: `Un an.` }
+    ] },
+
+  /* ------------------------------ ACTE 5 ------------------------------ */
+  { num: 5, title: 'Le bilan', sub: 'Trois maisons, trois façons de juger une année réussie.', final: true,
+    steps: [
+      { t: 'say', who: 'narr', text: s => `<span class="pay"><span><b>La Fournée</b></span><b></b><span>Caisse en fin d'année</span><b>${eur(s.four)}</b><span>Ce qui compte pour elle</span><b>son bénéfice</b><span><b>La médiathèque</b></span><b></b><span>Budget</span><b>${s.tresoM >= 0 ? 'respecté' : 'dépassé de ' + eur(-s.tresoM)}</b><span>Satisfaction des usagers</span><b>${Math.round(s.media)} / 100</b><span>Ce qui compte pour elle</span><b>servir tous les habitants</b><span><b>Coup de pouce</b></span><b></b><span>Enfants aidés</span><b>${Math.round(s.asso)}${N}% des demandes</b><span>Caisse</span><b>${eur(s.tresoA)}</b><span>Ce qui compte pour elle</span><b>sa mission</b></span>Trois organisations, trois façons de mesurer la réussite. Aucune n'a «${N}gagné${N}» de la même manière.` }
+    ] }
+  ],
+
+  endings: [
+    { id: 'faillite', when: s => s.four < -15000, cut: true, title: 'La Fournée ferme', stamp: 'Cessation de paiements', color: '#FF5C6A',
+      text: `La boulangerie n'a plus de quoi payer ses fournisseurs. Une entreprise privée vit de ses ventes${N}: quand elles ne couvrent plus les charges, personne ne vient combler le trou.` },
+    { id: 'depasse', when: s => s.tresoM < -9000, title: 'Budget dépassé', stamp: 'Rappel à l\'ordre', color: '#FFC64F',
+      text: s => `La médiathèque a dépensé ${eur(-s.tresoM)} de plus que le budget voté. M. Perrin te convoque${N}: «${N}Dans un service public, l'argent est celui des contribuables. On ne dépense que ce que le conseil a décidé.${N}»` },
+    { id: 'listeattente', when: s => s.asso < 75, title: 'La liste d\'attente', stamp: 'Mission inachevée', color: '#FFC64F',
+      text: s => `Coup de pouce n'aide que ${Math.round(s.asso)}${N}% des enfants qui en ont besoin. Sans salariés et sans clients, une association ne tient que par ses bénévoles et ses soutiens${N}: ${F(s).coop ? 'même avec l\'aide des autres maisons, il en manquait.' : 'seule, elle n\'a pas pu faire face à la crise.'}` },
+    { id: 'reussite', when: s => s.four >= 38000 && s.tresoM >= -5000 && s.asso >= 90 && s.media >= 65 && s.ville >= 65, title: 'Trois casquettes, une ville', stamp: 'Année réussie', color: '#4CD97B',
+      text: `Ta boulangerie est rentable, ta médiathèque a servi tout le monde sans dépasser son budget, ton association a aidé presque tous les enfants. Et en les faisant travailler ensemble, tu as montré que des organisations aux buts différents peuvent se compléter.` },
+    { id: 'chacun', when: s => !F(s).coop, title: 'Chacun pour soi', stamp: 'Occasion manquée', color: '#7C6FFF',
+      text: `Chaque maison a géré sa crise dans son coin. Elles avaient pourtant chacune ce qui manquait aux autres${N}: des invendus, des salles vides, des bras.` },
+    { id: 'moyen', when: s => true, title: 'Une année tenue', stamp: 'À consolider', color: '#7C6FFF',
+      text: s => `Tes trois maisons ont passé l'année. Mais l'une d'elles a souffert${N}: ${s.four < 15000 ? 'la boulangerie a fini l\'année plus pauvre qu\'au début' : s.four < 38000 ? 'la boulangerie a fait de mauvais paris et gagné moins qu\'elle aurait pu' : s.tresoM < -5000 ? 'la médiathèque a trop dépassé son budget' : s.media < 65 ? 'les usagers de la médiathèque sont déçus' : s.asso < 90 ? 'l\'association n\'aide pas tous les enfants' : 'le lien entre les habitants reste fragile'}.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['orga'], title: 'Acte 1 — Trois maisons', text: h => `Dès que plusieurs personnes poursuivent un but commun, il faut organiser l\'<em>action collective</em> : <em>répartir le travail</em> (qui fait quoi) et <em>coordonner</em> (comment les tâches s\'enchaînent). ${h.orga === 'special' ? 'En confiant à chacun un rôle et en faisant un planning, tu as divisé le travail selon les compétences.' : h.orga === 'poly' ? 'En misant sur la polyvalence et une réunion quotidienne, tu as coordonné par l\'échange direct.' : 'Sans répartition claire, tout passait par toi : c\'est la coordination qui manquait.'} Une <em>organisation</em> est un groupe structuré qui poursuit un but. On en distingue trois grandes familles : l\'<em>entreprise privée</em> (La Fournée), dont la <em>finalité</em> est <em>lucrative</em> ; l\'<em>organisation publique</em> (la médiathèque), qui poursuit l\'<em>intérêt général</em> ; l\'<em>organisation de la société civile</em> (Coup de pouce, une <em>association</em>), à but <em>non lucratif</em>.`,
+      chain: () => ({ good: ['Répartir les tâches', 'Coordonner', 'Action collective efficace'], bad: ['Personne ne sait qui fait quoi', 'Tout passe par un seul', 'Clients perdus'] }) },
+    { act: 2, needs: ['energieF', 'energieM', 'energieA'], title: 'Acte 2 — La facture', text: h => `Face au même choc, chaque organisation dispose de <em>ressources</em> et de marges de manœuvre différentes. L\'entreprise privée fixe librement ses prix et peut emprunter. L\'organisation publique est financée par l\'impôt et dépend d\'un <em>budget</em> voté par des élus : son directeur ne décide pas seul${h.energieM === 'tarif' ? ', comme tu l\'as découvert en proposant un tarif refusé par le conseil municipal' : ''}. Elle doit garantir l\'accès de tous au <em>service public</em>. L\'association vit de <em>cotisations</em>, de <em>dons</em> et de <em>subventions</em>, et ses décisions importantes se prennent en <em>assemblée générale</em>. ${h.energieA === 'cotis' ? 'En augmentant la cotisation, tu as fragilisé l\'accès des familles que l\'association veut justement aider.' : ''} La <em>prise de décision</em> et la <em>gouvernance</em> (qui décide, et devant qui on rend des comptes) diffèrent d\'une organisation à l\'autre.`,
+      chain: () => ({ good: ['Finalité', 'Ressources propres à chaque organisation', 'Réponse adaptée'], bad: ['Même réflexe partout', 'Décision qui ne t\'appartient pas', 'Mission trahie'] }) },
+    { act: 3, needs: ['snack', 'jeunes', 'benevoles'], title: 'Acte 3 — Diriger', text: h => `Le <em>management</em>, c\'est piloter une organisation : <em>fixer des objectifs</em>, <em>prendre des décisions</em>, <em>organiser</em>, <em>animer</em> les personnes et <em>contrôler</em> les résultats. On distingue les <em>décisions opérationnelles</em> (le quotidien : le planning du matin), <em>tactiques</em> (à moyen terme : ouvrir le soir pour attirer les jeunes) et <em>stratégiques</em> (qui engagent l\'avenir : créer une nouvelle activité de sandwichs). ${h.snack === 'usine' ? 'En misant tout ton comptoir sur une seule usine, tu as pris une décision stratégique sans mesurer le risque de dépendre d\'un seul client.' : h.snack === 'lycee' ? 'En visant le lycée, tu as choisi une clientèle stable.' : ''} Dans une association, on ne motive pas avec un salaire : ${h.benevoles === 'formation' ? 'la formation et la reconnaissance ont gardé tes bénévoles.' : 'sans reconnaissance, les bénévoles s\'épuisent et partent.'}`,
+      chain: () => ({ good: ['Fixer un objectif', 'Choisir les moyens', 'Animer les personnes', 'Résultats'], bad: ['Décider sans analyser', 'Oublier les personnes', 'Objectif manqué'] }) },
+    { act: 4, needs: ['coop'], title: 'Acte 4 — La fermeture', text: h => `La fermeture de l\'usine est un changement de l\'<em>environnement</em> : ce qui se passe autour de l\'organisation et qu\'elle ne contrôle pas. Le management doit permettre de <em>s\'adapter au changement</em> : ${h.fournee === 'click' ? 'nouveau service numérique pour La Fournée, ' : ''}nouvelles missions pour la médiathèque, nouveaux bénévoles pour l\'association. ${h.coop === 'oui' ? 'En faisant coopérer tes trois maisons, tu as créé un <em>partenariat</em> : des organisations aux finalités différentes peuvent se compléter. Le don des invendus montre aussi qu\'une entreprise privée peut contribuer à l\'intérêt général.' : 'Sans coopération, chaque organisation a affronté seule un choc qui les touchait toutes.'}`,
+      chain: () => ({ good: ['Repérer le changement', 'S\'adapter', 'Coopérer'], bad: ['Faire le dos rond', 'Chacun pour soi', 'Ressources gaspillées'] }) }
+  ],
+  vocab: ['Action collective', 'Répartition du travail', 'Coordination', 'Organisation', 'Entreprise privée', 'Organisation publique', 'Organisation de la société civile', 'Association', 'Finalité lucrative / non lucrative', 'Intérêt général', 'Service public', 'Ressources', 'Budget', 'Cotisations, dons, subventions', 'Gouvernance', 'Prise de décision', 'Management', 'Décision opérationnelle', 'Décision tactique', 'Décision stratégique', 'Environnement', 'Changement', 'Partenariat']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — la place de Vernay : la boulangerie, la médiathèque, l'association.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const G = '#7CFF3D', f = S.flags;
+  const col = (v, a, b) => v >= a ? '#4CD97B' : v >= b ? '#FFC64F' : '#FF5C6A';
+  const box = (x, t, c, sub) => `<rect x="${x}" y="44" width="68" height="62" rx="5" fill="#0f140c" stroke="${c}" stroke-width="1.5"/><text x="${x + 34}" y="68" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="7" fill="${c}">${t}</text><text x="${x + 34}" y="88" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11" fill="#EEF3EC">${sub}</text>`;
+  const usine = `<rect x="292" y="${act.num >= 4 ? 120 : 112}" width="60" height="${act.num >= 4 ? 30 : 38}" fill="${act.num >= 4 ? '#1a0b0f' : '#141a10'}" stroke="${act.num >= 4 ? '#FF5C6A' : '#3a4a30'}"/><text x="322" y="${act.num >= 4 ? 139 : 134}" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="9" fill="${act.num >= 4 ? '#FF5C6A' : '#8B9A80'}">${act.num >= 4 ? 'MÉCATEC FERMÉE' : 'MÉCATEC'}</text>`;
+  const links = f.coop ? `<line x1="194" y1="75" x2="206" y2="75" stroke="${G}" stroke-width="3"/><line x1="274" y1="75" x2="286" y2="75" stroke="${G}" stroke-width="3"/>` : '';
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="La place de Vernay">
+    <rect width="360" height="200" fill="#070a06"/><rect x="0" y="0" width="360" height="162" fill="#0a0e08"/>
+    <text x="240" y="28" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#8B9A80">VERNAY · MOIS ${S.mois || 0}</text>
+    ${box(126, 'FOURNÉE', col(S.four, 12000, 3000), (S.four / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 0 }) + ' k€')}${box(206, 'MÉDIATHÈQUE', col(S.media, 65, 45), Math.round(S.media) + ' / 100')}${box(286, 'COUP DE POUCE', col(S.asso, 90, 70), Math.round(S.asso) + ' %')}${links}${usine}
+    <rect x="0" y="162" width="360" height="38" fill="#080b06"/><line x1="0" y1="162" x2="360" y2="162" stroke="#1d2a17" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>L’île sans monnaie — Jeu Économie 1re STMG, chapitre 3 · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#4CD97B;--eco-dim:#2F8A4E;--good:#4CD97B;--bg:#050806;--panel:#0a110c;--panel2:#0d1510;--line:#1a2c20;--txt:#EEF3EC;--muted:#8BA394;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(76,217,123,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(76,217,123,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#142010;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070a06;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(76,217,123,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#0a1406;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#0a1406;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#121c0e;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#142010;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#0a1406;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#080c06;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#080c06;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#080c06;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#080c06;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(76,217,123,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#080c06;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(76,217,123,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+
+/* ---- défis chronométrés et codes ---- */
+.drill .dr-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-family:'Rajdhani',sans-serif;font-weight:700;}
+.dr-t{color:var(--eco);font-size:15px;letter-spacing:.06em;text-transform:uppercase;}.dr-n{color:var(--muted);font-size:14px;white-space:nowrap;}
+.dr-tm{position:relative;height:8px;background:#14231a;border-radius:4px;margin:10px 0 28px;}
+.dr-tm i{display:block;height:100%;background:var(--eco);border-radius:4px;transition:width .1s linear;}
+.dr-tm i.hot{background:var(--bad);}
+.dr-tm span{position:absolute;right:0;top:12px;font-family:'Orbitron',sans-serif;font-size:12px;color:var(--warn);}
+.dr-ctx{font-size:13.5px;color:var(--muted);margin-bottom:6px;line-height:1.45;}
+.dr-qt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:21px;line-height:1.25;margin:4px 0 14px;}
+.dr-intro{font-size:15.5px;line-height:1.55;margin:6px 0 4px;}
+.dr-grid{display:grid;grid-template-columns:1fr;gap:8px;}.dr-grid.c2{grid-template-columns:1fr 1fr;}
+.dr-b{background:var(--panel2);border:1px solid var(--line);color:var(--txt);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;padding:12px 10px;border-radius:6px;cursor:pointer;text-align:center;line-height:1.2;transition:transform .1s,border-color .1s;}
+.dr-b:hover:not(:disabled){border-color:var(--eco);}.dr-b:active{transform:scale(.97);}
+.dr-b.ok{border-color:var(--good);background:rgba(76,217,123,.18);}.dr-b.ko{border-color:var(--bad);background:rgba(255,92,106,.16);}
+.dr-b:disabled{cursor:default;}
+.dr-f{margin-top:12px;min-height:24px;text-align:center;}
+.dr-ok{color:var(--good);font-weight:600;line-height:1.45;}.dr-ko{color:#ffb3ba;line-height:1.5;text-align:left;font-size:14.5px;background:rgba(255,92,106,.08);border-left:3px solid var(--bad);padding:8px 10px;margin-bottom:10px;}
+.dr-ko b{color:var(--txt);}
+.btn.sm{padding:8px 18px;font-size:14px;}
+.dr-num{display:flex;gap:8px;align-items:center;}.dr-num input,.cd-in input{flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);color:var(--txt);font-family:'Orbitron',sans-serif;font-size:18px;padding:11px 12px;border-radius:6px;}
+.dr-num input.ok{border-color:var(--good);}.dr-num input.ko{border-color:var(--bad);}
+.dr-num span{color:var(--muted);font-weight:700;}
+.cd-in{display:flex;gap:8px;margin:12px 0;}.cd-in input{text-transform:uppercase;letter-spacing:.12em;}
+.dr-rec{text-align:center;padding:6px 0 4px;}.dr-big{font-family:'Orbitron',sans-serif;font-weight:900;font-size:34px;color:var(--eco);}
+.dr-bonus{color:var(--warn);font-family:'Rajdhani',sans-serif;font-weight:700;margin-top:4px;}.dr-to{color:var(--bad);margin-top:4px;font-size:14px;}
+.dr-cor{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px;font-size:14px;}
+.dr-miss{list-style:none;padding:0;margin:0;text-align:left;}.dr-miss li{font-size:14px;line-height:1.45;padding:8px 0;border-top:1px solid var(--line);}.dr-miss small{color:var(--muted);}
+.doc{background:#0f1a13;border:1px solid var(--line);border-left:3px solid var(--warn);padding:10px 12px;margin:10px 0;font-size:14.5px;line-height:1.5;}
+.doc h4{margin:0 0 4px;font-family:'Rajdhani',sans-serif;font-size:15px;color:var(--warn);text-transform:uppercase;letter-spacing:.04em;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU — L'île sans monnaie (Économie 1re STMG, chapitre 3 : Les échanges économiques)
+   Escape game : cinq naufragés, une radio cadenassée par cinq codes. Chaque salle travaille une partie du cours :
+   spécialisation et gain à l'échange, limites du troc, fonctions de la monnaie, circuit économique, cryptoactifs.
+   Chaque erreur coûte 30 minutes ; le bateau passe dans 10 heures.
+   ===================================================================== */
+const N = ' ';
+const F = s => s.flags;
+const heures = s => Math.max(0, 10 - 0.5 * s.ko);
+const hm = s => { const h = heures(s), H0 = Math.floor(h), m = Math.round((h - H0) * 60); return `${H0}${N}h${m ? String(m).padStart(2, '0') : ''}`; };
+const doc = (t, b) => `<div class="doc"><h4>${t}</h4>${b}</div>`;
+
+const GAME = {
+  title: 'L\'île sans monnaie',
+  brand: 'L\'ÎLE <span>SANS MONNAIE</span>',
+  storeKey: 'ec3IleFins',
+  backLink: '../../matieres/economie-1ere.html',
+  footer: 'Économie 1re STMG, chapitre 3',
+  kicker: 'Économie · 1re STMG · Chapitre 3 · Escape game',
+  debIntro: 'Chaque cadenas correspondait à une partie du chapitre. Voici ce qu\'il faut retenir.',
+  cutText: 'Le bateau est passé sans vous voir. Relis la fiche du chapitre 3, puis retente l\'évasion.',
+  actWord: 'Cadenas',
+  pitch: `Votre voilier s'est échoué sur une île. Vous êtes cinq. Une radio fonctionne encore, mais elle est enfermée dans une caisse fermée par cinq cadenas. Un bateau passera au large dans 10 heures. Pour l'appeler, il faut ouvrir les cinq cadenas… et, pour ça, comprendre comment des gens qui ne savent pas tout faire peuvent survivre ensemble. Chaque erreur vous coûte 30 minutes.`,
+  meta: '5 cadenas · 15 minutes · chaque erreur coûte 30 minutes',
+  start: s => Object.assign(s, { score: 0, ok: 0, tot: 0, ko: 0, serie: 0, best: 0, salles: 0 }),
+  hud: [
+    { k: 'salles', label: 'Cadenas ouverts', short: 'Cadenas', show: s => s.salles + ' / 5', pct: s => s.salles * 20, low: () => false },
+    { k: 'temps',  label: 'Temps avant le bateau', short: 'Bateau dans', show: s => hm(s), pct: s => heures(s) * 10, low: s => heures(s) < 3 },
+    { k: 'score',  label: 'Score', short: 'Score', show: s => s.score, pct: s => s.score / 4, low: () => false },
+    { k: 'serie',  label: 'Série', short: 'Série', show: s => s.serie, pct: s => s.serie * 10, low: () => false }
+  ],
+  fail: s => heures(s) <= 0 ? 'naufrage' : null,
+  lock: () => null,
+  bilan: s => [['Cadenas ouverts', s.salles + ' / 5'], ['Temps restant', hm(s)], ['Erreurs', s.ko], ['Score', s.score]],
+
+  characters: {
+    lou:  { name: 'Lou', role: 'pêcheuse', color: '#5B8FFF', body: '#2b4a6a', hair: '#c9a060', acc: 'cap' },
+    malo: { name: 'Malo', role: 'cultivateur', color: '#4CD97B', body: '#2f6a3a', hair: '#3a2418', acc: 'box' },
+    theo: { name: 'Théo', role: 'artisan', color: '#FF8A4C', body: '#7a4a22', hair: '#1c1c22', acc: 'tie' },
+    ines: { name: 'Inès', role: 'ancienne banquière', color: '#B9A6FF', body: '#4a3a5a', hair: '#2a1a12', acc: 'clip' },
+    narr: { name: 'Journal de bord', role: '', color: '#FFC64F' }
+  },
+
+  acts: [
+  /* ------------------------------ CADENAS 1 ------------------------------ */
+  { num: 1, title: 'Tout faire seul ?', sub: 'Spécialisation et gain à l\'échange',
+    steps: [
+      { t: 'say', who: 'lou', text: `Premier jour. Chacun s'est débrouillé seul, en pêchant ET en cueillant. Résultat${N}: on a tous faim. Moi, je pêche vite mais je ne reconnais pas les fruits. Malo, c'est l'inverse.${doc('Carnet de Lou', `<b>Chacun fait tout, seul :</b> Lou : 4 poissons et 2 paniers de fruits par jour. Malo : 1 poisson et 6 paniers de fruits.<br><b>Si chacun se spécialise :</b> Lou pêche toute la journée : 8 poissons. Malo cueille toute la journée : 12 paniers.`)}` },
+      { t: 'code', id: 'c1', who: 'lou', pts: 40, placeholder: 'Un nombre',
+        prompt: `Le premier cadenas porte une inscription${N}: «${N}De combien d'unités (poissons + paniers) la production totale augmente-t-elle si Lou et Malo se spécialisent${N}?${N}»`,
+        answer: ['7'], hint: 'Seuls : 4 + 2 + 1 + 6. Spécialisés : 8 + 12. Fais la différence.', solution: 'Seuls : 13 unités. Spécialisés : 20 unités. Gain : 7 unités.',
+        win: 'Seuls : 13 unités. Spécialisés : 20. La spécialisation fait gagner 7 unités… à condition d\'échanger ensuite.' },
+      { t: 'drill', id: 'd1', who: 'malo', title: 'Ce que montre le cadenas 1', shuffle: false, intro: 'Trois questions pour vérifier que l\'équipe a compris.',
+        items: [
+          { q: 'Lou ne mange que du poisson si elle n\'échange pas. La spécialisation rend donc les naufragés…', opts: ['indépendants', 'interdépendants', 'concurrents', 'inutiles'], a: 1, ex: 'Se spécialiser oblige à obtenir auprès des autres ce qu\'on ne produit plus.' },
+          { q: 'Obtenir davantage de biens grâce à la spécialisation et aux échanges qu\'en produisant tout soi-même, c\'est…', opts: ['le gain à l\'échange', 'le troc', 'la rareté', 'le profit'], a: 0, ex: 'Le gain à l\'échange vaut pour les individus, les entreprises et les pays.' },
+          { q: 'Le soir, ils se retrouvent sur la plage pour échanger poissons et fruits. Ce lieu de rencontre entre offre et demande est…', opts: ['un circuit', 'un marché', 'une banque', 'une administration'], a: 1, ex: 'Un marché peut être physique ou virtuel : c\'est la rencontre d\'une offre et d\'une demande.' } ] },
+      { t: 'event', who: 'narr', text: 'Premier cadenas ouvert.', fx: { salles: 1 } }
+    ] },
+
+  /* ------------------------------ CADENAS 2 ------------------------------ */
+  { num: 2, title: 'Le troc impossible', sub: 'Les limites du troc',
+    steps: [
+      { t: 'say', who: 'theo', text: `J'ai fabriqué trois couteaux. Je veux du poisson. Mais Lou, elle, n'a pas besoin de couteau${N}: elle veut des fruits. Et Malo veut un couteau, mais il n'a pas de poisson. On tourne en rond depuis une heure.${doc('Qui veut quoi ?', '<b>Théo</b> a des couteaux, veut du poisson.<br><b>Lou</b> a du poisson, veut des fruits.<br><b>Malo</b> a des fruits, veut un couteau.')}` },
+      { t: 'code', id: 'c2', who: 'theo', pts: 40, placeholder: 'Un nombre',
+        prompt: `Deuxième cadenas${N}: «${N}En troc, combien d'échanges successifs faut-il au minimum pour que Théo obtienne son poisson, chacun n'acceptant que ce qu'il veut ou ce qu'il pourra réutiliser${N}?${N}»`,
+        answer: ['2'], hint: 'Théo donne d\'abord un couteau à quelqu\'un qui en veut vraiment, contre quelque chose que Lou désire.', solution: 'Théo échange un couteau contre des fruits avec Malo, puis ces fruits contre du poisson avec Lou : 2 échanges.',
+        win: 'Couteau contre fruits avec Malo, puis fruits contre poisson avec Lou : 2 échanges pour un seul poisson. Avec des centaines de biens, ce serait ingérable.' },
+      { t: 'code', id: 'c2b', who: 'theo', pts: 30, placeholder: 'Deux mots',
+        prompt: `Une deuxième ligne est gravée sous le cadenas${N}: «${N}Pour qu'un troc ait lieu, chacun doit avoir exactement ce que l'autre veut, au même moment. Les économistes appellent cela la double… ?${N}»`,
+        answer: ['coincidence des besoins', 'coincidence', 'double coincidence', 'double coincidence des besoins'], hint: 'Deux choses qui tombent en même temps, par hasard…', solution: 'La double coïncidence des besoins.', win: 'La double coïncidence des besoins : la grande limite du troc.' },
+      { t: 'event', who: 'narr', text: 'Deuxième cadenas ouvert.', fx: { salles: 1 } }
+    ] },
+
+  /* ------------------------------ CADENAS 3 ------------------------------ */
+  { num: 3, title: 'Les coquillages', sub: 'Les fonctions de la monnaie',
+    steps: [
+      { t: 'say', who: 'ines', text: `J'ai une idée. Sur la plage nord, il y a des coquillages rares, durs, faciles à transporter. Si tout le monde accepte d'être payé en coquillages, on n'aura plus besoin de trouver la bonne personne au bon moment.` },
+      { t: 'choice', id: 'objet', prompt: `Quel objet choisir comme monnaie commune${N}?`, options: [
+        { id: 'coq', label: 'Les coquillages rares', desc: 'Solides, légers, tous identiques.', set: { objet: 'coq' }, fx: { score: 20 },
+          chain: { good: ['Ils ne s\'abîment pas : on peut les garder', 'Faciles à compter et à transporter', 'Tout le monde les accepte'], bad: [] } },
+        { id: 'poisson', label: 'Le poisson', desc: 'Tout le monde en mange.', set: { objet: 'poisson' }, fx: { ko: 1 },
+          chain: { good: [], bad: ['Il pourrit en deux jours : impossible de le garder', 'Une monnaie doit conserver sa valeur dans le temps', '30 minutes perdues'] } },
+        { id: 'coco', label: 'Les noix de coco', desc: 'Il y en a partout.', set: { objet: 'coco' }, fx: { ko: 1 },
+          chain: { good: [], bad: ['Elles sont partout : n\'importe qui en ramasse autant qu\'il veut', 'Lourdes, encombrantes', '30 minutes perdues'] } } ] },
+      { t: 'say', who: 'ines', text: `Va pour les coquillages. On fixe les prix${N}:${doc('Tableau des prix de l\'île', '1 poisson = 2 coquillages · 1 panier de fruits = 1 coquillage · 1 couteau = 10 coquillages')}` },
+      { t: 'code', id: 'c3', who: 'ines', pts: 40, placeholder: 'Un nombre',
+        prompt: `Troisième cadenas${N}: «${N}Combien de poissons vaut un couteau${N}?${N}»`,
+        answer: ['5'], hint: 'Un couteau vaut 10 coquillages, un poisson en vaut 2.', solution: '10 ÷ 2 = 5 poissons.',
+        win: 'Grâce aux prix exprimés dans la même unité, on compare enfin des biens très différents.' },
+      { t: 'drill', id: 'd3', who: 'ines', title: 'Les trois fonctions', intro: 'Pour chaque scène de l\'île, quelle fonction de la monnaie est à l\'œuvre ?',
+        cats: [{ id: 'inter', label: 'Intermédiaire des échanges' }, { id: 'compte', label: 'Unité de compte' }, { id: 'reserve', label: 'Réserve de valeur' }],
+        items: [
+          { q: 'Lou vend son poisson contre des coquillages, puis achète des fruits plus tard', a: 'inter', ex: 'L\'échange est coupé en deux : vendre, puis acheter.' },
+          { q: 'Théo paie Malo en coquillages au lieu de chercher ce que Malo veut', a: 'inter', ex: 'Plus besoin de double coïncidence des besoins.' },
+          { q: 'Malo compare : 1 couteau vaut 10 paniers de fruits', a: 'compte', ex: 'La monnaie exprime la valeur de biens différents dans une même unité.' },
+          { q: 'Inès note sur une planche le prix de chaque bien', a: 'compte', ex: 'Affichage des prix : unité de compte.' },
+          { q: 'Lou garde 6 coquillages pour acheter un couteau la semaine prochaine', a: 'reserve', ex: 'La monnaie permet de reporter une dépense dans le temps.' },
+          { q: 'Théo met de côté des coquillages en cas de tempête', a: 'reserve', ex: 'Épargner pour les imprévus : réserve de valeur.' } ] },
+      { t: 'event', who: 'narr', text: 'Troisième cadenas ouvert.', fx: { salles: 1 } }
+    ] },
+
+  /* ------------------------------ CADENAS 4 ------------------------------ */
+  { num: 4, title: 'Le circuit de l\'île', sub: 'Flux réels, flux monétaires, interdépendance',
+    steps: [
+      { t: 'say', who: 'ines', text: `L'île s'organise. Les naufragés travaillent à l'atelier de Théo, devenu une petite entreprise. Malo, élu chef du camp, collecte un impôt pour entretenir le feu de détresse. Et moi, je garde les coquillages de ceux qui épargnent et je les prête à ceux qui ont un projet.${doc('Les échanges d\'une journée', '① Lou travaille à l\'atelier de Théo<br>② L\'atelier verse 6 coquillages de salaire à Lou<br>③ L\'atelier livre un filet de pêche à Lou<br>④ Lou paie le filet 4 coquillages<br>⑤ Chacun verse 1 coquillage d\'impôt au chef du camp<br>⑥ Le chef du camp entretient le feu de détresse pour tous<br>⑦ Lou dépose 2 coquillages chez Inès<br>⑧ Inès prête 5 coquillages à Théo pour une nouvelle scie')}` },
+      { t: 'drill', id: 'd4', who: 'ines', title: 'Réel ou monétaire ?', intro: 'Un flux réel, c\'est un bien, un service ou du travail qui circule. Un flux monétaire, c\'est de la monnaie. Classe chaque échange.',
+        shuffle: false, cats: [{ id: 'r', label: 'Flux réel' }, { id: 'm', label: 'Flux monétaire' }],
+        items: [
+          { q: '① Lou travaille à l\'atelier', a: 'r', ex: 'Du travail circule : flux réel.' },
+          { q: '② L\'atelier verse un salaire à Lou', a: 'm', ex: 'De la monnaie circule : flux monétaire.' },
+          { q: '③ L\'atelier livre un filet', a: 'r', ex: 'Un bien circule.' },
+          { q: '④ Lou paie le filet', a: 'm', ex: 'La contrepartie monétaire du flux ③.' },
+          { q: '⑤ L\'impôt versé au chef du camp', a: 'm', ex: 'Un prélèvement en monnaie.' },
+          { q: '⑥ L\'entretien du feu de détresse', a: 'r', ex: 'Un service non marchand rendu à tous.' },
+          { q: '⑦ Le dépôt chez Inès', a: 'm', ex: 'De l\'épargne collectée.' },
+          { q: '⑧ Le prêt à Théo', a: 'm', ex: 'Un crédit accordé.' } ] },
+      { t: 'code', id: 'c4', who: 'ines', pts: 40, placeholder: 'Un nombre',
+        prompt: `Quatrième cadenas${N}: «${N}Combien de flux monétaires y a-t-il dans la journée décrite${N}?${N}»`,
+        answer: ['5'], hint: 'Reprends le tri que tu viens de faire et compte les flux de monnaie.', solution: '②, ④, ⑤, ⑦ et ⑧ : 5 flux monétaires.',
+        win: '②, ④, ⑤, ⑦ et ⑧. Presque chaque flux réel a sa contrepartie monétaire.' },
+      { t: 'choice', id: 'greve', prompt: `Lou, fâchée, décide de ne plus rien acheter à l'atelier pendant une semaine. Qu'est-ce qui risque de se passer${N}?`, options: [
+        { id: 'chaine', label: 'L\'atelier vend moins, réduit les salaires, et Lou elle-même gagnera moins', desc: '', set: { greve: 'ok' }, fx: { score: 20 },
+          chain: { good: ['Moins d\'achats', 'Moins de recettes pour l\'atelier', 'Moins de salaires versés', 'Moins de revenus pour les naufragés'], bad: [] } },
+        { id: 'rien', label: 'Rien : chacun reste libre de ses décisions', desc: '', fx: { ko: 1 },
+          chain: { good: [], bad: ['Les agents sont interdépendants', 'Les décisions de chacun influencent les autres', '30 minutes perdues'] } } ] },
+      { t: 'event', who: 'narr', text: 'Quatrième cadenas ouvert.', fx: { salles: 1 } }
+    ] },
+
+  /* ------------------------------ CADENAS 5 ------------------------------ */
+  { num: 5, title: 'Le Coquicoin', sub: 'Une nouvelle forme de monnaie ?', final: true,
+    steps: [
+      { t: 'say', who: 'theo', text: `J'ai inventé le «${N}Coquicoin${N}»${N}: des cailloux gravés de mon symbole. Ils remplaceront les coquillages${N}!${doc('Le cours du Coquicoin', 'Lundi : 1 Coquicoin = 10 coquillages · Mercredi : 3 coquillages · Vendredi : 14 coquillages.<br>Seuls Théo et Malo l\'acceptent.')}<br>Inès hausse les sourcils${N}: «${N}C'est un peu comme le Bitcoin. En 2025, il a atteint environ 108${N}000${N}€… avant de perdre près de 30${N}% en quelques semaines.${N}»` },
+      { t: 'drill', id: 'd5', who: 'ines', title: 'Le Coquicoin est-il une monnaie ?', shuffle: false, intro: 'Trois questions avant le dernier cadenas.',
+        items: [
+          { q: 'Seuls deux naufragés sur cinq l\'acceptent. Quelle fonction est mal remplie ?', opts: ['Intermédiaire des échanges', 'Unité de compte', 'Réserve de valeur'], a: 0, ex: 'Une monnaie doit être acceptée par tous pour servir aux échanges.' },
+          { q: 'Son cours change chaque jour : un couteau vaut 1 Coquicoin lundi, 3 mercredi. Quelle fonction est mal remplie ?', opts: ['Intermédiaire des échanges', 'Unité de compte', 'Réserve de valeur'], a: 1, ex: 'Comparer les prix devient difficile si l\'unité change tout le temps.' },
+          { q: 'Les formes de paiement changent (carte, téléphone, virement). Les fonctions de la monnaie…', opts: ['disparaissent', 'restent les mêmes', 'sont remplacées par les cryptoactifs'], a: 1, ex: 'La forme évolue, les trois fonctions demeurent.' } ] },
+      { t: 'code', id: 'c5', who: 'ines', pts: 50, placeholder: 'Trois mots',
+        prompt: `Dernier cadenas${N}: «${N}Tu as économisé 10 coquillages pour un couteau. Converti en Coquicoins lundi, ton épargne ne vaut plus que 3 coquillages mercredi. Quelle fonction de la monnaie le Coquicoin remplit-il le plus mal${N}?${N}»`,
+        answer: ['reserve de valeur', 'la reserve de valeur', 'reserve'], hint: 'Il s\'agit de garder de la valeur pour plus tard…', solution: 'La réserve de valeur : sa forte volatilité empêche de conserver une valeur stable.',
+        win: 'La réserve de valeur. Une monnaie doit conserver une valeur stable dans le temps : c\'est pourquoi la Banque de France estime que les cryptoactifs remplissent mal les fonctions de la monnaie.' },
+      { t: 'event', who: 'narr', text: s => `Le cinquième cadenas cède. La radio grésille, puis une voix répond${N}: «${N}Bien reçu, nous venons vous chercher.${N}» Il vous restait ${hm(s)}.`, fx: { salles: 1 } }
+    ] }
+  ],
+
+  endings: [
+    { id: 'naufrage', when: () => false, title: 'Le bateau est passé', stamp: 'Naufragés', color: '#FF5C6A',
+      text: `Trop d'erreurs, trop de temps perdu${N}: le bateau a filé à l'horizon. Les naufragés devront attendre le prochain… et réviser les échanges économiques.` },
+    { id: 'heros', when: s => heures(s) >= 8, title: 'Évasion express', stamp: 'Sauvés !', color: '#FFC64F',
+      text: s => `Sauvés avec ${hm(s)} d'avance. Spécialisation, troc, monnaie, circuit économique${N}: tu as compris comment une société d'individus spécialisés tient debout grâce aux échanges.` },
+    { id: 'sauves', when: s => heures(s) >= 4, title: 'Sauvés à temps', stamp: 'Sauvés', color: '#4CD97B',
+      text: s => `Sauvés avec ${hm(s)} d'avance. Quelques erreurs en route${N}: relis les explications de chaque cadenas pour viser l'évasion express.` },
+    { id: 'justesse', when: () => true, title: 'Sauvés de justesse', stamp: 'In extremis', color: '#FFC64F',
+      text: s => `Le bateau a failli passer${N}: il ne restait que ${hm(s)}. Relis la fiche du chapitre 3, notamment les fonctions de la monnaie et les flux du circuit économique.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['c1'], title: 'Cadenas 1 — Spécialisation et échange', text: () => `Aucun agent ne peut tout produire seul. La <em>spécialisation</em> permet de devenir plus efficace, mais crée une <em>interdépendance</em> : il faut échanger pour obtenir ce qu\'on ne produit pas. Grâce à la spécialisation et aux échanges, chacun obtient davantage : c\'est le <em>gain à l\'échange</em>. Les échanges ont lieu sur des <em>marchés</em>, lieux réels ou virtuels de rencontre de l\'offre et de la demande (marché des biens et services, marché du travail).`,
+      chain: () => ({ good: ['Spécialisation', 'Efficacité', 'Interdépendance', 'Échange', 'Gain à l\'échange'], bad: [] }) },
+    { act: 2, needs: ['c2'], title: 'Cadenas 2 — Le troc', text: () => `Le <em>troc</em> consiste à échanger directement un bien contre un autre. Il exige une <em>double coïncidence des besoins</em> : chacun doit posséder exactement ce que l\'autre recherche, au même moment. Dans une économie complexe, c\'est presque impossible.`,
+      chain: () => ({ good: [], bad: ['Troc', 'Double coïncidence des besoins', 'Échanges rares et compliqués'] }) },
+    { act: 3, needs: ['c3'], title: 'Cadenas 3 — Les fonctions de la monnaie', text: () => `La <em>monnaie</em> est l\'ensemble des moyens de paiement acceptés pour régler des transactions. Elle a trois fonctions : <em>intermédiaire des échanges</em> (on vend, puis on achète plus tard), <em>unité de compte</em> (elle exprime la valeur des biens dans une même unité), <em>réserve de valeur</em> (on peut la conserver pour plus tard, à condition que sa valeur reste stable).`,
+      chain: () => ({ good: ['Intermédiaire des échanges', 'Unité de compte', 'Réserve de valeur'], bad: [] }) },
+    { act: 4, needs: ['c4'], title: 'Cadenas 4 — Le circuit économique', text: () => `Chaque échange crée des <em>flux économiques</em> : des <em>flux réels</em> (biens, services, travail) et des <em>flux monétaires</em> (salaires, paiements, impôts, épargne, crédits), généralement en sens inverse. Le <em>circuit économique</em> est une représentation simplifiée de ces flux entre ménages, entreprises, administrations publiques et institutions financières. Il montre l\'<em>interdépendance</em> des agents.`,
+      chain: () => ({ good: ['Moins d\'achats des ménages', 'Moins de ventes', 'Moins d\'embauches', 'Moins de revenus'], bad: [] }) },
+    { act: 5, needs: ['c5'], title: 'Cadenas 5 — Les nouvelles formes de paiement', text: () => `Cartes, paiements mobiles, virements instantanés : les <em>formes</em> de la monnaie changent, pas ses fonctions. Les <em>cryptoactifs</em> comme le Bitcoin sont peu acceptés et très <em>volatils</em> : ils remplissent mal les fonctions de la monnaie, en particulier celle de réserve de valeur.`,
+      chain: () => ({ good: [], bad: ['Volatilité', 'Valeur instable', 'Réserve de valeur mal assurée'] }) }
+  ],
+  vocab: ['Spécialisation', 'Interdépendance', 'Échange', 'Gain à l\'échange', 'Marché', 'Marché du travail', 'Troc', 'Double coïncidence des besoins', 'Monnaie', 'Intermédiaire des échanges', 'Unité de compte', 'Réserve de valeur', 'Flux réel', 'Flux monétaire', 'Circuit économique', 'Cryptoactif', 'Volatilité']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — la plage, la caisse et ses cinq cadenas.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const G = '#4CD97B';
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="L'île et la caisse à cinq cadenas">
+    <rect width="360" height="200" fill="#050806"/><rect x="0" y="0" width="360" height="120" fill="#0a1626"/>
+    <circle cx="320" cy="34" r="14" fill="#FFC64F" opacity=".8"/>
+    <path d="M0,118 Q90,108 180,118 T360,116 V162 H0 Z" fill="#1b2a44"/>
+    <path d="M150,162 Q230,120 360,140 V162 Z" fill="#c9b48a" opacity=".55"/>
+    <g transform="translate(330,92)"><line x1="0" y1="0" x2="-6" y2="-58" stroke="#7a5a32" stroke-width="5"/><path d="M-6,-58 q-24,-6 -34,8 M-6,-58 q20,-10 32,4 M-6,-58 q-6,-18 -22,-20" stroke="${G}" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+    <g transform="translate(215,98)"><rect x="-55" y="0" width="110" height="52" rx="4" fill="#5a3d22" stroke="#8a5a32" stroke-width="2"/><line x1="-55" y1="16" x2="55" y2="16" stroke="#8a5a32" stroke-width="2"/>
+      ${[0, 1, 2, 3, 4].map(i => `<g transform="translate(${-44 + i * 22},22)"><path d="M-6,0 v-6 a6,6 0 0 1 12,0 v6" fill="none" stroke="${i < S.salles ? G : '#c9c9c9'}" stroke-width="2.5" ${i < S.salles ? 'transform="translate(4,-4) rotate(25)"' : ''}/><rect x="-8" y="0" width="16" height="13" rx="2" fill="${i < S.salles ? G : '#8a8f96'}"/></g>`).join('')}</g>
+    <rect x="0" y="162" width="360" height="38" fill="#060a07"/><line x1="0" y1="162" x2="360" y2="162" stroke="#1a2c20" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  /* espaces insécables fines dans les nombres du texte affiché (jamais dans le SVG ni les attributs) */
+  const fixNums = root => { const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentNode.closest('svg') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT }); let n;
+    while ((n = w.nextNode())) { const t = n.nodeValue.replace(/(\d) (?=\d{3}(?!\d))/g, '$1\u202f').replace(/(\d) (€|%)/g, '$1\u202f$2'); if (t !== n.nodeValue) n.nodeValue = t; } };
+  new MutationObserver(() => fixNums(app)).observe(app, { childList: true, subtree: true });
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  const FAST = /fast/.test(location.search), TF = /tfast/.test(location.search) ? 20 : 1;
+  const wait = ms => FAST ? 15 : ms;
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const norm = t => String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+  let TIMER = null; const stopTimer = () => { if (TIMER) { clearInterval(TIMER); TIMER = null; } };
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">${act.tag || (GAME.actWord || 'Acte') + ' ' + act.num} · ${act.title}</div></div>
+      <div id="hudw">${hud()}</div><div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function refreshHud() { const w = document.getElementById('hudw'); if (w) w.innerHTML = hud(); }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    stopTimer(); S = { flags: {}, rounds: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">${act.tag || (GAME.actWord || 'Acte') + ' ' + act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    stopTimer();
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'drill') {
+      lastDeltas = [];
+      let items = val(st.items, S).slice(); if (st.shuffle !== false) shuffle(items); if (st.n) items = items.slice(0, st.n);
+      const total = items.length, pts = st.pts || 10, T = (st.time || 0) * 1000;
+      let i = 0, ok = 0, miss = [], left = T, paused = false, over = false;
+      frame(val(st.who, S) || null, `<div class="box drill"><div class="dr-h"><span class="dr-t">${val(st.title, S)}</span><span class="dr-n" id="dn"></span></div>${T ? '<div class="dr-tm"><i id="dt"></i><span id="ds"></span></div>' : ''}<div class="dr-q" id="dq"></div><div class="dr-o" id="dop"></div><div class="dr-f" id="df"></div></div>`);
+      const $ = id => document.getElementById(id);
+      const keyLabel = (it, k) => it.opts ? it.opts[k] : ((it.cats || st.cats).find(c => c.id === k) || {}).label;
+      const tick = () => { if (!T) return; $('dt').style.width = (100 * left / T) + '%'; $('ds').textContent = Math.ceil(left / 1000) + ' s'; $('dt').className = left < T * 0.25 ? 'hot' : ''; };
+      function finish() {
+        if (over) return; over = true; stopTimer();
+        const answered = i, unanswered = total - answered;
+        let bonus = 0; if (T && !unanswered) bonus = Math.round(left / 1000) * (st.tbonus || 1);
+        S.score += bonus; S.tot += unanswered; S.rounds[st.id] = { ok, n: total };
+        H[st.id] = ok + '/' + total; refreshHud();
+        const list = miss.map(m => `<li><b>${m.q}</b><br>→ ${m.good}${m.ex ? `<br><small>${m.ex}</small>` : ''}</li>`).join('');
+        $('dq').innerHTML = `<div class="dr-rec"><div class="dr-big">${ok} / ${total}</div><div>${st.recap ? val(st.recap, S, ok, total) : (ok === total ? 'Sans faute !' : ok >= total * 0.7 ? 'Bien joué.' : 'À retravailler.')}</div>${bonus ? `<div class="dr-bonus">Bonus de temps : +${bonus} points</div>` : ''}${unanswered ? `<div class="dr-to">Temps écoulé : ${unanswered} question${unanswered > 1 ? 's' : ''} sans réponse</div>` : ''}</div>${list ? `<div class="dr-cor">À retenir</div><ul class="dr-miss">${list}</ul>` : ''}`;
+        $('dop').innerHTML = ''; $('df').innerHTML = `<button class="btn" id="go">Continuer ▸</button>`;
+        $('dn').textContent = '';
+        if (T) $('dt').parentNode.style.display = 'none';
+        $('go').onclick = next; window.scrollTo(0, 0);
+      }
+      function show() {
+        if (i >= total) return finish();
+        const it = items[i]; window.__ok = it.a; $('dn').textContent = (i + 1) + ' / ' + total; $('df').innerHTML = '';
+        $('dq').innerHTML = `${it.ctx ? `<div class="dr-ctx">${it.ctx}</div>` : ''}<div class="dr-qt">${it.q}</div>`;
+        if (it.num) {
+          $('dop').innerHTML = `<div class="dr-num"><input id="dni" inputmode="decimal" autocomplete="off" placeholder="Ta réponse"><span>${it.unit || ''}</span><button class="btn" id="dnv">OK</button></div>`;
+          const inp = $('dni'); inp.focus();
+          const sub = () => { const v = parseFloat(inp.value.replace(/\s/g, '').replace(',', '.')); if (isNaN(v)) return; answer(Math.abs(v - it.a) <= (it.tol != null ? it.tol : 0.051) ? it.a : v); };
+          $('dnv').onclick = sub; inp.onkeydown = e => { if (e.key === 'Enter') sub(); };
+        } else {
+          const keys = it.opts ? it.opts.map((_, k) => k) : (it.cats || st.cats).map(c => c.id);
+          $('dop').innerHTML = `<div class="dr-grid${keys.length > 3 && !it.opts ? ' c2' : keys.length === 2 && !it.opts ? ' c2' : ''}">${keys.map(k => `<button class="dr-b" data-k="${k}">${keyLabel(it, k)}</button>`).join('')}</div>`;
+          app.querySelectorAll('.dr-b').forEach(b => b.onclick = () => answer(it.opts ? +b.dataset.k : b.dataset.k));
+        }
+      }
+      function answer(k) {
+        if (paused || over) return;
+        const it = items[i], good = k === it.a; S.tot++;
+        if (!it.num) app.querySelectorAll('.dr-b').forEach(b => { b.disabled = true; const bk = it.opts ? +b.dataset.k : b.dataset.k; if (bk === it.a) b.classList.add('ok'); else if (bk === k) b.classList.add('ko'); });
+        else { const inp = $('dni'); inp.disabled = true; inp.classList.add(good ? 'ok' : 'ko'); }
+        const goodLabel = it.num ? (it.show || String(it.a).replace('.', ',')) + (it.unit ? ' ' + it.unit : '') : keyLabel(it, it.a);
+        if (good) {
+          ok++; S.ok++; S.serie++; S.best = Math.max(S.best, S.serie); S.score += pts + Math.min(S.serie - 1, 5) * 2; refreshHud();
+          $('df').innerHTML = `<div class="dr-ok">✓ ${it.okText || 'Exact'}${it.exOk ? ' — ' + it.ex : ''}</div>`;
+          i++; setTimeout(show, wait(it.exOk ? 1400 : 550));
+        } else {
+          S.serie = 0; S.ko++; refreshHud(); paused = true;
+          miss.push({ q: it.q, good: goodLabel, ex: it.ex });
+          $('df').innerHTML = `<div class="dr-ko">✗ Réponse : <b>${goodLabel}</b>${it.ex ? `<br>${it.ex}` : ''}</div><button class="btn sm" id="dnx">Suivant ▸</button>`;
+          $('dnx').onclick = () => { paused = false; i++; show(); };
+        }
+      }
+      if (st.intro) {
+        $('dq').innerHTML = `<div class="dr-intro">${val(st.intro, S)}</div>`;
+        $('df').innerHTML = `<button class="btn" id="dgo">${T ? 'Lancer le chrono ▸' : 'Commencer ▸'}</button>`;
+        $('dgo').onclick = begin; if (T) $('ds').textContent = Math.round(T / 1000) + ' s';
+      } else begin();
+      function begin() {
+        show();
+        if (T) { tick(); let last = Date.now(); TIMER = setInterval(() => { const now = Date.now(), d = (now - last) * TF; last = now; if (!paused && !over) { left -= d; if (left <= 0) { left = 0; tick(); finish(); } else tick(); } }, 100); }
+      }
+    } else if (st.t === 'code') {
+      lastDeltas = [];
+      const answers = [].concat(val(st.answer, S)).map(norm); let tries = 0, solved = false;
+      window.__code = [].concat(val(st.answer, S))[0];
+      frame(val(st.who, S) || null, `<div class="box code"><div class="prompt">${val(st.prompt, S)}</div><div class="cd-in"><input id="cin" autocomplete="off" autocapitalize="off" placeholder="${st.placeholder || 'Le code'}"><button class="btn" id="cgo">Valider</button></div><div id="cf"></div></div>`);
+      const $ = id => document.getElementById(id), inp = $('cin');
+      const done = (txt, cls) => { solved = true; inp.disabled = true; $('cgo').disabled = true; $('cf').innerHTML = `<div class="${cls}">${txt}</div><button class="btn" id="go">Continuer ▸</button>`; $('go').onclick = next; H[st.id] = tries; refreshHud(); };
+      const sub = () => {
+        if (solved || !inp.value.trim()) return;
+        if (answers.includes(norm(inp.value))) { const g = Math.max(st.min || 5, (st.pts || 30) - tries * 10); S.score += g; S.ok++; S.tot++; S.serie++; S.best = Math.max(S.best, S.serie); return done(`✓ ${val(st.win, S) || 'Code correct !'} <span class="dr-bonus">+${g} points</span>`, 'dr-ok'); }
+        tries++; S.ko++; S.serie = 0; refreshHud();
+        if (tries >= (st.max || 3)) { S.tot++; return done(`✗ Le bon code était <b>${[].concat(val(st.answer, S))[0]}</b>.${st.solution ? '<br>' + val(st.solution, S) : ''}`, 'dr-ko'); }
+        $('cf').innerHTML = `<div class="dr-ko">✗ Ce n'est pas ça (${tries} essai${tries > 1 ? 's' : ''} sur ${st.max || 3}).${tries >= 1 && st.hint ? `<br><b>Indice :</b> ${val(st.hint, S)}` : ''}</div>`;
+        inp.value = ''; inp.focus();
+      };
+      $('cgo').onclick = sub; inp.onkeydown = e => { if (e.key === 'Enter') sub(); };
+    } else if (st.t === 'arcade') {
+      lastDeltas = [];
+      app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">${act.tag || (GAME.actWord || 'Acte') + ' ' + act.num} · ${act.title}</div></div><div id="hudw">${hud()}</div>${st.intro ? `<div class="arc-intro">${val(st.intro, S)}</div>` : ''}<div class="arc" id="arc"></div>`;
+      let qok = 0, qn = 0;
+      const api = {
+        fast: FAST, auto: /auto/.test(location.search), S,
+        score(n) { S.score += n; refreshHud(); },
+        ask(q, ov) { return new Promise(res => {
+          window.__ok = q.a; const keys = q.opts ? q.opts.map((_, k) => k) : (q.cats || []).map(c => c.id);
+          const lab = k => q.opts ? q.opts[k] : q.cats.find(c => c.id === k).label;
+          ov.innerHTML = `<div class="arcq"><div class="dr-t">${q.title || 'Question'}</div><div class="dr-qt">${q.q}</div><div class="dr-grid">${keys.map(k => `<button class="dr-b" data-k="${k}">${lab(k)}</button>`).join('')}</div><div class="dr-f" id="arf"></div></div>`; ov.classList.add('on');
+          ov.querySelectorAll('.dr-b').forEach(b => b.onclick = () => {
+            const k = q.opts ? +b.dataset.k : b.dataset.k, good = k === q.a; qn++; S.tot++;
+            ov.querySelectorAll('.dr-b').forEach(x => { x.disabled = true; const xk = q.opts ? +x.dataset.k : x.dataset.k; if (xk === q.a) x.classList.add('ok'); else if (xk === k) x.classList.add('ko'); });
+            const close = () => { ov.classList.remove('on'); ov.innerHTML = ''; res(good); };
+            if (good) { qok++; S.ok++; S.serie++; S.best = Math.max(S.best, S.serie); S.score += 15; refreshHud(); ov.querySelector('#arf').innerHTML = `<div class="dr-ok">✓ ${q.okText || 'Exact'}${q.ex ? ' — ' + q.ex : ''}</div>`; setTimeout(close, wait(1300)); }
+            else { S.ko++; S.serie = 0; refreshHud(); ov.querySelector('#arf').innerHTML = `<div class="dr-ko">✗ Réponse : <b>${lab(q.a)}</b>${q.ex ? '<br>' + q.ex : ''}</div><button class="btn sm" id="dnx">Reprendre ▸</button>`; ov.querySelector('#dnx').onclick = close; }
+          }); }); },
+        end(r) {
+          H[st.id] = r.tag || 'fini'; S.rounds[st.id] = { ok: qok, n: qn, r }; refreshHud();
+          const el = document.getElementById('arc');
+          el.innerHTML = `<div class="box"><div class="dr-rec"><div class="dr-big">${val(st.endTitle, S, r) || 'Partie terminée'}</div><div>${val(st.endText, S, r) || ''}</div>${qn ? `<div class="dr-bonus">Questions : ${qok} / ${qn}</div>` : ''}</div><div style="text-align:center"><button class="btn" id="go">Continuer ▸</button></div></div>`;
+          document.getElementById('go').onclick = next; window.scrollTo(0, 0);
+        }
+      };
+      ARC[st.kind](document.getElementById('arc'), st, api);
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    stopTimer(); store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Le diagnostic financier — Jeu Gestion et finance Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#5FB8B0;--eco-dim:#3A7F79;--good:#4CD97B;--bg:#040808;--panel:#091010;--panel2:#0c1515;--line:#173030;--txt:#EEF3EC;--muted:#8BA8A5;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(95,184,176,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(95,184,176,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#142010;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(95,184,176,.5);background:rgba(95,184,176,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070a06;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(95,184,176,.09), rgba(8,16,16,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#041010;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#041010;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#0e1c1b;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#142010;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#041010;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#060c0c;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#060c0c;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#060c0c;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#060c0c;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(95,184,176,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#060c0c;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(95,184,176,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — Le diagnostic financier (Gestion et finance, Terminale STMG, thème 2)
+   Cadence, un an plus tard. Ventes record, résultat record… et un découvert qui explose.
+   Modèle (k€) : FRNG = ressources stables − emplois stables ; BFR = stocks + créances clients − dettes fournisseurs ;
+   trésorerie nette (tn) = FRNG − BFR. Découvert autorisé : 100 k€.
+   Jauges : res (résultat), frng, bfr (inversée : plus il monte, pire c'est), tn (trésorerie nette).
+   ===================================================================== */
+const N = ' ';
+const r1 = n => Math.round(n * 10) / 10;
+const ke = n => (n < 0 ? '−' : '') + r1(Math.abs(n)).toLocaleString('fr-FR') + N + 'k€';
+const pc = n => (Math.round(n * 10) / 10).toLocaleString('fr-FR') + N + '%';
+const F = s => s.flags;
+const ch = (good, bad) => ({ good, bad });
+const V = (...a) => a;
+/* effet combiné : résultat, FRNG, BFR → la trésorerie nette suit toute seule */
+const D = (res, frng, bfr) => ({ res: r1(res), frng: r1(frng), bfr: r1(bfr), tn: r1(frng - bfr) });
+const tab = rows => `<span class="pay">${rows.map(([l, v, t]) => `<span${t ? ' class="tot"' : ''}>${l}</span><b${t ? ' class="tot"' : ''}>${v}</b>`).join('')}</span>`;
+
+const GAME = {
+  title: 'Le diagnostic financier',
+  brand: 'LE <span>DIAGNOSTIC</span>',
+  storeKey: 'gfDiagFins',
+  backLink: '../../matieres/gestion-finance-terminale.html',
+  footer: 'Gestion et finance, Terminale STMG, thème 2',
+  kicker: 'Gestion et finance · Terminale STMG · Thème 2',
+  debIntro: 'Tu as diagnostiqué une entreprise rentable qui manquait d\'argent, puis tu as agi. Voici comment on appelle ce que tu as fait.',
+  cutText: 'Ta partie s\'est arrêtée avant le rendez-vous à la banque. Rejoue pour aller au bout.',
+  pitch: `Un an a passé chez Cadence, le fabricant de vélos d'Angers. Ventes en hausse de 20${N}%, résultat record. Et pourtant, la banque appelle tous les jours${N}: Cadence dépasse son découvert autorisé. M. Ferrand ne comprend pas. Toi, tu as six semaines pour comprendre, agir, et présenter un diagnostic au banquier.`,
+  meta: '4 actes · 20 minutes',
+  start: s => Object.assign(s, { res: 64, frng: 80, bfr: 200, tn: -120, ca: 1600, cam: 1600, cre: 240, cp: 400 }),
+  hud: [
+    { k: 'res',  label: 'Résultat', short: 'Résultat', show: s => ke(s.res), pct: s => s.res, low: s => s.res < 45, unit: N + 'k€' },
+    { k: 'frng', label: 'FRNG', short: 'FRNG', show: s => ke(s.frng), pct: s => 50 + s.frng / 4, low: s => s.frng < 0, unit: N + 'k€' },
+    { k: 'bfr',  label: 'BFR', short: 'BFR', show: s => ke(s.bfr), pct: s => s.bfr / 4, low: s => s.bfr > 220, inv: true, unit: N + 'k€' },
+    { k: 'tn',   label: 'Trésorerie nette', short: 'Trésorerie', show: s => ke(s.tn), pct: s => 50 + s.tn / 4, low: s => s.tn < -100, unit: N + 'k€' }
+  ],
+  fail: () => null,
+  lock: () => null,
+  bilan: s => [['Résultat', ke(s.res)], ['Rentabilité financière', pc(100 * s.res / s.cp)], ['FRNG', ke(s.frng)], ['BFR', ke(s.bfr)], ['Trésorerie nette', ke(s.tn)]],
+
+  characters: {
+    patron: { name: 'M. Ferrand', role: 'fondateur et dirigeant de Cadence', color: '#FFC64F', body: '#5a3a22', hair: '#8a8f96', acc: 'tie' },
+    banque: { name: 'M. Duval', role: 'chargé d\'affaires, banque', color: '#5B8FFF', body: '#2b3a5a', hair: '#1c1c22', acc: 'tie' },
+    sport:  { name: 'Mme Roux', role: 'acheteuse, chaîne Sportmax', color: '#FF8A4C', body: '#7a3a22', hair: '#3a2418', acc: 'clip' },
+    fourn:  { name: 'M. Keller', role: 'fournisseur de cadres', color: '#B9A6FF', body: '#3a3a4a', hair: '#c9c9c9', acc: 'box' },
+    magasin:{ name: 'Léo', role: 'responsable du stock', color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'box' },
+    narr:   { name: 'Toi', role: '', color: '#5FB8B0' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Le paradoxe', sub: 'Une entreprise peut gagner de l\'argent… et ne pas en avoir.',
+    steps: [
+      { t: 'say', who: 'patron', text: `1,6${N}million de ventes, 64${N}k€ de résultat, jamais vu ça. Et ce matin, la banque me dit que je dépasse le découvert autorisé de 20${N}000${N}€. Où est passé l'argent${N}? On me vole${N}?` },
+      { t: 'say', who: 'narr', text: s => `Tu commences par le compte de résultat. Il dit si Cadence crée de la richesse et si elle en garde.${tab([['Chiffre d\'affaires', ke(1600)], ['Valeur ajoutée (richesse créée)', ke(560)], ['Excédent brut d\'exploitation', ke(130)], ['Résultat de l\'exercice', ke(64), 1], ['Profitabilité (résultat ÷ ventes)', pc(4)], ['Rentabilité financière (résultat ÷ capitaux propres de 400 k€)', pc(16), 1]])}Sur 100${N}€ de vélos vendus, Cadence garde 4${N}€. Et chaque euro placé par les associés leur rapporte 16${N}centimes par an. Un livret d'épargne rapporte 3${N}%.` },
+      { t: 'say', who: 'narr', text: `Puis tu reclasses le bilan en <em>bilan fonctionnel</em>${N}: d'un côté ce qui est durable, de l'autre ce qui tourne avec l'activité.${tab([['Ressources stables (capitaux propres, emprunts)', ke(700)], ['Emplois stables (bâtiment, machines)', '−' + ke(620)], ['Fonds de roulement (FRNG)', ke(80), 1], ['Stocks de vélos et de pièces', ke(200)], ['Créances clients (ventes pas encore payées)', ke(240)], ['Dettes fournisseurs (achats pas encore payés)', '−' + ke(240)], ['Besoin en fonds de roulement (BFR)', ke(200), 1], ['Trésorerie nette = FRNG − BFR', ke(-120), 1]])}` },
+      { t: 'choice', id: 'diag', prompt: `Ton diagnostic pour M. Ferrand${N}?`, options: [
+        { id: 'rentabilite', label: 'Cadence ne gagne pas assez d\'argent', desc: '4 % de marge, c\'est peu : il faut augmenter les prix.', set: { diag: 'rentabilite' },
+          fx: s => { const d = D(-12, 0, -15); return d; }, do: s => { s.ca -= 120; s.cam -= 120; s.cre -= 15; },
+          chain: ch([], ['Tu dis à M. Ferrand que Cadence n\'est pas assez rentable', 'Il augmente ses prix de 5 %', 'Des magasins passent à la concurrence : ventes −120 k€', 'Le résultat baisse, et le découvert est toujours là', 'Le vrai problème n\'était pas là : 16 % de rentabilité, c\'est bon']),
+          voix: V({ who: 'patron', text: `J'ai monté les prix comme vous disiez. Résultat${N}: on vend moins, et la banque appelle toujours.` }) },
+        { id: 'tresorerie', label: 'Cadence est rentable, mais son activité immobilise trop d\'argent', desc: 'Le BFR (200 k€) dépasse le fonds de roulement (80 k€) : il manque 120 k€, financés par le découvert.', set: { diag: 'tresorerie' },
+          chain: ch(['Le problème n\'est pas la rentabilité : elle est bonne', 'L\'argent est bloqué dans les stocks et dans les ventes pas encore payées', 'Il faut agir sur le BFR, ou sur le fonds de roulement'], []),
+          voix: V({ who: 'patron', text: `Donc je gagne de l'argent… mais il dort dans l'entrepôt et chez mes clients${N}?` }) },
+        { id: 'vol', label: 'Il y a forcément une fuite : des vols ou une erreur comptable', desc: 'Faire auditer les comptes pour trouver l\'argent manquant.', set: { diag: 'vol' }, fx: D(-8, 0, 0),
+          chain: ch([], ['Un audit coûte 8 k€ et trois semaines', 'Il ne trouve rien : les comptes sont justes', 'Pendant ce temps, le découvert continue']),
+          voix: V({ who: 'patron', text: `8${N}000${N}€ pour apprendre que personne ne me vole. Formidable.` }) } ] },
+      { t: 'event', who: 'narr', if: s => F(s).diag !== 'tresorerie', text: `Tu reprends le bilan fonctionnel. Cette fois tu le vois${N}: l'argent n'a pas disparu. Il est bloqué dans les stocks et dans les factures que les magasins n'ont pas encore payées. Ce qu'il manque, c'est un fonds de roulement assez grand pour financer ce besoin.` }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Le cycle d\'exploitation', sub: 'Acheter, fabriquer, stocker, vendre, attendre d\'être payé : chaque jour d\'attente coûte de l\'argent.',
+    steps: [
+      { t: 'say', who: 'sport', text: `Sportmax veut référencer Cadence dans ses 40 magasins. Une première commande de 400 vélos à 1${N}100${N}€. Nos conditions${N}: paiement à 90 jours. C'est à prendre ou à laisser… enfin, presque.` },
+      { t: 'say', who: 'patron', text: `440${N}000${N}€ de ventes${N}! On signe tout de suite.` },
+      { t: 'choice', id: 'sportmax', prompt: `La commande Sportmax${N}?`, options: [
+        { id: 'accept90', label: 'Signer : 400 vélos, payés à 90 jours', desc: '+440 k€ de ventes, +36 k€ de résultat.', set: { sportmax: 'accept90' }, fx: D(36, 0, 85), do: s => { s.ca += 440; },
+          chain: ch(['Ventes +440 k€, résultat +36 k€', 'Un grand client, une vitrine nationale'], ['Il faut acheter les pièces et payer les salaires tout de suite', 'Sportmax ne paiera que dans 3 mois : 110 k€ de créances en plus', 'Le BFR grimpe de 85 k€', 'Plus Cadence vend, plus il lui faut d\'argent pour attendre d\'être payée']),
+          voix: V({ who: 'sport', text: `Parfait. Livraison en mars, paiement en juin.` }) },
+        { id: 'accept45', label: 'Négocier : 45 jours, en échange d\'un prix de 1 050 €', desc: '+420 k€ de ventes, +16 k€ de résultat.', set: { sportmax: 'accept45' }, fx: D(16, 0, 27), do: s => { s.ca += 420; },
+          chain: ch(['Le client est gagné', 'Paiement deux fois plus rapide : 52 k€ de créances au lieu de 110 k€', 'Le BFR n\'augmente que de 27 k€'], ['Tu sacrifies 20 k€ de marge pour être payé plus vite']),
+          voix: V({ who: 'sport', text: `Vous êtes dur en affaires. D'accord pour 45 jours à ce prix-là.` }) },
+        { id: 'refus', label: 'Refuser pour l\'instant', desc: 'Cadence n\'a pas les moyens d\'attendre 90 jours.', set: { sportmax: 'refus' },
+          chain: ch(['Le BFR ne bouge pas', 'Pas de nouveau besoin de trésorerie'], ['Sportmax signe avec un concurrent', 'Une occasion de croissance perdue']),
+          voix: V({ who: 'patron', text: `Vous me faites refuser le plus gros contrat de l'histoire de Cadence…` }) } ] },
+      { t: 'say', who: 'narr', text: s => `Les 120 magasins indépendants (hors Sportmax) paient aujourd'hui en moyenne à 54 jours. Raccourcir ce délai libère de l'argent, mais certains magasins iront chez un concurrent plus souple.` },
+      { t: 'qty', id: 'delai', min: 30, max: 60, step: 6, def: 54, show: n => n + ' jours',
+        prompt: `Délai de paiement accordé aux magasins${N}?`,
+        info: (s, n) => { const st = (54 - n) / 6, lost = st > 0 ? s.cam * 0.025 * st : 0, cre = (s.cam - lost) * n / 360;
+          return `Créances clients${N}: <b>${ke(cre)}</b> (aujourd'hui ${ke(s.cre)})<br>${lost ? `Ventes perdues${N}: <b>${ke(lost)}</b>, soit <b>${ke(-0.25 * lost)}</b> de résultat` : n > 54 ? 'Les magasins apprécient, mais l\'argent rentre plus tard' : 'Aucun magasin perdu'}`; },
+        resolve: (s, n) => { const st = (54 - n) / 6, lost = st > 0 ? s.cam * 0.025 * st : 0, cre = (s.cam - lost) * n / 360, dcre = r1(cre - s.cre), dres = r1(-0.25 * lost);
+          const fx = D(dres, 0, dcre); s.ca = r1(s.ca - lost); s.cam = r1(s.cam - lost); s.cre = r1(cre);
+          const band = n >= 60 ? 'long' : n >= 54 ? 'garde' : n >= 42 ? 'modere' : 'brutal';
+          return { band, fx,
+            chain: band === 'brutal' ? ch([`Les créances fondent : ${sk(dcre)}`], [`${ke(lost)} de ventes perdues`, `Résultat ${sk(dres)}`, 'Des magasins fidèles depuis dix ans s\'en vont']) :
+                   band === 'modere' ? ch([`Créances ${sk(dcre)} : de l'argent qui rentre plus tôt`, 'La plupart des magasins acceptent'], [`${ke(lost)} de ventes perdues, résultat ${sk(dres)}`]) :
+                   band === 'long' ? ch(['Les magasins sont contents'], [`Créances ${sk(dcre)}`, 'Le BFR augmente encore']) : ch(['Aucun client perdu'], ['Le BFR ne bouge pas']),
+            voix: band === 'brutal' ? V({ who: 'patron', text: `Trois magasins historiques m'ont appelé pour me dire adieu.` }) : band === 'modere' ? V({ who: 'patron', text: `Quelques grincements, mais ils suivent.` }) : null }; } },
+      { t: 'say', who: 'magasin', text: `On fabrique deux mois à l'avance, au cas où. Ça fait 200${N}k€ de vélos et de pièces qui attendent dans l'entrepôt.` },
+      { t: 'choice', id: 'stock', prompt: `Le stock${N}?`, options: [
+        { id: 'flux', label: 'Fabriquer davantage à la commande', desc: 'Stock réduit de 80 k€, mais certains clients attendront leur vélo.', fx: D(-4, 0, -80),
+          chain: ch(['80 k€ d\'argent libéré de l\'entrepôt', 'Moins de vélos qui vieillissent en stock'], ['Délais de livraison plus longs : quelques ventes perdues, résultat −4 k€']), voix: V({ who: 'magasin', text: `On produit ce qui est vendu. L'entrepôt respire.` }) },
+        { id: 'solde', label: 'Solder les anciens modèles à −20 %', desc: 'Stock réduit de 50 k€, mais vendu à perte de marge.', fx: D(-10, 0, -50),
+          chain: ch(['50 k€ de stock transformés en argent'], ['Marge sacrifiée : résultat −10 k€', 'Les clients apprennent à attendre les soldes']), voix: V({ who: 'patron', text: `Ça fait mal au cœur de brader nos vélos.` }) },
+        { id: 'garder', label: 'Garder deux mois de stock', desc: 'Aucun risque de rupture.', fx: D(0, 0, 0),
+          chain: ch(['Tous les clients sont servis immédiatement'], ['200 k€ restent immobilisés']) } ] },
+      { t: 'say', who: 'fourn', text: `Je vous livre les cadres et vous me payez à 30 jours. Si vous me payez comptant, je vous fais 3${N}% de remise. Si vous voulez 60 jours… je devrai monter mes prix de 1${N}%.` },
+      { t: 'choice', id: 'fourn', prompt: `Le paiement des fournisseurs${N}?`, options: [
+        { id: 'soixante', label: 'Passer à 60 jours, en acceptant +1 % sur les prix', desc: 'Les dettes fournisseurs augmentent de 60 k€ : c\'est 60 k€ de BFR en moins.', fx: D(-6, 0, -60),
+          chain: ch(['Le fournisseur finance 60 k€ de ton cycle d\'exploitation', 'Le BFR baisse de 60 k€'], ['Les cadres coûtent 1 % plus cher : résultat −6 k€']), voix: V({ who: 'fourn', text: `Marché conclu.` }) },
+        { id: 'comptant', label: 'Payer comptant pour avoir 3 % de remise', desc: 'Résultat +18 k€.', fx: D(18, 0, 200),
+          chain: ch(['Résultat +18 k€'], ['Il faut payer 200 k€ de factures tout de suite', 'Les dettes fournisseurs disparaissent : le BFR bondit de 200 k€', 'Le découvert explose']), voix: V({ who: 'banque', text: `Monsieur Ferrand, votre compte vient de passer à un niveau que je ne peux pas accepter.` }) },
+        { id: 'trente', label: 'Rester à 30 jours', desc: 'Rien ne change.', fx: D(0, 0, 0),
+          chain: ch(['Une relation sereine avec le fournisseur'], ['Le BFR ne bouge pas']) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'L\'atelier', sub: 'Les biens durables se financent avec des ressources durables.',
+    steps: [
+      { t: 'say', who: 'patron', text: s => `Il faut agrandir l'atelier${N}: 150${N}000${N}€. ${F(s).sportmax === 'refus' ? 'Pas tout de suite, mais d\'ici un an.' : 'Sans ça, impossible de produire les vélos Sportmax.'} Le plus simple, c'est de payer avec le compte courant, non${N}?` },
+      { t: 'choice', id: 'atelier', prompt: `Comment financer l'agrandissement${N}?`, options: [
+        { id: 'compte', label: 'Payer avec le compte courant', desc: 'Pas d\'intérêts, pas de démarches.', fx: D(0, -150, 0),
+          chain: ch(['Aucun intérêt à payer'], ['Un bien de 20 ans est payé avec de l\'argent du quotidien', 'Les emplois stables augmentent, pas les ressources stables', 'Le fonds de roulement plonge de 150 k€', 'La trésorerie aussi']), voix: V({ who: 'banque', text: `Vous financez un bâtiment avec votre découvert${N}? Non.` }) },
+        { id: 'emprunt', label: 'Un emprunt de 150 k€ sur 10 ans', desc: 'Intérêts : environ 5 k€ par an.', fx: D(-5, 0, 0),
+          chain: ch(['L\'atelier est financé par une ressource durable', 'Le fonds de roulement ne bouge pas', 'Les emplois stables sont couverts par des ressources stables'], ['5 k€ d\'intérêts par an']), voix: V({ who: 'banque', text: `C'est le bon outil. Bien durable, financement durable.` }) },
+        { id: 'emprunt250', label: 'Emprunter 250 k€ : 150 pour l\'atelier, 100 pour renforcer le fonds de roulement', desc: 'Intérêts : environ 8 k€ par an.', fx: D(-8, 100, 0),
+          chain: ch(['L\'atelier est financé durablement', 'Le fonds de roulement gagne 100 k€', 'Ce surplus finance le BFR : la trésorerie remonte d\'autant'], ['8 k€ d\'intérêts par an', 'Une dette plus lourde à rembourser']), voix: V({ who: 'banque', text: `Vous avez compris que le fonds de roulement sert aussi à financer le cycle d'exploitation. Je suis d'accord.` }) },
+        { id: 'apport', label: 'Demander 150 k€ aux associés', desc: 'Les capitaux propres passent de 400 à 550 k€. Aucun intérêt.', fx: D(0, 0, 0), do: s => { s.cp = 550; },
+          chain: ch(['L\'atelier est financé par une ressource durable', 'Pas d\'intérêts, pas de dette'], ['Les associés ont mis plus d\'argent : chaque euro investi rapporte moins', 'La rentabilité financière baisse']), voix: V({ who: 'patron', text: `Mon beau-frère met 150${N}000${N}€. Il veut un siège au conseil, évidemment.` }) } ] },
+      { t: 'event', who: 'narr', if: s => H.atelier === 'apport', text: s => `Le résultat est maintenant rapporté à 550${N}k€ de capitaux propres au lieu de 400${N}: la rentabilité financière passe de ${pc(100 * s.res / 400)} à ${pc(100 * s.res / 550)}.` }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Le banquier', sub: 'Présenter un diagnostic, c\'est relier les chiffres aux décisions.', final: true,
+    steps: [
+      { t: 'say', who: 'narr', text: s => `Six semaines plus tard. Tu poses ton tableau sur le bureau de M. Duval.${tab([['Chiffre d\'affaires', ke(s.ca)], ['Résultat', ke(s.res)], ['Profitabilité', pc(100 * s.res / s.ca)], ['Rentabilité financière', pc(100 * s.res / s.cp), 1], ['Fonds de roulement (FRNG)', ke(s.frng)], ['Besoin en fonds de roulement (BFR)', ke(s.bfr)], ['Trésorerie nette', ke(s.tn), 1]])}` },
+      { t: 'say', who: 'banque', text: s => {
+          s.verdict = s.tn < -250 ? 'coupe' : s.tn < -100 ? 'depasse' : s.res < 45 ? 'maigre' : 'ok';
+          return { coupe: `Votre trésorerie est à ${ke(s.tn)}. Je ne peux plus suivre. Je réduis votre découvert dès le mois prochain. Vous allez devoir trouver de l'argent très vite.`,
+            depasse: `Vous restez au-delà de votre découvert autorisé de 100${N}k€. Vous êtes rentables, je le vois. Mais vous n'avez pas réglé le problème${N}: votre activité consomme plus d'argent que vos ressources durables n'en fournissent.`,
+            maigre: `Votre trésorerie est sous contrôle, bravo. Mais pour y arriver, vous avez beaucoup sacrifié de résultat. Attention à ne pas guérir la trésorerie en abîmant la rentabilité.`,
+            ok: `Rentable, et avec une trésorerie maîtrisée. Vous avez compris que vendre ne suffit pas${N}: il faut financer le temps entre l'achat et l'encaissement. Je maintiens votre découvert et je vous suis pour la suite.` }[s.verdict]; } }
+    ] }
+  ],
+
+  endings: [
+    { id: 'cessation', when: s => s.verdict === 'coupe', title: 'L\'asphyxie', stamp: 'Découvert coupé', color: '#FF5C6A',
+      text: s => `Cadence ${s.res > 0 ? `gagne ${ke(s.res)} sur l'année` : 'perd de l\'argent'}, et pourtant elle ne peut plus payer ses salaires et ses fournisseurs à temps. C'est ainsi que meurent beaucoup d'entreprises rentables${N}: pas faute de bénéfice, faute de trésorerie. ${H.fourn === 'comptant' ? 'Payer comptant pour 3 % de remise a vidé la caisse. ' : ''}${H.atelier === 'compte' ? 'Payer l\'atelier avec le compte courant a achevé le fonds de roulement.' : ''}` },
+    { id: 'depasse', when: s => s.verdict === 'depasse', title: 'Rentable, mais à court d\'argent', stamp: 'Découvert dépassé', color: '#FFC64F',
+      text: s => `Le BFR (${ke(s.bfr)}) dépasse toujours largement le fonds de roulement (${ke(s.frng)}). La banque surveille Cadence de près. Pour en sortir, il fallait soit réduire le BFR (délais clients, stocks, délais fournisseurs), soit renforcer le fonds de roulement par des ressources durables.` },
+    { id: 'maigre', when: s => s.verdict === 'maigre', title: 'Trésorerie sauvée, rentabilité abîmée', stamp: 'Découvert maintenu', color: '#5FB8B0',
+      text: s => `La trésorerie est revenue à ${ke(s.tn)}, mais le résultat est tombé à ${ke(s.res)}. Chaque levier avait un prix${N}: clients perdus, remises, intérêts. Un bon diagnostic cherche l'équilibre entre rentabilité et trésorerie.` },
+    { id: 'equilibre', when: s => true, title: 'L\'équilibre retrouvé', stamp: 'Banque rassurée', color: '#4CD97B',
+      text: s => `Résultat ${ke(s.res)}, trésorerie nette ${ke(s.tn)}. Tu as trouvé où dormait l'argent de Cadence et tu l'as libéré sans casser l'activité. Le fonds de roulement couvre le besoin né du cycle d'exploitation${N}: c'est l'équilibre financier.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['diag'], title: 'Acte 1 — Le paradoxe', text: h => `Le compte de résultat mesure la <em>création de richesse</em> (la <em>valeur ajoutée</em>, l\'<em>excédent brut d\'exploitation</em>) et la performance. La <em>profitabilité</em> compare le résultat aux ventes (4 %) ; la <em>rentabilité financière</em> compare le résultat aux <em>capitaux propres</em> apportés par les associés (16 %). Le <em>bilan fonctionnel</em> classe les éléments du bilan en <em>emplois stables</em> et <em>ressources stables</em>, puis en éléments du cycle d\'exploitation. ${h.diag === 'tresorerie' ? 'Ton diagnostic était juste : Cadence est rentable, mais sa trésorerie est négative.' : 'Ton premier diagnostic visait le mauvais problème : rentabilité et trésorerie sont deux choses différentes.'}`,
+      chain: () => ({ good: ['Compte de résultat', 'Rentable', 'Bilan fonctionnel', 'BFR > FRNG', 'Trésorerie négative'], bad: ['Regarder les ventes', 'Mauvais diagnostic', 'Mauvaise décision'] }) },
+    { act: 2, needs: ['sportmax'], title: 'Acte 2 — Le cycle d\'exploitation', text: h => `Le <em>besoin en fonds de roulement</em> (BFR) naît du <em>cycle d\'exploitation</em> : stocks + créances clients − dettes fournisseurs. Il dépend des <em>délais de paiement</em> clients et fournisseurs et de la durée de stockage. ${h.sportmax === 'accept90' ? 'La commande Sportmax à 90 jours l\'a montré : une croissance des ventes fait grossir le BFR, et il faut la financer.' : 'Une forte croissance des ventes fait grossir le BFR : il faut prévoir son financement.'} ${h.fourn === 'comptant' ? 'Payer comptant pour une remise a fait bondir le BFR : une bonne affaire pour le résultat peut être une catastrophe pour la trésorerie.' : ''}`,
+      chain: () => ({ good: ['Délais clients plus courts', 'Moins de stock', 'Délais fournisseurs plus longs', 'BFR réduit'], bad: ['Croissance', 'Plus de créances', 'BFR en hausse', 'Découvert'] }) },
+    { act: 3, needs: ['atelier'], title: 'Acte 3 — L\'atelier', text: h => `Le <em>fonds de roulement net global</em> (FRNG) = ressources stables − emplois stables. Selon la <em>règle de l\'équilibre financier</em>, les emplois stables doivent être financés par des ressources stables, et le FRNG doit couvrir le BFR. Alors la <em>trésorerie nette</em> (FRNG − BFR) est positive. ${h.atelier === 'compte' ? 'Payer l\'atelier avec le compte courant a fait chuter le FRNG.' : h.atelier === 'apport' ? 'L\'apport des associés finance durablement l\'atelier, mais fait baisser la rentabilité financière.' : 'L\'emprunt est une ressource stable : il préserve le FRNG.'}`,
+      chain: () => ({ good: ['Ressources stables', 'Financent les emplois stables', 'FRNG ≥ BFR', 'Trésorerie positive'], bad: ['Bien durable payé au comptant', 'FRNG en baisse', 'Trésorerie négative'] }) },
+    { act: 4, needs: ['atelier'], finalOnly: true, title: 'Acte 4 — Le banquier', text: () => `Un <em>diagnostic financier</em> relie trois questions : l\'entreprise crée-t-elle de la richesse ? Est-elle rentable ? Est-elle équilibrée financièrement ? Les réponses peuvent diverger, d\'où l\'importance de les regarder ensemble avant de décider. Le banquier, comme les associés ou les fournisseurs, lit ces indicateurs pour accorder sa confiance.`,
+      chain: () => ({ good: ['Richesse', 'Rentabilité', 'Équilibre financier', 'Confiance'], bad: ['Un seul indicateur', 'Diagnostic faux', 'Décisions faussées'] }) }
+  ],
+  vocab: ['Valeur ajoutée', 'Excédent brut d\'exploitation', 'Profitabilité', 'Rentabilité financière', 'Capitaux propres', 'Bilan fonctionnel', 'Emplois stables', 'Ressources stables', 'Fonds de roulement net global (FRNG)', 'Besoin en fonds de roulement (BFR)', 'Cycle d\'exploitation', 'Délais de paiement', 'Trésorerie nette', 'Découvert bancaire', 'Équilibre financier']
+};
+let H = {};
+const sk = n => (n >= 0 ? '+' : '−') + ke(Math.abs(n));
+
+/* =====================================================================
+   2. DÉCOR — deux colonnes : le fonds de roulement face au besoin ; l'écart, c'est la trésorerie.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const G = '#5FB8B0', base = 140, k = 0.25, hf = Math.max(2, S.frng * k), hb = Math.max(2, S.bfr * k), t = S.tn;
+  const col = t >= 0 ? '#4CD97B' : t >= -100 ? '#FFC64F' : '#FF5C6A';
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Fonds de roulement, besoin en fonds de roulement et trésorerie de Cadence">
+    <rect width="360" height="200" fill="#050909"/><rect x="0" y="0" width="360" height="162" fill="#081010"/>
+    <text x="240" y="20" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#8BA8A5">CADENCE · ÉQUILIBRE FINANCIER</text>
+    <line x1="160" y1="${base}" x2="330" y2="${base}" stroke="#2a4444"/>
+    <rect x="178" y="${base - Math.min(hf, 110)}" width="38" height="${Math.min(hf, 110)}" fill="${G}" opacity="${S.frng < 0 ? .3 : .85}"/>
+    <text x="197" y="${base + 12}" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11" fill="#EEF3EC">FRNG</text>
+    <text x="197" y="${base - Math.min(hf, 110) - 5}" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="${G}">${ke(S.frng)}</text>
+    <rect x="236" y="${base - Math.min(hb, 110)}" width="38" height="${Math.min(hb, 110)}" fill="#FF8A4C" opacity=".8"/>
+    <text x="255" y="${base + 12}" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11" fill="#EEF3EC">BFR</text>
+    <text x="255" y="${base - Math.min(hb, 110) - 5}" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="#FF8A4C">${ke(S.bfr)}</text>
+    <text x="310" y="78" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="#8BA8A5">trésorerie</text>
+    <text x="310" y="94" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="11" fill="${col}">${ke(t)}</text>
+    <rect x="0" y="162" width="360" height="38" fill="#060a0a"/><line x1="0" y1="162" x2="360" y2="162" stroke="#173030" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

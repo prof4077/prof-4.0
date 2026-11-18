@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>La cohésion — Jeu Ressources humaines Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#B86BBA;--eco-dim:#7A3F7C;--good:#4CD97B;--bg:#07050a;--panel:#0f0b14;--panel2:#140f1a;--line:#2d1f36;--txt:#EEF3EC;--muted:#A89AAE;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(184,107,186,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(184,107,186,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#221a2a;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:#F2B66D;transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(184,107,186,.5);background:rgba(184,107,186,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070a06;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(184,107,186,.09), rgba(12,8,16,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#12061a;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#12061a;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#1a1220;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#142010;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#12061a;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#0a070d;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#0a070d;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#0a070d;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#0a070d;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(184,107,186,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#0a070d;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(184,107,186,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — La cohésion (Ressources humaines, Terminale STMG, thème 3)
+   Les Embruns, troisième saison. Une guerre entre la salle et la cuisine, un chef qui humilie,
+   une rumeur de vente, et une négociation sur les horaires d'été avec le comité social et économique.
+   Jauges : climat (climat social, 0-100), cohesion (entre les équipes, 0-100),
+            confiance (envers la direction, 0-100), service (qualité de service, note des avis).
+   ===================================================================== */
+const N = ' ';
+const note = s => (3 + Math.max(0, Math.min(100, s.service)) / 50).toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const F = s => s.flags;
+const ch = (good, bad) => ({ good, bad });
+const V = (...a) => a;
+const tab = rows => `<span class="pay">${rows.map(([l, v, t]) => `<span${t ? ' class="tot"' : ''}>${l}</span><b${t ? ' class="tot"' : ''}>${v}</b>`).join('')}</span>`;
+const seuil = s => Math.round((520 - (s.confiance - 50) * 5) / 50) * 50;
+
+const GAME = {
+  title: 'La cohésion',
+  brand: 'LES <span>EMBRUNS</span>',
+  storeKey: 'rhCohesionFins',
+  backLink: '../../matieres/ressources-humaines-terminale.html',
+  footer: 'Ressources humaines, Terminale STMG, thème 3',
+  kicker: 'Ressources humaines · Terminale STMG · Thème 3',
+  debIntro: 'Tu as géré des conflits, informé, négocié. Voici comment on appelle ce que tu as fait.',
+  cutText: 'Ta partie s\'est arrêtée avant la fin de la saison. Rejoue pour aller au bout.',
+  pitch: `Troisième saison aux Embruns. Les salaires et les conditions de travail se sont améliorés. Mais l'ambiance, elle, se dégrade${N}: la salle et la cuisine ne se parlent plus, les anciens et les saisonniers non plus, et une rumeur court${N}: l'hôtel serait à vendre. Ton rôle${N}: retisser les liens avant l'été.`,
+  meta: '4 actes · 20 minutes',
+  start: s => Object.assign(s, { climat: 50, cohesion: 40, confiance: 50, service: 60 }),
+  hud: [
+    { k: 'climat',    label: 'Climat social', short: 'Climat', show: s => Math.round(s.climat), pct: s => s.climat, low: s => s.climat < 40, clamp: true },
+    { k: 'cohesion',  label: 'Cohésion des équipes', short: 'Cohésion', show: s => Math.round(s.cohesion), pct: s => s.cohesion, low: s => s.cohesion < 40, clamp: true },
+    { k: 'confiance', label: 'Confiance envers la direction', short: 'Confiance', show: s => Math.round(s.confiance), pct: s => s.confiance, low: s => s.confiance < 40, clamp: true },
+    { k: 'service',   label: 'Qualité de service', short: 'Avis', show: s => note(s) + '/5', pct: s => s.service, low: s => s.service < 45, clamp: true }
+  ],
+  fail: () => null,
+  lock: () => null,
+  bilan: s => [['Climat social', Math.round(s.climat) + ' / 100'], ['Cohésion des équipes', Math.round(s.cohesion) + ' / 100'], ['Confiance envers la direction', Math.round(s.confiance) + ' / 100'], ['Note des avis clients', note(s) + ' / 5']],
+
+  characters: {
+    patronne:{ name: 'Mme Le Bihan', role: 'propriétaire des Embruns', color: '#FFC64F', body: '#3a4a6a', hair: '#c9c9c9', acc: 'clip' },
+    chef:    { name: 'Le chef', role: 'chef de cuisine', color: '#5B8FFF', body: '#e8e8e8', hair: '#5a4030', acc: 'tie' },
+    salle:   { name: 'Inès', role: 'maître d\'hôtel', color: '#FF8A4C', body: '#1c1c22', hair: '#2a1a12', acc: 'clip' },
+    theo:    { name: 'Théo', role: 'commis saisonnier, 19 ans', color: '#4CD97B', body: '#e8e8e8', hair: '#c9a060', acc: 'box' },
+    bruno:   { name: 'Bruno', role: 'élu au comité social et économique', color: '#B9A6FF', body: '#2f7a4a', hair: '#5a4030', acc: 'tie' },
+    narr:    { name: 'Toi', role: '', color: '#B86BBA' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Les tensions', sub: 'Un conflit qu\'on ne traite pas ne disparaît pas : il grossit.',
+    steps: [
+      { t: 'say', who: 'salle', text: `Samedi, 40 couverts, et les plats sortent avec vingt minutes de retard. Quand mes serveurs vont en cuisine demander où ça en est, le chef leur hurle dessus. Les clients voient tout. Mes serveurs n'en peuvent plus.` },
+      { t: 'say', who: 'chef', text: `Les serveurs prennent les commandes n'importe comment, oublient les allergies, et viennent me presser en plein coup de feu. Qu'ils fassent leur travail, je ferai le mien.` },
+      { t: 'choice', id: 'conflit', prompt: `Le conflit entre la salle et la cuisine${N}?`, options: [
+        { id: 'mediation', label: 'Une réunion salle-cuisine, animée par toi, pour poser des règles communes', desc: 'Chacun explique ses contraintes ; on fixe ensemble comment passer les commandes et qui annonce les retards.', fx: { cohesion: 14, climat: 6, service: 6 },
+          chain: ch(['Chacun découvre les contraintes de l\'autre', 'Des règles décidées ensemble : un bon de commande clair, une personne qui fait le lien', 'Le conflit devient un problème d\'organisation, pas de personnes'], ['Deux heures prises sur le temps de travail']),
+          voix: V({ who: 'salle', text: `Je ne savais pas qu'il recevait les commandes sur des bouts de papier illisibles.` }, { who: 'chef', text: `Et moi je ne savais pas que les clients les relançaient toutes les cinq minutes.` }) },
+        { id: 'trancher', label: 'Trancher : la salle a raison, le chef doit se calmer', desc: 'Un rappel à l\'ordre au chef, devant Inès.', fx: { cohesion: -6, climat: -2, confiance: -4 },
+          chain: ch(['Une décision rapide'], ['Le chef se sent humilié et désavoué', 'Les vraies causes du retard ne sont pas traitées', 'La cuisine en veut maintenant à la salle']) },
+        { id: 'separer', label: 'Interdire aux serveurs d\'entrer en cuisine', desc: 'Plus de contact, plus de dispute.', fx: { cohesion: -10, service: -6 },
+          chain: ch(['Plus de cris'], ['Plus d\'information non plus : les retards augmentent', 'Deux équipes qui ne se connaissent plus']) },
+        { id: 'ignorer', label: 'Les laisser se débrouiller : ce sont des adultes', desc: 'Ça finira par se tasser.', fx: { cohesion: -8, climat: -6, service: -4 },
+          chain: ch([], ['Le conflit continue chaque soir', 'Les clients voient les tensions', 'Chacun pense que la direction s\'en moque']) } ] },
+      { t: 'say', who: 'theo', text: `Je peux vous parler${N}? Depuis trois semaines, le chef m'appelle «${N}le boulet${N}» devant tout le monde. Il m'a jeté une assiette aux pieds mardi. Les autres rigolent. Je n'ose plus venir.` },
+      { t: 'choice', id: 'theo', prompt: `Ce que te dit Théo${N}?`, options: [
+        { id: 'agir', label: 'Le prendre au sérieux : écouter les témoins, recadrer le chef par écrit, protéger Théo', desc: 'Entretien avec Théo, avec les collègues, puis avec le chef ; avertissement écrit ; rappel des règles à toute la cuisine.', fx: { climat: 10, confiance: 12, cohesion: 4 },
+          chain: ch(['L\'employeur a l\'obligation de protéger la santé physique et mentale de ses salariés', 'Des faits répétés et humiliants peuvent constituer du harcèlement moral', 'Toute l\'équipe voit que ce comportement n\'est pas toléré'], ['Le chef est vexé']),
+          voix: V({ who: 'chef', text: `J'ai été formé comme ça, à la dure… Bon. J'ai compris.` }, { who: 'theo', text: `Merci de m'avoir cru.` }) },
+        { id: 'tradition', label: '« En cuisine, c\'est comme ça. Il faut s\'endurcir. »', desc: 'Tous les chefs sont durs.', set: { harcelement: true }, fx: { climat: -12, confiance: -15 },
+          chain: ch([], ['Théo n\'est pas protégé', 'Le chef comprend qu\'il peut continuer', 'L\'employeur qui ne réagit pas engage sa responsabilité']) },
+        { id: 'licencier', label: 'Licencier le chef sur-le-champ', desc: 'Tolérance zéro.', fx: { climat: -4, confiance: 2, service: -15, cohesion: -6 },
+          chain: ch(['Le message est clair'], ['Sans enquête, sans l\'entendre : la procédure n\'est pas respectée, il peut contester', 'Plus de chef en pleine saison', 'Une partie de la cuisine prend sa défense']) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'La communication', sub: 'Quand la direction se tait, la rumeur parle à sa place.',
+    steps: [
+      { t: 'say', who: 'bruno', text: `Tout le monde dit qu'un groupe hôtelier veut racheter les Embruns et qu'il remplacera la moitié de l'équipe. Deux saisonniers ont déjà cherché ailleurs.` },
+      { t: 'say', who: 'patronne', text: `C'est vrai, j'ai reçu une offre. Je n'ai rien décidé. Je ne veux pas en parler tant que ce n'est pas fait.` },
+      { t: 'choice', id: 'rumeur', prompt: `Que dire à l'équipe${N}?`, options: [
+        { id: 'transparence', label: 'Réunir toute l\'équipe : dire ce que l\'on sait, ce que l\'on ne sait pas, et quand on en saura plus', desc: 'Mme Le Bihan parle elle-même, et répond aux questions.', fx: { confiance: 14, climat: 6 },
+          chain: ch(['La rumeur est remplacée par des faits', 'Chacun peut poser ses questions', 'Une date est donnée pour la suite'], ['L\'incertitude demeure : il faut l\'accepter']),
+          voix: V({ who: 'bruno', text: `On n'a pas toutes les réponses, mais au moins on sait où on en est.` }) },
+        { id: 'mail', label: 'Un court message : « Aucune décision n\'est prise. »', desc: 'Envoyé par e-mail à tout le monde.', fx: { confiance: -2 },
+          chain: ch(['Une information officielle'], ['Un message froid, sans possibilité de poser des questions', 'Il confirme qu\'il se passe quelque chose']) },
+        { id: 'silence', label: 'Ne rien dire tant que rien n\'est signé', desc: 'Ne pas inquiéter pour rien.', fx: { confiance: -14, climat: -8 },
+          chain: ch([], ['La rumeur grossit', 'Deux saisonniers démissionnent', 'Quand la vérité sortira, la confiance sera difficile à retrouver']) } ] },
+      { t: 'say', who: 'narr', text: `Au-delà de la rumeur, l'équipe se parle peu. Les saisonniers restent entre eux, les anciens aussi. Les informations passent par des groupes WhatsApp où tout le monde n'est pas. Tu peux mettre en place deux outils.` },
+      { t: 'pick', id: 'outils', budget: 2, unit: '', unitLabel: 'Outils', go: 'Mettre en place ▸',
+        prompt: `Deux outils pour mieux communiquer et souder l'équipe${N}:`,
+        options: [
+          { id: 'brief', label: 'Un brief de 10 minutes chaque jour, salle et cuisine ensemble', cost: 1, desc: 'Réservations, allergies, VIP, plats du jour : tout le monde a la même information.' },
+          { id: 'idees', label: 'Une boîte à idées, avec une réponse affichée à chaque idée', cost: 1, desc: 'La communication ascendante : du terrain vers la direction.' },
+          { id: 'binomes', label: 'Des binômes ancien-saisonnier et une soirée d\'accueil en début de saison', cost: 1, desc: 'Créer des liens entre ceux qui restent et ceux qui passent.' },
+          { id: 'journal', label: 'Une lettre d\'information mensuelle de la direction', cost: 1, desc: 'Les résultats, les projets, les arrivées.' },
+          { id: 'whatsapp', label: 'Un grand groupe WhatsApp pour tout l\'hôtel', cost: 1, desc: 'Rapide et gratuit.' } ],
+        resolve: (s, ids) => { const fx = { cohesion: 0, climat: 0, confiance: 0, service: 0 }, good = [], bad = [];
+          if (ids.includes('brief')) { fx.cohesion += 8; fx.service += 8; good.push('Salle et cuisine partagent la même information : moins d\'erreurs, moins de tensions'); }
+          if (ids.includes('idees')) { fx.confiance += 8; fx.climat += 4; good.push('Le terrain est écouté, et voit les réponses'); }
+          if (ids.includes('binomes')) { fx.cohesion += 12; fx.climat += 3; good.push('Anciens et saisonniers apprennent à se connaître'); }
+          if (ids.includes('journal')) { fx.confiance += 4; good.push('Tout le monde sait où va l\'hôtel'); bad.push('Une communication descendante : on informe, on n\'écoute pas'); }
+          if (ids.includes('whatsapp')) { fx.climat -= 4; fx.cohesion += 2; bad.push('Messages à toute heure, disputes en public, et des absents qui ratent tout'); }
+          return { fx, chain: ch(good, bad) }; } }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Le dialogue social', sub: 'Négocier, c\'est chercher un accord que chacun peut accepter.',
+    steps: [
+      { t: 'say', who: 'patronne', text: `Pour l'été, je veux passer l'équipe à 42 heures par semaine en juillet-août, et 28 heures en hiver. Sur l'année, ça fait toujours 35 heures en moyenne. C'est indispensable${N}: l'été, on manque de bras.` },
+      { t: 'say', who: 'bruno', text: `Au comité social et économique, on comprend le besoin. Mais 42 heures en août, avec des enfants en vacances, c'est lourd. On veut en discuter, pas qu'on nous l'impose.` },
+      { t: 'choice', id: 'methode', prompt: `Comment mettre en place les horaires d'été${N}?`, options: [
+        { id: 'imposer', label: 'L\'annoncer par note de service', desc: 'La direction décide de l\'organisation.', set: { methode: 'imposer' }, fx: { confiance: -15, climat: -12 },
+          chain: ch(['Rapide'], ['Faire varier la durée du travail sur l\'année demande un accord collectif : une note de service ne suffit pas', 'Les élus se sentent méprisés', 'On parle de grève pour le 14 juillet']) },
+        { id: 'negocier', label: 'Négocier un accord avec les élus du comité social et économique', desc: 'Discuter des contreparties.', set: { methode: 'negocier' }, fx: { confiance: 6 },
+          chain: ch(['La loi le permet dans une entreprise de cette taille', 'Les salariés sont représentés', 'Un accord signé engage les deux parties'], ['Il faudra faire des concessions']) },
+        { id: 'renoncer', label: 'Renoncer, et embaucher deux saisonniers de plus', desc: 'Pas d\'heures en plus pour l\'équipe.', set: { methode: 'renoncer' }, fx: { climat: 4, service: -4 },
+          chain: ch(['Aucun conflit'], ['Deux recrutements de plus dans une région où l\'on manque de candidats', 'Des nouveaux à former en plein été']) } ] },
+      { t: 'say', who: 'bruno', if: s => F(s).methode === 'negocier', text: `Nos demandes${N}: des plannings d'été connus en avril, deux semaines de congés garanties en hiver pour tous, et une prime de saison. Sur la prime, on attend un geste sérieux.` },
+      { t: 'qty', id: 'prime', if: s => F(s).methode === 'negocier', min: 0, max: 800, step: 50, def: 200, show: n => n + N + '€',
+        prompt: `Prime de saison proposée à chaque salarié${N}?`,
+        info: (s, n) => `Coût pour l'hôtel${N}: <b>${(n * 22).toLocaleString('fr-FR')}${N}€</b> (22 salariés)<br>Plannings en avril et congés d'hiver garantis${N}: inclus dans l'offre`,
+        resolve: (s, n) => { const ok = n >= seuil(s);
+          F(s).accord = ok;
+          return { band: ok ? (n > seuil(s) + 150 ? 'genereux' : 'accord') : 'refus',
+            fx: ok ? { climat: 12, confiance: 10, cohesion: 4 } : { climat: -8, confiance: -6 },
+            chain: ok ? ch([`Les élus acceptent : ${n} € de prime, plannings d'été en avril, deux semaines de congés en hiver`, 'Un accord collectif est signé', 'La direction obtient sa souplesse, les salariés des garanties'], n > seuil(s) + 150 ? ['Tu aurais pu obtenir l\'accord pour moins cher'] : []) :
+              ch([], [`${n} € : les élus jugent l'offre insuffisante`, `Avec la confiance actuelle, il aurait fallu au moins ${seuil(s)} €`, 'Pas d\'accord : les horaires restent les mêmes', 'Le ton monte']),
+            voix: ok ? V({ who: 'bruno', text: `On signe. C'est la première fois qu'on négocie vraiment ici.` }) : V({ who: 'bruno', text: `Vous ne nous faites pas confiance, on ne vous fait pas confiance. On en reparlera.` }) }; } }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'L\'été', sub: 'La cohésion se mesure dans les moments difficiles.', final: true,
+    steps: [
+      { t: 'event', who: 'bruno', if: s => F(s).methode === 'imposer' || (F(s).methode === 'negocier' && !F(s).accord && s.confiance < 45), text: `14 juillet. Les cuisiniers et la moitié de la salle cessent le travail de 19${N}h à 21${N}h. Le restaurant sert des assiettes froides. Un client poste une photo de la salle vide.`, set: { greve: true }, fx: { service: -14, climat: -6 } },
+      { t: 'event', who: 'theo', if: s => F(s).harcelement, text: `Fin juillet. Théo est en arrêt maladie. Son médecin parle d'épuisement. Ses parents contactent un avocat et l'inspection du travail.`, fx: { climat: -10, confiance: -10 } },
+      { t: 'event', who: 'salle', text: s => `15 août, 80 couverts, un orage coupe le courant pendant une heure. ${s.cohesion >= 60 ? `Personne ne panique${N}: la cuisine improvise des plats froids, la salle sort des bougies, les femmes de chambre viennent aider. Les clients applaudissent.` : s.cohesion >= 45 ? `On s'en sort, tant bien que mal. Chacun se débrouille dans son coin.` : `Chacun accuse l'autre. Les clients attendent une heure dans le noir. Plusieurs partent sans payer.`}`,
+        fx: s => s.cohesion >= 60 ? { service: 8, cohesion: 4 } : s.cohesion >= 45 ? {} : { service: -10, climat: -4 } },
+      { t: 'say', who: 'patronne', text: s => {
+          s.verdict = F(s).harcelement ? 'harcelement' : F(s).greve ? 'greve' : s.cohesion < 45 ? 'fracture' : (s.climat < 60 || s.confiance < 55 || (F(s).methode === 'negocier' && !F(s).accord)) ? 'fragile' : 'succes';
+          return { harcelement: `L'inspection du travail est venue. Elle a entendu Théo, les témoins… et moi. Nous n'avons rien fait quand il nous a parlé.`,
+            greve: `Une grève le 14 juillet, la photo du restaurant vide partout sur Internet. Et une équipe qui ne nous fait plus confiance.`,
+            fracture: `On a tenu la saison. Mais la salle, la cuisine, les anciens, les saisonniers… ce sont des clans, pas une équipe.`,
+            fragile: `Ça va mieux qu'avant. Mais je sens que tout peut se rompre au premier coup dur.`,
+            succes: `${note(s)}/5 dans les avis. Et le soir de l'orage, j'ai vu une équipe. J'ai refusé l'offre du groupe hôtelier${N}: je ne vends pas ça.` }[s.verdict]; } }
+    ] }
+  ],
+
+  endings: [
+    { id: 'harcelement', when: s => s.verdict === 'harcelement', title: 'Le silence coupable', stamp: 'Inspection du travail', color: '#FF5C6A',
+      text: `Des propos humiliants répétés, qui dégradent les conditions de travail et la santé d'un salarié, peuvent constituer du harcèlement moral. L'employeur a une obligation de prévention et de sécurité${N}: informé, il doit agir. Ne rien faire, c'est engager sa responsabilité, et laisser croire à toute l'équipe que tout est permis.` },
+    { id: 'greve', when: s => s.verdict === 'greve', title: 'Le 14 juillet en grève', stamp: 'Conflit collectif', color: '#FF5C6A',
+      text: s => `${F(s).methode === 'imposer' ? 'Imposer une nouvelle organisation du temps de travail sans négocier a transformé un désaccord en conflit collectif. ' : 'La négociation a échoué : l\'offre n\'était pas à la hauteur de la confiance perdue. '}La grève est un droit. Le dialogue social, avec les représentants du personnel, permet de trouver un compromis avant d'en arriver là.` },
+    { id: 'fracture', when: s => s.verdict === 'fracture', title: 'Une équipe en morceaux', stamp: 'Clans', color: '#FFC64F',
+      text: `Les conflits n'ont pas été traités à la racine, et rien n'a été fait pour que les équipes se rencontrent. La cohésion ne se décrète pas${N}: elle se construit par des règles communes, une information partagée et des moments ensemble.` },
+    { id: 'fragile', when: s => s.verdict === 'fragile', title: 'Un équilibre fragile', stamp: 'À consolider', color: '#FFC64F',
+      text: s => `L'équipe tient, mais ${F(s).methode === 'negocier' && !F(s).accord ? 'la négociation a échoué : aucun accord sur les horaires d\'été, et un désaccord qui reviendra l\'an prochain. Une offre trop faible fait perdre plus qu\'elle ne fait économiser.' : 'le climat social ou la confiance envers la direction restent fragiles. Il manque sans doute de la transparence, de l\'écoute, ou un vrai dialogue avec les représentants du personnel.'}` },
+    { id: 'succes', when: s => true, title: 'Une vraie équipe', stamp: 'Cohésion', color: '#4CD97B',
+      text: `Tu as traité les conflits par la médiation, protégé un salarié, dit la vérité sur l'avenir, fait circuler l'information et négocié un accord. Le climat social s'est amélioré, et le soir de l'orage, tout le monde l'a vu.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['theo'], title: 'Acte 1 — Les tensions', text: h => `Un <em>conflit interpersonnel</em> oppose des personnes ou des équipes ; ses causes sont souvent organisationnelles (information mal transmise, contraintes mal connues). La <em>médiation</em> aide les parties à s\'écouter et à trouver des règles communes. Des agissements répétés qui dégradent les conditions de travail et la santé d\'un salarié peuvent constituer du <em>harcèlement moral</em> : l\'employeur a une <em>obligation de sécurité et de prévention</em>. ${h.theo === 'licencier' ? 'Même en cas de faute, une sanction suit une procédure : enquête, entretien, droit de se défendre.' : ''}`,
+      chain: () => ({ good: ['Écouter', 'Médiation', 'Règles communes', 'Protéger'], bad: ['Ignorer', 'Trancher sans comprendre', 'Laisser faire'] }) },
+    { act: 2, needs: ['rumeur'], title: 'Acte 2 — La communication', text: () => `La <em>communication interne</em> peut être <em>descendante</em> (de la direction vers les salariés), <em>ascendante</em> (des salariés vers la direction) ou <em>horizontale</em> (entre collègues et entre services). En période d\'incertitude, la transparence limite les <em>rumeurs</em>. Des outils adaptés (brief, boîte à idées, temps partagés) renforcent la <em>cohésion</em> et le <em>sentiment d\'appartenance</em>.`,
+      chain: () => ({ good: ['Dire la vérité', 'Écouter le terrain', 'Partager l\'information', 'Cohésion'], bad: ['Silence', 'Rumeur', 'Méfiance', 'Départs'] }) },
+    { act: 3, needs: ['methode'], title: 'Acte 3 — Le dialogue social', text: h => `Le <em>dialogue social</em> regroupe l\'information, la consultation et la <em>négociation</em> entre la direction et les <em>représentants du personnel</em>. Dans une entreprise d\'au moins 11 salariés, les salariés élisent un <em>comité social et économique</em> (CSE). Un <em>accord collectif</em> peut adapter l\'organisation du temps de travail, en échange de contreparties. ${h.methode === 'imposer' ? 'Imposer sans négocier a fait naître un <em>conflit collectif</em>.' : ''} La <em>grève</em> est un droit constitutionnel.`,
+      chain: () => ({ good: ['Écouter les élus', 'Négocier', 'Contreparties', 'Accord'], bad: ['Imposer', 'Méfiance', 'Conflit collectif', 'Grève'] }) },
+    { act: 4, needs: ['methode'], finalOnly: true, title: 'Acte 4 — L\'été', text: () => `Le <em>climat social</em> se mesure avec des indicateurs (absentéisme, turnover, conflits, baromètre). La cohésion est un levier de performance : une équipe soudée s\'entraide et fait face aux imprévus. Elle repose sur la confiance, l\'équité, la communication et le dialogue.`,
+      chain: () => ({ good: ['Confiance', 'Dialogue', 'Entraide', 'Performance'], bad: ['Clans', 'Conflits', 'Désorganisation'] }) }
+  ],
+  vocab: ['Conflit interpersonnel', 'Médiation', 'Harcèlement moral', 'Obligation de sécurité', 'Communication interne', 'Communication descendante', 'Communication ascendante', 'Communication horizontale', 'Rumeur', 'Cohésion', 'Sentiment d\'appartenance', 'Dialogue social', 'Représentants du personnel', 'Comité social et économique', 'Négociation', 'Accord collectif', 'Conflit collectif', 'Grève', 'Climat social']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — salle et cuisine, reliées (ou non) par un pont.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const P = '#9C4F9E', c = Math.round(S.cohesion), col = c >= 60 ? '#4CD97B' : c >= 45 ? '#FFC64F' : '#FF5C6A';
+  const gap = Math.max(0, 40 - c * 0.5);
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="La cohésion de l'équipe des Embruns">
+    <rect width="360" height="200" fill="#07050a"/><rect x="0" y="0" width="360" height="162" fill="#0d0a12"/>
+    <text x="255" y="20" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#A89AAE">LES EMBRUNS · L'ÉQUIPE</text>
+    <rect x="170" y="60" width="70" height="70" fill="#1a1422" stroke="${P}" stroke-width="1.5"/><text x="205" y="98" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11" fill="#EEF3EC">SALLE</text>
+    <rect x="270" y="60" width="70" height="70" fill="#1a1422" stroke="${P}" stroke-width="1.5"/><text x="305" y="98" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11" fill="#EEF3EC">CUISINE</text>
+    <line x1="240" y1="95" x2="${255 - gap / 2}" y2="95" stroke="${col}" stroke-width="4"/><line x1="${255 + gap / 2}" y1="95" x2="270" y2="95" stroke="${col}" stroke-width="4"/>
+    <text x="255" y="150" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="${col}">cohésion ${c}</text>
+    <rect x="0" y="162" width="360" height="38" fill="#08060b"/><line x1="0" y1="162" x2="360" y2="162" stroke="#2d1f36" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

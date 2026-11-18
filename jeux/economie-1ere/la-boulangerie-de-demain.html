@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>La boulangerie de demain — Jeu Économie 1re STMG, chapitre 4 · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#4CD97B;--eco-dim:#2F8A4E;--good:#4CD97B;--bg:#050806;--panel:#0a110c;--panel2:#0d1510;--line:#1a2c20;--txt:#EEF3EC;--muted:#8BA394;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(76,217,123,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(76,217,123,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#142010;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070a06;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(76,217,123,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#0a1406;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#0a1406;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#121c0e;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#142010;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#0a1406;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#080c06;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#080c06;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#080c06;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#080c06;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(76,217,123,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#080c06;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(76,217,123,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+
+/* ---- défis chronométrés et codes ---- */
+.drill .dr-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-family:'Rajdhani',sans-serif;font-weight:700;}
+.dr-t{color:var(--eco);font-size:15px;letter-spacing:.06em;text-transform:uppercase;}.dr-n{color:var(--muted);font-size:14px;white-space:nowrap;}
+.dr-tm{position:relative;height:8px;background:#14231a;border-radius:4px;margin:10px 0 28px;}
+.dr-tm i{display:block;height:100%;background:var(--eco);border-radius:4px;transition:width .1s linear;}
+.dr-tm i.hot{background:var(--bad);}
+.dr-tm span{position:absolute;right:0;top:12px;font-family:'Orbitron',sans-serif;font-size:12px;color:var(--warn);}
+.dr-ctx{font-size:13.5px;color:var(--muted);margin-bottom:6px;line-height:1.45;}
+.dr-qt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:21px;line-height:1.25;margin:4px 0 14px;}
+.dr-intro{font-size:15.5px;line-height:1.55;margin:6px 0 4px;}
+.dr-grid{display:grid;grid-template-columns:1fr;gap:8px;}.dr-grid.c2{grid-template-columns:1fr 1fr;}
+.dr-b{background:var(--panel2);border:1px solid var(--line);color:var(--txt);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;padding:12px 10px;border-radius:6px;cursor:pointer;text-align:center;line-height:1.2;transition:transform .1s,border-color .1s;}
+.dr-b:hover:not(:disabled){border-color:var(--eco);}.dr-b:active{transform:scale(.97);}
+.dr-b.ok{border-color:var(--good);background:rgba(76,217,123,.18);}.dr-b.ko{border-color:var(--bad);background:rgba(255,92,106,.16);}
+.dr-b:disabled{cursor:default;}
+.dr-f{margin-top:12px;min-height:24px;text-align:center;}
+.dr-ok{color:var(--good);font-weight:600;line-height:1.45;}.dr-ko{color:#ffb3ba;line-height:1.5;text-align:left;font-size:14.5px;background:rgba(255,92,106,.08);border-left:3px solid var(--bad);padding:8px 10px;margin-bottom:10px;}
+.dr-ko b{color:var(--txt);}
+.btn.sm{padding:8px 18px;font-size:14px;}
+.dr-num{display:flex;gap:8px;align-items:center;}.dr-num input,.cd-in input{flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);color:var(--txt);font-family:'Orbitron',sans-serif;font-size:18px;padding:11px 12px;border-radius:6px;}
+.dr-num input.ok{border-color:var(--good);}.dr-num input.ko{border-color:var(--bad);}
+.dr-num span{color:var(--muted);font-weight:700;}
+.cd-in{display:flex;gap:8px;margin:12px 0;}.cd-in input{text-transform:uppercase;letter-spacing:.12em;}
+.dr-rec{text-align:center;padding:6px 0 4px;}.dr-big{font-family:'Orbitron',sans-serif;font-weight:900;font-size:34px;color:var(--eco);}
+.dr-bonus{color:var(--warn);font-family:'Rajdhani',sans-serif;font-weight:700;margin-top:4px;}.dr-to{color:var(--bad);margin-top:4px;font-size:14px;}
+.dr-cor{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px;font-size:14px;}
+.dr-miss{list-style:none;padding:0;margin:0;text-align:left;}.dr-miss li{font-size:14px;line-height:1.45;padding:8px 0;border-top:1px solid var(--line);}.dr-miss small{color:var(--muted);}
+.doc{background:#0f1a13;border:1px solid var(--line);border-left:3px solid var(--warn);padding:10px 12px;margin:10px 0;font-size:14.5px;line-height:1.5;}
+.doc h4{margin:0 0 4px;font-family:'Rajdhani',sans-serif;font-size:15px;color:var(--warn);text-transform:uppercase;letter-spacing:.04em;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU — La boulangerie de demain (Économie 1re STMG, chapitre 4 : La combinaison des facteurs de production)
+   Élise doit passer de 1 200 à 1 800 baguettes par jour pour un contrat avec les cantines.
+   Embaucher, investir, combiner, substituer, former : chaque choix modifie la production et la productivité.
+   ===================================================================== */
+const N = ' ';
+const nb = n => Math.round(n).toLocaleString('fr-FR');
+const eu = n => nb(n) + N + '€';
+const F = s => s.flags;
+const ch = (good, bad) => ({ good, bad });
+const V = (...a) => a;
+const tab = rows => `<span class="pay">${rows.map(([l, v, t]) => `<span${t ? ' class="tot"' : ''}>${l}</span><b${t ? ' class="tot"' : ''}>${v}</b>`).join('')}</span>`;
+const CONTRAT = 1800;
+/* productivité par boulanger selon l'équipement et la formation */
+const PT = { aucun: [200, 210], petit: [230, 260], gros: [270, 325] };
+const model = s => { const e = F(s).equip || 'aucun', pt = PT[e][F(s).forme ? 1 : 0]; const sal = s.sal; return { prod: sal * pt, pt, cout: (sal - 6) * 2500 + ({ aucun: 0, petit: 450, gros: 1000 })[e] + (F(s).borne === 'remplacer' ? -2200 : 0) }; };
+const M = (s, extra) => { const c = Object.assign({}, s, { flags: Object.assign({}, s.flags) }); for (const k in extra || {}) if (k !== 'flags') c[k] = (c[k] || 0) + extra[k]; if (extra && extra.flags) Object.assign(c.flags, extra.flags);
+  const b = model(c), r = { prod: b.prod - s.prod, pt: b.pt - s.pt, cout: b.cout - s.cout }; for (const k in extra || {}) if (k !== 'flags') r[k] = extra[k]; return r; };
+
+const GAME = {
+  title: 'La boulangerie de demain',
+  brand: 'LE FOURNIL <span>D\'ÉLISE</span>',
+  storeKey: 'ec4FournilFins',
+  backLink: '../../matieres/economie-1ere.html',
+  footer: 'Économie 1re STMG, chapitre 4',
+  kicker: 'Économie · 1re STMG · Chapitre 4',
+  debIntro: 'Tu as choisi une combinaison productive et mesuré son efficacité. Voici comment on appelle ce que tu as fait.',
+  cutText: '',
+  pitch: `Élise dirige une boulangerie de quartier à Tours${N}: 6 boulangers, 1${N}200 baguettes par jour. La ville lui propose de fournir toutes les cantines${N}: il faudra produire 1${N}800 baguettes par jour dès la rentrée. Embaucher${N}? Acheter des machines${N}? Former l'équipe${N}? Tu es son conseiller.`,
+  meta: '4 actes · 15 minutes',
+  start: s => { Object.assign(s, { sal: 6, ch: 50, score: 0, ok: 0, tot: 0, ko: 0, serie: 0, best: 0 }); const m = model(s); s.prod = m.prod; s.pt = m.pt; s.cout = m.cout; },
+  hud: [
+    { k: 'prod', label: 'Production', short: 'Baguettes', show: s => nb(s.prod), pct: s => s.prod / 20, low: s => s.prod < CONTRAT, unit: '' },
+    { k: 'pt',   label: 'Productivité par tête', short: 'Par tête', show: s => nb(s.pt), pct: s => s.pt / 3.5, low: () => false },
+    { k: 'cout', label: 'Coût mensuel supplémentaire', short: 'Coût/mois', show: s => eu(s.cout), pct: s => s.cout / 80, low: s => s.cout > 5000, inv: true, unit: N + '€' },
+    { k: 'ch',   label: 'Capital humain', short: 'Cap. humain', show: s => s.ch, pct: s => s.ch, low: s => s.ch < 40, clamp: true }
+  ],
+  fail: () => null,
+  lock: () => null,
+  bilan: s => [['Baguettes par jour', nb(s.prod) + ' (contrat : 1 800)'], ['Productivité par boulanger', nb(s.pt) + ' (au départ : 200)'], ['Coût mensuel supplémentaire', eu(s.cout)], ['Capital humain', s.ch + ' / 100'], ['Calculs réussis', s.rounds.calculs ? `${s.rounds.calculs.ok} / ${s.rounds.calculs.n}` : '—']],
+
+  characters: {
+    elise: { name: 'Élise', role: 'boulangère, gérante du Fournil', color: '#FFC64F', body: '#e8e8e8', hair: '#5a3a22', acc: 'clip' },
+    karim: { name: 'Karim', role: 'chef boulanger, 22 ans de métier', color: '#4CD97B', body: '#e8e8e8', hair: '#1c1c22', acc: 'box' },
+    josy:  { name: 'Josy', role: 'vendeuse', color: '#B9A6FF', body: '#4a3a5a', hair: '#a0a0a0', acc: 'clip' },
+    narr:  { name: 'Toi', role: '', color: '#4CD97B' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Les facteurs de production', sub: 'De quoi a besoin une boulangerie pour produire ?',
+    steps: [
+      { t: 'say', who: 'elise', text: `Avant de décider quoi que ce soit, fais l'inventaire de ce qu'on utilise pour produire. Le <em>facteur travail</em>, ce sont les gens et leurs compétences. Le <em>facteur capital</em>, ce sont les biens durables qui servent à produire. Et il y a d'autres ressources${N}: les <em>ressources naturelles</em> et l'<em>information</em>.` },
+      { t: 'drill', id: 'facteurs', who: 'elise', title: 'L\'inventaire du Fournil', time: 70, intro: 'Classe chaque élément dans le bon facteur de production.',
+        cats: [{ id: 't', label: 'Facteur travail' }, { id: 'c', label: 'Facteur capital' }, { id: 'n', label: 'Ressource naturelle' }, { id: 'i', label: 'Information' }],
+        items: [
+          { q: 'Les 6 boulangers et leurs heures de travail', a: 't', ex: 'L\'activité humaine mobilisée pour produire.' },
+          { q: 'Le savoir-faire de Karim, 22 ans de métier', a: 't', ex: 'La dimension qualitative du travail : le capital humain.' },
+          { q: 'Le four à sole', a: 'c', ex: 'Un bien durable utilisé pendant des années pour produire.' },
+          { q: 'La camionnette de livraison', a: 'c', ex: 'Un véhicule professionnel fait partie du facteur capital.' },
+          { q: 'Le local de la boulangerie', a: 'c', ex: 'Les bâtiments font partie du facteur capital.' },
+          { q: 'L\'eau utilisée pour la pâte', a: 'n', ex: 'Un élément présent dans la nature, utilisé dans la production.' },
+          { q: 'Le blé des agriculteurs de Beauce', a: 'n', ex: 'Une ressource issue des terres agricoles.' },
+          { q: 'Le tableau des ventes : quels pains partent le mieux, et à quelle heure', a: 'i', ex: 'Connaître ses clients permet de mieux décider.' } ] },
+      { t: 'say', who: 'karim', text: `Et n'oublie pas${N}: le facteur travail, ce n'est pas qu'un nombre de personnes. Deux boulangers peuvent faire le même nombre d'heures et ne pas sortir la même qualité. Ça, c'est le <em>capital humain</em>${N}: ce qu'on a appris, à l'école, en formation, au fournil.` }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'La combinaison productive', sub: 'Plus de bras, plus de machines, ou un peu des deux ?',
+    steps: [
+      { t: 'say', who: 'elise', text: `Il nous faut 600 baguettes de plus par jour. Trois pistes${N}:${tab([['Embaucher 3 boulangers', '2 500 € par mois chacun'], ['Une ligne automatique : pétrin, diviseuse, four rotatif', '60 000 €, soit 1 000 € par mois sur 5 ans'], ['Un boulanger de plus et une petite diviseuse', '2 500 € + 450 € par mois']])}` },
+      { t: 'choice', id: 'combi', prompt: `Quelle combinaison productive${N}?`, options: [
+        { id: 'travail', label: 'Embaucher 3 boulangers', desc: 'On garde le four et les méthodes actuelles.', set: { equip: 'aucun' }, fx: s => M(s, { sal: 3 }),
+          chain: ch(['9 boulangers × 200 baguettes = 1 800 : le contrat est rempli', 'Une combinaison à faible intensité capitalistique', 'Trois emplois créés'], ['7 500 € de plus chaque mois', 'Chaque boulanger ne produit pas plus qu\'avant : aucun gain de productivité']) },
+        { id: 'capital', label: 'Investir dans la ligne automatique', desc: 'Les 6 boulangers restent, aidés par les machines.', set: { equip: 'gros' }, fx: s => M(s, {}),
+          chain: ch(['Une combinaison à forte intensité capitalistique', 'Chaque boulanger produit davantage : 270 baguettes au lieu de 200', 'Seulement 1 000 € de plus par mois'], ['6 × 270 = 1 620 : il manque encore 180 baguettes', 'L\'équipe découvre des machines qu\'elle maîtrise mal']) },
+        { id: 'mixte', label: 'Un boulanger de plus et une petite diviseuse', desc: 'Un peu des deux.', set: { equip: 'petit' }, fx: s => M(s, { sal: 1 }),
+          chain: ch(['7 × 230 = 1 610 baguettes', 'Un emploi créé, un gain de productivité modeste'], ['Il manque encore 190 baguettes', '2 950 € de plus par mois']) } ] },
+      { t: 'say', who: 'josy', text: `Côté boutique, Élise veut installer deux bornes de paiement automatique, comme au supermarché. On est deux vendeuses. Elle hésite à se séparer de l'une de nous.` },
+      { t: 'choice', id: 'borne', prompt: `Les bornes de paiement${N}?`, options: [
+        { id: 'remplacer', label: 'Installer les bornes et supprimer un poste de vendeuse', desc: 'Les machines encaissent à sa place.', set: { borne: 'remplacer' }, fx: s => M(s, { ch: -8 }),
+          chain: ch(['Le capital se substitue au travail', '2 200 € d\'économie par mois'], ['Les clients âgés peinent avec les bornes et réclament quelqu\'un', 'Une vendeuse expérimentée quitte l\'entreprise avec son savoir-faire', 'Il faudra quand même quelqu\'un pour entretenir et surveiller les bornes']) },
+        { id: 'redeployer', label: 'Installer les bornes et confier à la vendeuse un nouveau rayon snacking', desc: 'Les bornes encaissent, Josy prépare sandwichs et salades.', set: { borne: 'redeployer' }, fx: s => M(s, { ch: 6 }),
+          chain: ch(['Le capital remplace une partie du travail d\'encaissement', 'Le travail humain est déplacé vers une tâche que la machine ne sait pas faire', 'Un nouveau service pour les clients'], ['La substitution n\'est jamais totale : il faut toujours des humains']) },
+        { id: 'non', label: 'Pas de bornes', desc: 'Le contact humain avant tout.', set: { borne: 'non' }, fx: {},
+          chain: ch(['Les clients gardent leurs habitudes'], ['Les files d\'attente du matin restent longues']) } ] },
+      { t: 'say', who: 'karim', text: `Pour info${N}: le nouveau four, sans moi, il ne cuit rien. Il faut quelqu'un pour le charger, régler la température, surveiller la cuisson. Machine et boulanger, ici, ça va ensemble.` },
+      { t: 'drill', id: 'relation', who: 'karim', title: 'Complémentaires ou substituables ?', shuffle: false, intro: 'Les facteurs de production doivent-ils être utilisés ensemble, ou l\'un peut-il remplacer l\'autre ?',
+        cats: [{ id: 'comp', label: 'Complémentaires' }, { id: 'sub', label: 'Substituables' }],
+        items: [
+          { q: 'Karim et le four : l\'un ne fonctionne pas sans l\'autre', a: 'comp', ex: 'Comme le chauffeur de taxi et son véhicule.' },
+          { q: 'Les bornes de paiement remplacent une partie du travail des vendeuses', a: 'sub', ex: 'Comme les caisses automatiques des supermarchés.' },
+          { q: 'Un chirurgien et son bloc opératoire', a: 'comp', ex: 'Le travail et le capital sont indissociables.' },
+          { q: 'Un robot qui façonne les pâtons à la place d\'un boulanger', a: 'sub', ex: 'Le capital se substitue au travail.' } ] }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'La productivité', sub: 'Produire plus, ce n\'est pas forcément produire mieux.',
+    steps: [
+      { t: 'say', who: 'elise', text: s => `Faisons les comptes. Au départ${N}: 6 boulangers, 8 heures par jour, 1${N}200 baguettes. Aujourd'hui${N}: ${s.sal} boulangers, ${nb(s.prod)} baguettes par jour.${s.prod < CONTRAT ? ` Il manque ${nb(CONTRAT - s.prod)} baguettes pour le contrat.` : ' Le contrat est rempli.'}` },
+      { t: 'drill', id: 'calculs', who: 'elise', title: 'Les calculs d\'Élise', time: 150, pts: 15, shuffle: false, intro: 'Cinq calculs. Ta calculatrice est autorisée.',
+        items: s => [
+          { q: 'Au départ, quelle est la productivité par tête ? (1 200 baguettes, 6 boulangers)', num: true, a: 200, unit: 'baguettes', tol: 0.5, ex: 'Productivité par tête = production ÷ nombre de salariés = 1 200 ÷ 6 = 200.' },
+          { q: 'Et la productivité horaire ? (6 boulangers × 8 heures)', num: true, a: 25, unit: 'baguettes/h', tol: 0.5, ex: 'Productivité horaire = production ÷ heures de travail = 1 200 ÷ 48 = 25.' },
+          { q: `Aujourd'hui, ${s.sal} boulangers produisent ${nb(s.prod)} baguettes. Quelle est la productivité par tête ?`, num: true, a: Math.round(s.prod / s.sal), unit: 'baguettes', tol: 1, ex: `${nb(s.prod)} ÷ ${s.sal} = ${nb(s.prod / s.sal)}.` },
+          { q: 'Chez le chausseur Heschung, la production passe de 350 à 550 paires par semaine. Taux d\'évolution, arrondi à l\'unité ?', num: true, a: 57, unit: '%', tol: 0.6, ex: '(550 − 350) ÷ 350 × 100 ≈ 57,1 %.' },
+          { q: 'Deux boulangeries font 1 000 baguettes par jour, l\'une avec 5 boulangers, l\'autre avec 4. Laquelle est la plus productive ?', opts: ['Celle de 5 boulangers', 'Celle de 4 boulangers', 'Aucune : même production, même productivité'], a: 1, ex: 'Même production, mais avec moins de ressources : 250 par tête contre 200. Production et productivité sont deux choses différentes.' } ] }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Investir et former', sub: 'Une machine ne rend que ce que l\'équipe sait en tirer.', final: true,
+    steps: [
+      { t: 'say', who: 'karim', text: s => F(s).equip === 'gros' ? `Franchement, la ligne automatique, on l'utilise à moitié. On ne connaît pas les réglages, on a peur de rater les fournées, alors on repasse à la main. Une semaine de formation chez le fabricant, et je te garantis qu'on sort bien plus.` : F(s).equip === 'petit' ? `La diviseuse est pratique, mais on s'en sert mal. Et le nouveau ne connaît pas nos recettes. Une formation nous ferait gagner du temps.` : `Les nouveaux sont motivés, mais ils ne connaissent pas nos façons de faire. On passe du temps à corriger leurs erreurs.` },
+      { t: 'choice', id: 'final', prompt: `Dernière décision avant la rentrée${N}:`, options: [
+        { id: 'former', label: 'Former toute l\'équipe', desc: 'Une semaine de formation : 4 000 €, une fois.', set: { forme: true }, fx: s => { const r = M(s, { ch: 20, flags: { forme: true } }); return r; },
+          chain: s => ch(['Le capital humain progresse : nouvelles compétences, plus d\'autonomie', F(s).equip === 'gros' ? 'La ligne automatique tourne enfin à plein : 325 baguettes par boulanger' : F(s).equip === 'petit' ? 'La diviseuse est bien utilisée : 260 baguettes par boulanger' : 'Moins d\'erreurs : 210 baguettes par boulanger', 'Un gain de productivité sans dépense mensuelle en plus'], ['4 000 € une seule fois']) },
+        { id: 'embauche', label: 'Embaucher un boulanger de plus', desc: '2 500 € par mois.', fx: s => M(s, { sal: 1 }),
+          chain: s => ch([`${s.sal + 1} boulangers : la production augmente`], ['2 500 € de plus chaque mois', 'Chaque boulanger ne produit pas davantage : aucun gain de productivité', F(s).equip === 'gros' ? 'La ligne automatique reste sous-utilisée' : 'Le savoir-faire n\'a pas progressé']) },
+        { id: 'rien', label: 'Ne rien changer', desc: 'On fera avec.', fx: {},
+          chain: ch(['Aucune dépense'], ['Rien ne change']) } ] },
+      { t: 'say', who: 'elise', text: s => { s.verdict = s.prod < CONTRAT ? 'contrat' : s.cout > 5000 ? 'cher' : s.pt >= 300 ? 'modele' : 'efficace';
+          return `La rentrée.${tab([['Baguettes par jour', `${nb(s.prod)} (il en faut 1 800)`], ['Productivité par boulanger', `${nb(s.pt)} (200 au départ)`], ['Évolution de la productivité', `${s.pt > 200 ? '+' : ''}${Math.round((s.pt - 200) / 2)} %`], ['Coût mensuel supplémentaire', eu(s.cout), 1]])}${{ contrat: 'On ne livre pas assez. La ville va chercher un autre fournisseur.', cher: 'Le contrat est rempli… mais nos coûts ont explosé. Il ne restera pas grand-chose à la fin du mois.', modele: 'Le contrat est rempli, nos coûts sont maîtrisés, et l\'équipe sait faire des choses qu\'elle ne savait pas faire il y a trois mois.', efficace: 'Le contrat est rempli, à un coût raisonnable.' }[s.verdict]}`; } }
+    ] }
+  ],
+
+  endings: [
+    { id: 'contrat', when: s => s.verdict === 'contrat', title: 'Le contrat perdu', stamp: 'Production insuffisante', color: '#FF5C6A',
+      text: s => `${nb(s.prod)} baguettes par jour, il en fallait 1${N}800. ${F(s).equip !== 'aucun' && !F(s).forme ? 'Les machines n\'ont pas donné leur plein rendement : sans capital humain, l\'investissement reste sous-utilisé.' : 'La combinaison productive choisie ne suffisait pas.'}` },
+    { id: 'cher', when: s => s.verdict === 'cher', title: 'Le contrat, à quel prix ?', stamp: 'Coûts élevés', color: '#FFC64F',
+      text: s => `Le contrat est rempli, mais avec ${eu(s.cout)} de coûts en plus chaque mois. Ajouter des salariés augmente la production, pas la productivité${N}: chaque boulanger produit toujours autant.` },
+    { id: 'modele', when: s => s.verdict === 'modele', title: 'Le fournil de demain', stamp: 'Gains de productivité', color: '#4CD97B',
+      text: s => `${nb(s.prod)} baguettes avec ${s.sal} boulangers${N}: ${nb(s.pt)} par tête au lieu de 200. Investissement dans le capital et dans le capital humain${N}: c'est cette combinaison qui produit les plus forts gains de productivité.` },
+    { id: 'efficace', when: s => true, title: 'Le contrat honoré', stamp: 'Contrat rempli', color: '#4CD97B',
+      text: s => `${nb(s.prod)} baguettes par jour, ${nb(s.pt)} par boulanger, pour ${eu(s.cout)} de plus par mois. Un bon équilibre. Avec plus d'investissement dans les machines ET dans la formation, les gains de productivité auraient été plus forts.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['facteurs'], title: 'Les facteurs de production', text: () => `Pour produire, une entreprise mobilise des <em>facteurs de production</em> : le <em>facteur travail</em> (dimension quantitative : nombre de travailleurs ; dimension qualitative : le <em>capital humain</em>, c\'est-à-dire connaissances, compétences, expérience) et le <em>facteur capital</em> (biens durables : machines, bâtiments, véhicules, équipements). S\'y ajoutent les <em>ressources naturelles</em> et l\'<em>information</em>.`,
+      chain: () => ({ good: ['Travail', 'Capital', 'Ressources naturelles', 'Information', 'Production'], bad: [] }) },
+    { act: 2, needs: ['combi'], title: 'La combinaison productive', text: () => `La <em>combinaison productive</em> est la proportion de travail et de capital utilisée. Elle peut être à forte ou à faible <em>intensité capitalistique</em>. Elle dépend du coût des facteurs, de leur efficacité et de la nature de l\'activité. Les facteurs peuvent être <em>complémentaires</em> (utilisés ensemble) ou <em>substituables</em> (l\'un remplace en partie l\'autre) ; la substitution du capital au travail n\'est jamais totale.`,
+      chain: () => ({ good: ['Coût des facteurs', 'Efficacité', 'Nature de l\'activité', 'Combinaison productive'], bad: [] }) },
+    { act: 3, needs: ['calculs'], title: 'La productivité', text: () => `La <em>production</em> est la quantité produite ; la <em>productivité</em> mesure l\'efficacité des facteurs utilisés pour l\'obtenir. <em>Productivité par tête</em> = production ÷ nombre de salariés ; <em>productivité horaire</em> = production ÷ heures de travail. On mesure aussi la <em>productivité du capital</em>. Taux d\'évolution = (valeur finale − valeur initiale) ÷ valeur initiale × 100.`,
+      chain: () => ({ good: ['Production', 'Ressources utilisées', 'Productivité'], bad: [] }) },
+    { act: 4, needs: ['final'], finalOnly: true, title: 'Investir et former', text: () => `Un <em>gain de productivité</em>, c\'est produire plus avec les mêmes ressources, ou autant avec moins. Il vient du <em>progrès technique</em>, de l\'<em>investissement</em> (acquisition de biens durables pour produire) et du développement du <em>capital humain</em> par la formation. Une machine performante ne donne son plein rendement que si l\'équipe sait l\'utiliser.`,
+      chain: () => ({ good: ['Investissement', 'Formation', 'Capital humain', 'Gains de productivité', 'Coûts maîtrisés'], bad: [] }) }
+  ],
+  vocab: ['Facteur travail', 'Facteur capital', 'Capital humain', 'Ressources naturelles', 'Information', 'Combinaison productive', 'Intensité capitalistique', 'Facteurs complémentaires', 'Facteurs substituables', 'Production', 'Productivité', 'Productivité par tête', 'Productivité horaire', 'Gain de productivité', 'Progrès technique', 'Investissement']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — le fournil : boulangers, machines, baguettes.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const G = '#4CD97B', e = F(S).equip || 'aucun';
+  const bak = Array.from({ length: S.sal }, (_, i) => `<g transform="translate(${178 + i * 19},118)"><circle cy="-22" r="6" fill="#E8B58A"/><rect x="-6" y="-16" width="12" height="18" rx="4" fill="#e8e8e8"/><rect x="-6" y="-31" width="12" height="5" rx="2" fill="#fff"/></g>`).join('');
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Le fournil d'Élise">
+    <rect width="360" height="200" fill="#050806"/><rect x="0" y="0" width="360" height="162" fill="#0d0b08"/>
+    <rect x="290" y="30" width="56" height="70" rx="6" fill="#3a2a1a" stroke="#FF8A4C" stroke-width="1.5"/><rect x="298" y="44" width="40" height="26" rx="3" fill="#FF8A4C" opacity="${0.35 + S.pt / 700}"/><text x="318" y="92" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="8" fill="#EEF3EC">FOUR</text>
+    ${e !== 'aucun' ? `<g transform="translate(${e === 'gros' ? 180 : 205},40)"><rect width="${e === 'gros' ? 100 : 50}" height="36" rx="4" fill="#1a2c20" stroke="${G}" stroke-width="1.5"/><circle cx="18" cy="18" r="9" fill="none" stroke="${G}" stroke-width="2"/><text x="${e === 'gros' ? 64 : 36}" y="22" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="8" fill="${G}">${e === 'gros' ? 'LIGNE AUTO' : 'DIVISEUSE'}</text></g>` : ''}
+    ${bak}
+    <g transform="translate(200,140)">${Array.from({ length: Math.min(9, Math.round(S.prod / 220)) }, (_, i) => `<rect x="${i * 10}" y="0" width="8" height="18" rx="4" fill="#d9a35a" transform="rotate(12 ${i * 10 + 4} 9)"/>`).join('')}</g>
+    <text x="340" y="128" text-anchor="end" font-family="Orbitron,sans-serif" font-weight="800" font-size="10" fill="${S.prod >= CONTRAT ? G : '#FF5C6A'}">${nb(S.prod)}/1 800</text>
+    <rect x="0" y="162" width="360" height="38" fill="#060a07"/><line x1="0" y1="162" x2="360" y2="162" stroke="#1a2c20" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  /* espaces insécables fines dans les nombres du texte affiché (jamais dans le SVG ni les attributs) */
+  const fixNums = root => { const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentNode.closest('svg') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT }); let n;
+    while ((n = w.nextNode())) { const t = n.nodeValue.replace(/(\d) (?=\d{3}(?!\d))/g, '$1\u202f').replace(/(\d) (€|%)/g, '$1\u202f$2'); if (t !== n.nodeValue) n.nodeValue = t; } };
+  new MutationObserver(() => fixNums(app)).observe(app, { childList: true, subtree: true });
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  const FAST = /fast/.test(location.search), TF = /tfast/.test(location.search) ? 20 : 1;
+  const wait = ms => FAST ? 15 : ms;
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const norm = t => String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+  let TIMER = null; const stopTimer = () => { if (TIMER) { clearInterval(TIMER); TIMER = null; } };
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">${act.tag || (GAME.actWord || 'Acte') + ' ' + act.num} · ${act.title}</div></div>
+      <div id="hudw">${hud()}</div><div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function refreshHud() { const w = document.getElementById('hudw'); if (w) w.innerHTML = hud(); }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    stopTimer(); S = { flags: {}, rounds: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">${act.tag || (GAME.actWord || 'Acte') + ' ' + act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    stopTimer();
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'drill') {
+      lastDeltas = [];
+      let items = val(st.items, S).slice(); if (st.shuffle !== false) shuffle(items); if (st.n) items = items.slice(0, st.n);
+      const total = items.length, pts = st.pts || 10, T = (st.time || 0) * 1000;
+      let i = 0, ok = 0, miss = [], left = T, paused = false, over = false;
+      frame(val(st.who, S) || null, `<div class="box drill"><div class="dr-h"><span class="dr-t">${val(st.title, S)}</span><span class="dr-n" id="dn"></span></div>${T ? '<div class="dr-tm"><i id="dt"></i><span id="ds"></span></div>' : ''}<div class="dr-q" id="dq"></div><div class="dr-o" id="dop"></div><div class="dr-f" id="df"></div></div>`);
+      const $ = id => document.getElementById(id);
+      const keyLabel = (it, k) => it.opts ? it.opts[k] : ((it.cats || st.cats).find(c => c.id === k) || {}).label;
+      const tick = () => { if (!T) return; $('dt').style.width = (100 * left / T) + '%'; $('ds').textContent = Math.ceil(left / 1000) + ' s'; $('dt').className = left < T * 0.25 ? 'hot' : ''; };
+      function finish() {
+        if (over) return; over = true; stopTimer();
+        const answered = i, unanswered = total - answered;
+        let bonus = 0; if (T && !unanswered) bonus = Math.round(left / 1000) * (st.tbonus || 1);
+        S.score += bonus; S.tot += unanswered; S.rounds[st.id] = { ok, n: total };
+        H[st.id] = ok + '/' + total; refreshHud();
+        const list = miss.map(m => `<li><b>${m.q}</b><br>→ ${m.good}${m.ex ? `<br><small>${m.ex}</small>` : ''}</li>`).join('');
+        $('dq').innerHTML = `<div class="dr-rec"><div class="dr-big">${ok} / ${total}</div><div>${st.recap ? val(st.recap, S, ok, total) : (ok === total ? 'Sans faute !' : ok >= total * 0.7 ? 'Bien joué.' : 'À retravailler.')}</div>${bonus ? `<div class="dr-bonus">Bonus de temps : +${bonus} points</div>` : ''}${unanswered ? `<div class="dr-to">Temps écoulé : ${unanswered} question${unanswered > 1 ? 's' : ''} sans réponse</div>` : ''}</div>${list ? `<div class="dr-cor">À retenir</div><ul class="dr-miss">${list}</ul>` : ''}`;
+        $('dop').innerHTML = ''; $('df').innerHTML = `<button class="btn" id="go">Continuer ▸</button>`;
+        $('dn').textContent = '';
+        if (T) $('dt').parentNode.style.display = 'none';
+        $('go').onclick = next; window.scrollTo(0, 0);
+      }
+      function show() {
+        if (i >= total) return finish();
+        const it = items[i]; window.__ok = it.a; $('dn').textContent = (i + 1) + ' / ' + total; $('df').innerHTML = '';
+        $('dq').innerHTML = `${it.ctx ? `<div class="dr-ctx">${it.ctx}</div>` : ''}<div class="dr-qt">${it.q}</div>`;
+        if (it.num) {
+          $('dop').innerHTML = `<div class="dr-num"><input id="dni" inputmode="decimal" autocomplete="off" placeholder="Ta réponse"><span>${it.unit || ''}</span><button class="btn" id="dnv">OK</button></div>`;
+          const inp = $('dni'); inp.focus();
+          const sub = () => { const v = parseFloat(inp.value.replace(/\s/g, '').replace(',', '.')); if (isNaN(v)) return; answer(Math.abs(v - it.a) <= (it.tol != null ? it.tol : 0.051) ? it.a : v); };
+          $('dnv').onclick = sub; inp.onkeydown = e => { if (e.key === 'Enter') sub(); };
+        } else {
+          const keys = it.opts ? it.opts.map((_, k) => k) : (it.cats || st.cats).map(c => c.id);
+          $('dop').innerHTML = `<div class="dr-grid${keys.length > 3 && !it.opts ? ' c2' : keys.length === 2 && !it.opts ? ' c2' : ''}">${keys.map(k => `<button class="dr-b" data-k="${k}">${keyLabel(it, k)}</button>`).join('')}</div>`;
+          app.querySelectorAll('.dr-b').forEach(b => b.onclick = () => answer(it.opts ? +b.dataset.k : b.dataset.k));
+        }
+      }
+      function answer(k) {
+        if (paused || over) return;
+        const it = items[i], good = k === it.a; S.tot++;
+        if (!it.num) app.querySelectorAll('.dr-b').forEach(b => { b.disabled = true; const bk = it.opts ? +b.dataset.k : b.dataset.k; if (bk === it.a) b.classList.add('ok'); else if (bk === k) b.classList.add('ko'); });
+        else { const inp = $('dni'); inp.disabled = true; inp.classList.add(good ? 'ok' : 'ko'); }
+        const goodLabel = it.num ? (it.show || String(it.a).replace('.', ',')) + (it.unit ? ' ' + it.unit : '') : keyLabel(it, it.a);
+        if (good) {
+          ok++; S.ok++; S.serie++; S.best = Math.max(S.best, S.serie); S.score += pts + Math.min(S.serie - 1, 5) * 2; refreshHud();
+          $('df').innerHTML = `<div class="dr-ok">✓ ${it.okText || 'Exact'}${it.exOk ? ' — ' + it.ex : ''}</div>`;
+          i++; setTimeout(show, wait(it.exOk ? 1400 : 550));
+        } else {
+          S.serie = 0; S.ko++; refreshHud(); paused = true;
+          miss.push({ q: it.q, good: goodLabel, ex: it.ex });
+          $('df').innerHTML = `<div class="dr-ko">✗ Réponse : <b>${goodLabel}</b>${it.ex ? `<br>${it.ex}` : ''}</div><button class="btn sm" id="dnx">Suivant ▸</button>`;
+          $('dnx').onclick = () => { paused = false; i++; show(); };
+        }
+      }
+      if (st.intro) {
+        $('dq').innerHTML = `<div class="dr-intro">${val(st.intro, S)}</div>`;
+        $('df').innerHTML = `<button class="btn" id="dgo">${T ? 'Lancer le chrono ▸' : 'Commencer ▸'}</button>`;
+        $('dgo').onclick = begin; if (T) $('ds').textContent = Math.round(T / 1000) + ' s';
+      } else begin();
+      function begin() {
+        show();
+        if (T) { tick(); let last = Date.now(); TIMER = setInterval(() => { const now = Date.now(), d = (now - last) * TF; last = now; if (!paused && !over) { left -= d; if (left <= 0) { left = 0; tick(); finish(); } else tick(); } }, 100); }
+      }
+    } else if (st.t === 'code') {
+      lastDeltas = [];
+      const answers = [].concat(val(st.answer, S)).map(norm); let tries = 0, solved = false;
+      window.__code = [].concat(val(st.answer, S))[0];
+      frame(val(st.who, S) || null, `<div class="box code"><div class="prompt">${val(st.prompt, S)}</div><div class="cd-in"><input id="cin" autocomplete="off" autocapitalize="off" placeholder="${st.placeholder || 'Le code'}"><button class="btn" id="cgo">Valider</button></div><div id="cf"></div></div>`);
+      const $ = id => document.getElementById(id), inp = $('cin');
+      const done = (txt, cls) => { solved = true; inp.disabled = true; $('cgo').disabled = true; $('cf').innerHTML = `<div class="${cls}">${txt}</div><button class="btn" id="go">Continuer ▸</button>`; $('go').onclick = next; H[st.id] = tries; refreshHud(); };
+      const sub = () => {
+        if (solved || !inp.value.trim()) return;
+        if (answers.includes(norm(inp.value))) { const g = Math.max(st.min || 5, (st.pts || 30) - tries * 10); S.score += g; S.ok++; S.tot++; S.serie++; S.best = Math.max(S.best, S.serie); return done(`✓ ${val(st.win, S) || 'Code correct !'} <span class="dr-bonus">+${g} points</span>`, 'dr-ok'); }
+        tries++; S.ko++; S.serie = 0; refreshHud();
+        if (tries >= (st.max || 3)) { S.tot++; return done(`✗ Le bon code était <b>${[].concat(val(st.answer, S))[0]}</b>.${st.solution ? '<br>' + val(st.solution, S) : ''}`, 'dr-ko'); }
+        $('cf').innerHTML = `<div class="dr-ko">✗ Ce n'est pas ça (${tries} essai${tries > 1 ? 's' : ''} sur ${st.max || 3}).${tries >= 1 && st.hint ? `<br><b>Indice :</b> ${val(st.hint, S)}` : ''}</div>`;
+        inp.value = ''; inp.focus();
+      };
+      $('cgo').onclick = sub; inp.onkeydown = e => { if (e.key === 'Enter') sub(); };
+    } else if (st.t === 'arcade') {
+      lastDeltas = [];
+      app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">${act.tag || (GAME.actWord || 'Acte') + ' ' + act.num} · ${act.title}</div></div><div id="hudw">${hud()}</div>${st.intro ? `<div class="arc-intro">${val(st.intro, S)}</div>` : ''}<div class="arc" id="arc"></div>`;
+      let qok = 0, qn = 0;
+      const api = {
+        fast: FAST, auto: /auto/.test(location.search), S,
+        score(n) { S.score += n; refreshHud(); },
+        ask(q, ov) { return new Promise(res => {
+          window.__ok = q.a; const keys = q.opts ? q.opts.map((_, k) => k) : (q.cats || []).map(c => c.id);
+          const lab = k => q.opts ? q.opts[k] : q.cats.find(c => c.id === k).label;
+          ov.innerHTML = `<div class="arcq"><div class="dr-t">${q.title || 'Question'}</div><div class="dr-qt">${q.q}</div><div class="dr-grid">${keys.map(k => `<button class="dr-b" data-k="${k}">${lab(k)}</button>`).join('')}</div><div class="dr-f" id="arf"></div></div>`; ov.classList.add('on');
+          ov.querySelectorAll('.dr-b').forEach(b => b.onclick = () => {
+            const k = q.opts ? +b.dataset.k : b.dataset.k, good = k === q.a; qn++; S.tot++;
+            ov.querySelectorAll('.dr-b').forEach(x => { x.disabled = true; const xk = q.opts ? +x.dataset.k : x.dataset.k; if (xk === q.a) x.classList.add('ok'); else if (xk === k) x.classList.add('ko'); });
+            const close = () => { ov.classList.remove('on'); ov.innerHTML = ''; res(good); };
+            if (good) { qok++; S.ok++; S.serie++; S.best = Math.max(S.best, S.serie); S.score += 15; refreshHud(); ov.querySelector('#arf').innerHTML = `<div class="dr-ok">✓ ${q.okText || 'Exact'}${q.ex ? ' — ' + q.ex : ''}</div>`; setTimeout(close, wait(1300)); }
+            else { S.ko++; S.serie = 0; refreshHud(); ov.querySelector('#arf').innerHTML = `<div class="dr-ko">✗ Réponse : <b>${lab(q.a)}</b>${q.ex ? '<br>' + q.ex : ''}</div><button class="btn sm" id="dnx">Reprendre ▸</button>`; ov.querySelector('#dnx').onclick = close; }
+          }); }); },
+        end(r) {
+          H[st.id] = r.tag || 'fini'; S.rounds[st.id] = { ok: qok, n: qn, r }; refreshHud();
+          const el = document.getElementById('arc');
+          el.innerHTML = `<div class="box"><div class="dr-rec"><div class="dr-big">${val(st.endTitle, S, r) || 'Partie terminée'}</div><div>${val(st.endText, S, r) || ''}</div>${qn ? `<div class="dr-bonus">Questions : ${qok} / ${qn}</div>` : ''}</div><div style="text-align:center"><button class="btn" id="go">Continuer ▸</button></div></div>`;
+          document.getElementById('go').onclick = next; window.scrollTo(0, 0);
+        }
+      };
+      ARC[st.kind](document.getElementById('arc'), st, api);
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    stopTimer(); store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

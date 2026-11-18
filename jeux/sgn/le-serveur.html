@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Le serveur — Jeu SGN 1re STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#5B8FFF;--eco-dim:#3355B8;--good:#4CD97B;--bg:#04060b;--panel:#090d17;--panel2:#0d1220;--line:#1d2540;--txt:#EEF3EC;--muted:#8B93AE;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(91,143,255,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(91,143,255,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#10182e;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(91,143,255,.5);background:rgba(91,143,255,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#05070c;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(91,143,255,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#070c1c;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#070c1c;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#0e1528;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#10182e;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#070c1c;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#060912;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#060912;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#060912;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#060912;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(91,143,255,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#060912;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(91,143,255,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — Le serveur (Sciences de gestion et numérique 1re STMG, thème 2)
+   Studio Nébuleuse, 8 mois avant la sortie du jeu. Chaque choix numérique modifie :
+     les heures perdues chaque semaine (ressaisies, recherches, notifications),
+     les bugs trouvés avant la sortie, la capacité des serveurs le jour J.
+   Jauges : tre (k€), fiab (fiabilité de l'information, 0-100), charge (surcharge, plus bas = mieux),
+            agil (capacité à réagir vite, 0-100).
+   ===================================================================== */
+const N = ' ';
+const ke = n => (n < 0 ? '−' : '') + Math.abs(Math.round(n)).toLocaleString('fr-FR') + N + 'k€';
+const nb = n => Math.round(n).toLocaleString('fr-FR');
+const F = s => s.flags;
+
+function heuresPerdues(s) {   // par semaine, pour toute l'équipe
+  let h = 60;
+  h -= ({ tableur: 20, outils: 45, maison: 35 })[F(s).si] || 0;
+  if (F(s).partage === 'chaos') h += 25; if (F(s).partage === 'regles') h -= 6; if (F(s).partage === 'mails') h += 10;
+  if (F(s).ci) h -= 8;
+  return Math.max(5, h);
+}
+function bugsTrouves(s) {      // sur 100 bugs graves présents dans le jeu
+  let b = 40 + (F(s).si === 'outils' ? 15 : F(s).si === 'maison' ? 10 : 0) + (F(s).partage === 'regles' ? 12 : F(s).partage === 'chaos' ? 4 : 0) + (F(s).discord ? 15 : 0) + (F(s).ci ? 12 : 0) + (F(s).analyse ? 6 : 0);
+  return Math.min(98, b);
+}
+function lancement(s) {
+  const pic = 60000, cap = F(s).heberg === 'local' ? 6000 : 999999;
+  const dispo = F(s).heberg === 'local' ? 35 : F(s).heberg === 'cloud1' ? 92 : 99;   // % du temps où le jeu est jouable la première semaine
+  const bugs = 100 - bugsTrouves(s);
+  let note = 92 - bugs * .45 - (100 - dispo) * .5 - (F(s).chatbot === 'seul' ? 8 : 0) - (F(s).hotfix === 'attendre' ? 4 : F(s).hotfix === 'forcer' && !F(s).ci ? 6 : 0);
+  note = Math.max(20, Math.round(note));
+  const ventes = Math.round(40000 * (note / 80) * (dispo / 100));
+  const factureCloud = F(s).heberg === 'local' ? 0 : F(s).heberg === 'cloud1' ? 38 : 46;
+  return { pic, cap, dispo, bugs, note, ventes, ca: ventes * 25 * .7 / 1000, factureCloud };
+}
+const ch = (good, bad) => ({ good, bad });
+const V = (...a) => a;
+
+const GAME = {
+  title: 'Le serveur',
+  brand: 'LE <span>SERVEUR</span>',
+  storeKey: 'sgnServeurFins',
+  backLink: '../../matieres/sciences-de-gestion-numerique-1ere.html',
+  footer: 'Sciences de gestion et numérique 1re STMG, thème 2',
+  kicker: 'SGN · 1re STMG · Thème 2',
+  debIntro: 'Tu as organisé l\'information, les outils et les serveurs du studio. Voici comment on appelle ces choix.',
+  cutText: 'Ta partie s\'est arrêtée avant la sortie. Rejoue pour aller jusqu\'au lancement.',
+  pitch: `Huit mois avant la sortie de «${N}Papier Monde${N}», le nouveau jeu du Studio Nébuleuse. Sarah te nomme responsable du numérique. Les données sont partout et nulle part, l'équipe se noie dans les messages, et personne ne sait si les serveurs tiendront le jour J. À toi de jouer.`,
+  meta: '4 actes · 25 minutes',
+  start: s => Object.assign(s, { tre: 400, fiab: 35, charge: 55, agil: 45 }),
+  hud: [
+    { k: 'tre',    label: 'Budget', short: 'Budget', show: s => ke(s.tre), pct: s => s.tre / 6, low: s => s.tre < 80, unit: N + 'k€' },
+    { k: 'fiab',   label: 'Fiabilité de l\'information', short: 'Info', show: s => Math.round(s.fiab), pct: s => s.fiab, low: s => s.fiab < 40, clamp: true },
+    { k: 'charge', label: 'Surcharge de l\'équipe', short: 'Surcharge', show: s => Math.round(s.charge), pct: s => s.charge, low: s => s.charge > 65, inv: true, clamp: true },
+    { k: 'agil',   label: 'Agilité', short: 'Agilité', show: s => Math.round(s.agil), pct: s => s.agil, low: s => s.agil < 40, clamp: true }
+  ],
+  fail: () => null,
+  lock: () => null,
+  bilan: s => { const L = s.L || lancement(s); return [['Note des joueurs', L.note + ' / 100'], ['Ventes du premier mois', nb(L.ventes)], ['Jeu disponible la 1re semaine', L.dispo + N + '%'], ['Bugs graves non trouvés', L.bugs + ' sur 100']]; },
+
+  characters: {
+    sarah: { name: 'Sarah', role: 'fondatrice du studio', color: '#5B8FFF', body: '#2b3a5a', hair: '#3a2418', acc: 'clip' },
+    zoe:   { name: 'Zoé', role: 'développeuse principale', color: '#FF8AD1', body: '#5a1f4a', hair: '#1c1c22', acc: 'cap' },
+    nina:  { name: 'Nina', role: 'community manager', color: '#4CD97B', body: '#2f7a4a', hair: '#c9a24a', acc: 'clip' },
+    tom:   { name: 'Tom', role: 'testeur', color: '#FFC64F', body: '#5a3a22', hair: '#1c1c22', acc: 'box' },
+    cloud: { name: 'M. Vidal', role: 'commercial, hébergeur NimbusCloud', color: '#FF5C6A', body: '#1c1c22', hair: '#8a8f96', acc: 'tie' },
+    narr:  { name: 'Toi', role: '', color: '#5B8FFF' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Les données', sub: 'Des données partout, de l\'information nulle part.',
+    steps: [
+      { t: 'say', who: 'tom', text: `Ce matin, j'ai testé la mauvaise version du jeu. Il y en avait trois sur le serveur${N}: «${N}build_final${N}», «${N}build_final_v2${N}» et «${N}build_final_VRAIMENT${N}». Les bugs, je les envoie par mail à Zoé. Elle en a 340 non lus.` },
+      { t: 'say', who: 'zoe', text: `Et les retours des joueurs de la bêta sont dans un fichier Excel de 12${N}000 lignes que personne n'ouvre. On perd environ 60 heures par semaine, toute l'équipe confondue, à chercher des fichiers et à refaire des choses déjà faites.` },
+      { t: 'choice', id: 'si', prompt: `Comment organiser l'information du studio${N}?`, options: [
+        { id: 'tableur', label: 'Un grand tableur partagé pour tout', desc: 'Bugs, tâches, versions, retours : un seul fichier en ligne. Gratuit.', set: { si: 'tableur' }, fx: { fiab: 10 },
+          chain: s => ch(['Tout est au même endroit', 'Rien à installer'], ['Quinze personnes modifient le même fichier en même temps', 'Personne ne sait qui a changé quoi', `Encore ${heuresPerdues(Object.assign({}, s, { flags: Object.assign({}, s.flags, { si: 'tableur' }) }))} heures perdues par semaine`]),
+          voix: V({ who: 'tom', text: `Quelqu'un a trié la colonne des bugs et cassé tout le tableau.` }, { who: 'zoe', text: `Mieux que les mails. De peu.` }) },
+        { id: 'outils', label: 'Des outils faits pour ça : gestion des versions, suivi des bugs, gestion de projet', desc: 'Chaque version du jeu est numérotée et archivée, chaque bug a une fiche avec son statut. 12 k€ par an.', set: { si: 'outils' }, fx: { tre: -12, fiab: 30, agil: 8 },
+          chain: s => ch(['Une seule version de référence du jeu, avec son historique', 'Chaque bug a un responsable et un statut', 'Les données sont reliées entre elles : le bug, la version, la personne', `Plus que ${heuresPerdues(Object.assign({}, s, { flags: Object.assign({}, s.flags, { si: 'outils' }) }))} heures perdues par semaine`], ['12 k€ par an', 'Deux semaines pour que tout le monde s\'y fasse']),
+          voix: V({ who: 'tom', text: `Je sais enfin quelle version tester.` }, { who: 'zoe', text: `Mes 340 mails sont devenus 87 fiches de bugs, triées par gravité.` }) },
+        { id: 'maison', label: 'Un logiciel maison, développé par Zoé', desc: 'Parfaitement adapté au studio. Deux mois de travail de Zoé.', set: { si: 'maison' }, fx: { tre: -30, fiab: 22, charge: 8 },
+          chain: s => ch(['Un outil sur mesure'], ['Deux mois où Zoé ne travaille pas sur le jeu', 'Elle seule sait le réparer', 'Il faudra le maintenir pendant des années']),
+          voix: V({ who: 'zoe', text: `Il est génial. Par contre si je suis malade, personne ne sait le faire marcher.` }, { who: 'sarah', text: `Deux mois de Zoé${N}? Le jeu prend du retard.` }) } ] },
+      { t: 'say', who: 'nina', text: `Et les 12${N}000 retours des joueurs de la bêta${N}? Ce sont des données brutes${N}: des phrases, en vrac, dans toutes les langues. Personne n'a le temps de les lire.` },
+      { t: 'choice', id: 'analyse', prompt: `Les 12${N}000 retours${N}?`, options: [
+        { id: 'oui', label: 'Les classer par thème avec un outil d\'analyse, puis les compter', desc: '5 k€ et une semaine de Nina.', set: { analyse: true }, fx: { tre: -5, fiab: 12 },
+          chain: ch(['12 000 phrases deviennent un tableau clair', '31 % parlent du même problème : le niveau 2 est trop dur', 'Une information, enfin, sur laquelle décider'], ['5 k€ et une semaine']),
+          voix: V({ who: 'nina', text: `On croyait que les joueurs détestaient la musique. En fait, ils détestent le niveau 2.` }, { who: 'zoe', text: `On le simplifie. C'est fait en trois jours.` }) },
+        { id: 'non', label: 'Les laisser de côté', desc: 'Pas le temps.',
+          chain: ch(['Aucun temps perdu'], ['Des milliers d\'avis de joueurs inutilisés', 'Le niveau 2, que tout le monde trouve trop dur, reste tel quel']),
+          voix: V({ who: 'nina', text: `Dommage, tout était là.` }) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Le partage', sub: 'Partager l\'information rend une équipe plus intelligente. La noyer la rend sourde.',
+    steps: [
+      { t: 'say', who: 'sarah', text: `On passe à une messagerie d'équipe, comme tout le monde. Mais comment l'utiliser${N}?` },
+      { t: 'choice', id: 'partage', prompt: `Les règles du partage${N}?`, options: [
+        { id: 'chaos', label: 'Tout le monde parle partout, librement', desc: 'Des dizaines de canaux, tout le monde mentionne tout le monde.', set: { partage: 'chaos' }, fx: { charge: 22, fiab: -6 },
+          chain: ch(['Tout le monde peut tout savoir'], ['400 notifications par jour et par personne', 'Les informations importantes se noient dans les blagues', 'Tout le monde est interrompu toutes les trois minutes']),
+          voix: V({ who: 'zoe', text: `J'ai coupé toutes les notifications. Du coup je n'ai pas vu l'alerte sur le serveur.` }, { who: 'tom', text: `Je passe ma matinée à lire des messages.` }) },
+        { id: 'regles', label: 'Des règles : un canal par sujet, une page de wiki par décision, 10 minutes de point chaque matin', desc: 'L\'urgent sur la messagerie, le durable sur le wiki.', set: { partage: 'regles' }, fx: { charge: -12, fiab: 14, agil: 8 },
+          chain: ch(['Chacun sait où chercher', 'Les décisions sont écrites et retrouvables', 'Le point du matin évite les malentendus', 'Les savoirs de chacun deviennent ceux de tous'], ['Il faut faire respecter les règles']),
+          voix: V({ who: 'zoe', text: `Le wiki m'a évité de réexpliquer le moteur pour la dixième fois.` }, { who: 'nina', text: `Un joueur a signalé un truc bizarre. Je l'ai posté dans #bugs, Tom l'a reproduit, Zoé l'a corrigé. En une heure.` }) },
+        { id: 'mails', label: 'Pas de messagerie : des mails et une réunion par semaine', desc: 'Comme avant, mais mieux organisé.', set: { partage: 'mails' }, fx: { agil: -10 },
+          chain: ch(['Moins d\'interruptions'], ['L\'information circule lentement', 'Un problème découvert lundi est discuté vendredi', 'Chacun garde ce qu\'il sait pour lui']),
+          voix: V({ who: 'tom', text: `J'ai trouvé un bug critique mardi. On en a parlé vendredi.` }) } ] },
+      { t: 'say', who: 'nina', text: `Les joueurs de la bêta sont 3${N}000 et adorent le jeu. On pourrait ouvrir un serveur de discussion avec eux, pour qu'ils signalent les bugs et proposent des idées.` },
+      { t: 'choice', id: 'discord', prompt: `Ouvrir le studio aux joueurs${N}?`, options: [
+        { id: 'oui', label: 'Oui, avec Nina pour animer et trier', desc: 'Un serveur de discussion public, des canaux de signalement, des récompenses pour les meilleurs.', set: { discord: true }, fx: { fiab: 8, charge: 4 },
+          chain: ch(['3 000 testeurs bénévoles', 'Des bugs trouvés qu\'aucun testeur n\'aurait vus', 'Des joueurs qui se sentent impliqués et en parlent autour d\'eux'], ['Il faut trier, beaucoup', 'Certains sont exigeants']),
+          voix: V({ who: 'nina', text: `Un joueur brésilien a trouvé un bug qui n'arrive qu'avec un clavier portugais. On ne l'aurait jamais vu.` }) },
+        { id: 'non', label: 'Non, on garde le jeu secret', desc: 'Le studio travaille entre soi.',
+          chain: ch(['Aucune fuite'], ['Les seuls testeurs sont Tom et l\'équipe']),
+          voix: V({ who: 'nina', text: `D'accord.` }) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'L\'automatisation', sub: 'Une machine fait vite et sans erreur ce qu\'on lui a appris. Rien de plus.',
+    steps: [
+      { t: 'say', who: 'tom', text: `Chaque nouvelle version, je teste à la main les mêmes 200 actions. Ça me prend deux jours. Zoé dit qu'on peut automatiser${N}: à chaque modification du code, une machine lance tous les tests et bloque la version si un seul échoue.` },
+      { t: 'choice', id: 'ci', prompt: `Automatiser les tests${N}?`, options: [
+        { id: 'oui', label: 'Oui, et Tom se consacre aux tests que la machine ne sait pas faire', desc: '20 k€ de mise en place.', set: { ci: true }, fx: { tre: -20, fiab: 10, agil: 6 },
+          chain: ch(['Les 200 tests tournent en 15 minutes, à chaque modification', 'Plus aucune version cassée ne passe', 'Tom teste ce qu\'une machine ne voit pas : le plaisir de jeu, les sensations'], ['20 k€', 'Une règle stricte : un seul test rouge bloque tout']),
+          voix: V({ who: 'tom', text: `Je ne clique plus 200 fois sur le même bouton. Je joue vraiment au jeu, et j'y trouve des vrais problèmes.` }) },
+        { id: 'non', label: 'Non, Tom continue à la main', desc: '',
+          chain: ch(['Aucun coût'], ['Deux jours de tests à chaque version', 'Des erreurs humaines, forcément']),
+          voix: V({ who: 'tom', text: `Clic. Clic. Clic.` }) } ] },
+      { t: 'say', who: 'nina', text: `Le support croule sous les questions des joueurs. Un prestataire propose un robot conversationnel qui répond seul, jour et nuit. 70${N}% des questions sont toujours les mêmes.` },
+      { t: 'choice', id: 'chatbot', prompt: `Le robot du support${N}?`, options: [
+        { id: 'seul', label: 'Le robot répond à tout', desc: '8 k€. Plus besoin de répondre à la main.', set: { chatbot: 'seul' }, fx: { tre: -8, charge: -8 },
+          chain: ch(['Réponses instantanées, jour et nuit', 'Nina est libérée'], ['Le robot ne sait répondre qu\'aux questions prévues', 'Un joueur qui a perdu sa sauvegarde reçoit la FAQ trois fois', 'Il ne peut pas joindre un humain']),
+          voix: V({ who: 'nina', text: `Un joueur a posté une capture d'écran du robot qui lui conseille de «${N}redémarrer${N}» pour la quatrième fois. 20${N}000 vues.` }) },
+        { id: 'mixte', label: 'Le robot répond aux questions simples et passe la main à un humain sinon', desc: '8 k€.', set: { chatbot: 'mixte' }, fx: { tre: -8, charge: -6, agil: 4 },
+          chain: ch(['70 % des questions réglées tout de suite', 'Les cas difficiles arrivent chez Nina, déjà triés'], ['Il faut quelqu\'un derrière']),
+          voix: V({ who: 'nina', text: `Je ne traite plus que les vrais problèmes. Et les joueurs savent qu'il y a quelqu'un.` }) },
+        { id: 'non', label: 'Pas de robot', desc: '', fx: { charge: 8 },
+          chain: ch(['Un humain répond toujours'], ['Les délais de réponse s\'allongent']), voix: V({ who: 'nina', text: `Je réponds jusqu'à minuit.` }) } ] },
+      { t: 'say', who: 'zoe', text: s => F(s).ci ? `Problème. Un bug grave dans la dernière version, il faut publier une correction tout de suite. Mais un test automatique sans rapport échoue, et la machine bloque tout. La règle, c'est «${N}un test rouge bloque tout${N}».` : `Problème. Un bug grave dans la dernière version, il faut publier une correction tout de suite. Tom doit retester les 200 actions à la main avant${N}: deux jours.` },
+      { t: 'choice', id: 'hotfix', prompt: `La correction urgente${N}?`, options: [
+        { id: 'forcer', label: s => F(s).ci ? 'Forcer le passage : une personne responsable peut débloquer, et le note' : 'Publier sans retester', desc: s => F(s).ci ? 'Une procédure d\'exception, écrite à l\'avance.' : 'On croise les doigts.', fx: s => F(s).ci ? { agil: 8 } : { fiab: -10 }, set: { hotfix: 'forcer' },
+          chain: s => F(s).ci ? ch(['La correction sort en une heure', 'Le blocage automatique a une soupape humaine, prévue et tracée'], ['Il faudra réparer le test défaillant']) : ch(['La correction sort tout de suite'], ['Sans aucun test', 'Elle casse autre chose']),
+          voix: V({ who: 'zoe', text: `Corrigé. Et on sait qui a débloqué, et pourquoi.` }) },
+        { id: 'attendre', label: 'Respecter la règle et attendre', desc: s => F(s).ci ? 'Réparer d\'abord le test qui échoue. Deux jours.' : 'Deux jours de tests manuels.', set: { hotfix: 'attendre' }, fx: { agil: -10 },
+          chain: ch(['Aucun risque supplémentaire'], ['Deux jours avec un bug grave en ligne', 'Les joueurs s\'agacent', 'Une règle trop rigide empêche de réagir']),
+          voix: V({ who: 'nina', text: `Deux jours de messages furieux.` }) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Le cloud', sub: 'Le jour de la sortie, 60 000 joueurs en même temps. Où seront tes serveurs ?',
+    steps: [
+      { t: 'say', who: 'zoe', text: `Aujourd'hui, nos serveurs de jeu sont deux machines dans le placard du studio. Elles tiennent 6${N}000 joueurs en même temps. Les prévisions pour le jour de la sortie${N}: 60${N}000.` },
+      { t: 'say', who: 'cloud', text: `Avec NimbusCloud, vous louez la puissance qu'il vous faut, quand il vous la faut${N}: 6${N}000 joueurs, vous payez pour 6${N}000. 60${N}000, on ajoute des serveurs en quelques secondes. Et toute l'équipe peut travailler de n'importe où.` },
+      { t: 'choice', id: 'heberg', prompt: `Les serveurs pour la sortie${N}?`, options: [
+        { id: 'local', label: 'Garder nos serveurs, et en acheter deux de plus', desc: '15 k€. Tout reste chez nous.', set: { heberg: 'local' }, fx: { tre: -15, agil: -6 },
+          chain: ch(['Tes données restent chez toi', 'Aucun abonnement'], ['Quatre machines tiennent 12 000 joueurs, pas 60 000', 'Si la demande explose, il faut des semaines pour acheter et installer', 'Une coupure de courant au studio, et tout s\'arrête']),
+          voix: V({ who: 'zoe', text: `On va faire la queue pour jouer à notre jeu.` }, { who: 'sarah', text: `Au moins, on sait où sont nos données.` }) },
+        { id: 'cloud1', label: 'Tout chez NimbusCloud', desc: 'On paie à l\'usage. Un seul fournisseur.', set: { heberg: 'cloud1' }, fx: { agil: 14 },
+          chain: ch(['Les serveurs s\'ajustent au nombre de joueurs', 'L\'équipe peut travailler de partout', 'On ne paie que ce qu\'on utilise'], ['Tout dépend d\'un seul fournisseur', 'Ses serveurs sont aux États-Unis : les données des joueurs européens y partent', 'Si NimbusCloud tombe, tout tombe']),
+          voix: V({ who: 'zoe', text: `Ça monte tout seul. C'est magique.` }, { who: 'nina', text: `Un joueur demande où sont stockées ses données. Je lui réponds quoi${N}?` }) },
+        { id: 'cloud2', label: 'Le cloud, mais avec un hébergeur européen de secours et des sauvegardes', desc: 'Données des joueurs en Europe, bascule automatique si le fournisseur principal tombe. 8 k€ de plus.', set: { heberg: 'cloud2' }, fx: { tre: -8, agil: 14, fiab: 6 },
+          chain: ch(['Les serveurs s\'ajustent au nombre de joueurs', 'Les données des joueurs restent en Europe, comme le veut le RGPD', 'Si un fournisseur tombe, l\'autre prend le relais'], ['8 k€ de plus', 'Deux fournisseurs à gérer']),
+          voix: V({ who: 'zoe', text: `Plus compliqué à installer. Mais on dort tranquille.` }) } ] },
+      { t: 'event', who: 'zoe', do: s => { s.L = lancement(s); }, text: s => {
+          const L = s.L, f = F(s);
+          const j1 = f.heberg === 'local' ? `Jour 1${N}: 60${N}000 joueurs, nos machines en tiennent 12${N}000. File d'attente de quatre heures, puis plus rien. Il nous a fallu trois semaines pour basculer en urgence vers un hébergeur.` : `Jour 1${N}: 60${N}000 joueurs. Les serveurs se sont multipliés tout seuls. Pas une seconde de coupure.`;
+          const j3 = f.heberg === 'cloud1' ? ` Jour 3${N}: panne mondiale chez NimbusCloud, six heures. Le jeu est injouable, et nous ne pouvons rien faire.` : f.heberg === 'cloud2' ? ` Jour 3${N}: panne mondiale chez NimbusCloud. Bascule automatique vers l'hébergeur de secours en deux minutes. Personne ne s'en est rendu compte.` : '';
+          return `${j1}${j3}<span class="pay"><span>Jeu disponible la première semaine</span><b>${L.dispo}${N}%</b><span>Bugs graves trouvés avant la sortie</span><b>${100 - L.bugs} sur 100</b><span>Note des joueurs</span><b>${L.note} / 100</b><span>Ventes du premier mois</span><b>${nb(L.ventes)}</b>${L.factureCloud ? `<span>Facture du cloud ce mois-ci</span><b>${ke(L.factureCloud)}</b>` : ''}</span>`; },
+        fx: s => ({ tre: Math.round(s.L.ca - s.L.factureCloud) }) }
+    ] },
+
+  /* ------------------------------ ACTE 5 ------------------------------ */
+  { num: 5, title: 'Le bilan', sub: 'Un mois après la sortie.', final: true,
+    steps: [
+      { t: 'say', who: 'sarah', text: s => `Chaque semaine, l'équipe perd maintenant ${heuresPerdues(s)} heures à chercher, ressaisir ou lire des messages, contre 60 avant. ${F(s).analyse ? 'Le niveau 2 simplifié est le niveau préféré des joueurs. ' : ''}${F(s).discord ? 'Et les joueurs de la bêta sont devenus nos meilleurs ambassadeurs.' : ''}` }
+    ] }
+  ],
+
+  endings: [
+    { id: 'crash', when: s => F(s).heberg === 'local', title: 'Serveurs saturés', stamp: 'Lancement raté', color: '#FF5C6A',
+      text: `Tes serveurs du placard tenaient 12${N}000 joueurs. Il en est venu 60${N}000. Un jeu qu'on ne peut pas lancer le premier jour, ce sont des avis négatifs pour toujours. Le cloud aurait offert la souplesse dont tu avais besoin.` },
+    { id: 'panne', when: s => F(s).heberg === 'cloud1', title: 'Tous les œufs dans le même nuage', stamp: 'Dépendance', color: '#FFC64F',
+      text: `Le cloud t'a sauvé le jour 1, puis t'a lâché le jour 3. Avec un seul fournisseur, sa panne devient la tienne. Et les données de tes joueurs européens sont parties aux États-Unis sans qu'ils le sachent.` },
+    { id: 'rigide', when: s => F(s).chatbot === 'seul' || F(s).hotfix === 'attendre', title: 'La machine a dit non', stamp: 'Trop rigide', color: '#FFC64F',
+      text: s => `${F(s).chatbot === 'seul' ? 'Ton robot répondait à tout, mais seulement ce qu\'on lui avait appris. Les joueurs avec un vrai problème ne trouvaient personne. ' : ''}${F(s).hotfix === 'attendre' ? 'Ta règle automatique a bloqué une correction urgente pendant deux jours. ' : ''}Automatiser, c'est gagner du temps, à condition de garder une place pour l'humain quand la situation sort de l'ordinaire.` },
+    { id: 'reussite', when: s => s.L && s.L.note >= 78 && s.charge <= 55, title: 'Lancement parfait', stamp: 'Note ' + 'excellente', color: '#4CD97B',
+      text: s => `Papier Monde sort sans accroc et les joueurs adorent. Une information fiable et partagée, une communauté qui trouve les bugs avec toi, des machines qui travaillent pour l'équipe sans la remplacer, et un cloud qui tient même quand il tombe.` },
+    { id: 'moyen', when: s => true, title: 'Une sortie correcte', stamp: 'Peut mieux faire', color: '#5B8FFF',
+      text: s => `Le jeu est sorti, mais ${s.charge > 55 ? 'l\'équipe est arrivée noyée sous les messages' : (s.L && s.L.bugs > 35) ? 'trop de bugs ont échappé aux tests' : 'la note est en dessous de ce que le jeu méritait'}.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['si', 'analyse'], title: 'Acte 1 — Les données', text: h => `Une <em>donnée</em> est un fait brut (une ligne de commentaire, un numéro de version). Une <em>information</em> est une donnée organisée et interprétée, qui sert à décider (« 31 % des joueurs trouvent le niveau 2 trop dur »). Le <em>système d\'information</em> (SI) est l\'ensemble des moyens (outils, personnes, règles) qui permettent de collecter, stocker, traiter et diffuser l\'information. ${h.si === 'outils' ? 'Avec des outils adaptés, reliés entre eux, l\'information est devenue fiable.' : h.si === 'maison' ? 'Ton outil maison était adapté, mais dépendait d\'une seule personne.' : 'Un tableur partagé n\'a pas suffi à rendre l\'information fiable.'} ${h.analyse === 'oui' ? 'En traitant les 12 000 retours, tu as transformé des données en information, puis en décision.' : 'Les 12 000 retours sont restés des données inutilisées.'} L\'information est devenue une <em>ressource</em>.`,
+      chain: () => ({ good: ['Données brutes', 'Traitement', 'Information', 'Décision'], bad: ['Données éparpillées', 'Personne ne s\'y retrouve', 'Décisions à l\'aveugle'] }) },
+    { act: 2, needs: ['partage', 'discord'], title: 'Acte 2 — Le partage', text: h => `Partager l\'information permet l\'<em>intelligence collective</em> : un groupe qui met en commun ses connaissances résout des problèmes qu\'aucun membre ne résoudrait seul. ${h.discord === 'oui' ? 'En ouvrant un espace aux joueurs, tu as élargi cette intelligence collective au-delà du studio.' : ''} Mais trop d\'information tue l\'information : c\'est la <em>surcharge informationnelle</em> (ou infobésité). ${h.partage === 'regles' ? 'Des règles claires (un canal par sujet, un wiki, un point quotidien) ont rendu le partage efficace.' : h.partage === 'chaos' ? 'Sans règles, l\'équipe s\'est noyée.' : 'Avec seulement des mails et une réunion hebdomadaire, l\'information circulait trop lentement.'} Les <em>outils collaboratifs</em> ne valent que par leurs règles d\'usage.`,
+      chain: () => ({ good: ['Partager', 'Organiser le partage', 'Intelligence collective'], bad: ['Tout partager sans règle', 'Surcharge', 'Information perdue'] }) },
+    { act: 3, needs: ['ci', 'chatbot', 'hotfix'], title: 'Acte 3 — L\'automatisation', text: h => `L\'<em>automatisation</em> confie à des machines des tâches répétitives : elle fait gagner du temps, réduit les erreurs et libère les personnes pour des tâches à plus forte valeur. ${h.ci === 'oui' ? 'Tom a cessé de cliquer 200 fois pour vraiment jouer au jeu.' : ''} Mais une machine applique ses règles sans comprendre la situation : elle peut créer de la <em>rigidité</em>. ${h.chatbot === 'mixte' ? 'Ton robot passait la main à un humain pour les cas difficiles.' : h.chatbot === 'seul' ? 'Ton robot seul a frustré les joueurs avec un vrai problème.' : ''} ${h.hotfix === 'forcer' ? 'Une procédure d\'exception, prévue à l\'avance, a gardé de l\'<em>agilité</em>.' : 'Faute de procédure d\'exception, la règle a empêché de réagir.'} Le numérique peut rendre l\'organisation plus <em>agile</em> ou plus rigide : tout dépend de la place laissée à l\'humain.`,
+      chain: () => ({ good: ['Automatiser le répétitif', 'Garder l\'humain pour l\'imprévu', 'Agilité'], bad: ['Tout automatiser', 'Pas d\'exception possible', 'Rigidité'] }) },
+    { act: 4, needs: ['heberg'], title: 'Acte 4 — Le cloud', text: h => `Le <em>cloud</em> (informatique en nuage) consiste à louer à distance de la puissance de calcul et du stockage. Il apporte de la <em>souplesse</em> : on ajuste les ressources à la demande, et la <em>mobilité</em> : chacun travaille de n\'importe où. Il crée aussi des <em>dépendances</em> : envers le fournisseur (sa panne devient la tienne) et sur la localisation des données (le <em>RGPD</em> encadre leur transfert hors de l\'Union européenne). ${h.heberg === 'cloud2' ? 'En prévoyant un fournisseur européen de secours, tu as profité de la souplesse sans subir la dépendance.' : h.heberg === 'cloud1' ? 'Un seul fournisseur, c\'est un seul point de rupture.' : 'Tes serveurs internes manquaient de souplesse face au pic de la sortie.'}`,
+      chain: () => ({ good: ['Souplesse', 'Mobilité', 'Plan de secours'], bad: ['Un seul fournisseur', 'Données hors d\'Europe', 'Panne totale'] }) }
+  ],
+  vocab: ['Donnée', 'Information', 'Système d\'information', 'Ressource informationnelle', 'Intelligence collective', 'Outils collaboratifs', 'Surcharge informationnelle', 'Automatisation', 'Agilité', 'Rigidité', 'Cloud', 'Mobilité', 'Dépendance au fournisseur', 'RGPD']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — le studio, ses données, ses serveurs.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const B = '#5B8FFF', f = S.flags;
+  const flux = f.partage === 'chaos' ? Array.from({ length: 14 }, (_, i) => `<circle cx="${140 + (i * 37) % 200}" cy="${40 + (i * 23) % 50}" r="3" fill="#FF5C6A" opacity=".8"/>`).join('') : f.partage === 'regles' ? `<line x1="150" y1="60" x2="320" y2="60" stroke="${B}" stroke-width="2"/><line x1="150" y1="75" x2="320" y2="75" stroke="${B}" stroke-width="2" opacity=".6"/>` : '';
+  const srv = f.heberg ? (f.heberg === 'local' ? `<rect x="300" y="100" width="40" height="50" fill="#0b1020" stroke="${B}"/><text x="320" y="128" text-anchor="middle" font-family="Rajdhani,sans-serif" font-size="9" fill="${B}">PLACARD</text>` : `<ellipse cx="300" cy="118" rx="38" ry="18" fill="#0b1020" stroke="${B}"/><text x="300" y="122" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="9" fill="${B}">CLOUD${f.heberg === 'cloud2' ? ' ×2' : ''}</text>`) : '';
+  const si = f.si ? `<rect x="140" y="100" width="80" height="44" rx="4" fill="#0b1020" stroke="${B}"/><text x="180" y="126" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="${B}">${({ tableur: 'TABLEUR', outils: 'OUTILS RELIÉS', maison: 'OUTIL MAISON' })[f.si]}</text>` : `<g>${Array.from({ length: 9 }, (_, i) => `<rect x="${145 + (i % 3) * 22}" y="${100 + Math.floor(i / 3) * 14}" width="16" height="10" fill="#FFC64F" opacity=".7" transform="rotate(${(i * 17) % 30 - 15} ${153 + (i % 3) * 22} ${105 + Math.floor(i / 3) * 14})"/>`).join('')}</g>`;
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Le studio et ses outils">
+    <rect width="360" height="200" fill="#05070c"/><rect x="0" y="0" width="360" height="162" fill="#080b14"/>
+    <text x="235" y="22" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#8B93AE">PAPIER MONDE · SORTIE${S.L ? ' : FAITE' : ''}</text>
+    ${flux}${si}${srv}
+    <rect x="0" y="162" width="360" height="38" fill="#060810"/><line x1="0" y1="162" x2="360" y2="162" stroke="#1d2540" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

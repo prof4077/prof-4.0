@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Les choix stratégiques — Jeu Management 1re STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#7CFF3D;--eco-dim:#4FA81F;--good:#4CD97B;--bg:#050704;--panel:#0b0f09;--panel2:#0f150c;--line:#1d2a17;--txt:#EEF3EC;--muted:#8B9A80;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(124,255,61,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(124,255,61,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#142010;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(124,255,61,.5);background:rgba(124,255,61,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070a06;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(124,255,61,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#0a1406;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#0a1406;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#121c0e;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#142010;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#0a1406;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#080c06;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#080c06;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#080c06;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#080c06;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(124,255,61,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#080c06;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(124,255,61,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — Les choix stratégiques (Management 1re STMG, thème 3)
+   Les Crêtes, cinq ans plus tard. Trois saisons simulées (k€) :
+     hiver = 4 000 × neige utile × effets du positionnement et des alliances
+     été / autres activités selon la diversification ; − charges − remboursements.
+   Puis la commune choisit l'avenir de la station, et le club de ski cherche à se développer.
+   Jauges : tre (k€), visiteurs (milliers), contrat (chances que la commune renouvelle), club (santé du club de ski).
+   ===================================================================== */
+const N = ' ';
+const ke = n => (n < 0 ? '−' : '') + (Math.abs(Math.round(n)) >= 1000 ? (Math.abs(n) / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 2 }) + N + 'M€' : Math.abs(Math.round(n)).toLocaleString('fr-FR') + N + 'k€');
+const sk = n => (n >= 0 ? '+' : '−') + ke(Math.abs(n));
+const nb = n => Math.round(n).toLocaleString('fr-FR');
+const F = s => s.flags;
+
+const NEIGE = [0, .9, .5, .8];
+function saison(s, y) {
+  const f = F(s);
+  const utile = Math.max(NEIGE[y], Math.min(.85, NEIGE[y] + .25));
+  let skieurs = 65 * utile, prix = 62;
+  if (f.pos === 'couts') { prix *= .75; skieurs *= y >= 2 ? 1.02 : 1.25; }
+  if (f.pos === 'diff') { prix *= 1.08; skieurs *= .97; }
+  if (f.pos === 'niche') { skieurs *= .7; }
+  if (f.croiss === 'alliance') skieurs *= 1.08;
+  let hiver = skieurs * prix;
+  const groupes = f.pos === 'niche' ? [0, 1300, 1400, 1450][y] : 0;            // classes de neige et colonies, contrats sur plusieurs années
+  let ete = 400;
+  if (f.act === 'liee') ete = [0, 900, 1500, 1900][y];
+  let aqua = f.act === 'nonliee' ? 1200 : 0;
+  let mourtis = f.croiss === 'rachat' && y >= 2 ? 1500 * Math.max(NEIGE[y], .4) / .9 : 0;
+  let charges = 2300 + 1500 + (f.pos === 'couts' ? -300 : f.pos === 'diff' ? 200 : f.pos === 'niche' ? 300 : 0)
+    + (f.act === 'liee' ? 250 + 180 : 0) + (f.act === 'nonliee' ? 900 + 600 + (y === 2 ? 400 : 0) : 0)
+    + (f.croiss === 'rachat' ? 250 + (y === 1 ? 300 : 1100) : 0) + (f.croiss === 'alliance' ? 100 : 0);
+  const ca = hiver + groupes + ete + aqua + mourtis, res = ca - charges;
+  return { y, utile, skieurs, prix, hiver, groupes, ete, aqua, mourtis, charges, res, visiteurs: skieurs + groupes / 25 + ete / 20 + aqua / 15 + mourtis / 50 };
+}
+function tableau(s, R) {
+  const row = (l, v, c) => `<span${c ? ' class="tot"' : ''}>${l}</span><b${c ? ' class="tot"' : ''}>${v}</b>`;
+  return `<span class="pay">${row('Neige utile', Math.round(R.utile * 100) + N + '%')}${row(`Skieurs (${nb(R.skieurs)}${N}000 × ${Math.round(R.prix)}${N}€)`, ke(R.hiver))}${R.groupes ? row('Classes de neige et colonies', ke(R.groupes)) : ''}${row('Été', ke(R.ete))}${R.aqua ? row('Centre aquatique', ke(R.aqua)) : ''}${R.mourtis ? row('Station du Mourtis', ke(R.mourtis)) : ''}${row('Charges et remboursements', '−' + ke(R.charges))}${row('Résultat de la saison', sk(R.res), 1)}</span>`;
+}
+const ch = (good, bad) => ({ good, bad });
+const V = (a, b, c) => [a, b, c].filter(Boolean);
+
+const GAME = {
+  title: 'Les choix stratégiques',
+  brand: 'LES CHOIX <span>STRATÉGIQUES</span>',
+  storeKey: 'choixStrategiquesFins',
+  backLink: '../../matieres/management-1ere.html',
+  footer: 'Management 1re STMG, thème 3',
+  kicker: 'Management · 1re STMG · Thème 3',
+  debIntro: 'Tu as choisi où te battre, comment grandir, puis tu as vu la station avec les yeux d\'une commune et d\'une association. Voici comment on appelle ces choix.',
+  cutText: 'Ta partie s\'est arrêtée trop tôt. Rejoue pour aller jusqu\'à la décision de la commune.',
+  pitch: `Les Crêtes appartiennent à la commune. Depuis quinze ans, c'est ta société qui l'exploite, grâce à un contrat qui se termine dans trois ans. D'ici là, tu dois choisir sur quoi miser, comment grandir, et convaincre la commune de te garder. Puis tu verras la montagne avec d'autres yeux${N}: ceux du maire, et ceux du club de ski du village.`,
+  meta: '4 actes · 25 minutes',
+  start: s => Object.assign(s, { tre: 1500, visiteurs: 80, contrat: 50, club: 55, hist: [] }),
+  hud: [
+    { k: 'tre',       label: 'Trésorerie', short: 'Trésorerie', show: s => ke(s.tre), pct: s => s.tre / 40, low: s => s.tre < 300, unit: N + 'k€' },
+    { k: 'visiteurs', label: 'Visiteurs (milliers)', short: 'Visiteurs', show: s => nb(s.visiteurs) + N + 'k', pct: s => s.visiteurs / 1.6, low: s => s.visiteurs < 60, unit: N + 'k' },
+    { k: 'contrat',   label: 'Confiance de la commune', short: 'Commune', show: s => Math.round(s.contrat), pct: s => s.contrat, low: s => s.contrat < 40, clamp: true },
+    { k: 'club',      label: 'Santé du club de ski', short: 'Club', show: s => Math.round(s.club), pct: s => s.club, low: s => s.club < 40, clamp: true }
+  ],
+  fail: () => null,
+  lock: () => null,
+  bilan: s => [['Trésorerie de ta société', ke(s.tre)], ['Résultats des 3 saisons', s.hist.map(sk).join(' · ')], ['Décision de la commune', ({ dsp: 'contrat renouvelé', regie: 'reprise en régie', cession: 'station vendue' })[s.flags.commune] || '—'], ['Santé du club', Math.round(s.club) + ' / 100']],
+
+  characters: {
+    faure: { name: 'Mme Faure', role: 'présidente de ton conseil d\'administration', color: '#FFC64F', body: '#5a3a22', hair: '#8a8f96', acc: 'clip' },
+    maire: { name: 'M. Arnaud', role: 'maire des Crêtes', color: '#5B8FFF', body: '#2b3a5a', hair: '#8a8f96', acc: 'tie' },
+    grand: { name: 'Mme Royer', role: 'GrandsDomaines, groupe de 22 stations', color: '#FF5C6A', body: '#1c1c22', hair: '#3a2418', acc: 'tie' },
+    club:  { name: 'Julien', role: 'président bénévole du Ski Club des Crêtes', color: '#5BC8FF', body: '#c0392b', hair: '#3a2418', acc: 'cap' },
+    marc:  { name: 'Marc', role: 'chef des pistes', color: '#4CD97B', body: '#2f7a4a', hair: '#3a2418', acc: 'cap' },
+    narr:  { name: 'Toi', role: '', color: '#7CFF3D' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Où se battre', sub: 'Tu ne peux pas être à la fois la station la moins chère, la plus chaleureuse et la plus spécialisée. Il faut choisir.',
+    steps: [
+      { t: 'say', who: 'faure', text: `Val-Haut, 1${N}800${N}m, 30 stations de ski dans le groupe derrière elle, des moyens que nous n'aurons jamais. Nous ne pouvons pas faire comme elle en plus petit. Sur quoi voulons-nous être les meilleurs${N}?` },
+      { t: 'choice', id: 'pos', prompt: `Comment te distinguer${N}?`, options: [
+        { id: 'couts', label: 'Être la station la moins chère du massif', desc: 'Forfait −25 %, services réduits au minimum, charges allégées.', set: { pos: 'couts' },
+          chain: ch(['Les prix les plus bas attirent la foule', '+25 % de skieurs la première saison'], ['Il faut des coûts plus bas que tous les concurrents', 'Val-Haut, bien plus grande, peut baisser encore plus', 'Une guerre des prix se gagne avec des volumes que tu n\'as pas']),
+          voix: V({ who: 'marc', text: `Plus de monde, moins de personnel. Ça va tanguer.` }, { who: 'faure', text: `Être le moins cher face à un géant… J'espère que vous avez fait vos calculs.` }) },
+        { id: 'diff', label: 'Se démarquer : la station « slow ski » des familles', desc: 'Pistes douces, accueil personnalisé, garderie, prix un peu plus élevé.', set: { pos: 'diff' },
+          chain: ch(['Une offre que Val-Haut ne propose pas', 'Les familles acceptent de payer un peu plus pour ce qu\'elles ne trouvent pas ailleurs', 'Tu t\'appuies sur ta force : l\'école de ski réputée'], ['Des services en plus à payer', 'Un peu moins de skieurs']),
+          voix: V({ who: 'marc', text: `Ça, c'est ce qu'on sait faire. Les gamins, on les adore.` }, { who: 'faure', text: `Être différent plutôt que moins cher. Je suis convaincue.` }) },
+        { id: 'niche', label: 'Se spécialiser sur un public précis : les classes de neige et colonies', desc: 'Contrats de plusieurs années avec écoles, mairies et comités d\'entreprise. Hébergement adapté, activités même sans neige.', set: { pos: 'niche' },
+          chain: ch(['Des contrats signés pour plusieurs années', 'Des activités qui ne dépendent pas toutes de la neige : raquettes, découverte de la montagne', 'Peu de concurrents sur ce créneau'], ['Moins de skieurs individuels', 'Des groupes à loger et à encadrer']),
+          voix: V({ who: 'marc', text: `300 gamins de CM2 chaque semaine${N}? On va bien rigoler.` }, { who: 'faure', text: `Un marché étroit, mais qui est à nous.` }) } ] },
+      { t: 'say', who: 'faure', text: `Deuxième question. Restons-nous une station de ski, rien qu'une station de ski${N}? Ou faisons-nous autre chose aussi${N}?` },
+      { t: 'choice', id: 'act', prompt: `Les activités${N}?`, options: [
+        { id: 'specia', label: 'Rester spécialisé dans le ski', desc: 'Tout l\'effort sur un seul métier.', set: { act: 'specia' },
+          chain: ch(['Tu fais ce que tu sais faire, et bien', 'Aucun investissement nouveau'], ['Toutes tes recettes dépendent de la neige']),
+          voix: V({ who: 'marc', text: `On reste skieurs. Ça me va.` }, { who: 'faure', text: `Et l'hiver sans neige, on fait quoi${N}?` }) },
+        { id: 'liee', label: 'Se diversifier dans la montagne d\'été : VTT, lac, randonnée', desc: 'Un métier proche du tien : mêmes remontées, mêmes pistes, mêmes équipes. Investissement aidé par la région.', set: { act: 'liee' },
+          chain: ch(['Tu utilises ce que tu as déjà : télésiège, savoir-faire, personnel', 'Des recettes qui ne dépendent pas de la neige', 'Les saisonniers travaillent aussi l\'été'], ['L\'été démarre lentement']),
+          voix: V({ who: 'marc', text: `Le télésiège qui monte des VTT, j'avoue, ça a de la gueule.` }, { who: 'faure', text: `Une diversification qui s'appuie sur nos compétences. Bien.` }) },
+        { id: 'nonliee', label: 'Construire un centre aquatique couvert', desc: '8 M€, piscine et toboggans, ouvert toute l\'année. Un tout autre métier.', set: { act: 'nonliee' },
+          chain: ch(['Une activité ouverte toute l\'année, par tous les temps'], ['Un métier que personne ne connaît dans l\'équipe', '8 M€ à rembourser', 'Chauffer de l\'eau en montagne coûte une fortune quand l\'énergie flambe']),
+          voix: V({ who: 'marc', text: `Je ne sais pas régler le chlore d'une piscine, moi.` }, { who: 'faure', text: `Un pari très loin de notre métier.` }) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Comment grandir', sub: 'Construire soi-même, racheter un voisin, ou s\'allier. Trois façons de grandir, trois façons de prendre des risques.',
+    steps: [
+      { t: 'say', who: 'faure', text: `Le Mourtis, la petite station voisine à 1${N}100${N}m, est à vendre. 2${N}M€. Et quatre stations du massif proposent de créer un forfait commun. Ou nous continuons à grandir par nous-mêmes.` },
+      { t: 'choice', id: 'croiss', prompt: `Comment grandir${N}?`, options: [
+        { id: 'interne', label: 'Grandir par nous-mêmes', desc: 'Développer tes propres activités, à ton rythme.', set: { croiss: 'interne' },
+          chain: ch(['Tu gardes le contrôle de tout', 'Aucune dépense de rachat'], ['Une croissance plus lente']),
+          voix: V({ who: 'marc', text: `On avance à notre rythme.` }, { who: 'faure', text: `Prudent.` }) },
+        { id: 'rachat', label: 'Racheter Le Mourtis', desc: '2 M€ empruntés. Ses pistes, ses clients, ses 20 salariés deviennent les tiens.', fx: { contrat: -4 }, set: { croiss: 'rachat' },
+          chain: ch(['Tu doubles ton domaine skiable d\'un coup', 'Tu récupères ses clients'], ['2 M€ à rembourser', 'Deux équipes, deux façons de travailler à fusionner', 'Le Mourtis est encore plus bas : encore plus exposé au manque de neige']),
+          voix: V({ who: 'marc', text: `Leurs perchmen font tout à leur sauce. Ça frotte.` }, { who: 'maire', text: `Vous rachetez une station plus basse que la nôtre${N}? Avec le climat qui change${N}?` }) },
+        { id: 'alliance', label: 'S\'allier : le forfait « Massif Pass » avec quatre stations', desc: 'Un forfait valable dans 5 stations, une publicité commune. Chacun reste indépendant.', fx: { contrat: 6 }, set: { croiss: 'alliance' },
+          chain: ch(['+8 % de skieurs grâce à l\'offre commune', 'Des coûts de publicité partagés', 'Chaque station reste maîtresse chez elle'], ['Il faut se mettre d\'accord à cinq', 'Les recettes du forfait commun sont partagées']),
+          voix: V({ who: 'marc', text: `Les gens viennent pour le pass, et ils reviennent chez nous.` }, { who: 'maire', text: `Des stations qui coopèrent plutôt que de s'entretuer. Voilà ce que j'aime.` }) } ] },
+      { t: 'event', who: 'faure', do: s => { s.rep = saison(s, 1); }, text: s => `<b>Saison 1.</b>${tableau(s, s.rep)}`, fx: s => ({ tre: Math.round(s.rep.res) - (F(s).croiss === 'rachat' ? 0 : 0), visiteurs: Math.round(s.rep.visiteurs) - s.visiteurs }) },
+      { t: 'event', who: 'narr', do: s => { s.hist.push(Math.round(s.rep.res)); }, text: s => F(s).pos === 'couts' ? `Val-Haut a vu tes prix. Sa directrice a fait une annonce${N}: forfait enfant à 15${N}€ la saison prochaine.` : `Une saison de rodage.` },
+      { t: 'event', who: 'faure', do: s => { s.rep = saison(s, 2); }, text: s => `<b>Saison 2.</b> Un hiver sans neige et une énergie hors de prix.${F(s).pos === 'couts' ? ` Val-Haut a cassé ses prix${N}: tes skieurs sont repartis.` : ''}${tableau(s, s.rep)}`, fx: s => ({ tre: Math.round(s.rep.res), visiteurs: Math.round(s.rep.visiteurs) - s.visiteurs, contrat: s.rep.res < -800 ? -10 : s.rep.res < 0 ? -3 : 6 }) },
+      { t: 'event', who: 'faure', do: s => { s.hist.push(Math.round(s.rep.res)); s.rep = saison(s, 3); }, text: s => `<b>Saison 3.</b>${tableau(s, s.rep)}`, fx: s => ({ tre: Math.round(s.rep.res), visiteurs: Math.round(s.rep.visiteurs) - s.visiteurs, contrat: (F(s).act === 'liee' ? 8 : 0) + (F(s).pos === 'niche' || F(s).pos === 'diff' ? 6 : -4) }) },
+      { t: 'event', who: 'narr', do: s => { s.hist.push(Math.round(s.rep.res)); }, text: s => `Trois saisons. Ta société a ${ke(s.tre)} en caisse. Le contrat avec la commune arrive à son terme.` }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Dans le bureau du maire', sub: 'Tu changes de casquette. Le maire te demande conseil. Ce qui compte pour une commune n\'est pas ce qui compte pour une entreprise.',
+    steps: [
+      { t: 'say', who: 'maire', text: s => `Vous connaissez la station mieux que personne, alors je vous demande conseil, en oubliant un instant que vous dirigez la société qui l'exploite. Je dois décider pour les 15 ans à venir. Ce qui m'importe${N}: les 120 emplois de la vallée, des prix accessibles aux familles d'ici, que la station s'adapte au climat, et que les impôts des habitants ne servent pas à combler des pertes.` },
+      { t: 'say', who: 'grand', text: `GrandsDomaines vous propose d'acheter la station. 5${N}M€ pour la commune, tout de suite. Nous gérons 22 stations, nous savons faire. Bien sûr, nous garderons ce qui est rentable.` },
+      { t: 'say', who: 'maire', text: s => `Trois possibilités. Renouveler le contrat avec la société actuelle, avec un cahier des charges. Reprendre la station nous-mêmes, en régie, avec des agents de la commune. Ou vendre à GrandsDomaines. ${s.tre >= 1500 && (F(s).act === 'liee' || F(s).pos !== 'couts') ? 'Pour être honnête, les résultats de votre société plaident pour elle.' : 'Pour être honnête, les résultats de votre société m\'inquiètent.'}` },
+      { t: 'choice', id: 'commune', prompt: `Que conseilles-tu au maire${N}?`, options: [
+        { id: 'dsp', label: 'Renouveler le contrat avec la société, avec un cahier des charges exigeant', desc: 'La commune reste propriétaire. Elle impose : prix réduits pour les habitants, emploi local, plan d\'adaptation au climat. L\'exploitant prend les risques financiers.', set: { commune: 'dsp' },
+          chain: s => s.tre >= 1000 && s.contrat >= 55 ? ch(['La commune garde la propriété et fixe les règles', 'Une entreprise qui a fait ses preuves assume les risques', 'Les objectifs d\'intérêt général sont écrits dans le contrat', 'Les impôts des habitants ne comblent aucune perte']) : ch(['La commune garde la propriété'], ['La société sort de trois saisons difficiles', 'Le conseil municipal hésite à confier 15 ans à un exploitant fragile']),
+          voix: s => V({ who: 'maire', text: s.tre >= 1000 && s.contrat >= 55 ? `C'est voté. Vous avez montré que votre stratégie servait aussi la vallée.` : `Le conseil vote, de justesse. Une seule voix d'avance. Vous serez surveillés.` }) },
+        { id: 'regie', label: 'Reprendre la station en régie', desc: 'La commune gère tout elle-même. Elle décide de tout, elle paie tout.', set: { commune: 'regie' },
+          chain: ch(['La commune décide de tout : prix, emplois, investissements', 'Aucun profit à verser à une entreprise'], ['Si la station perd de l\'argent, ce sont les impôts locaux qui paient', 'La commune doit trouver les compétences pour gérer une station', 'Les élus changent tous les six ans, la stratégie aussi']),
+          voix: V({ who: 'maire', text: `Nous serons maîtres chez nous. Et responsables de tout, y compris des déficits.` }) },
+        { id: 'cession', label: 'Vendre à GrandsDomaines', desc: '5 M€ pour la commune tout de suite.', set: { commune: 'cession' },
+          chain: ch(['5 M€ pour la commune', 'Un professionnel puissant aux commandes'], ['La commune perd tout contrôle sur la station', 'GrandsDomaines garde ce qui est rentable : le reste ferme', 'Les décisions sur la vallée se prendront ailleurs']),
+          voix: V({ who: 'maire', text: `5${N}M€… Mais dans dix ans, qui décidera de fermer les pistes basses${N}? Pas nous.` }, { who: 'grand', text: `Excellente décision. Nous ferons une étude de rentabilité dès l'été.` }) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Le club', sub: 'Dernière casquette : celle du club de ski. Une association aussi doit choisir comment se développer.',
+    steps: [
+      { t: 'say', who: 'club', text: `Le Ski Club des Crêtes, c'est 300 licenciés, 25 bénévoles, deux entraîneurs payés à mi-temps. Avec moins de neige, on a perdu 60 licenciés en trois ans. Le car pour aller s'entraîner à Val-Haut coûte une fortune. Si on ne fait rien, on ferme dans deux ans. On a l'énergie pour deux chantiers cette année.` },
+      { t: 'pick', id: 'clubdev', prompt: 'Quels chantiers pour le club ?', budget: 2, unit: 'chantiers', unitLabel: 'Énergie des bénévoles', go: 'Lancer ▸', min: 1,
+        options: [
+          { id: 'mecenat', label: 'Chercher des mécènes', cost: 1, desc: 'Les entreprises de la vallée, et la société des Crêtes, financent le club en échange de leur nom sur les maillots. Une partie de leur don est déduite de leurs impôts.' },
+          { id: 'crowd', label: 'Un financement participatif', cost: 1, desc: 'Une collecte en ligne auprès des habitants et des anciens du club pour acheter un minibus.' },
+          { id: 'fusion', label: 'Fusionner avec le club de Val-Haut', cost: 1, desc: 'Un seul club, des entraîneurs partagés, un accès aux pistes hautes. Mais le club des Crêtes disparaît.' },
+          { id: 'trail', label: 'Ouvrir une section trail et VTT', cost: 1, desc: 'Des licenciés toute l\'année, même sans neige.' } ],
+        resolve: (s, ids) => {
+          let d = 0; const f = s.flags;
+          if (ids.includes('mecenat')) d += f.commune === 'cession' ? 6 : 14;
+          if (ids.includes('crowd')) d += 10;
+          if (ids.includes('fusion')) { d += 12; f.fusion = true; }
+          if (ids.includes('trail')) d += f.act === 'liee' ? 18 : 10;
+          s.clubIds = ids;
+          return { fx: { club: d } };
+        } },
+      { t: 'say', who: 'club', text: s => {
+          const i = s.clubIds || [], t = [];
+          if (i.includes('mecenat')) t.push(s.flags.commune === 'cession' ? `GrandsDomaines a refusé de nous soutenir${N}: «${N}pas notre politique locale${N}». Les artisans de la vallée ont donné ce qu'ils pouvaient.` : `La société des Crêtes et six entreprises de la vallée sont nos mécènes. Leur logo est sur nos dossards.`);
+          if (i.includes('crowd')) t.push(`La collecte en ligne a rapporté 18${N}000${N}€, le minibus est arrivé. 312 donateurs, dont un ancien champion de France.`);
+          if (i.includes('fusion')) t.push(`La fusion nous donne les pistes hautes et des entraîneurs. Mais certains anciens ne s'y retrouvent plus${N}: «${N}ce n'est plus notre club${N}».`);
+          if (i.includes('trail')) t.push(s.flags.act === 'liee' ? `La section trail et VTT utilise les pistes d'été de la station. 70 nouveaux licenciés.` : `La section trail démarre, sur des chemins pas toujours adaptés. 35 nouveaux licenciés.`);
+          return t.join(' '); } }
+    ] },
+
+  /* ------------------------------ ACTE 5 ------------------------------ */
+  { num: 5, title: 'Quinze ans plus tard', sub: 'Ce que chaque décision a fait de la montagne.', final: true,
+    steps: [
+      { t: 'say', who: 'narr', text: s => `<span class="pay"><span>Ta société, trois saisons</span><b>${s.hist.map(sk).join(' · ')}</b><span>La commune</span><b>${({ dsp: 'a renouvelé le contrat', regie: 'gère elle-même', cession: 'a vendu' })[s.flags.commune]}</b><span>Le club</span><b>${Math.round(s.club)} / 100</b></span>${({ dsp: 'La commune est restée propriétaire et a fixé ses conditions.', regie: s.tre >= 1000 ? 'La commune gère une station qui marche, avec des agents à former.' : 'La commune a repris une station qui perd de l\'argent : ce sont les impôts qui comblent.', cession: 'Cinq ans après la vente, GrandsDomaines a fermé les pistes basses et le télésiège de 1984. La commune n\'a pas eu son mot à dire.' })[s.flags.commune]}` }
+    ] }
+  ],
+
+  endings: [
+    { id: 'lowcost', when: s => F(s).pos === 'couts', title: 'Le petit contre le géant', stamp: 'Guerre des prix perdue', color: '#FF5C6A',
+      text: `Tu as voulu être le moins cher face à une station dix fois plus grande. Quand Val-Haut a baissé ses prix, tes skieurs sont partis et ta marge avec eux. La bataille des coûts se gagne avec la taille.` },
+    { id: 'vendue', when: s => F(s).commune === 'cession', title: 'La montagne vendue', stamp: 'Contrôle perdu', color: '#FF5C6A',
+      text: `5${N}M€ dans les caisses de la commune, et plus aucune décision sur sa propre montagne. Une entreprise privée cherche la rentabilité${N}: c'est sa finalité. La commune, elle, cherchait l'intérêt général. En vendant, elle a renoncé à le défendre ici.` },
+    { id: 'pari', when: s => F(s).act === 'nonliee' || (F(s).croiss === 'rachat' && s.tre < 1000), title: 'Le pari de trop', stamp: 'Croissance mal choisie', color: '#FFC64F',
+      text: s => F(s).act === 'nonliee' ? `Un centre aquatique en montagne, quand l'énergie flambe, avec une équipe de skieurs${N}: tu t'es diversifié loin de ce que tu savais faire, et c'est cher payé.` : `Racheter une station plus basse que la tienne, alors que la neige recule${N}: tu as grandi vite, mais dans la mauvaise direction.` },
+    { id: 'reussite', when: s => F(s).commune === 'dsp' && F(s).act === 'liee' && s.tre >= 1000 && s.club >= 70, title: 'Une stratégie qui tient', stamp: 'Contrat de 15 ans', color: '#4CD97B',
+      text: s => `Ta société s'est distinguée là où le géant ne va pas, s'est diversifiée en s'appuyant sur ses compétences, ${F(s).croiss === 'alliance' ? 's\'est alliée plutôt que de se battre, ' : ''}et la commune lui a renouvelé sa confiance avec des exigences d'intérêt général. Le club, lui, vit toute l'année. Trois organisations, trois logiques, une même montagne.` },
+    { id: 'regie', when: s => F(s).commune === 'regie', title: 'La commune aux commandes', stamp: 'Gestion publique', color: '#7C6FFF',
+      text: s => `La commune a repris sa station. ${s.tre >= 1000 ? 'Elle hérite d\'une station en bonne santé et décide de tout.' : 'Elle hérite aussi de ses pertes, et les habitants les paieront par l\'impôt.'} Gérer en direct donne le contrôle, mais aussi tous les risques.` },
+    { id: 'moyen', when: s => true, title: 'Une montagne qui tient', stamp: 'À consolider', color: '#7C6FFF',
+      text: s => `La station continue, mais quelque chose cloche${N}: ${s.club < 70 ? 'le club de ski reste fragile' : F(s).act === 'specia' ? 'tout repose encore sur la neige' : 'les résultats de ta société restent justes'}.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['pos', 'act'], title: 'Acte 1 — Où se battre', text: h => `Pour se développer face à la concurrence, une entreprise choisit une <em>stratégie générique</em> : la <em>domination par les coûts</em> (être le moins cher, ce qui suppose d\'être plus gros ou plus efficace que tous), la <em>différenciation</em> (proposer quelque chose de différent, pour lequel les clients acceptent de payer), ou la <em>focalisation</em> (se concentrer sur un segment précis de clientèle, une <em>niche</em>). ${h.pos === 'couts' ? 'Face à un concurrent bien plus grand, la domination par les coûts était perdue d\'avance.' : h.pos === 'diff' ? 'Tu as choisi la différenciation, en t\'appuyant sur ta compétence reconnue : les enfants.' : 'Tu as choisi la focalisation sur les groupes scolaires.'} Elle choisit aussi son <em>domaine d\'activité</em> : la <em>spécialisation</em> (un seul métier) ou la <em>diversification</em>. ${h.act === 'liee' ? 'Ta diversification était <em>liée</em> : elle utilisait tes compétences et ton matériel.' : h.act === 'nonliee' ? 'Ta diversification était <em>non liée</em> (conglomérale) : un métier sans rapport avec le tien, donc plus risqué.' : 'Tu es resté spécialisé, donc dépendant d\'un seul métier.'}`,
+      chain: () => ({ good: ['Une force reconnue', 'Une offre différente', 'Une diversification proche de son métier'], bad: ['Copier un plus gros', 'Se battre sur les prix', 'Un métier inconnu'] }) },
+    { act: 2, needs: ['croiss'], title: 'Acte 2 — Comment grandir', text: h => `Une entreprise peut grandir de trois façons. La <em>croissance interne</em> : elle développe ses propres moyens, à son rythme, en gardant le contrôle. La <em>croissance externe</em> : elle rachète une autre entreprise (fusion, acquisition), ce qui est rapide mais coûteux et difficile à intégrer. Les <em>partenariats</em> ou <em>alliances</em> : plusieurs entreprises coopèrent sans fusionner. ${h.croiss === 'rachat' ? 'Le rachat du Mourtis t\'a fait grandir vite, mais en ajoutant une station encore plus exposée au climat et une équipe à intégrer.' : h.croiss === 'alliance' ? 'Le Massif Pass est une <em>alliance</em> : chacun reste indépendant, mais tous profitent d\'une offre commune.' : 'Tu as grandi par tes propres moyens.'}`,
+      chain: () => ({ good: ['Croissance interne : contrôle', 'Alliance : force commune', 'Croissance externe : rapidité'], bad: ['Rachat mal choisi', 'Intégration difficile', 'Risques additionnés'] }) },
+    { act: 3, needs: ['commune'], title: 'Acte 3 — Dans le bureau du maire', text: h => `Une <em>organisation publique</em> comme une commune n\'a pas la même stratégie qu\'une entreprise : elle poursuit l\'<em>intérêt général</em> (emplois, accès de tous, avenir du territoire), et elle rend des comptes aux électeurs et aux contribuables. Pour gérer un <em>service public</em>, elle peut le faire elle-même, en <em>régie</em>, ou le confier à une entreprise par une <em>délégation de service public</em> (DSP) : elle reste propriétaire, fixe les règles dans un <em>cahier des charges</em>, et l\'entreprise prend les risques financiers. Elle peut aussi vendre : c\'est une <em>privatisation</em>, qui lui fait perdre le contrôle. ${h.commune === 'dsp' ? 'Tu as conseillé la DSP.' : h.commune === 'regie' ? 'Tu as conseillé la régie.' : 'Tu as conseillé la vente.'}`,
+      chain: () => ({ good: ['Intérêt général', 'Choisir le mode de gestion', 'Garder le contrôle des règles'], bad: ['Raisonner seulement en argent', 'Perdre le contrôle', 'Faire payer le contribuable'] }) },
+    { act: 4, needs: ['clubdev'], title: 'Acte 4 — Le club', text: h => `Une <em>organisation de la société civile</em> comme une association sportive doit aussi choisir comment se développer, avec des ressources différentes. Elle peut chercher du <em>mécénat</em> (des entreprises qui la soutiennent, avec une réduction d\'impôt), du <em>financement participatif</em> (une collecte auprès du public), se <em>regrouper</em> avec une autre association (fusion, mutualisation), ou <em>diversifier</em> ses activités. Son but n\'est pas le profit mais son <em>projet associatif</em> : ${h.clubdev.includes('fusion') ? 'la fusion a donné des moyens, au prix d\'une partie de son identité.' : 'elle doit grandir sans perdre ce qui la fait vivre, ses bénévoles et ses adhérents.'}`,
+      chain: () => ({ good: ['Mécénat', 'Financement participatif', 'Mutualisation', 'Projet associatif'], bad: ['Ne rien changer', 'Perdre ses adhérents', 'Disparaître'] }) }
+  ],
+  vocab: ['Stratégie générique', 'Domination par les coûts', 'Différenciation', 'Focalisation (niche)', 'Spécialisation', 'Diversification liée', 'Diversification non liée', 'Croissance interne', 'Croissance externe', 'Alliance / partenariat', 'Intérêt général', 'Service public', 'Régie', 'Délégation de service public', 'Cahier des charges', 'Privatisation', 'Mécénat', 'Financement participatif', 'Mutualisation', 'Projet associatif']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — la montagne, Val-Haut au loin, et ce que tu as construit.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const f = S.flags, u = S.rep ? S.rep.utile : .9, snowY = 40 + (1 - u) * 60;
+  const tags = [f.pos && ({ couts: 'LOW-COST', diff: 'SLOW SKI', niche: 'CLASSES DE NEIGE' })[f.pos], f.act === 'liee' && 'VTT · LAC', f.act === 'nonliee' && 'AQUA', f.croiss === 'rachat' && '+ MOURTIS', f.croiss === 'alliance' && 'MASSIF PASS', f.commune && ({ dsp: 'CONTRAT RENOUVELÉ', regie: 'RÉGIE', cession: 'GRANDSDOMAINES' })[f.commune]].filter(Boolean);
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="La station des Crêtes">
+    <rect width="360" height="200" fill="#070a10"/><rect x="0" y="0" width="360" height="162" fill="#0a0f18"/>
+    <defs><clipPath id="mt3"><polygon points="110,160 205,40 300,160"/></clipPath></defs>
+    <polygon points="250,160 315,30 360,160" fill="#1c2230"/><polygon points="270,70 315,30 345,70" fill="#EEF3EC" opacity=".6"/><text x="352" y="22" text-anchor="end" font-family="Rajdhani,sans-serif" font-size="9" fill="#FF5C6A">Val-Haut</text>
+    <polygon points="110,160 205,40 300,160" fill="#2a3240"/><rect x="100" y="0" width="210" height="${snowY}" fill="#EEF3EC" clip-path="url(#mt3)" opacity=".9"/>
+    ${tags.map((t, i) => `<rect x="124" y="${100 + i * 0}" width="0" height="0"/><rect x="${120 + (i % 2) * 92}" y="${112 + Math.floor(i / 2) * 18}" width="88" height="15" rx="3" fill="#0f150c" stroke="#7CFF3D"/><text x="${164 + (i % 2) * 92}" y="${123 + Math.floor(i / 2) * 18}" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="9" fill="#7CFF3D">${t}</text>`).join('')}
+    <rect x="0" y="162" width="360" height="38" fill="#080b06"/><line x1="0" y1="162" x2="360" y2="162" stroke="#1d2a17" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

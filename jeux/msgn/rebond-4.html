@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Rebond 4 — Jeu MSGN Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#7C6FFF;--eco-dim:#4B3FCC;--good:#4CD97B;--bg:#06050c;--panel:#0d0b18;--panel2:#110e20;--line:#241f3d;--txt:#EEF3EC;--muted:#8B86A8;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(124,111,255,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(124,111,255,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#1a1630;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(124,111,255,.5);background:rgba(124,111,255,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#08070f;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(124,111,255,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#0b0820;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#0b0820;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#161230;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#1a1630;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#0b0820;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#0a0816;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#0a0816;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#0a0816;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#0a0816;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(124,111,255,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#0a0816;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — Rebond 4 : Sous les projecteurs (MSGN Terminale, thème 3, chapitres 1 et 3)
+   Simulation mois par mois (12 mois) :
+     ventes = 900 × (effet de la confiance) × (effets des choix)
+     résultat = ventes × marge unitaire − charges fixes ; puis sanctions et coûts ponctuels.
+   Jauges : tre (€), confiance (0-100), empreinte (kg de CO2 par téléphone, plus bas = mieux),
+            risque (risque juridique, 0-100, plus bas = mieux).
+   ===================================================================== */
+const N = ' ';
+const eur = n => (n < 0 ? '−' : '') + Math.abs(Math.round(n)).toLocaleString('fr-FR') + N + '€';
+const sg = n => (n >= 0 ? '+' : '−') + Math.abs(Math.round(n)).toLocaleString('fr-FR') + N + '€';
+const nb = n => Math.round(n).toLocaleString('fr-FR');
+const n1 = n => (Math.round(n * 10) / 10).toLocaleString('fr-FR');
+const cl = (n, a, b) => Math.max(a, Math.min(b, n));
+const F = s => s.flags;
+
+/* ---- Paramètres ---- */
+const VOL = 900, MARGE = 30, FIXES = 25000;
+
+function ventes(s, mo) {
+  const f = F(s);
+  let v = VOL * (.75 + s.confiance / 100 * .4);
+  if (f.claim && !f.claimPuni) v *= 1.08;
+  if (f.precis) v *= 1.04;
+  if (f.loiVotee && mo >= 7) v *= 1.22;
+  if (f.prix === 'secret' && !f.prixRevele) v *= 1.02;
+  return v;
+}
+function marge(s) {
+  const f = F(s);
+  return MARGE + (f.prix === 'secret' && !f.prixRevele ? 4 : f.prix === 'transparent' ? 2 : 0) - (f.reduire ? 1.5 : 0) - (f.effacement ? 1.2 : 0) - (f.chaine ? .5 : 0);
+}
+function charges(s) { const f = F(s); return FIXES + (f.lobbyAsso ? 300 : 0) + (f.lobbyOuvert ? 800 : 0) + (f.humain ? 1200 : 0); }
+function unMois(s, mo) { const v = ventes(s, mo), m = marge(s), c = charges(s); return { mo, v, m, c, res: v * m - c }; }
+function periode(s, n) { const ms = []; for (let i = 1; i <= n; i++) ms.push(unMois(s, s.mois + i)); return { ms, n, res: ms.reduce((a, m) => a + m.res, 0) }; }
+function commit(s) { s.mois += s.rep.n; s.hist.push({ m: s.mois, res: Math.round(s.rep.res) }); }
+function tableau(s, titre) {
+  const R = s.rep, a = k => R.ms.reduce((x, m) => x + m[k], 0) / R.n, row = (l, v, c) => `<span${c ? ' class="tot"' : ''}>${l}</span><b${c ? ' class="tot"' : ''}>${v}</b>`;
+  return `<b>${titre}</b><span class="pay">${row('Téléphones vendus par mois', nb(a('v')))}${row('Marge par téléphone', eur(a('m')))}${row('Marge du mois', '+' + eur(a('v') * a('m')))}${row('Charges fixes', '−' + eur(a('c')))}${row('Ce qui reste chaque mois', sg(R.res / R.n), 1)}${row(`Sur ${R.n} mois`, sg(R.res), 1)}</span>`;
+}
+const V = (e, p, a) => [{ who: 'yanis', text: e }, { who: 'presse', text: p }, { who: 'ferhat', text: a }].filter(v => v.text !== '—');
+const ch = (good, bad) => ({ good, bad });
+
+const GAME = {
+  title: 'Rebond 4',
+  brand: 'REBOND <span>4</span>',
+  storeKey: 'rebond4Fins',
+  backLink: '../../matieres/msgn-terminale.html',
+  footer: 'MSGN Terminale STMG, thème 3',
+  kicker: 'MSGN · Terminale STMG · Thème 3',
+  debIntro: 'Tu as utilisé ces notions pour faire grandir Rebond sous le regard de tous. Voici comment on les appelle en management et sciences de gestion.',
+  cutText: 'Ta partie s\'est arrêtée avant la décision de l\'investisseur. Rejoue pour aller au bout de l\'année.',
+  pitch: `Rebond vend 900 téléphones par mois et fait parler d'elle. Un fonds d'investissement «${N}à impact${N}» envisage d'y mettre 2 millions d'euros, mais il regardera tout${N}: tes chiffres, tes promesses écologiques, tes relations avec les élus, tes algorithmes et ce que tu fais des données de tes clients. Rendez-vous dans un an.`,
+  meta: '4 actes · 30 minutes',
+  start: s => Object.assign(s, { tre: 40000, confiance: 60, empreinte: 15, risque: 10, mois: 0, hist: [] }),
+  hud: [
+    { k: 'tre',       label: 'Trésorerie', short: 'Trésorerie', show: s => (s.tre / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + N + 'k€', pct: s => s.tre / 800, low: s => s.tre < 5000, unit: N + '€' },
+    { k: 'confiance', label: 'Confiance', short: 'Confiance', show: s => Math.round(s.confiance), pct: s => s.confiance, low: s => s.confiance < 45, clamp: true },
+    { k: 'empreinte', label: 'Empreinte', short: 'CO₂ / tél.', show: s => n1(s.empreinte) + N + 'kg', pct: s => (20 - s.empreinte) * 10, low: s => s.empreinte > 15, inv: true, unit: N + 'kg' },
+    { k: 'risque',    label: 'Risque juridique', short: 'Risque', show: s => Math.round(s.risque), pct: s => s.risque, low: s => s.risque > 40, inv: true, clamp: true }
+  ],
+  fail: () => null,
+  lock: () => null,
+  bilan: s => [['Trésorerie', eur(s.tre)], ['Confiance', Math.round(s.confiance) + ' / 100'], ['Empreinte par téléphone', n1(s.empreinte) + N + 'kg de CO₂'], ['Risque juridique', Math.round(s.risque) + ' / 100']],
+
+  characters: {
+    ferhat: { name: 'Mme Ferhat', role: 'ta conseillère', color: '#B9A6FF', body: '#4B3FCC', hair: '#1c1c22', acc: 'clip' },
+    yanis:  { name: 'Yanis', role: 'directeur de l\'atelier', color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'cap' },
+    presse: { name: 'Léna Morel', role: 'journaliste, Le Courrier', color: '#5BC8FF', body: '#2b5a7a', hair: '#3a2418', acc: 'clip' },
+    agence: { name: 'Hugo', role: 'agence de communication', color: '#FF8AD1', body: '#B8508F', hair: '#c9a24a', acc: 'tie' },
+    ong:    { name: 'Sami', role: 'association Halte à l\'obsolescence', color: '#7CFF3D', body: '#3a6a1f', hair: '#1c1c22', acc: 'cap' },
+    depute: { name: 'Mme Brunet', role: 'députée de la circonscription', color: '#FFC64F', body: '#8a5a22', hair: '#8a8f96', acc: 'clip' },
+    lou:    { name: 'Lou', role: 'responsable des ressources humaines', color: '#FF9D3D', body: '#B86A1F', hair: '#c9a24a', acc: 'bun' },
+    tech:   { name: 'Nora', role: 'responsable informatique', color: '#5B8FFF', body: '#2b3a5a', hair: '#1c1c22', acc: 'cap' },
+    fonds:  { name: 'M. Akerman', role: 'fonds d\'investissement à impact', color: '#FF5C6A', body: '#1c1c22', hair: '#8a8f96', acc: 'tie' },
+    narr:   { name: 'Toi', role: '', color: '#7C6FFF' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Vert, vraiment ?', sub: 'Tout le monde veut acheter écologique. Reste à savoir ce que tu as le droit de promettre.',
+    steps: [
+      { t: 'say', who: 'fonds', text: `Votre activité est vertueuse par nature, c'est ce qui nous intéresse. Mais nous investissons dans des entreprises qui tiennent leurs promesses. Toutes leurs promesses. Je reviens dans un an.` },
+      { t: 'say', who: 'agence', text: `J'ai votre nouvelle campagne${N}! Un grand slogan${N}: «${N}Rebond, 100${N}% écologique, zéro carbone${N}». Les gens adorent. +8${N}% de ventes garanti, je l'ai vu chez d'autres clients.` },
+      { t: 'say', who: 'yanis', text: `Zéro carbone${N}? On a fait le calcul avec un bureau d'études. Un téléphone reconditionné émet environ 80${N}% de moins qu'un neuf, c'est vrai. Mais il reste 15${N}kg de CO₂ par téléphone${N}: les transports, la station de test, et surtout nos emballages en plastique.` },
+      { t: 'choice', id: 'claim', prompt: `La campagne${N}?`, options: [
+        { id: 'claim', label: 'Garder le slogan « 100 % écologique, zéro carbone »', desc: 'Il fait vendre. Et tout le monde dit un peu la même chose.', set: { claim: true }, fx: { risque: 30, confiance: 4 },
+          chain: ch(['Le slogan plaît', '+8 % de ventes'], ['Ce n\'est pas vrai : il reste 15 kg de CO₂', 'Depuis 2021, la loi interdit de se dire « neutre en carbone » sans preuves très précises', 'Les associations traquent ce genre de slogan', 'Le jour où c\'est découvert, la confiance s\'effondre']),
+          voix: V(`On va dire «${N}zéro${N}» et on emballe dans du plastique${N}?`, `«${N}100${N}% écologique${N}»… J'ai noté. Je vais vérifier.`, `Vous venez de faire une promesse que vous ne pouvez pas tenir. Et vous l'avez écrite en très gros.`) },
+        { id: 'precis', label: 'Annoncer le chiffre exact, avec la méthode', desc: '« 80 % de CO₂ en moins qu\'un téléphone neuf. Calcul vérifié, détails sur notre site. »', set: { precis: true }, fx: { confiance: 6 },
+          chain: ch(['Un chiffre vrai, vérifiable', 'Les clients exigeants apprécient', 'Aucun risque juridique'], ['Moins spectaculaire que « zéro carbone »']),
+          voix: V(`Celui-là, je peux le défendre devant n'importe qui.`, `Enfin une entreprise qui donne ses chiffres et sa méthode.`, `Une promesse précise et prouvée vaut mieux qu'un slogan qui ne veut rien dire.`) },
+        { id: 'reduire', label: 'D\'abord réduire, ensuite communiquer', desc: 'Emballages en carton recyclé, livraisons locales à vélo, électricité verte : 1,50 € de plus par téléphone. Tu communiqueras ensuite sur le chiffre obtenu.', set: { reduire: true, precis: true }, fx: { empreinte: -3, confiance: 8 },
+          chain: ch(['L\'empreinte passe de 15 à 12 kg par téléphone', 'Ce que tu annonces est vrai, et mieux qu\'avant', 'Les salariés sont fiers'], ['1,50 € de moins de marge sur chaque téléphone', 'Un résultat moins impressionnant qu\'un slogan']),
+          voix: V(`Les gars ont adoré la livraison à vélo. Et le plastique, plus personne ne le regrette.`, `Une entreprise qui réduit avant de se vanter. C'est rare.`, `Vous agissez d'abord, vous parlez ensuite. C'est exactement l'inverse du greenwashing.`) } ] },
+      { t: 'say', who: 'ferhat', text: `Faites la liste de tous ceux qui regardent ce que vous faites${N}: vos clients, vos salariés, le fonds, la banque, la mairie, les associations, les journalistes, vos fournisseurs. Chacun attend quelque chose de différent. Aucun ne vous lâchera si vous lui mentez.` },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 3); }, text: s => tableau(s, 'Les trois premiers mois.'), fx: s => ({ tre: Math.round(s.rep.res) }) },
+      { t: 'event', who: 'narr', do: commit, text: s => `Trois mois. Le compte affiche ${eur(s.tre)}.` },
+      { t: 'say', who: 'ong', if: s => F(s).claim, text: `Nous publions aujourd'hui notre palmarès des fausses promesses écologiques. Rebond est en tête${N}: «${N}zéro carbone${N}» pour des téléphones livrés dans du plastique. Nous avons saisi la répression des fraudes.` },
+      { t: 'event', who: 'ferhat', if: s => F(s).claim, do: s => { s.flags.claimPuni = true; }, text: `La répression des fraudes confirme${N}: pratique commerciale trompeuse. Amende de 30${N}000${N}€, et obligation de publier la décision sur votre site pendant un mois. L'article fait le tour des réseaux.`, fx: { tre: -30000, confiance: -22, risque: -10 } }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Peser sur la loi', sub: 'Une loi peut doubler ton marché. Les fabricants de téléphones neufs font tout pour l\'enterrer.',
+    steps: [
+      { t: 'say', who: 'depute', text: `Je porte une proposition de loi${N}: un bonus de 50${N}€ pour tout achat de téléphone reconditionné, financé par une petite taxe sur les neufs. Les fabricants sont vent debout. Leurs représentants sont dans mon bureau chaque semaine. Vous, je ne vous ai jamais vus.` },
+      { t: 'say', who: 'ferhat', text: `Les entreprises ont le droit de défendre leurs intérêts auprès des élus. C'est encadré${N}: on s'inscrit sur un registre public tenu par une autorité indépendante, et on déclare ce qu'on dépense. Ce qui est interdit, c'est d'offrir quoi que ce soit à un élu pour obtenir sa voix.` },
+      { t: 'choice', id: 'lobby', prompt: `Que fais-tu${N}?`, options: [
+        { id: 'ouvert', label: 'Défendre la loi ouvertement', desc: 'Inscription au registre officiel, une étude chiffrée publiée, des rendez-vous déclarés. 800 €/mois de temps et d\'études.', set: { lobbyOuvert: true, loiVotee: true }, fx: { confiance: 5 },
+          chain: ch(['Tes arguments sont publics et vérifiables', 'Les élus ont enfin des chiffres face à ceux des fabricants', 'La loi est votée'], ['800 € par mois', 'Les fabricants te voient désormais comme un adversaire']),
+          voix: V(`Notre étude a été citée dans l'hémicycle${N}!`, `Une PME qui fait du lobbying à visage découvert. Original.`, `Défendre ses intérêts, publiquement et avec des preuves${N}: c'est légal, et c'est utile au débat.`) },
+        { id: 'asso', label: 'S\'allier aux associations de consommateurs', desc: 'Une coalition commune, une pétition, un dossier de presse. 300 €/mois.', set: { lobbyAsso: true, loiVotee: true }, fx: { confiance: 8 },
+          chain: ch(['Tu n\'es plus seul face aux fabricants', 'L\'intérêt des consommateurs et le tien vont dans le même sens', 'La loi est votée'], ['Il faut partager la lumière']),
+          voix: V(`Les associations ont fait le gros du travail. On a fourni les chiffres.`, `Une coalition entreprises et consommateurs, voilà qui pèse.`, `Vous avez trouvé des alliés dont l'intérêt rejoint le vôtre. C'est souvent la meilleure stratégie.`) },
+        { id: 'cadeau', label: 'Inviter la députée et son équipe pour un week-end « découverte »', desc: 'Hôtel, restaurant, visite de l\'atelier. 4 000 €. « Tout le monde fait ça. »', set: { corrupt: true }, fx: { tre: -4000, risque: 45 },
+          chain: ch(['Tu crois t\'attirer ses faveurs'], ['Offrir un avantage à un élu pour influencer son vote, c\'est un délit', 'La députée refuse et signale ta proposition', 'Une enquête est ouverte']),
+          voix: V(`Tu es sûr de ça${N}? Ça sent très mauvais.`, `On m'a parlé d'une invitation étrange envoyée à Mme Brunet…`, `Ce n'est plus du lobbying. C'est une tentative de corruption.`) },
+        { id: 'rien', label: 'Ne rien faire', desc: 'La politique, ce n\'est pas ton métier.',
+          chain: ch(['Aucun coût'], ['Les fabricants sont seuls à parler aux élus', 'La loi est vidée de son contenu', 'Ton marché ne grandit pas']),
+          voix: V(`Dommage, on aurait eu des clients en plus.`, `Les fabricants ont gagné cette bataille.`, `Si vous ne parlez pas, d'autres parleront à votre place.`) } ] },
+      { t: 'say', who: 'depute', if: s => F(s).corrupt, text: `J'ai transmis votre «${N}invitation${N}» au procureur. Je ne sais pas comment ça se passe ailleurs, mais ici, on ne m'achète pas.` },
+      { t: 'event', who: 'ferhat', if: s => F(s).loiVotee, text: `La loi est votée. Bonus de 50${N}€ par téléphone reconditionné à partir du mois 7. Vos ventes vont grimper.` },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 3); }, text: s => tableau(s, 'Mois 4 à 6.'), fx: s => ({ tre: Math.round(s.rep.res) }) },
+      { t: 'event', who: 'narr', do: commit, text: s => `Six mois. Le compte affiche ${eur(s.tre)}.` }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Les algorithmes', sub: 'Une machine qui décide vite n\'est pas forcément une machine qui décide bien.',
+    steps: [
+      { t: 'say', who: 'lou', text: `Avec la loi, il faut recruter 10 techniciens. On a reçu 600 candidatures. Un éditeur propose une IA qui les trie en une heure. Elle a appris sur nos embauches des cinq dernières années.` },
+      { t: 'say', who: 'tech', text: `Petit détail${N}: sur nos 40 embauches passées, 36 étaient des hommes. L'IA a appris à quoi ressemble «${N}un bon technicien chez Rebond${N}». À ton avis, elle va retenir qui${N}?` },
+      { t: 'choice', id: 'ia', prompt: `L'IA de recrutement${N}?`, options: [
+        { id: 'aveugle', label: 'L\'utiliser telle quelle', desc: 'Elle trie, Lou appelle les 30 premiers.', set: { iaAveugle: true }, fx: { risque: 35 },
+          chain: ch(['600 CV triés en une heure'], ['L\'IA reproduit le passé : 29 hommes sur les 30 retenus', 'Les candidates sont écartées sans que personne ne le voie', 'Discriminer à l\'embauche selon le sexe est interdit', 'Une candidate refusée demande des explications']),
+          voix: V(`Trente candidats, vingt-neuf hommes. Ça ne t'étonne pas${N}?`, `Une candidate m'a contactée. Elle a été écartée en 4 secondes, avec un CV excellent.`, `Une IA ne fait pas mieux que les données qu'on lui donne. Ici, elle a appris vos habitudes et les a rendues automatiques.`) },
+        { id: 'audit', label: 'Faire auditer l\'IA, et garder un humain pour décider', desc: 'L\'IA propose, Lou relit chaque dossier écarté au hasard et décide. Audit : 4 000 €, puis 1 200 €/mois de temps de Lou.', set: { humain: true }, fx: { tre: -4000, confiance: 5, risque: -3 },
+          chain: ch(['L\'audit révèle le biais : il est corrigé', 'Une personne garde la décision finale', 'Tu peux expliquer chaque refus', 'Tu respectes les règles européennes sur les IA de recrutement'], ['4 000 €, puis du temps de Lou chaque mois']),
+          voix: V(`On a embauché quatre techniciennes excellentes, que l'IA avait écartées.`, `Une entreprise qui audite ses algorithmes${N}? J'en fais un article, en bien.`, `L'IA aide, l'humain décide et répond de la décision. C'est ce qu'exigent désormais les règles européennes pour le recrutement.`) },
+        { id: 'sans', label: 'Ne pas utiliser d\'IA', desc: 'Lou et Yanis lisent les 600 CV. Trois semaines de travail.', fx: { tre: -3000 },
+          chain: ch(['Aucun biais automatique', 'Chaque candidat est lu'], ['Trois semaines de travail', 'Les postes sont pourvus plus tard']),
+          voix: V(`J'ai lu 300 CV. Je ne veux plus jamais voir un CV.`, `—`, `Prudent, mais coûteux. L'outil n'était pas le problème${N}: c'est son usage sans contrôle qui l'était.`) } ] },
+      { t: 'say', who: 'tech', text: `Autre sujet. Notre prestataire propose un algorithme de prix${N}: il détecte les clients qui naviguent depuis un iPhone récent et leur affiche des prix 8${N}% plus élevés. «${N}Ils ont les moyens, ils ne comparent pas.${N}» +4${N}€ de marge par téléphone.` },
+      { t: 'choice', id: 'prix', prompt: `Les prix personnalisés${N}?`, options: [
+        { id: 'secret', label: 'L\'activer sans rien dire', desc: '+4 € par téléphone.', set: { prix: 'secret' }, fx: { risque: 15 },
+          chain: ch(['+4 € de marge par téléphone'], ['Deux clients voient deux prix différents pour le même téléphone', 'La loi oblige à informer quand un prix est personnalisé par un algorithme', 'Le jour où ça se sait, ça se sait partout']),
+          voix: V(`Et si quelqu'un compare sur deux téléphones${N}?`, `Intéressant. Je vais faire le test avec deux téléphones.`, `Vous traitez vos clients différemment sans le leur dire. C'est illégal, et ça ruine la confiance.`) },
+        { id: 'transparent', label: 'Des prix qui varient, mais annoncés clairement', desc: 'Promotions affichées pour les étudiants et les seniors, et mention claire quand un prix est personnalisé. +2 €.', set: { prix: 'transparent' }, fx: { confiance: 2 },
+          chain: ch(['Des prix adaptés, mais expliqués', 'Chacun sait pourquoi il paie ce prix'], ['Moins de marge que le prix caché']),
+          voix: V(`Les étudiants adorent leur réduction.`, `Rien à redire.`, `Adapter ses prix n'est pas interdit. Le cacher l'est.`) },
+        { id: 'non', label: 'Le même prix pour tout le monde', desc: 'Aucun changement.',
+          chain: ch(['Simple et équitable', 'Aucun risque'], ['Aucune marge en plus']), voix: V(`Simple.`, `—`, `Un choix clair.`) } ] },
+      { t: 'event', who: 'presse', if: s => F(s).prix === 'secret', do: s => { s.flags.prixRevele = true; }, text: `[Article] «${N}Chez Rebond, le même téléphone coûte 8${N}% plus cher si vous avez un iPhone.${N}» Nous avons fait le test, captures d'écran à l'appui.`, fx: { confiance: -14, risque: 10 } },
+      { t: 'say', who: 'presse', if: s => F(s).iaAveugle, text: `Une candidate écartée par votre IA a saisi le Défenseur des droits. Elle a obtenu de voir comment elle a été notée${N}: son CV a été pénalisé pour «${N}profil atypique${N}». Elle est la seule femme d'une longue liste.` },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 3); }, text: s => tableau(s, 'Mois 7 à 9.') + (F(s).loiVotee ? 'Le bonus de la nouvelle loi dope les ventes.' : ''), fx: s => ({ tre: Math.round(s.rep.res) }) },
+      { t: 'event', who: 'narr', do: commit, text: s => `Neuf mois. Le compte affiche ${eur(s.tre)}.` }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Les données', sub: 'Un téléphone d\'occasion contient une vie entière. Un fichier clients aussi.',
+    steps: [
+      { t: 'say', who: 'yanis', text: `Un client a retrouvé dans son téléphone reconditionné les photos de famille de l'ancien propriétaire. On efface normalement chaque appareil, mais «${N}normalement${N}», ça veut dire à la main, quand on y pense.` },
+      { t: 'choice', id: 'effacement', prompt: `L'effacement des données${N}?`, options: [
+        { id: 'certif', label: 'Un logiciel d\'effacement certifié sur chaque téléphone', desc: 'Effacement irréversible et un certificat pour chaque appareil. 1,20 € par téléphone.', set: { effacement: true }, fx: { risque: -8, confiance: 5 },
+          chain: ch(['Chaque téléphone est vidé de façon sûre et prouvée', 'Un certificat est remis au client', 'Tu protèges les anciens propriétaires'], ['1,20 € par téléphone']), voix: V(`Plus aucun oubli possible.`, `Le certificat d'effacement, bonne idée. Les clients adorent.`, `Les données d'une personne restent les siennes, même dans un téléphone qu'elle a vendu.`) },
+        { id: 'rappel', label: 'Rappeler la consigne à l\'équipe', desc: 'Gratuit.', fx: { risque: 12 },
+          chain: ch(['Aucun coût'], ['Un oubli reste possible sur des milliers de téléphones', 'Ce sont des données personnelles d\'inconnus']), voix: V(`On fera attention. Promis. Encore.`, `—`, `Une consigne n'est pas une garantie.`) } ] },
+      { t: 'say', who: 'tech', text: `Urgence. On a été piratés cette nuit. Le fichier clients est parti${N}: 48${N}000 noms, adresses, numéros de téléphone. Pas de numéros de carte bancaire. On a 72 heures pour prévenir la CNIL, c'est la loi.` },
+      { t: 'choice', id: 'fuite', prompt: `La fuite de données${N}?`, options: [
+        { id: 'declarer', label: 'Prévenir la CNIL et les 48 000 clients', desc: 'Déclaration officielle, message à chaque client avec des conseils (méfiance face aux faux SMS), renfort de la sécurité. 9 000 €.', fx: { tre: -9000, confiance: -4, risque: -6 },
+          chain: ch(['Tu respectes l\'obligation de prévenir sous 72 heures', 'Les clients sont avertis et peuvent se méfier des arnaques', 'La CNIL constate ta coopération'], ['9 000 €', 'Un moment désagréable : tout le monde sait']),
+          voix: V(`Les clients ont apprécié d'être prévenus. Plusieurs ont reçu de faux SMS et ne s'y sont pas laissé prendre.`, `Rebond a été piraté, et l'a dit. Ce n'est pas si courant.`, `Être piraté peut arriver à tout le monde. Le cacher, c'est une faute.`) },
+        { id: 'cacher', label: 'Ne rien dire, et renforcer discrètement la sécurité', desc: 'Peut-être que personne ne s\'en rendra compte. 3 000 €.', set: { cacheFuite: true }, fx: { tre: -3000, risque: 40 },
+          chain: ch(['Personne n\'en parle… pour l\'instant'], ['Les clients ne savent pas qu\'il faut se méfier', 'Les données volées finissent en vente sur internet', 'Ne pas prévenir la CNIL est une infraction', 'Le jour où ça sort, c\'est la double peine']),
+          voix: V(`On ne dit vraiment rien${N}? Ma mère est dans le fichier.`, `Une source me dit que des données de clients Rebond circulent sur un forum…`, `Vous avez transformé un incident en scandale à retardement.`) } ] },
+      { t: 'say', who: 'ferhat', text: `Dernière décision. Domus et deux assureurs veulent pouvoir vérifier l'historique de chaque téléphone${N}: qu'il n'a pas été volé, combien de fois il a été réparé. Un prestataire propose un «${N}passeport blockchain${N}» rien que pour Rebond. Mais la filière du reconditionné monte un registre commun, où chaque entreprise, assureur et opérateur inscrit ce qu'il sait.` },
+      { t: 'choice', id: 'blockchain', prompt: `L'historique des téléphones${N}?`, options: [
+        { id: 'seul', label: 'Le passeport blockchain, rien que pour Rebond', desc: '15 000 €. Le mot fait rêver les investisseurs.', fx: { tre: -15000, confiance: 1 },
+          chain: ch(['Un projet moderne à présenter'], ['Une blockchain sert à partager un registre entre acteurs qui ne se font pas confiance, sans intermédiaire', 'Toute seule, Rebond est l\'unique acteur : une base de données ferait pareil', 'Les assureurs ne la consultent pas', '15 000 € pour un mot à la mode']),
+          voix: V(`On est les seuls à écrire dedans et les seuls à la lire. C'est une base de données très chère.`, `«${N}Blockchain${N}», ça fait toujours un titre…`, `Une technologie n'a de valeur que si elle répond à un besoin réel.`) },
+        { id: 'filiere', label: 'Rejoindre le registre commun de la filière', desc: 'Partagé entre reconditionneurs, assureurs et opérateurs. 3 000 € et 0,50 € par téléphone.', set: { chaine: true }, fx: { tre: -3000, confiance: 5, risque: -4 },
+          chain: ch(['Chaque acteur inscrit ce qu\'il sait, personne ne peut tricher seul', 'Un téléphone volé est repéré chez n\'importe quel reconditionneur', 'Domus et les assureurs font confiance au registre', 'C\'est exactement ce à quoi sert une blockchain'], ['3 000 €, plus 0,50 € par téléphone']),
+          voix: V(`Trois téléphones volés repérés le premier mois.`, `La filière s'organise contre le recel. Bonne nouvelle.`, `Plusieurs acteurs qui ne se font pas entièrement confiance, un registre commun infalsifiable${N}: là, la blockchain a du sens.`) },
+        { id: 'base', label: 'Une simple base de données partagée avec Domus', desc: '2 000 €.', fx: { tre: -2000, confiance: 2 },
+          chain: ch(['Peu coûteux', 'Domus a accès à l\'historique'], ['Les assureurs et les autres reconditionneurs n\'y sont pas', 'Les téléphones volés ailleurs passent inaperçus']),
+          voix: V(`Ça marche pour Domus. Pour les autres, rien.`, `—`, `Une solution simple, mais qui ne règle que la moitié du problème.`) } ] },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 3); }, text: s => tableau(s, 'Mois 10 à 12.'), fx: s => ({ tre: Math.round(s.rep.res) }) },
+      { t: 'event', who: 'narr', do: commit, text: s => `Un an. Le compte affiche ${eur(s.tre)}.` },
+    ] },
+
+  /* ------------------------------ ACTE 5 ------------------------------ */
+  { num: 5, title: 'Le verdict', sub: 'M. Akerman a tout lu. Les chiffres, les articles, les décisions.', final: true,
+    steps: [
+      { t: 'event', who: 'presse', if: s => F(s).cacheFuite, text: `[Article] «${N}Les données de 48${N}000 clients Rebond en vente sur internet. L'entreprise savait depuis des mois.${N}» La CNIL ouvre une procédure.`, fx: { confiance: -25, tre: -50000 } },
+      { t: 'event', who: 'presse', if: s => F(s).iaAveugle, text: `Le Défenseur des droits conclut à une discrimination à l'embauche. Rebond est condamnée à indemniser la candidate et à revoir tout son recrutement.`, fx: { confiance: -15, tre: -40000 } },
+      { t: 'event', who: 'presse', if: s => F(s).corrupt, text: `Le parquet ouvre une information judiciaire pour tentative de corruption. Ton nom est dans le journal.`, fx: { confiance: -30 } },
+      { t: 'say', who: 'fonds', text: s => `Voici ce que j'ai regardé.<span class="pay">${s.hist.map(h => `<span>Jusqu'au mois ${h.m}</span><b>${sg(h.res)}</b>`).join('')}<span class="tot">Confiance de vos parties prenantes</span><b class="tot">${Math.round(s.confiance)} / 100</b><span class="tot">CO₂ par téléphone</span><b class="tot">${n1(s.empreinte)}${N}kg</b><span class="tot">Risque juridique</span><b class="tot">${Math.round(s.risque)} / 100</b></span>` }
+    ] }
+  ],
+
+  endings: [
+    { id: 'corruption', when: s => F(s).corrupt, title: 'Mis en examen', stamp: 'Tentative de corruption', color: '#FF5C6A',
+      text: `M. Akerman referme le dossier sans un mot. Aucun investisseur ne met d'argent dans une entreprise dont le dirigeant est poursuivi pour avoir voulu acheter une députée. Défendre ses intérêts était légal. L'acheter, non.` },
+    { id: 'fuite', when: s => F(s).cacheFuite, title: 'La fuite cachée', stamp: 'Procédure CNIL', color: '#FF5C6A',
+      text: `Le piratage était un accident. L'avoir caché est une faute. 48${N}000 clients exposés aux arnaques sans le savoir, une procédure de la CNIL, et une confiance qui ne se rachète pas.` },
+    { id: 'discrimination', when: s => F(s).iaAveugle, title: 'Condamné pour discrimination', stamp: 'Algorithme biaisé', color: '#FF5C6A',
+      text: `Ton IA a écarté les femmes parce qu'elle avait appris de ton passé. Personne ne l'a vérifiée, personne ne relisait ses choix. «${N}C'est l'algorithme${N}» n'est pas une défense${N}: c'est l'entreprise qui répond de ses décisions.` },
+    { id: 'greenwash', when: s => F(s).claim, title: 'Scandale greenwashing', stamp: 'Pratique trompeuse', color: '#FFC64F',
+      text: s => `Ton activité était réellement écologique. Mais tu as promis plus que la vérité, et c'est la promesse que tout le monde retient. ${s.confiance >= 55 ? 'Tu as en partie rattrapé la confiance, ' : ''}M. Akerman te demande un an de plus pour prouver que tes chiffres sont honnêtes.` },
+    { id: 'confiance', when: s => s.confiance >= 72 && s.risque <= 20 && s.tre >= 0, title: 'Entreprise de confiance', stamp: '2 millions investis', color: '#4CD97B',
+      text: s => `M. Akerman signe. «${N}Vous dites ce que vous faites, et vous faites ce que vous dites.${N}» Promesses vérifiables, lobbying à visage découvert, algorithmes contrôlés, données protégées${N}: ta responsabilité est devenue un argument.${s.empreinte < 13 ? ' Et tu as vraiment réduit ton empreinte.' : ''}` },
+    { id: 'fragile', when: s => true, title: 'Image fragile', stamp: 'Investissement reporté', color: '#7C6FFF',
+      text: s => `Pas de scandale majeur, mais M. Akerman hésite${N}: ${s.risque > 20 ? 'trop de risques juridiques laissés ouverts' : s.confiance < 72 ? 'la confiance de tes parties prenantes reste moyenne' : 'ta trésorerie est fragile'}. Il reviendra dans six mois.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['claim'], title: 'Acte 1 — Vert, vraiment ?', text: h => `Une entreprise a une <em>responsabilité sociétale</em> (<em>RSE</em>) : rendre compte de ses effets sur l\'environnement et la société, au-delà du profit. Les acteurs qui la regardent sont ses <em>parties prenantes</em> (clients, salariés, investisseurs, État, associations, fournisseurs). ${h.claim === 'claim' ? 'En affichant « zéro carbone » sans preuve, tu as fait du <em>greenwashing</em> (ou écoblanchiment) : se donner une image écologique trompeuse. C\'est une <em>pratique commerciale trompeuse</em>, et depuis la loi Climat et résilience de 2021, se dire « neutre en carbone » est très encadré.' : h.claim === 'reduire' ? 'En réduisant ton empreinte avant d\'en parler, tu as fait l\'inverse du <em>greenwashing</em> (se donner une image écologique trompeuse).' : 'En annonçant un chiffre précis et vérifiable, tu as évité le <em>greenwashing</em> (se donner une image écologique trompeuse).'} L\'<em>éthique</em>, c\'est ce que l\'entreprise s\'interdit même quand la loi ne la surveille pas encore.`,
+      chain: () => ({ good: ['Mesurer', 'Réduire', 'Annoncer un chiffre vrai', 'Confiance'], bad: ['Promettre plus que la vérité', 'Être démasqué', 'Sanction et perte de confiance'] }) },
+    { act: 2, needs: ['lobby'], title: 'Acte 2 — Peser sur la loi', text: h => `Défendre ses intérêts auprès des décideurs publics s\'appelle le <em>lobbying</em> (ou représentation d\'intérêts). En France, c\'est légal mais encadré : les représentants d\'intérêts s\'inscrivent sur un <em>registre public</em> tenu par la Haute Autorité pour la transparence de la vie publique (HATVP), depuis la loi Sapin 2 de 2016. ${h.lobby === 'cadeau' ? 'Offrir un avantage à une élue pour obtenir son vote n\'est plus du lobbying : c\'est de la <em>corruption</em> (ou une tentative), un délit pénal.' : h.lobby === 'asso' ? 'En t\'alliant aux associations, tu as formé une <em>coalition</em> : des acteurs différents qui défendent un intérêt commun.' : h.lobby === 'ouvert' ? 'Tu as défendu ta cause ouvertement, avec des chiffres : c\'est le lobbying transparent.' : 'En restant silencieux, tu as laissé les fabricants peser seuls sur la loi.'} Le lobbying pose une question démocratique : les intérêts les plus riches sont-ils mieux entendus ? La transparence est la réponse de la loi.`,
+      chain: () => ({ good: ['Arguments publics', 'Registre officiel', 'Influence légale'], bad: ['Avantage offert à un élu', 'Corruption', 'Poursuites pénales'] }) },
+    { act: 3, needs: ['ia', 'prix'], title: 'Acte 3 — Les algorithmes', text: h => `Une <em>intelligence artificielle</em> apprend à partir de données. Si les données reflètent des inégalités passées, elle les reproduit : c\'est un <em>biais algorithmique</em>. ${h.ia === 'aveugle' ? 'Ton IA a écarté les femmes : c\'est une <em>discrimination</em> à l\'embauche, interdite par la loi, et l\'entreprise en est responsable.' : h.ia === 'audit' ? 'En faisant auditer l\'IA et en gardant une personne pour décider, tu as appliqué la <em>supervision humaine</em> que le règlement européen sur l\'IA impose aux outils de recrutement, classés « à haut risque ».' : 'En renonçant à l\'IA, tu as évité le biais, mais au prix de beaucoup de temps.'} Les prix personnalisés posent la question de la <em>transparence</em> des <em>algorithmes</em> : ${h.prix === 'secret' ? 'cacher qu\'un prix varie selon le profil du client est interdit et a ruiné la confiance.' : 'adapter un prix est possible, à condition de le dire.'}`,
+      chain: () => ({ good: ['Données vérifiées', 'Contrôle humain', 'Décision expliquée'], bad: ['Données biaisées', 'Décision automatique', 'Discrimination'] }) },
+    { act: 4, needs: ['fuite', 'blockchain'], title: 'Acte 4 — Les données', text: h => `Le <em>RGPD</em> (règlement général sur la protection des données) protège les <em>données personnelles</em> : tout ce qui permet d\'identifier une personne. ${h.effacement === 'certif' ? 'En effaçant chaque téléphone de façon certifiée, tu as protégé les données des anciens propriétaires.' : 'Sans effacement garanti, des données personnelles d\'inconnus pouvaient circuler.'} En cas de fuite, l\'entreprise doit prévenir la <em>CNIL</em> sous 72 heures, et les personnes concernées si le risque est élevé. ${h.fuite === 'cacher' ? 'Le cacher a transformé un incident en faute grave.' : 'Tu l\'as fait.'} La <em>blockchain</em> est un registre partagé, infalsifiable, sans autorité centrale : elle a du sens quand plusieurs acteurs qui ne se font pas confiance doivent partager une information (${h.blockchain === 'filiere' ? 'c\'était le registre de la filière' : 'pas pour une entreprise seule, où une base de données suffit'}).`,
+      chain: () => ({ good: ['Protéger les données', 'Prévenir en cas de fuite', 'Outil adapté au besoin'], bad: ['Cacher', 'Sanction CNIL', 'Technologie à la mode inutile'] }) }
+  ],
+  vocab: ['RSE', 'Parties prenantes', 'Éthique', 'Greenwashing', 'Pratique commerciale trompeuse', 'Lobbying', 'Registre des représentants d\'intérêts', 'Corruption', 'Coalition', 'Intelligence artificielle', 'Biais algorithmique', 'Discrimination', 'Supervision humaine', 'Transparence des algorithmes', 'RGPD', 'Données personnelles', 'CNIL', 'Violation de données (72 h)', 'Blockchain']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — Rebond sous les projecteurs, entourée de ses parties prenantes.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const c = S.confiance >= 65 ? '#4CD97B' : S.confiance >= 45 ? '#FFC64F' : '#FF5C6A';
+  const pp = [['CLIENTS', 140, 40], ['SALARIÉS', 330, 40], ['PRESSE', 140, 130], ['ÉTAT', 330, 130], ['FONDS', 235, 22], ['ASSOS', 235, 148]];
+  const rays = `<polygon points="235,0 175,92 295,92" fill="#7C6FFF" opacity=".12"/>`;
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Rebond et ses parties prenantes">
+    <rect width="360" height="200" fill="#08070f"/><rect x="0" y="0" width="360" height="162" fill="#0b0918"/>${rays}
+    ${pp.map(([t, x, y]) => `<line x1="235" y1="86" x2="${x}" y2="${y + 4}" stroke="${c}" stroke-opacity=".35" stroke-dasharray="3 4"/><rect x="${x - 30}" y="${y - 8}" width="60" height="22" rx="4" fill="#110e20" stroke="${c}"/><text x="${x}" y="${y + 7}" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="${c}">${t}</text>`).join('')}
+    <rect x="200" y="72" width="70" height="28" rx="5" fill="#0b0820" stroke="#7C6FFF" stroke-width="1.5"/><text x="235" y="91" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="11" fill="#7C6FFF">REBOND</text>
+    <rect x="0" y="162" width="360" height="38" fill="#0a0814"/><line x1="0" y1="162" x2="360" y2="162" stroke="#241f3d" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Rebond 3 — Jeu MSGN Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#7C6FFF;--eco-dim:#4B3FCC;--good:#4CD97B;--bg:#06050c;--panel:#0d0b18;--panel2:#110e20;--line:#241f3d;--txt:#EEF3EC;--muted:#8B86A8;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(124,111,255,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(124,111,255,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#1a1630;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(124,111,255,.5);background:rgba(124,111,255,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#08070f;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(124,111,255,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#0b0820;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#0b0820;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#161230;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#1a1630;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#0b0820;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#0a0816;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#0a0816;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#0a0816;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#0a0816;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(124,111,255,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#0a0816;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — Rebond 3 : L'équipe et les clients (MSGN Terminale, thème 2)
+   L'entreprise est simulée mois par mois (12 mois).
+     Motivation de 4 salariés clés + des 14 autres → climat social
+     Climat → départs (6 000 € chacun) et absences (coût de remplacement)
+     Site : visites × taux de conversion × marge ; e-réputation → visites
+   Jauges : tre (€), climat (0-100), satisf (0-100), erep (note sur 5).
+   ===================================================================== */
+const N = ' ';
+const eur = n => (n < 0 ? '−' : '') + Math.abs(Math.round(n)).toLocaleString('fr-FR') + N + '€';
+const sg = n => (n >= 0 ? '+' : '−') + Math.abs(Math.round(n)).toLocaleString('fr-FR') + N + '€';
+const nb = n => Math.round(n).toLocaleString('fr-FR');
+const n1 = n => (Math.round(n * 10) / 10).toLocaleString('fr-FR');
+const cl = (n, a, b) => Math.max(a, Math.min(b, n));
+const F = s => s.flags;
+
+/* ---- Paramètres ---- */
+const BASE = 1500;          // résultat mensuel du reste de l'activité (atelier, boutique, Domus), une fois tout payé
+const MASSE = 45000;        // masse salariale mensuelle (18 salariés)
+const COUT_DEPART = 6000;   // recruter et former un remplaçant
+const VISITES = 20000, MARGE_WEB = 30;  // ce que rapporte une vente en ligne, une fois tout payé
+const PERS = ['malik', 'samir', 'lou', 'jade'];
+
+const eff = (s, p, k) => s.m[p] + s.fade[p] * Math.pow(.75, k);          // motivation au mois k après le dernier calcul
+function climat(s, k) { const key = PERS.filter(p => !s.parti[p]).map(p => eff(s, p, k)); const a = key.length ? key.reduce((x, y) => x + y, 0) / key.length : 40; return cl(Math.round(.45 * a + .55 * eff(s, 'autres', k)), 0, 100); }
+function conv(s, mo) {
+  if (F(s).livraison) return 1.9; if (F(s).baisse) return 1.15 + .25; if (F(s).page) return 1.05;
+  return Math.max(.9, 1.2 - .05 * mo);
+}
+function siteMois(s, mo) {
+  const v = VISITES * (F(s).pub ? 1.3 : 1) * Math.pow(s.erep / 4.3, 2), ventes = v * conv(s, mo) / 100 * (F(s).segment && mo >= 8 ? 1.15 : 1) + (F(s).fichier && mo === 7 ? 80 : 0);
+  const m = MARGE_WEB - (F(s).livraison ? 6 : 0) - (F(s).baisse ? 27 : 0);
+  return { v, ventes, marge: ventes * m - (F(s).pub ? 3000 : 0) };
+}
+function unMois(s, mo, k) {
+  const c = climat(s, k), absPct = 2 + Math.max(0, 60 - c) / 8, absCout = absPct / 100 * MASSE * 1.2;
+  const dep = 18 * .05 * (1 - c / 100), depCout = dep * COUT_DEPART;
+  const site = siteMois(s, mo);
+  const levier = (F(s).generale ? 1170 : 0) + (s.choix.malik === 'aug' ? 220 : 0) + (s.choix.samir === 'aug' ? 220 : 0) + (s.choix.lou === 'aug' ? 220 : 0) + (s.choix.jade === 'aug' ? 220 : 0);
+  const satEff = (s.satisf - 60) * 90;
+  let res = BASE + site.marge - absCout - depCout - levier + satEff;
+  const inter = F(s).interess && res > 0 ? res * .05 : 0; res -= inter;
+  return { mo, c, absPct, absCout, dep, depCout, site, levier, inter, satEff, res };
+}
+function periode(s, n) {
+  const ms = []; for (let i = 1; i <= n; i++) ms.push(unMois(s, s.mois + i, i));
+  const sum = k => ms.reduce((a, m) => a + (typeof k === 'function' ? k(m) : m[k]), 0);
+  const L = ms[n - 1];
+  const satTarget = 40 + .4 * L.c + (F(s).livraison ? 6 : 0) + (F(s).segment ? 4 : 0);
+  return { ms, n, res: sum('res'), dep: sum('dep'), L, dSat: Math.round((satTarget - s.satisf) * .5), dClimat: L.c - s.climat };
+}
+function fxPer(s) { const R = s.rep; return { tre: Math.round(R.res), climat: R.dClimat, satisf: R.dSat }; }
+function commit(s) {
+  const R = s.rep; s.mois += R.n; s.departs += R.dep;
+  for (const p of PERS.concat('autres')) s.fade[p] *= Math.pow(.75, R.n);
+  s.hist.push({ m: s.mois, res: Math.round(R.res) }); s.months = (s.months || []).concat(R.ms);
+}
+function tableau(s, titre) {
+  const R = s.rep, m = R.ms, a = k => m.reduce((x, y) => x + (typeof k === 'function' ? k(y) : y[k]), 0) / m.length;
+  const row = (l, v, cls) => `<span${cls ? ` class="${cls}"` : ''}>${l}</span><b${cls ? ` class="${cls}"` : ''}>${v}</b>`;
+  return `<b>${titre}</b><span class="pay">${row('Climat social', Math.round(a('c')) + ' / 100')}${row('Absences', n1(a('absPct')) + N + '% des heures')}${row('Départs sur la période', n1(R.dep))}${row('Ventes du site par mois', nb(a(x => x.site.ventes)))}
+    ${row('Reste de l\'activité', '+' + eur(BASE))}${row('Marge du site', sg(a(x => x.site.marge)))}${row('Absences (remplacements)', '−' + eur(a('absCout')))}${row('Départs (recruter, former)', '−' + eur(a('depCout')))}${a('levier') > 0 ? row('Augmentations', '−' + eur(a('levier'))) : ''}${a('inter') > 0 ? row('Intéressement', '−' + eur(a('inter'))) : ''}${row('Clients plus ou moins satisfaits', sg(a('satEff')))}
+    ${row('Ce qui reste chaque mois', sg(R.res / R.n), 'tot')}${row(`Sur ${R.n} mois`, sg(R.res), 'tot')}</span>`;
+}
+function equipeHtml(s) {
+  const lab = { malik: 'Malik', samir: 'Samir', lou: 'Lou', jade: 'Jade', autres: 'Les 14 autres' };
+  return `<span class="pay">${PERS.concat('autres').map(p => `<span>${lab[p]}</span><b${s.parti[p] ? ' style="color:var(--bad)"' : eff(s, p, 0) < 45 ? ' style="color:var(--bad)"' : ''}>${s.parti[p] ? 'parti' : Math.round(eff(s, p, 0)) + ' / 100'}</b>`).join('')}</span>`;
+}
+const V = (e, c, f) => [{ who: 'yanis', text: e }, { nom: 'Inès, cliente fidèle', text: c }, { who: 'ferhat', text: f }].filter(v => v.text !== '—');
+const ch = (good, bad) => ({ good, bad });
+const up = (p, lasting, fade) => s => { s.m[p] += lasting || 0; s.fade[p] += fade || 0; };
+const budgetLock = c => s => !F(s).indiv ? null : c > s.budget ? 'Budget insuffisant' : null;
+const spend = c => s => { s.budget -= c; };
+
+const GAME = {
+  title: 'Rebond 3',
+  brand: 'REBOND <span>3</span>',
+  storeKey: 'rebond3Fins',
+  backLink: '../../matieres/msgn-terminale.html',
+  footer: 'MSGN Terminale STMG, thème 2',
+  kicker: 'MSGN · Terminale STMG · Thème 2',
+  debIntro: 'Tu as utilisé ces notions pour diriger des personnes et parler à tes clients. Voici comment on les appelle en management et sciences de gestion.',
+  cutText: 'Ta partie s\'est arrêtée avant la fin de l\'année. Rejoue pour aller jusqu\'au bilan.',
+  pitch: `Deux ans après sa création, Rebond compte 18 salariés, une boutique, un atelier et un site de vente. Mais un salarié sur trois est parti cette année, les arrêts maladie se multiplient et les ventes en ligne baissent. Tu prends la direction. Tes outils${N}: des gens, des données, et ta façon de parler.`,
+  meta: '4 actes · 30 minutes',
+  start: s => Object.assign(s, { tre: 30000, climat: 46, satisf: 62, erep: 4.3, mois: 0, departs: 0, hist: [], budget: 15000, choix: {}, parti: {},
+    m: { malik: 45, samir: 36, lou: 55, jade: 40, autres: 48 }, fade: { malik: 0, samir: 0, lou: 0, jade: 0, autres: 0 } }),
+  hud: [
+    { k: 'tre',    label: 'Trésorerie', short: 'Trésorerie', show: s => (s.tre / 1000).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + N + 'k€', pct: s => s.tre / 600, low: s => s.tre < 5000, unit: N + '€' },
+    { k: 'climat', label: 'Climat social', short: 'Climat', show: s => Math.round(s.climat), pct: s => s.climat, low: s => s.climat < 45, clamp: true },
+    { k: 'satisf', label: 'Satisfaction clients', short: 'Clients', show: s => Math.round(s.satisf), pct: s => s.satisf, low: s => s.satisf < 55, clamp: true },
+    { k: 'erep',   label: 'Note en ligne', short: 'Note', show: s => n1(s.erep) + N + '★', pct: s => (s.erep - 2.5) * 40, low: s => s.erep < 3.8, unit: N + '★' }
+  ],
+  fail: s => s.tre < -25000 ? 'faillite' : null,
+  lock: () => null,
+  bilan: s => [['Trésorerie', eur(s.tre)], ['Départs dans l\'année', nb(s.departs + Object.keys(s.parti).length)], ['Satisfaction clients', Math.round(s.satisf) + ' / 100'], ['Note en ligne', n1(s.erep) + N + '★']],
+
+  characters: {
+    ferhat: { name: 'Mme Ferhat', role: 'ta conseillère, pépinière d\'entreprises', color: '#B9A6FF', body: '#4B3FCC', hair: '#1c1c22', acc: 'clip' },
+    yanis:  { name: 'Yanis',  role: 'chef d\'atelier', color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'cap' },
+    malik:  { name: 'Malik',  role: 'réparateur, 3 enfants', color: '#FFC64F', body: '#8a5a22', hair: '#1c1c22', acc: 'box' },
+    samir:  { name: 'Samir',  role: 'opérateur au tri depuis 2 ans', color: '#5BC8FF', body: '#2b5a7a', hair: '#1c1c22', acc: 'box' },
+    lou:    { name: 'Lou',    role: 'technicienne, en boutique', color: '#FF9D3D', body: '#B86A1F', hair: '#c9a24a', acc: 'bun' },
+    jade:   { name: 'Jade',   role: 'opératrice à l\'emballage', color: '#FF8AD1', body: '#B8508F', hair: '#3a2418', acc: 'bun' },
+    tom:    { name: 'Tom',    role: 'nouveau vendeur, 19 ans', color: '#7CFF3D', body: '#3a6a1f', hair: '#c9a24a', acc: 'cap' },
+    data:   { name: 'M. Garnier', role: 'commercial, société DataPlus', color: '#FF5C6A', body: '#1c1c22', hair: '#8a8f96', acc: 'tie' },
+    clara:  { name: 'Clara', role: 'cliente, 41 000 abonnés', color: '#FF5C6A', body: '#5a1f2a', hair: '#c9a24a', acc: 'clip' },
+    narr:   { name: 'Toi', role: '', color: '#7C6FFF' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Motiver', sub: 'Quinze mille euros pour donner envie de rester. Le même euro ne produit pas le même effet chez tout le monde.',
+    steps: [
+      { t: 'say', who: 'ferhat', text: `Six départs l'an dernier. Chacun vous a coûté environ 6${N}000${N}€${N}: annonce, entretiens, formation du remplaçant, erreurs des premières semaines. Votre budget pour l'année${N}: 15${N}000${N}€. Mais avant de dépenser, écoutez-les.` },
+      { t: 'say', who: 'malik', text: `Moi, je vais être franc. J'ai trois enfants, le loyer a pris 80${N}€. J'aime le boulot, mais un garage m'offre 200${N}€ de plus par mois.` },
+      { t: 'say', who: 'samir', text: `Ça fait deux ans que je trie des téléphones. Je connais le poste par cœur, je forme tous les nouveaux… et personne ne l'a jamais remarqué. Je ne sais pas où je serai dans un an.` },
+      { t: 'say', who: 'lou', text: `J'ai plein d'idées pour la boutique. La vitrine, l'accueil, le coin conseils. Mais chaque fois que j'en parle, on me dit «${N}plus tard${N}».` },
+      { t: 'say', who: 'jade', text: `Huit heures debout à l'emballage, le plan de travail trop bas. J'ai mal au dos tous les soirs. Et je finis à 18${N}h${N}30, la crèche ferme à 18${N}h.` },
+      { t: 'say', who: 'ferhat', text: s => `Voici où en est leur motivation, d'après l'entretien annuel.${equipeHtml(s)}Deux façons de faire${N}: une augmentation pour tout le monde, ou une réponse personne par personne.` },
+      { t: 'choice', id: 'approche', prompt: `Comment utiliser les 15${N}000${N}€${N}?`, options: [
+        { id: 'generale', label: 'Augmenter tout le monde de 2 %', desc: 'Environ 1 170 € par mois, soit 14 000 € sur l\'année. Simple et juste.', set: { generale: true },
+          do: s => { for (const p of PERS.concat('autres')) s.fade[p] += 14; },
+          chain: ch(['Tout le monde est content le jour de l\'annonce', 'Personne ne se sent oublié'], ['2 % de Malik, c\'est 40 € : pas 200', 'Samir, Lou et Jade n\'ont pas reçu ce qu\'ils demandaient', 'Dans trois mois, l\'augmentation sera devenue normale', 'Le budget est épuisé']),
+          voix: V(`Ils étaient contents lundi. Mardi, Jade avait toujours mal au dos.`, `Rien vu changer en boutique.`, `Une augmentation évite qu'on se plaigne du salaire. Elle ne donne pas envie de se lever le matin. Surtout quand la plainte n'était pas le salaire.`) },
+        { id: 'indiv', label: 'Répondre à chacun selon ce qu\'il attend', desc: 'Tu décides personne par personne, dans la limite des 15 000 €.', set: { indiv: true },
+          chain: ch(['Chaque euro vise un besoin précis', 'Chacun se sent écouté'], ['Il faudra bien écouter', 'Certains compareront ce que les autres ont reçu']),
+          voix: V(`Plus de travail pour toi. Mais ils vont sentir la différence.`, `On verra bien.`, `Bien. Relisez ce qu'ils vous ont dit. Tout est là.`) } ] },
+      { t: 'choice', id: 'malik', if: s => F(s).indiv, prompt: s => `Pour Malik${N}? (reste ${eur(s.budget)})`, options: [
+        { id: 'aug', label: 'Une augmentation de 150 € net par mois', desc: '220 € par mois charges comprises, soit 2 640 € sur l\'année.', lock: budgetLock(2640), do: s => { spend(2640)(s); up('malik', 28)(s); s.choix.malik = 'aug'; },
+          chain: ch(['Sa vraie inquiétude, c\'est la fin du mois', 'Il ne regarde plus l\'offre du garage', 'Il reste'], ['Un coût chaque mois, pour toujours']), voix: V(`Il m'a dit merci trois fois.`, `—`, `Pour Malik, le salaire était le problème. Vous l'avez réglé.`) },
+        { id: 'prime', label: 'Une prime de 1 000 € tout de suite', desc: 'Versée une fois.', lock: budgetLock(1000), fx: { tre: -1000 }, do: s => { spend(1000)(s); up('malik', 0, 18)(s); s.choix.malik = 'prime'; },
+          chain: ch(['Un soulagement immédiat'], ['Le loyer, lui, revient chaque mois', 'Dans quelques mois, le problème est le même']), voix: V(`Content. Pour ce mois-ci.`, `—`, `Une prime soulage. Elle ne règle pas un problème qui revient tous les mois.`) },
+        { id: 'reco', label: 'Le féliciter pour son travail', desc: 'Gratuit.', do: s => { up('malik', 3)(s); s.choix.malik = 'reco'; },
+          chain: ch(['Ça fait plaisir'], ['Ça ne paie pas le loyer', 'Le garage lui offre toujours 200 €']), voix: V(`Il a souri, puis il est retourné consulter les annonces.`, `—`, `Des compliments à quelqu'un qui n'arrive pas à boucler son mois${N}? Il risque de le prendre mal.`) } ] },
+      { t: 'choice', id: 'samir', if: s => F(s).indiv, prompt: s => `Pour Samir${N}? (reste ${eur(s.budget)})`, options: [
+        { id: 'evol', label: 'Le former et le nommer responsable du tri', desc: 'Formation de chef d\'équipe : 2 500 €. Il encadre les nouveaux officiellement.', lock: budgetLock(2500), fx: { tre: -2500 }, do: s => { spend(2500)(s); up('samir', 32)(s); s.choix.samir = 'evol'; },
+          chain: ch(['Ce qu\'il faisait déjà est enfin reconnu', 'Il voit un avenir chez Rebond', 'Les nouveaux sont mieux formés'], ['2 500 €']), voix: V(`Il a affiché sa formation au-dessus de son poste.`, `—`, `Vous lui avez donné ce qu'il demandait${N}: une reconnaissance et une perspective.`) },
+        { id: 'aug', label: 'Une augmentation de 150 € net par mois', desc: '2 640 € sur l\'année.', lock: budgetLock(2640), do: s => { spend(2640)(s); up('samir', 0, 12)(s); s.choix.samir = 'aug'; },
+          chain: ch(['Un peu plus d\'argent'], ['Il n\'avait pas parlé d\'argent', 'Il se demande toujours où il sera dans un an']), voix: V(`Il a dit merci. Il a l'air toujours aussi perdu.`, `—`, `Il vous parlait d'avenir, vous lui répondez salaire.`) },
+        { id: 'reco', label: 'Le remercier devant toute l\'équipe', desc: 'Gratuit.', do: s => { up('samir', 12)(s); s.choix.samir = 'reco'; },
+          chain: ch(['Il se sent enfin vu'], ['Mais toujours aucune perspective']), voix: V(`Il était tout rouge. Content.`, `—`, `Un bon début. Mais il vous a aussi parlé d'avenir.`) } ] },
+      { t: 'choice', id: 'lou', if: s => F(s).indiv, prompt: s => `Pour Lou${N}? (reste ${eur(s.budget)})`, options: [
+        { id: 'projet', label: 'Lui confier la refonte de la boutique', desc: 'Carte blanche, un petit budget de matériel déjà prévu. Gratuit.', set: { louProjet: true }, do: s => { up('lou', 28)(s); s.choix.lou = 'projet'; },
+          chain: ch(['Elle peut enfin agir', 'Son travail a du sens', 'Ses idées vont servir à tous'], ['Il faudra la laisser faire, vraiment']), voix: V(`Elle a passé le week-end à dessiner la nouvelle vitrine.`, `J'ai hâte de voir ça.`, `Vous lui donnez ce qui la motive${N}: de l'autonomie. Ça ne coûte rien, sauf de lâcher un peu prise.`) },
+        { id: 'formation', label: 'Lui payer une formation en vente', desc: '1 500 €.', lock: budgetLock(1500), fx: { tre: -1500 }, do: s => { spend(1500)(s); up('lou', 10)(s); s.choix.lou = 'formation'; },
+          chain: ch(['Elle progresse'], ['Elle voulait agir, pas apprendre', 'Ses idées restent dans un tiroir']), voix: V(`Elle a aimé la formation. Elle demande quand elle pourra s'en servir.`, `—`, `Utile, mais à côté de sa demande.`) },
+        { id: 'aug', label: 'Une augmentation de 150 € net par mois', desc: '2 640 € sur l\'année.', lock: budgetLock(2640), do: s => { spend(2640)(s); up('lou', 0, 10)(s); s.choix.lou = 'aug'; },
+          chain: ch(['Un peu plus d\'argent'], ['Ce n\'était pas sa demande']), voix: V(`Elle a dit merci. Puis : «${N}Et pour la boutique${N}?${N}»`, `—`, `L'argent ne remplace pas la confiance.`) } ] },
+      { t: 'choice', id: 'jade', if: s => F(s).indiv, prompt: s => `Pour Jade${N}? (reste ${eur(s.budget)})`, options: [
+        { id: 'deux', label: 'Un poste réglable et des horaires souples', desc: 'Plan de travail réglable, tapis antifatigue, pauses actives : 3 000 €. Elle finit à 17 h 30.', lock: budgetLock(3000), fx: { tre: -3000 }, set: { ergo: true }, do: s => { spend(3000)(s); up('jade', 30)(s); s.choix.jade = 'deux'; },
+          chain: ch(['Plus de douleur le soir', 'Elle récupère son enfant à l\'heure', 'Tu préviens un arrêt maladie'], ['3 000 €']), voix: V(`Elle ne se tient plus le dos en partant.`, `—`, `Vous avez agi sur ses conditions de travail, avant qu'elles ne la cassent.`) },
+        { id: 'horaires', label: 'Seulement des horaires souples', desc: 'Gratuit. Elle finit à 17 h 30.', do: s => { up('jade', 14)(s); s.choix.jade = 'horaires'; },
+          chain: ch(['La crèche, c\'est réglé'], ['Le plan de travail est toujours trop bas', 'Le dos, lui, continue de souffrir']), voix: V(`Elle part plus tôt. Avec son dos.`, `—`, `La moitié du problème.`) },
+        { id: 'aug', label: 'Une augmentation de 150 € net par mois', desc: '2 640 € sur l\'année.', lock: budgetLock(2640), do: s => { spend(2640)(s); up('jade', 0, 10)(s); s.choix.jade = 'aug'; },
+          chain: ch(['Un peu plus d\'argent'], ['Toujours mal au dos', 'Toujours en retard à la crèche']), voix: V(`Elle a mal au dos, mais elle est mieux payée pour.`, `—`, `Vous lui payez sa douleur au lieu de la supprimer.`) } ] },
+      { t: 'choice', id: 'autres', if: s => F(s).indiv, prompt: s => `Et les 14 autres${N}? (reste ${eur(s.budget)})`, options: [
+        { id: 'interess', label: 'Leur donner 5 % des bénéfices chaque mois', desc: 'Tout le monde gagne plus quand Rebond gagne plus.', set: { interess: true }, do: s => { up('autres', 12)(s); },
+          chain: ch(['Chacun a intérêt à ce que l\'entreprise réussisse', 'Aucun coût si Rebond perd de l\'argent'], ['5 % des bénéfices partent chaque mois']), voix: V(`Ils regardent les chiffres du mois, maintenant. C'est nouveau.`, `—`, `Vous liez leur intérêt à celui de l'entreprise.`) },
+        { id: 'reco', label: 'Un point mensuel pour fêter les réussites', desc: 'Gratuit : chaque mois, on raconte ce qui a bien marché, et qui l\'a fait.', do: s => { up('autres', 7)(s); },
+          chain: ch(['Chacun voit que son travail compte'], ['Ça ne change rien au salaire']), voix: V(`Le premier point a duré vingt minutes. Personne n'a regardé son téléphone.`, `—`, `La reconnaissance ne coûte rien. Elle compte pourtant.`) },
+        { id: 'prime', label: 'Une prime de 500 € chacun', desc: '7 000 €, versés une fois.', lock: budgetLock(7000), fx: { tre: -7000 }, do: s => { spend(7000)(s); up('autres', 0, 14)(s); },
+          chain: ch(['Une bonne surprise'], ['Oubliée dans trois mois', '7 000 €']), voix: V(`Contents. Pour l'instant.`, `—`, `Une prime fait plaisir. Elle ne dure pas.`) },
+        { id: 'rien', label: 'Rien de spécial', desc: '', do: s => { up('autres', -6)(s); },
+          chain: ch([], ['Ils ont vu que les quatre autres avaient reçu quelque chose', 'Eux, rien']), voix: V(`Ça jase, à la pause.`, `—`, `Ils comparent toujours.`) } ] },
+      { t: 'say', who: 'ferhat', text: s => `Voici l'équipe après tes décisions.${equipeHtml(s)}` },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 3); }, text: s => tableau(s, 'Les trois premiers mois.'), fx: fxPer },
+      { t: 'event', who: 'narr', do: commit, text: s => `Trois mois. Le compte affiche ${eur(s.tre)}.` },
+      { t: 'say', who: 'samir', if: s => eff(s, 'samir', 0) < 45, text: `J'ai trouvé un poste de chef d'équipe chez un concurrent. Je pars dans un mois. Ici, je ne voyais pas d'avenir.` },
+      { t: 'event', who: 'ferhat', if: s => eff(s, 'samir', 0) < 45, do: s => { s.parti.samir = true; up('autres', -4)(s); }, text: `Samir part, et avec lui celui qui formait tous les nouveaux. Coût du remplacement${N}: 6${N}000${N}€, et des nouveaux moins bien formés.`, fx: { tre: -6000, climat: -4 } },
+      { t: 'say', who: 'jade', if: s => !F(s).ergo, text: `Mon médecin m'arrête deux mois. Lombalgie. Il dit que c'est mon poste de travail.` },
+      { t: 'event', who: 'ferhat', if: s => !F(s).ergo, do: s => { s.flags.arret = true; up('jade', -10)(s); }, text: `Deux mois d'arrêt, un intérimaire à former, et l'emballage qui ralentit. Coût${N}: environ 7${N}000${N}€. Le plan de travail réglable coûtait 3${N}000${N}€.`, fx: { tre: -7000, climat: -3 } }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Diriger', sub: 'Trois situations, trois personnes. Le bon chef n\'a pas un style : il en a plusieurs.',
+    steps: [
+      { t: 'say', who: 'yanis', text: `Samedi, 11 heures, la boutique est pleine. Malik vient de rendre à une cliente un téléphone dont la batterie chauffe. Elle est furieuse, six personnes attendent derrière elle.` },
+      { t: 'choice', id: 'style1', prompt: `Le rush${N}: que fais-tu${N}?`, options: [
+        { id: 'directif', label: 'Prendre les choses en main', desc: '« Malik, tu reprends le téléphone, tu changes la batterie maintenant. Lou, tu prends la file. » On débriefera lundi.', do: s => { s.lead = (s.lead || 0) + 2; },
+          chain: ch(['Décision immédiate, chacun sait quoi faire', 'La cliente repart avec un téléphone sûr', 'La file avance'], ['Personne n\'a eu son mot à dire, mais ce n\'était pas le moment']), voix: V(`Clair, rapide. C'est ce qu'il fallait.`, `Ils ont réglé ça en dix minutes, bravo.`, `En urgence, avec un risque pour la sécurité, on décide. On discutera après.`) },
+        { id: 'participatif', label: 'Réunir l\'équipe pour décider ensemble', desc: 'Tu demandes à chacun son avis sur la meilleure chose à faire.', fx: { satisf: -6, erep: -.05 }, do: s => { s.lead = (s.lead || 0) - 1; },
+          chain: ch(['Tout le monde est consulté'], ['Dix minutes de discussion pendant que la cliente attend', 'Six clients s\'impatientent', 'Deux repartent sans rien acheter']), voix: V(`On a fait une réunion au milieu de la boutique. Les clients nous regardaient.`, `J'ai attendu vingt minutes sans savoir pourquoi.`, `Faire participer, c'est précieux. Pas avec une cliente furieuse et une batterie qui chauffe.`) },
+        { id: 'delegatif', label: 'Laisser Malik gérer', desc: 'C\'est son erreur, à lui de la réparer.', fx: { satisf: -9, erep: -.1 }, do: s => { s.lead = (s.lead || 0) - 2; up('malik', -6)(s); },
+          chain: ch(['Malik est responsabilisé'], ['Il est paniqué, il ne sait pas quoi faire', 'La cliente s\'énerve davantage', 'Elle laisse un avis à une étoile']), voix: V(`Malik était seul au milieu de la tempête. Il s'en veut encore.`, `Personne ne savait qui décidait.`, `Déléguer, c'est confier une décision à quelqu'un capable de la prendre. Pas abandonner quelqu'un en pleine crise.`) } ] },
+      { t: 'say', who: 'lou', text: s => F(s).louProjet ? `J'ai fini les plans de la nouvelle boutique. Vitrine thématique chaque mois, un coin conseil pour les seniors, des créneaux de rendez-vous. Je peux commencer lundi${N}?` : `J'ai dessiné des plans pour la boutique, sur mon temps libre. Vitrine thématique, un coin conseil pour les seniors, des créneaux de rendez-vous. Tu veux bien regarder${N}?` },
+      { t: 'choice', id: 'style2', prompt: `Le projet de Lou${N}?`, options: [
+        { id: 'delegatif', label: 'Lui faire confiance : elle décide et elle mène le projet', desc: 'Tu fixes le budget et la date, elle fait le reste.', set: { boutique: true }, do: s => { s.lead = (s.lead || 0) + 2; up('lou', 15)(s); up('autres', 3)(s); },
+          chain: ch(['Lou est compétente et motivée : elle peut décider', 'Elle se sent responsable', 'Les clients découvrent une boutique repensée', 'Les autres voient qu\'on peut proposer des idées ici'], ['Tu ne contrôles pas chaque détail']), voix: V(`La boutique ne ressemble plus à rien de ce qu'on avait. En mieux.`, `Le coin conseil est génial, j'y ai amené ma grand-mère.`, `Lou savait et voulait. Il suffisait de lui laisser la place.`) },
+        { id: 'participatif', label: 'En discuter avec elle et l\'équipe, puis décider ensemble', desc: 'Une réunion, chacun donne son avis, Lou garde la main.', set: { boutique: true }, do: s => { s.lead = (s.lead || 0) + 1; up('lou', 8)(s); up('autres', 4)(s); },
+          chain: ch(['Le projet est enrichi par l\'équipe', 'Tout le monde s\'y retrouve'], ['Un peu plus lent']), voix: V(`On a ajouté le coin réparation express. Bonne idée de Malik.`, `La nouvelle boutique est sympa.`, `Une bonne façon de faire, ici.`) },
+        { id: 'directif', label: 'Garder tes propres idées', desc: '« Merci, mais on va faire comme j\'ai prévu. »', do: s => { s.lead = (s.lead || 0) - 2; up('lou', -22)(s); up('autres', -4)(s); },
+          chain: ch(['Tu gardes le contrôle'], ['Lou comprend que ses idées ne comptent pas', 'Les autres aussi', 'La boutique ne change pas']), voix: V(`Elle n'a rien dit. Elle n'a plus rien proposé depuis.`, `Toujours la même boutique.`, `Imposer à quelqu'un de compétent et motivé, c'est le meilleur moyen de le démotiver.`) } ] },
+      { t: 'say', who: 'tom', text: `Salut${N}! C'est mon premier jour. Je n'ai jamais vendu de téléphone de ma vie, mais je suis super motivé. Je fais quoi${N}?` },
+      { t: 'choice', id: 'style3', prompt: `Tom, premier jour${N}?`, options: [
+        { id: 'persuasif', label: 'L\'accompagner : expliquer, montrer, encourager', desc: 'Une semaine en binôme avec Lou, un point chaque soir.', do: s => { s.lead = (s.lead || 0) + 2; },
+          chain: ch(['Il apprend les bons gestes', 'Il comprend pourquoi on fait comme ça', 'Sa motivation reste intacte'], ['Une semaine de temps de Lou']), voix: V(`Au bout de dix jours, il vendait seul.`, `Le petit nouveau est très bien, il m'a tout expliqué.`, `Motivé mais débutant${N}: il fallait guider et encourager.`) },
+        { id: 'delegatif', label: 'Le laisser se débrouiller', desc: '« Tu es grand, lance-toi. »', fx: { satisf: -5 }, do: s => { s.lead = (s.lead || 0) - 2; s.departs += 1; },
+          chain: ch(['Aucune perte de temps pour l\'équipe'], ['Il ne sait rien', 'Il fait des erreurs devant les clients', 'Découragé, il démissionne au bout d\'un mois', 'Un recrutement de plus : 6 000 €']), voix: V(`Il est parti sans dire au revoir.`, `Le jeune vendeur ne savait même pas ce qu'était un reconditionné.`, `On ne délègue pas à quelqu'un qui ne sait pas encore faire.`) },
+        { id: 'directif', label: 'Lui donner des consignes précises', desc: 'Une fiche de tâches, des règles strictes, contrôle à chaque vente.', do: s => { s.lead = (s.lead || 0) + 1; },
+          chain: ch(['Il sait exactement quoi faire', 'Peu d\'erreurs'], ['Il exécute sans comprendre', 'Il faudra changer de style quand il saura faire']), voix: V(`Carré. Un peu robot, mais carré.`, `Le nouveau suit sa fiche à la lettre.`, `Pour un débutant, c'est acceptable. Encourager en plus aurait été mieux.`) } ] },
+      { t: 'event', who: 'ferhat', do: s => { if (F(s).boutique) s.satisf += 4; s.rep = periode(s, 2); }, text: s => tableau(s, 'Mois 4 et 5.'), fx: s => { const f = fxPer(s); if (H.style3 === 'delegatif') f.tre -= COUT_DEPART; return f; } },
+      { t: 'event', who: 'narr', do: commit, text: s => `Cinq mois. Le compte affiche ${eur(s.tre)}.` },
+      { t: 'say', who: 'lou', if: s => eff(s, 'lou', 0) < 38 && !s.parti.lou, text: `J'ai accepté un poste dans une autre boutique. Là-bas, on m'a promis de m'écouter.` },
+      { t: 'event', who: 'ferhat', if: s => eff(s, 'lou', 0) < 38 && !s.parti.lou, do: s => { s.parti.lou = true; }, text: `Lou part. Coût du remplacement${N}: 6${N}000${N}€.`, fx: { tre: -6000, climat: -3 } }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Connaître ses clients', sub: 'Ce que les clients disent et ce qu\'ils font ne racontent pas toujours la même histoire.',
+    steps: [
+      { t: 'say', who: 'ferhat', text: s => `Le site. ${nb(VISITES)} visiteurs par mois, mais les ventes baissent depuis le début de l'année${N}: on est passés de ${nb(VISITES * .012)} à ${nb(VISITES * conv(s, 5) / 100)} commandes par mois. Avant de corriger quoi que ce soit, il faut savoir pourquoi. Vous avez quatre sources.` },
+      { t: 'say', who: 'ferhat', text: `<span class="pay"><span><b>1. Questionnaire (300 clients)</b></span><b></b><span>«${N}Vos téléphones sont trop chers${N}»</span><b>48${N}%</b><span>«${N}Les délais sont longs${N}»</span><b>19${N}%</b><span>«${N}Pas assez de choix${N}»</span><b>14${N}%</b></span>` },
+      { t: 'say', who: 'lou', text: `<span class="pay"><span><b>2. Statistiques du site (un mois)</b></span><b></b><span>Visiteurs</span><b>20${N}000</b><span>Consultent une fiche produit</span><b>6${N}800</b><span>Ajoutent au panier</span><b>1${N}100</b><span>Arrivent à la page «${N}livraison${N}» (9,90${N}€ affichés)</span><b>1${N}050</b><span>Continuent vers le paiement</span><b style="color:var(--bad)">330</b><span>Achètent</span><b>200</b></span>` },
+      { t: 'say', who: 'yanis', text: `<span class="pay"><span><b>3. Fichier clients</b></span><b></b><span>Acheteurs habitant à moins de 30${N}km de la boutique</span><b>62${N}%</b><span><b>4. Avis en ligne (les plus récents)</b></span><b></b><span>«${N}Frais de port découverts au dernier moment${N}»</span><b>★★</b><span>«${N}Bon téléphone, mais 9,90${N}€ pour 20${N}km…${N}»</span><b>★★★</b></span>` },
+      { t: 'choice', id: 'diag', prompt: `Que faut-il corriger${N}?`, options: [
+        { id: 'baisse', label: 'Baisser les prix de 10 %', desc: 'C\'est ce que disent la moitié des clients interrogés.', set: { baisse: true },
+          chain: ch(['Les prix affichés sont plus attractifs'], ['Les clients ajoutaient déjà au panier : le prix ne les arrêtait pas', 'Ils partent toujours à la page livraison', '27 € de marge en moins sur chaque téléphone', 'Un peu plus de ventes, beaucoup moins de marge']),
+          voix: V(`On vend un peu plus, on gagne beaucoup moins.`, `Moins cher, d'accord, mais toujours 9,90${N}€ de port${N}?`, `Vous avez écouté ce qu'ils disent, pas regardé ce qu'ils font. Les deux ne racontent pas la même chose.`) },
+        { id: 'livraison', label: 'Livraison offerte, et retrait gratuit en boutique', desc: 'Les frais de port sont absorbés : environ 6 € par commande en moyenne.', set: { livraison: true },
+          chain: ch(['Les chiffres montrent que 7 paniers sur 10 sont abandonnés à la page livraison', 'Plus de mauvaise surprise au dernier moment', '62 % des clients habitent à côté : ils peuvent venir chercher leur téléphone', 'Les ventes du site remontent'], ['6 € de coût par commande']),
+          voix: V(`Les commandes ont presque doublé en un mois.`, `Retrait en boutique, c'est parfait, j'habite à dix minutes.`, `Vous avez cru les actes plutôt que les déclarations. C'était la bonne lecture.`) },
+        { id: 'pub', label: 'Acheter de la publicité pour attirer plus de visiteurs', desc: '3 000 € par mois. +30 % de visiteurs.', set: { pub: true },
+          chain: ch(['Plus de visiteurs'], ['Ils abandonnent au même endroit que les autres', 'Le problème n\'était pas le nombre de visiteurs', '3 000 € chaque mois']),
+          voix: V(`Plus de monde sur le site. Toujours aussi peu d'achats.`, `—`, `Vous remplissez un seau percé.`) },
+        { id: 'page', label: 'Refaire les fiches produits', desc: 'Nouvelles photos, descriptions détaillées : 2 000 €.', fx: { tre: -2000 }, set: { page: true },
+          chain: ch(['De plus belles fiches'], ['Les clients ajoutaient déjà au panier', 'Ils partent plus loin, à la page livraison']), voix: V(`Elles sont belles, les fiches.`, `—`, `Vous corrigez une étape qui marchait.`) } ] },
+      { t: 'say', who: 'data', text: `Bonjour. DataPlus. Je vous propose un fichier de 50${N}000 adresses e-mail de personnes de la région, «${N}intéressées par la technologie${N}». 1${N}500${N}€. Vous leur envoyez votre promo demain. Personne ne vérifie.` },
+      { t: 'choice', id: 'fichier', prompt: `Le fichier de DataPlus${N}?`, options: [
+        { id: 'acheter', label: 'L\'acheter et envoyer la promo', desc: '1 500 €. Des milliers de clients potentiels dès demain.', fx: { tre: -1500 }, set: { fichier: true },
+          chain: ch(['Une vague de commandes le mois suivant'], ['Ces personnes n\'ont jamais accepté de recevoir tes messages', 'C\'est interdit par le RGPD', 'Certaines se plaignent à la CNIL', 'Ton nom est associé au spam']),
+          voix: V(`On a eu 80 commandes. Et des dizaines de réponses furieuses.`, `J'ai reçu votre pub alors que je ne vous ai jamais donné mon adresse${N}?`, `Envoyer de la publicité à des gens qui n'ont rien accepté, c'est une infraction. Et la CNIL peut infliger de lourdes amendes.`) },
+        { id: 'refuser', label: 'Refuser : n\'écrire qu\'à ceux qui l\'ont accepté', desc: 'Tes 4 800 clients qui ont coché « J\'accepte de recevoir les offres ».',
+          chain: ch(['Tu respectes la loi', 'Tes messages arrivent chez des gens qui les attendent', 'Aucun risque de sanction'], ['Moins de monde touché']), voix: V(`Moins de monde, mais des gens qui nous connaissent.`, `Vos messages, je les lis.`, `Le consentement, c'est la règle. Et c'est aussi plus efficace.`) } ] },
+      { t: 'say', who: 'lou', text: `Avec nos 4${N}800 clients qui ont accepté nos messages, on peut faire mieux qu'un seul mail pour tout le monde. On sait qui ils sont et ce qu'ils ont acheté.` },
+      { t: 'choice', id: 'segment', prompt: `Comment leur parler${N}?`, options: [
+        { id: 'segment', label: 'Un message différent par type de client', desc: 'Étudiants à la rentrée, seniors avec l\'atelier conseil, entreprises avec une offre groupée.', set: { segment: true },
+          chain: ch(['Chacun reçoit ce qui le concerne, au bon moment', 'Plus de clients lisent et achètent', 'Ils se sentent compris'], ['Plus de travail pour préparer trois messages']), voix: V(`Les étudiants ont adoré la promo de rentrée.`, `Le message sur l'atelier seniors, je l'ai transféré à ma grand-mère.`, `Vous ne parlez plus à «${N}des clients${N}», mais à des groupes qui ont des besoins différents.`) },
+        { id: 'unique', label: 'La même newsletter pour tout le monde', desc: 'Un mail par mois avec toutes les promos.',
+          chain: ch(['Simple à faire'], ['Les seniors reçoivent les promos étudiantes', 'La moitié des messages ne sont pas lus']), voix: V(`Peu de retours.`, `Encore une newsletter…`, `Un message pour tout le monde n'est vraiment pour personne.`) } ] },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 3); }, text: s => tableau(s, 'Mois 6 à 8.'), fx: fxPer },
+      { t: 'event', who: 'narr', do: commit, text: s => `Huit mois. Le compte affiche ${eur(s.tre)}.` }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Communiquer', sub: 'Une vidéo, 400 000 vues, une nuit. Ce que tu dis, à qui, et quand, va tout décider.',
+    steps: [
+      { t: 'say', who: 'clara', text: `[Vidéo, 400${N}000 vues] Regardez mon téléphone Rebond, la batterie a GONFLÉ, la coque a sauté${N}! J'aurais pu me brûler. Rebond vend des bombes. Partagez.` },
+      { t: 'event', who: 'ferhat', text: `Votre note en ligne vient de perdre 0,6 point en une nuit. Les journalistes appellent. Vos salariés ont vu la vidéo sur leur téléphone. Bonne nouvelle${N}: grâce aux numéros de lot, Yanis sait que la batterie vient d'un lot de 340 batteries, posé sur 340 téléphones vendus en mars.`, fx: { erep: -.6, satisf: -6 } },
+      { t: 'choice', id: 'premier', prompt: `Premier réflexe, à 8${N}heures${N}?`, options: [
+        { id: 'equipe', label: 'Réunir l\'équipe dix minutes avant toute chose', desc: 'Leur dire ce qu\'on sait, ce qu\'on va faire, et quoi répondre aux clients.', fx: { climat: 5, erep: .05 },
+          chain: ch(['Les salariés savent quoi dire en boutique et au téléphone', 'Ils ne l\'apprennent pas par les réseaux', 'Tout le monde dit la même chose'], ['Dix minutes de plus avant la réponse publique']), voix: V(`Ils ont apprécié d'être prévenus. Au téléphone, ils répondent tous la même chose, calmement.`, `La vendeuse m'a tout expliqué, j'ai été rassurée.`, `Vos salariés sont votre premier public. Ils parlent à des centaines de clients.`) },
+        { id: 'reseaux', label: 'Répondre tout de suite sur les réseaux', desc: 'Chaque minute compte.', fx: { climat: -7, erep: .1 },
+          chain: ch(['Une réponse rapide en ligne'], ['L\'équipe découvre ta réponse en même temps que le public', 'En boutique, chacun improvise sa propre version', 'Les clients entendent trois discours différents']), voix: V(`On a appris ta réponse sur TikTok. Malik a dit à une cliente que c'était sûrement sa faute à elle.`, `Le vendeur ne savait rien.`, `Rapide, mais votre équipe parle aussi. Sans consigne, elle dit n'importe quoi.`) },
+        { id: 'attendre', label: 'Attendre d\'en savoir plus avant de parler', desc: 'Pas de déclaration tant que l\'enquête n\'est pas finie.', fx: { erep: -.3, satisf: -4 },
+          chain: ch(['Aucun risque de dire une erreur'], ['Le silence est interprété comme un aveu', 'La vidéo continue de tourner, sans réponse', 'La note continue de baisser']), voix: V(`Les gens appellent, on n'a rien à leur dire.`, `Ils ne répondent même pas${N}? C'est que c'est vrai.`, `Sur les réseaux, celui qui se tait laisse les autres raconter son histoire.`) } ] },
+      { t: 'choice', id: 'message', prompt: `Que dire${N}?`, options: [
+        { id: 'reconnaitre', label: 'Reconnaître, et rappeler les 340 téléphones du lot', desc: 'Batterie changée gratuitement pour tous : environ 8 500 €.', fx: { tre: -8500, erep: .4, satisf: 4 }, set: { rappel: true },
+          chain: ch(['Tu dis la vérité : un lot défectueux', 'Tu montres que tu sais exactement quels clients sont concernés', 'Tu protèges tes clients avant ton image', 'La confiance revient'], ['8 500 €']), voix: V(`On a changé 340 batteries en deux semaines. Les clients repartaient avec le sourire.`, `Ils m'ont appelée avant même que je m'inquiète. Respect.`, `Reconnaître une erreur et la réparer vite, c'est ce qui transforme une crise en preuve de sérieux.`) },
+        { id: 'nier', label: 'Expliquer que la cliente a sûrement utilisé un mauvais chargeur', desc: 'Aucun coût. Tu défends ta qualité.', fx: { erep: -.5, satisf: -10 }, set: { nie: true },
+          chain: ch(['Aucun coût immédiat'], ['Deux autres clients publient la même panne', 'Un expert montre que le lot était défectueux', 'Tu passes pour un menteur', 'La crise repart de plus belle']), voix: V(`Deux autres vidéos sont sorties le lendemain. On ne savait plus où se mettre.`, `Ils accusent leurs clients${N}? Plus jamais.`, `Nier ce qu'on peut prouver contre vous, c'est faire durer la crise.`) },
+        { id: 'silence', label: 'Ne rien dire de plus', desc: 'Attendre que la vidéo soit oubliée.', fx: { erep: -.35, satisf: -6 },
+          chain: ch(['Aucun coût'], ['La vidéo n\'est pas oubliée', 'Les 340 clients du lot ne sont pas prévenus', 'Le risque reste dans leur poche']), voix: V(`On croise les doigts pour qu'il n'y en ait pas d'autre.`, `Toujours rien${N}? J'ai rendu mon téléphone.`, `Le silence ne fait pas disparaître le problème. Ni les 339 autres batteries.`) } ] },
+      { t: 'choice', id: 'canal', if: s => F(s).rappel, prompt: `Comment prévenir les gens${N}?`, options: [
+        { id: 'tous', label: 'Un message direct aux 340 clients, une vidéo sur les réseaux, un communiqué à la presse', desc: 'Chaque public, par le canal où il est.', fx: { erep: .2, satisf: 5 },
+          chain: ch(['Les clients concernés sont prévenus personnellement', 'Les internautes voient ta vidéo là où ils ont vu celle de Clara', 'Les journalistes ont une information claire', 'Chacun reçoit le message adapté'], []), voix: V(`Clara a même partagé notre vidéo.`, `J'ai reçu un SMS avec un rendez-vous. Parfait.`, `Un message, plusieurs publics, plusieurs canaux. C'est ça, une communication maîtrisée.`) },
+        { id: 'presse', label: 'Seulement un communiqué de presse', desc: 'Officiel et sérieux.', fx: { erep: .05 },
+          chain: ch(['Une information officielle'], ['Les jeunes qui ont vu la vidéo ne lisent pas la presse locale', 'Les 340 clients ne sont pas prévenus directement', 'Un deuxième téléphone gonfle']), voix: V(`L'article est sorti trois jours après. La vidéo, elle, en était à 600${N}000 vues.`, `Je n'ai rien reçu, moi.`, `Le bon message, mais pas là où sont vos publics.`) },
+        { id: 'reseaux', label: 'Seulement une vidéo sur les réseaux', desc: 'Là où la crise est née.', fx: { erep: .12 },
+          chain: ch(['Tu réponds là où la crise est née'], ['Les clients concernés qui ne suivent pas les réseaux ne sont pas prévenus']), voix: V(`La vidéo marche bien.`, `Ma mère avait un téléphone du lot, elle n'en savait rien.`, `Bien, mais incomplet.`) } ] },
+      { t: 'say', who: 'ferhat', text: `La tempête retombe. Il faut maintenant reconstruire l'image de Rebond. Deux écoles${N}: une grosse campagne de promotion, ou montrer comment vous travaillez.` },
+      { t: 'choice', id: 'image', prompt: `Reconstruire${N}?`, options: [
+        { id: 'pub', label: 'Une campagne de promotion : −20 % pendant un mois', desc: 'Affiches, réseaux, radio locale : 10 000 €.', fx: { tre: -10000, erep: .05 }, set: { promo: true },
+          chain: ch(['Des ventes en hausse pendant un mois'], ['La promo ne répond pas à la question que tout le monde se pose : «  est-ce sûr ? »', 'Certains y voient un aveu : «  ils bradent leur stock  »', '10 000 €']), voix: V(`Beaucoup de passage, peu de questions sur la sécurité.`, `Moins 20${N}%${N}? Ils veulent écouler leurs batteries${N}?`, `Vendre un produit et rassurer sur une entreprise, ce n'est pas le même message.`) },
+        { id: 'portes', label: 'Ouvrir l\'atelier : portes ouvertes et vidéos des tests', desc: 'On montre les 42 points de contrôle, les numéros de lot, l\'équipe. 2 500 €.', fx: { tre: -2500, erep: .25, satisf: 5, climat: 4 },
+          chain: ch(['Tu montres ce que fait l\'entreprise, pas ce qu\'elle vend', 'Les clients voient les tests de batteries de leurs propres yeux', 'L\'équipe est fière de montrer son travail'], ['2 500 €']), voix: V(`Samedi, 200 personnes. Les gars expliquaient leurs tests comme des profs.`, `J'ai vu tester ma batterie. Je suis rassurée.`, `Vous n'avez pas vendu un téléphone. Vous avez montré qui vous êtes.`) },
+        { id: 'rien', label: 'Rien de particulier', desc: 'Le temps fera son œuvre.',
+          chain: ch(['Aucun coût'], ['L\'image reste abîmée', 'La vidéo de Clara reste en tête des recherches']), voix: V(`On attend.`, `Je ne sais toujours pas si c'est sûr.`, `Le temps efface, mais lentement.`) } ] },
+      { t: 'event', who: 'ferhat', do: s => { s.rep = periode(s, 4); }, text: s => tableau(s, 'Mois 9 à 12.'), fx: fxPer },
+      { t: 'event', who: 'narr', do: commit, text: s => `Un an. Le compte affiche ${eur(s.tre)}.` },
+      { t: 'event', who: 'ferhat', if: s => F(s).fichier, text: `Courrier recommandé de la CNIL. Des dizaines de plaintes pour des messages publicitaires non sollicités, tous signés Rebond. L'enquête a remonté jusqu'au fichier de DataPlus. Amende${N}: 20${N}000${N}€, et la décision est publiée en ligne.`, fx: { tre: -20000, erep: -.3 } },
+      { t: 'event', who: 'ferhat', if: s => F(s).nie, text: `Trois mois après, la vidéo «${N}Rebond accuse ses clients${N}» est toujours la première chose qu'on voit en tapant votre nom.`, fx: { erep: -.15 } }
+    ] },
+
+  /* ------------------------------ ACTE 5 ------------------------------ */
+  { num: 5, title: 'Le bilan', sub: 'Un an. Les chiffres, l\'équipe, les clients.', final: true,
+    steps: [
+      { t: 'say', who: 'ferhat', text: s => `Voici votre année.<span class="pay">${s.hist.map(h => `<span>Jusqu'au mois ${h.m}</span><b>${sg(h.res)}</b>`).join('')}<span class="tot">Départs dans l'année</span><b class="tot">${n1(s.departs + Object.keys(s.parti).length)} (l'an dernier : 6)</b><span class="tot">Note en ligne</span><b class="tot">${n1(s.erep)}${N}★</b></span>` },
+      { t: 'say', who: 'ferhat', text: s => `Et l'équipe aujourd'hui${N}:${equipeHtml(s)}` }
+    ] }
+  ],
+
+  endings: [
+    { id: 'faillite', when: s => s.tre < -25000, cut: true, title: 'À court d\'argent', stamp: 'Cessation de paiements', color: '#FF5C6A',
+      text: `Départs, absences, remplacements, ventes en baisse${N}: les coûts cachés se sont accumulés plus vite que les recettes. La banque coupe ton découvert.` },
+    { id: 'cnil', when: s => F(s).fichier, title: 'Sanctionné par la CNIL', stamp: 'Amende publiée', color: '#FF5C6A',
+      text: `Vingt mille euros d'amende pour un fichier à 1${N}500${N}€. Et le pire n'est pas l'argent${N}: la décision est publique. Taper «${N}Rebond${N}» sur internet, c'est désormais lire «${N}spam${N}» et «${N}sanction${N}».` },
+    { id: 'buzz', when: s => s.erep < 3.6, title: 'Le bad buzz qui ne s\'éteint pas', stamp: 'Image abîmée', color: '#FF5C6A',
+      text: s => `Un an après, ta note en ligne est à ${n1(s.erep)}${N}★. ${F(s).nie ? 'Avoir nié a transformé un défaut de batterie en affaire de mensonge.' : 'Le silence a laissé la vidéo de Clara raconter ton histoire à ta place.'} Les clients qui ne te connaissaient pas ne viendront pas.` },
+    { id: 'hemorragie', when: s => s.departs + Object.keys(s.parti).length >= 6.5 || s.climat < 38, title: 'L\'hémorragie', stamp: 'Départs en série', color: '#FFC64F',
+      text: s => `Autant de départs que l'an dernier, voire plus. ${s.parti.samir ? 'Samir est parti faute d\'avenir. ' : ''}${s.parti.lou ? 'Lou est partie faute d\'être écoutée. ' : ''}${F(s).arret ? 'Jade s\'est fait arrêter à cause de son poste. ' : ''}Chaque départ a coûté 6${N}000${N}€ et un peu de savoir-faire.` },
+    { id: 'malentendu', when: s => !F(s).livraison, title: 'Le malentendu', stamp: 'Mauvais diagnostic', color: '#FFC64F',
+      text: s => `L'équipe tient, mais le site ne décolle pas. ${F(s).baisse ? 'Tu as baissé tes prix parce que les clients le disaient' : F(s).pub ? 'Tu as acheté des visiteurs' : 'Tu as refait des pages qui marchaient'}, alors que tes propres statistiques montraient où ils partaient${N}: à la page des frais de livraison.` },
+    { id: 'soude', when: s => s.climat >= 62 && s.satisf >= 66 && s.erep >= 4.1 && s.tre >= 0, title: 'Une équipe soudée, des clients fidèles', stamp: 'Année réussie', color: '#4CD97B',
+      text: s => `Les départs ont fondu, le site vend, et la crise de la batterie est devenue une preuve de sérieux. Tu as écouté chacun, adapté ta façon de diriger aux situations, cru les données plutôt que les impressions, et parlé vrai au bon moment.` },
+    { id: 'fragile', when: s => true, title: 'Ça tient… de justesse', stamp: 'À consolider', color: '#7C6FFF',
+      text: s => `Rebond a passé l'année, mais quelque chose cloche${N}: ${s.climat < 62 ? 'l\'équipe n\'est pas vraiment remobilisée' : s.satisf < 66 ? 'les clients sont tièdes' : s.erep < 4.1 ? 'ton image ne s\'est pas tout à fait remise de la crise' : 'ta trésorerie est fragile'}. Relis tes tableaux mois par mois.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['approche'], title: 'Acte 1 — Motiver', text: (h, s) => {
+        const g = h.approche === 'generale' ? 'En augmentant tout le monde, tu as agi sur un <em>facteur d\'hygiène</em> : le salaire évite le mécontentement, mais il ne motive pas durablement (c\'est l\'idée de Herzberg). Au bout de quelques mois, l\'augmentation est devenue normale.' : 'En répondant à chacun selon son besoin, tu as appliqué une idée clé : la <em>motivation</em> est individuelle. Malik avait un besoin d\'argent ; Samir, de <em>reconnaissance</em> et d\'évolution ; Lou, d\'<em>autonomie</em> ; Jade, de meilleures <em>conditions de travail</em>.';
+        return `${g} On distingue la <em>motivation extrinsèque</em> (ce qui vient de l\'extérieur : salaire, primes) et la <em>motivation intrinsèque</em> (ce que le travail apporte en lui-même : sens, autonomie, fierté). Le poste de Jade relève de la <em>qualité de vie et des conditions de travail</em> (<em>QVCT</em>) : ${F(s).ergo ? 'en aménageant son poste, tu as fait de la <em>prévention</em>.' : 'faute d\'aménagement, la douleur est devenue un arrêt maladie, plus cher que la prévention.'} Les départs et les absences (<em>turnover</em>, <em>absentéisme</em>) sont les <em>indicateurs</em> d\'un climat social dégradé : ils ont un coût réel, même s\'il ne figure sur aucune facture.`; },
+      chain: () => ({ good: ['Identifier le besoin de chacun', 'Choisir le bon levier', 'Motivation durable', 'Moins de départs et d\'absences'], bad: ['Même réponse pour tous', 'Besoins non satisfaits', 'Départs et arrêts', 'Coûts cachés'] }) },
+    { act: 2, needs: ['style1', 'style2', 'style3'], title: 'Acte 2 — Diriger', text: (h, s) => `Tu as utilisé plusieurs <em>styles de direction</em> (de <em>leadership</em>). Le style <em>directif</em> : le chef décide seul et donne des ordres. Le style <em>persuasif</em> : il explique et convainc. Le style <em>participatif</em> : il fait décider avec l\'équipe. Le style <em>délégatif</em> : il confie la décision. Aucun n\'est bon partout : c\'est le <em>leadership situationnel</em>. En urgence, il faut décider (${h.style1 === 'directif' ? 'ce que tu as fait' : 'ce que tu n\'as pas fait'}). Face à quelqu\'un de compétent et motivé comme Lou, déléguer libère son énergie (${h.style2 === 'directif' ? 'tu l\'as au contraire bridée' : 'tu l\'as laissée faire'}). Face à un débutant motivé comme Tom, il faut guider et encourager (${h.style3 === 'persuasif' ? 'ce que tu as fait' : h.style3 === 'directif' ? 'tu l\'as guidé, sans l\'encourager' : 'tu l\'as laissé seul'}). Un bon <em>leader</em> n\'est pas seulement un chef : c\'est quelqu\'un que l\'équipe a envie de suivre.`,
+      chain: () => ({ good: ['Lire la situation', 'Adapter le style', 'Équipe efficace et motivée'], bad: ['Toujours le même style', 'Mauvais style au mauvais moment', 'Erreurs ou démotivation'] }) },
+    { act: 3, needs: ['diag'], title: 'Acte 3 — Connaître ses clients', text: (h, s) => `Pour connaître tes clients, tu disposais de plusieurs sources. Le questionnaire est une <em>étude</em> de ce que les clients <em>déclarent</em>. Les statistiques du site sont des <em>traces numériques</em> : elles montrent ce qu\'ils <em>font</em>. Le fichier clients est une <em>base de données</em> interne (souvent gérée par un logiciel de <em>gestion de la relation client</em>, ou <em>CRM</em>). Les avis en ligne sont la voix des clients. ${h.diag === 'livraison' ? 'Tu as fait confiance aux comportements observés : c\'était la vraie cause.' : 'Tu as suivi ce que disaient les clients, alors que leurs comportements racontaient autre chose : les paniers étaient abandonnés à la page des frais de livraison.'} Utiliser des données personnelles est encadré par le <em>RGPD</em> : pour envoyer de la publicité, il faut le <em>consentement</em> de la personne, et la <em>CNIL</em> peut sanctionner. ${h.fichier === 'acheter' ? 'Le fichier acheté à DataPlus en était la violation directe.' : ''} Découper sa clientèle en groupes aux besoins proches, c\'est la <em>segmentation</em> ; adapter le message à chacun, c\'est la <em>personnalisation</em>.`,
+      chain: () => ({ good: ['Croiser les sources', 'Comprendre le comportement', 'Bonne décision', 'Ventes'], bad: ['Une seule source', 'Mauvaise cause', 'Argent dépensé pour rien'] }) },
+    { act: 4, needs: ['premier', 'message'], title: 'Acte 4 — Communiquer', text: (h, s) => `Face au <em>bad buzz</em>, tu as fait de la <em>communication de crise</em>. ${h.premier === 'equipe' ? 'En prévenant d\'abord tes salariés, tu as soigné la <em>communication interne</em> : ils sont devenus des relais fiables.' : 'Sans prévenir d\'abord tes salariés, tu as négligé la <em>communication interne</em> : chacun a improvisé sa version.'} ${h.message === 'reconnaitre' ? 'En reconnaissant le problème et en rappelant le lot, tu as choisi la transparence.' : h.message === 'nier' ? 'En niant, tu as fait durer la crise.' : 'En te taisant, tu as laissé les autres parler à ta place.'} Une bonne communication choisit un <em>message</em>, des <em>cibles</em> (clients, salariés, presse, internautes) et des <em>canaux</em> (SMS, réseaux, presse). Ce qu\'on dit de toi sur internet forme ton <em>e-réputation</em>. Enfin, vanter un produit, c\'est la <em>communication commerciale</em> ; montrer ce qu\'est l\'entreprise et ses valeurs, c\'est la <em>communication institutionnelle</em>${h.image === 'portes' ? ' : c\'est elle qui a reconstruit la confiance.' : '.'}`,
+      chain: () => ({ good: ['Prévenir l\'équipe', 'Dire la vérité vite', 'Le bon canal pour chaque public', 'La confiance revient'], bad: ['Nier ou se taire', 'Laisser les autres raconter', 'L\'e-réputation s\'effondre'] }) }
+  ],
+  vocab: ['Motivation intrinsèque', 'Motivation extrinsèque', 'Facteurs d\'hygiène (Herzberg)', 'Reconnaissance', 'Autonomie', 'QVCT', 'Prévention', 'Turnover', 'Absentéisme', 'Climat social', 'Leadership', 'Style directif', 'Style persuasif', 'Style participatif', 'Style délégatif', 'Leadership situationnel', 'Étude (déclaratif)', 'Traces numériques', 'Base de données / CRM', 'RGPD', 'Consentement', 'CNIL', 'Segmentation', 'Personnalisation', 'Communication interne', 'Communication externe', 'Communication de crise', 'Cible', 'Canal', 'E-réputation', 'Communication commerciale', 'Communication institutionnelle']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — l'équipe (couleur = motivation) et le compteur du site.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const V1 = '#7C6FFF', lab = { malik: 'Malik', samir: 'Samir', lou: 'Lou', jade: 'Jade' }, X = [140, 192, 244, 296];
+  let ppl = '';
+  PERS.forEach((p, i) => {
+    const gone = S.parti && S.parti[p], m = gone ? 0 : eff(S, p, 0), col = gone ? '#3a3550' : m >= 60 ? '#4CD97B' : m >= 45 ? '#FFC64F' : '#FF5C6A';
+    ppl += `<g transform="translate(${X[i]},0)" opacity="${gone ? .45 : 1}"><circle cx="0" cy="62" r="11" fill="#E8B58A"/><rect x="-13" y="75" width="26" height="30" rx="7" fill="${col}"/>
+      <text x="0" y="122" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11" fill="#EEF3EC">${lab[p]}</text>
+      <text x="0" y="136" text-anchor="middle" font-family="Rajdhani,sans-serif" font-size="10" fill="${col}">${gone ? 'parti' : Math.round(m)}</text></g>`;
+  });
+  const crise = act.num >= 4 ? `<g><rect x="270" y="8" width="84" height="28" rx="4" fill="#1a0b0f" stroke="#FF5C6A"/><text x="312" y="27" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="10" fill="#FF5C6A">▶ 400k vues</text></g>` : '';
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="L'équipe de Rebond">
+    <rect width="360" height="200" fill="#08070f"/><rect x="0" y="0" width="360" height="162" fill="#0b0918"/>
+    <text x="218" y="28" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#8B86A8">MOTIVATION</text>
+    ${ppl}${crise}
+    <text x="218" y="154" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11" fill="${V1}">+ 14 autres : ${Math.round(eff(S, 'autres', 0))}</text>
+    <rect x="0" y="162" width="360" height="38" fill="#0a0814"/><line x1="0" y1="162" x2="360" y2="162" stroke="#241f3d" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

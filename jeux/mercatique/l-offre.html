@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>L’offre — Jeu Mercatique Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#E8564B;--eco-dim:#9A3A31;--good:#4CD97B;--bg:#080404;--panel:#110909;--panel2:#160c0c;--line:#3a1c1a;--txt:#EEF3EC;--muted:#A89391;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(232,86,75,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(232,86,75,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#2a1616;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:#F2B66D;transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(232,86,75,.5);background:rgba(232,86,75,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070a06;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(232,86,75,.09), rgba(16,8,8,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#160404;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#160404;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#1e0f0e;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#142010;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#160404;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#0c0606;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#0c0606;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#0c0606;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#0c0606;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(232,86,75,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#0c0606;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(232,86,75,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — L'offre (Mercatique, Terminale STMG, thème 1)
+   Pulpe, jeune marque nantaise de smoothies frais. L'élève construit l'offre : cible, produit, emballage,
+   prix, expérience client, puis réagit à l'arrivée d'un géant à 1,99 €.
+   Modèle mensuel : ventes = taille du segment × 35 % × attrait du prix × adéquation produit × emballage
+                    × image × fidélité × expérience × concurrence ; résultat = ventes × (prix − coût) − charges fixes.
+   Jauges : ventes (bouteilles/mois), res (résultat mensuel, k€), fid (fidélité, 0-100), image (0-100).
+   ===================================================================== */
+const N = ' ';
+const r1 = n => Math.round(n * 10) / 10;
+const ke = n => (n < 0 ? '−' : '') + r1(Math.abs(n)).toLocaleString('fr-FR') + N + 'k€';
+const eu = n => n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + N + '€';
+const bt = n => Math.round(n).toLocaleString('fr-FR');
+const F = s => s.flags;
+const ch = (good, bad) => ({ good, bad });
+const V = (...a) => a;
+const tab = rows => `<span class="pay">${rows.map(([l, v, t]) => `<span${t ? ' class="tot"' : ''}>${l}</span><b${t ? ' class="tot"' : ''}>${v}</b>`).join('')}</span>`;
+
+const SEG = {
+  etudiants: { nom: 'les étudiants', size: 20000, low: 1.6, ideal: 2.2, high: 2.9, recette: 'classique', sens: 1.4 },
+  sportifs:  { nom: 'les sportifs', size: 12000, low: 2.6, ideal: 3.5, high: 4.3, recette: 'proteine', sens: 0.9 },
+  familles:  { nom: 'les familles', size: 15000, low: 2.2, ideal: 3.0, high: 3.7, recette: 'sanssucre', sens: 1.0 },
+  urbains:   { nom: 'les urbains aisés', size: 10000, low: 3.0, ideal: 4.0, high: 4.9, recette: 'bio', sens: 0.7 }
+};
+const RECETTE = { classique: 0, proteine: 0.30, sanssucre: 0.10, bio: 0.45 };
+const EMB = { verre: 0.35, plastique: 0.12, brique: 0.18 };
+const attrait = (g, p) => p >= g.ideal ? Math.max(0, 1 - ((p - g.ideal) / (g.high - g.ideal)) ** 2)
+  : p >= g.low ? 1 + 0.25 * (g.ideal - p) / (g.ideal - g.low) : Math.max(0.15, 1.25 - 1.5 * (g.low - p));
+const cout = s => 1.20 + (RECETTE[F(s).recette] || 0) + (EMB[F(s).emb] || 0);
+const model = s => {
+  const g = SEG[F(s).seg]; if (!g) return { ventes: 0, res: 0 };
+  const fit = !F(s).recette ? 1 : F(s).recette === g.recette ? 1.25 : 0.85;
+  const emb = !F(s).emb ? 1 : F(s).emb === 'verre' ? (F(s).seg === 'urbains' || F(s).seg === 'familles' ? 1.1 : 1) : F(s).emb === 'plastique' ? (F(s).seg === 'urbains' ? 0.85 : F(s).seg === 'etudiants' ? 1.05 : 0.95) : 1;
+  const conc = s.conc ? Math.max(0.3, 1 - s.conc / 100 * g.sens) : 1;
+  const q = g.size * 0.35 * attrait(g, s.prix) * fit * emb * (0.6 + 0.8 * s.image / 100) * (0.8 + 0.4 * s.fid / 100) * (1 + s.xp / 100) * conc;
+  return { ventes: Math.round(q / 10) * 10, res: r1(q * (s.prix - cout(s)) / 1000 - s.fixe) };
+};
+/* applique des changements à une copie de l'état, renvoie les écarts à afficher */
+const M = (s, extra) => { const c = Object.assign({}, s, { flags: Object.assign({}, s.flags) }); for (const k in extra || {}) c[k] = (c[k] || 0) + extra[k];
+  const m = model(c); return Object.assign({}, extra, { ventes: m.ventes - s.ventes, res: r1(m.res - s.res) }); };
+
+const GAME = {
+  title: 'L\'offre',
+  brand: '<span>PULPE</span>',
+  storeKey: 'mcOffreFins',
+  backLink: '../../matieres/mercatique-terminale.html',
+  footer: 'Mercatique, Terminale STMG, thème 1',
+  kicker: 'Mercatique · Terminale STMG · Thème 1',
+  debIntro: 'Tu as construit une offre de A à Z, du client au prix et à l\'expérience. Voici comment on appelle ce que tu as fait.',
+  cutText: 'Ta partie s\'est arrêtée avant l\'arrivée du concurrent. Rejoue pour aller au bout.',
+  pitch: `Lina a créé Pulpe à Nantes${N}: des smoothies pressés le matin même, avec des fruits de producteurs de la région. Elle a une petite cuisine, deux salariés, 5${N}000${N}€ de charges fixes par mois, et une question${N}: à qui vendre, quoi, à quel prix, et comment donner envie de revenir${N}? Tu es son responsable mercatique.`,
+  meta: '4 actes · 20 minutes',
+  start: s => Object.assign(s, { ventes: 0, res: -5, fid: 40, image: 50, prix: 3, fixe: 5, xp: 0, conc: 0 }),
+  hud: [
+    { k: 'ventes', label: 'Ventes', short: 'Ventes/mois', show: s => bt(s.ventes), pct: s => s.ventes / 100, low: s => s.ventes < 2500, unit: ' bouteilles' },
+    { k: 'res',    label: 'Résultat mensuel', short: 'Résultat', show: s => ke(s.res), pct: s => 30 + s.res * 7, low: s => s.res < 0, unit: N + 'k€' },
+    { k: 'fid',    label: 'Fidélité', short: 'Fidélité', show: s => Math.round(s.fid), pct: s => s.fid, low: s => s.fid < 35, clamp: true },
+    { k: 'image',  label: 'Image de marque', short: 'Image', show: s => Math.round(s.image), pct: s => s.image, low: s => s.image < 35, clamp: true }
+  ],
+  fail: () => null,
+  lock: () => null,
+  bilan: s => [['Ventes par mois', bt(s.ventes) + ' bouteilles'], ['Prix', eu(s.prix)], ['Résultat mensuel', ke(s.res)], ['Fidélité', Math.round(s.fid) + ' / 100'], ['Image de marque', Math.round(s.image) + ' / 100']],
+
+  characters: {
+    lina:   { name: 'Lina', role: 'fondatrice de Pulpe', color: '#FFC64F', body: '#b8452f', hair: '#2a1a12', acc: 'clip' },
+    hugo:   { name: 'Hugo', role: 'cuisine et production', color: '#4CD97B', body: '#2f7a4a', hair: '#c9a060', acc: 'box' },
+    data:   { name: 'Sami', role: 'développeur de l\'appli', color: '#5B8FFF', body: '#2b3a5a', hair: '#1c1c22', acc: 'tie' },
+    conso:  { name: 'Clients', role: '', color: '#EEF3EC' },
+    narr:   { name: 'Toi', role: '', color: '#E8564B' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Le client', sub: 'On ne vend pas un smoothie. On répond à un besoin.',
+    steps: [
+      { t: 'say', who: 'lina', text: `Mes smoothies plaisent à tout le monde, donc je veux vendre à tout le monde${N}! Supermarchés, facs, salles de sport, crèches…` },
+      { t: 'say', who: 'narr', text: `Tu lances une étude de marché${N}: 600 questionnaires dans Nantes et sa banlieue, puis des entretiens. Quatre groupes de clients se dessinent, avec des attentes différentes. Pour chacun, tu as demandé${N}: «${N}à partir de quel prix ne l'achèteriez-vous plus${N}?» et «${N}en dessous de quel prix douteriez-vous de la qualité${N}?»${tab([['Étudiants : pas chers, pratiques', '20 000 clients · 1,60 € à 2,90 €'], ['Sportifs : protéines, récupération', '12 000 clients · 2,60 € à 4,30 €'], ['Familles : sans sucre ajouté, pour les enfants', '15 000 clients · 2,20 € à 3,70 €'], ['Urbains aisés : bio, local, beau', '10 000 clients · 3,00 € à 4,90 €']])}` },
+      { t: 'choice', id: 'seg', prompt: `À qui Pulpe s'adresse-t-elle en priorité${N}?`, options: [
+        { id: 'etudiants', label: 'Les étudiants', desc: 'Le groupe le plus nombreux, mais le plus sensible au prix.', set: { seg: 'etudiants' }, fx: s => M(s, {}),
+          chain: ch(['20 000 clients potentiels', 'Des volumes importants'], ['Ils comparent les prix au centime près', 'Une marge forcément faible par bouteille']), voix: V({ who: 'conso', nom: 'Jade, 20 ans', text: `Si c'est plus de 2,50${N}€, je prends un jus en brique au supermarché.` }) },
+        { id: 'sportifs', label: 'Les sportifs', desc: 'Ils cherchent un produit utile : récupération, protéines.', set: { seg: 'sportifs' }, fx: s => M(s, {}),
+          chain: ch(['Un besoin précis et fonctionnel', 'Prêts à payer pour l\'efficacité'], ['Un marché plus petit', 'Des concurrents déjà installés : boissons protéinées']), voix: V({ who: 'conso', nom: 'Karim, 31 ans', text: `Après le crossfit, je veux des protéines et du goût. Je paie si ça marche.` }) },
+        { id: 'familles', label: 'Les familles', desc: 'Des parents qui veulent des fruits pour les enfants, sans sucre ajouté.', set: { seg: 'familles' }, fx: s => M(s, {}),
+          chain: ch(['Un vrai besoin : faire manger des fruits aux enfants', 'Des achats réguliers, chaque semaine'], ['Des parents exigeants sur la composition']), voix: V({ who: 'conso', nom: 'Sophie, 38 ans', text: `Sans sucre ajouté et que les enfants aiment${N}: je signe tout de suite.` }) },
+        { id: 'urbains', label: 'Les urbains aisés', desc: 'Petit groupe, mais prêt à payer pour le bio, le local et le beau.', set: { seg: 'urbains' }, fx: s => M(s, {}),
+          chain: ch(['Le prix compte peu', 'Ils valorisent le local et le bio : l\'ADN de Pulpe'], ['Seulement 10 000 clients', 'Ils attendent un produit irréprochable']), voix: V({ who: 'conso', nom: 'Marc, 45 ans', text: `Je veux savoir d'où vient chaque fraise. Le prix, c'est secondaire.` }) } ] },
+      { t: 'say', who: 'narr', text: s => `Tu as choisi ta <em>cible</em>${N}: ${SEG[F(s).seg].nom}. Pulpe doit maintenant se <em>positionner</em>${N}: occuper une place claire dans leur esprit, différente des concurrents.` },
+      { t: 'say', who: 'hugo', text: `En cuisine, je peux faire quatre recettes de base. Mais on ne peut pas tout faire bien avec deux personnes. Il faut choisir le cœur de la gamme.` },
+      { t: 'choice', id: 'recette', prompt: `La recette phare${N}?`, options: [
+        { id: 'classique', label: 'Fraise-banane, mangue-passion : les classiques', desc: 'Coût : 1,20 € la bouteille.', set: { recette: 'classique' }, fx: s => M(s, {}),
+          chain: s => F(s).seg === 'etudiants' ? ch(['Ce que les étudiants achètent spontanément', 'Le coût le plus bas'], []) : ch(['Le coût le plus bas'], ['Rien qui réponde au besoin précis de ta cible', 'Pulpe ressemble à tout le monde']) },
+        { id: 'proteine', label: 'Smoothies protéinés : banane-cacahuète, fruits rouges-avoine', desc: 'Coût : 1,50 € la bouteille.', set: { recette: 'proteine' }, fx: s => M(s, {}),
+          chain: s => F(s).seg === 'sportifs' ? ch(['Exactement ce que cherchent les sportifs', 'Un produit qui a une fonction'], ['30 centimes de plus par bouteille']) : ch([], ['Un produit qui ne correspond pas aux attentes de ta cible', '30 centimes de plus par bouteille']) },
+        { id: 'sanssucre', label: 'Fruits et légumes, sans sucre ajouté, en petit format', desc: 'Coût : 1,30 € la bouteille.', set: { recette: 'sanssucre' }, fx: s => M(s, {}),
+          chain: s => F(s).seg === 'familles' ? ch(['Ce que les parents cherchent', 'Une petite bouteille adaptée au goûter'], []) : ch([], ['Un produit pensé pour les enfants, pas pour ta cible']) },
+        { id: 'bio', label: 'Bio, de saison, 100 % producteurs locaux', desc: 'Coût : 1,65 € la bouteille.', set: { recette: 'bio' }, fx: s => M(s, {}),
+          chain: s => F(s).seg === 'urbains' ? ch(['Le local et le bio : ce que ta cible valorise le plus', 'Une histoire à raconter sur chaque bouteille'], ['45 centimes de plus par bouteille']) : ch(['Un produit de qualité'], ['45 centimes de plus, pour une qualité que ta cible ne cherche pas en priorité']) } ] },
+      { t: 'choice', id: 'emb', prompt: `L'emballage${N}?`, options: [
+        { id: 'verre', label: 'Verre consigné : la bouteille revient et est relavée', desc: '+0,35 € par bouteille.', set: { emb: 'verre' }, fx: s => M(s, { image: 10 }),
+          chain: ch(['Zéro déchet : un argument fort', 'Une bouteille belle et lourde, qui fait premium'], ['35 centimes de plus par bouteille', 'Il faut organiser le retour des bouteilles']), voix: V({ who: 'hugo', text: `Ça m'ajoute la plonge, mais c'est beau.` }) },
+        { id: 'plastique', label: 'Plastique recyclé', desc: '+0,12 € par bouteille. Léger et pas cher.', set: { emb: 'plastique' }, fx: s => M(s, { image: -8 }),
+          chain: ch(['L\'emballage le moins cher', 'Léger, pratique à emporter'], ['Du plastique, même recyclé : l\'image écologique en prend un coup']), voix: V({ who: 'conso', nom: 'Un commentaire Instagram', text: `Local et bio… dans du plastique${N}? Sérieusement${N}?` }) },
+        { id: 'brique', label: 'Brique carton', desc: '+0,18 € par bouteille. Se conserve plus longtemps.', set: { emb: 'brique' }, fx: s => M(s, {}),
+          chain: ch(['Pratique et recyclable', 'Coût modéré'], ['On ne voit pas le fruit : moins appétissant']) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Le prix', sub: 'Le bon prix couvre les coûts, respecte ce que le client accepte de payer, et tient compte des concurrents.',
+    steps: [
+      { t: 'say', who: 'hugo', text: s => `J'ai fait le calcul${N}: fruits, emballage, main-d'œuvre directe, une bouteille nous coûte ${eu(cout(s))}. Et il y a les 5${N}000${N}€ de charges fixes par mois.` },
+      { t: 'say', who: 'lina', text: s => `Les concurrents en grande surface sont à 2,50${N}€. Les bars à jus du centre-ville à 4,50${N}€. Ta cible accepte de payer entre ${eu(SEG[F(s).seg].low)} et ${eu(SEG[F(s).seg].high)}.` },
+      { t: 'qty', id: 'prix', min: 1.5, max: 5, step: 0.1, def: 2.5, show: n => eu(n),
+        prompt: `Prix de vente de la bouteille${N}?`,
+        info: (s, p) => { const c = Object.assign({}, s, { prix: p }), m = model(c), g = SEG[F(s).seg];
+          return `Ventes estimées${N}: <b>${bt(m.ventes)}</b> bouteilles par mois · marge par bouteille${N}: <b>${eu(r1((p - cout(s)) * 100) / 100)}</b><br>Résultat mensuel${N}: <b>${ke(m.res)}</b>${p < g.low ? `<br><span style="color:var(--bad)">Trop bas${N}: ta cible doute de la qualité</span>` : p > g.high ? `<br><span style="color:var(--bad)">Au-dessus du prix maximum accepté</span>` : ''}`; },
+        resolve: (s, p) => { const g = SEG[F(s).seg], c = Object.assign({}, s, { prix: p }), m = model(c), fx = { ventes: m.ventes - s.ventes, res: r1(m.res - s.res) };
+          const marge = p - cout(s);
+          const band = p < g.low ? 'doute' : p > g.high ? 'cher' : p < g.ideal - 0.2 ? 'penetration' : p > g.ideal + 0.4 ? 'ecremage' : 'juste';
+          s.prix = r1(p * 100) / 100;
+          return { band, fx,
+            chain: band === 'doute' ? ch([], [`Moins de ${eu(g.low)} : ta cible pense que ce n'est pas un vrai produit frais`, 'Un prix trop bas abîme la valeur perçue', `Marge de ${eu(r1(marge * 100) / 100)} seulement`]) :
+                   band === 'cher' ? ch([`${eu(r1(marge * 100) / 100)} de marge par bouteille`], [`Au-dessus de ${eu(g.high)}, la plupart des clients renoncent`, 'Les ventes s\'effondrent']) :
+                   band === 'penetration' ? ch(['Un prix d\'attaque pour gagner vite des clients', 'Plus de volume'], ['Une marge plus faible sur chaque bouteille', 'Difficile de remonter le prix ensuite']) :
+                   band === 'ecremage' ? ch(['Une forte marge par bouteille', 'Une image haut de gamme'], ['Moins de clients']) :
+                   ch(['Un prix dans la zone acceptée par ta cible', `${eu(r1(marge * 100) / 100)} de marge par bouteille`, 'Le prix est cohérent avec le positionnement'], []) }; } },
+      { t: 'say', who: 'data', text: `L'appli de commande est prête. Elle peut faire varier les prix automatiquement. Deux idées${N}:` },
+      { t: 'choice', id: 'dyn', prompt: `Faire varier les prix${N}?`, options: [
+        { id: 'antigaspi', label: 'Après 18 h, −30 % sur les smoothies du jour', desc: 'Les bouteilles pressées le matin sont écoulées au lieu d\'être jetées.', fx: s => M(s, { image: 6, fixe: -0.5 }),
+          chain: ch(['Moins de smoothies jetés : 500 € d\'économies par mois', 'Un argument anti-gaspillage apprécié', 'De nouveaux clients découvrent Pulpe moins cher'], ['Certains clients attendront 18 h']),
+          voix: V({ who: 'conso', nom: 'Un avis Google', text: `Le bon plan du soir, et en plus rien n'est jeté. Bravo.` }) },
+        { id: 'profil', label: 'Un prix personnalisé selon le profil : +15 % pour ceux qui ont un iPhone et habitent les beaux quartiers', desc: 'Ils paieront de toute façon.', set: { profil: true }, fx: s => M(s, { prix: 0.3 }), do: s => {},
+          chain: ch(['Plus de marge sur les clients aisés'], ['Les clients ne savent pas qu\'ils paient plus cher que les autres', 'Une pratique très risquée pour la confiance', 'L\'information circule vite']) },
+        { id: 'fixe', label: 'Un prix unique pour tous', desc: 'Simple et transparent.', fx: s => M(s, {}),
+          chain: ch(['Tous les clients paient le même prix', 'Aucun risque de malentendu'], ['Des invendus jetés chaque soir']) } ] },
+      { t: 'event', who: 'conso', if: s => F(s).profil, text: `Trois semaines plus tard, un étudiant en informatique compare les prix sur deux téléphones. Son fil sur les réseaux sociaux${N}: «${N}Pulpe fait payer plus cher les gens qui ont un iPhone.${N}» 40${N}000 partages. Un journal local reprend l'histoire.`,
+        fx: s => M(s, { image: -35, fid: -25, prix: -0.3 }) }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'L\'expérience', sub: 'Les clients n\'achètent plus seulement un produit : ils achètent un moment, un service, une relation.',
+    steps: [
+      { t: 'say', who: 'lina', text: `Les ventes sont lancées. Mais on n'a pas de fidèles${N}: les gens achètent une fois, puis passent à autre chose. J'ai 2${N}000${N}€ par mois à investir pour qu'ils reviennent.` },
+      { t: 'choice', id: 'xp', prompt: `Comment faire revenir les clients${N}?`, options: [
+        { id: 'perso', label: 'L\'appli « Compose ton Pulpe » : chacun choisit ses fruits, son sucre, sa taille', desc: '2 000 € par mois. Une offre sur mesure, livrée le lendemain.', fx: s => M(s, { fixe: 2, xp: 15, fid: 18, image: 5 }),
+          chain: ch(['Chaque client a son smoothie, avec son nom sur l\'étiquette', 'Une offre personnalisée, impossible à copier par un géant', 'Les clients reviennent pour leur recette'], ['2 000 € par mois', 'Plus de complexité en cuisine']),
+          voix: V({ who: 'hugo', text: `Cinquante recettes différentes par jour… On va s'organiser.` }) },
+        { id: 'abo', label: 'Un abonnement : livraison chaque semaine, −10 %', desc: '1 500 € par mois de logistique.', fx: s => M(s, { fixe: 1.5, xp: F(s).seg === 'familles' || F(s).seg === 'sportifs' ? 15 : 5, fid: 22 }),
+          chain: s => ch(['Des clients engagés, des ventes prévisibles', 'Pulpe s\'installe dans la routine de ses clients'], ['1 500 € de logistique par mois', ...(F(s).seg === 'familles' || F(s).seg === 'sportifs' ? [] : ['Ta cible achète plutôt sur un coup de tête : l\'abonnement séduit peu'])]) },
+        { id: 'bar', label: 'Un bar à smoothies éphémère : on presse devant les clients, ateliers le week-end', desc: '2 500 € par mois.', fx: s => M(s, { fixe: 2.5, xp: 10, fid: 10, image: 15 }),
+          chain: ch(['Les clients voient les fruits, sentent, goûtent', 'Une expérience qu\'on raconte et qu\'on partage', 'L\'image de marque grimpe'], ['2 500 € par mois', 'Un seul lieu : on ne touche que ceux qui passent']),
+          voix: V({ who: 'conso', nom: 'Une cliente', text: `J'ai amené mes amies samedi. On a fait notre propre recette, c'était génial.` }) },
+        { id: 'rien', label: 'Garder l\'argent', desc: 'Le produit est bon : il se vendra tout seul.', fx: s => M(s, { fid: -5 }),
+          chain: ch(['Aucun coût supplémentaire'], ['Rien ne donne aux clients une raison de revenir', 'La fidélité baisse']) } ] },
+      { t: 'choice', id: 'donnees', if: s => H.xp === 'perso' || H.xp === 'abo', prompt: `L'appli collecte les goûts, adresses et habitudes des clients. Sami propose de les revendre à une marque de compléments alimentaires${N}: 800${N}€ par mois.`, options: [
+        { id: 'refus', label: 'Refuser : on ne les utilise que pour améliorer le service, avec l\'accord des clients', desc: 'Consentement clair, données jamais revendues.', fx: s => M(s, { fid: 5, image: 5 }),
+          chain: ch(['Les clients savent ce qui est fait de leurs données', 'Conforme au RGPD', 'La confiance se renforce'], ['800 € par mois de moins']) },
+        { id: 'vendre', label: 'Revendre les données', desc: 'Une ligne en petits caractères dans les conditions d\'utilisation.', fx: s => M(s, { fixe: -0.8, fid: -20, image: -20 }),
+          chain: ch(['800 € de recettes par mois'], ['Les clients reçoivent des publicités pour des compléments alimentaires', 'Ils comprennent d\'où vient la fuite', 'Un consentement caché n\'est pas un consentement valable : la CNIL peut sanctionner']),
+          voix: V({ who: 'conso', nom: 'Un client', text: `Comment cette marque connaît-elle mon adresse et mes goûts${N}? Ah. Pulpe.` }) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Le géant', sub: 'Quand un concurrent copie ton produit en moins cher, il reste ce qu\'il ne peut pas copier.', final: true,
+    steps: [
+      { t: 'say', who: 'lina', text: `Catastrophe. Fruitissimo, le numéro 1 du jus en France, lance un «${N}smoothie frais${N}» dans tous les supermarchés de Nantes. 1,99${N}€. Même look que nous.` },
+      { t: 'event', who: 'narr', do: s => {}, text: s => `Le premier mois, une partie de tes clients essaie Fruitissimo. Les plus sensibles au prix partent en premier.`,
+        fx: s => M(s, { conc: Math.round(25 * (1 - s.fid / 200)) }) },
+      { t: 'choice', id: 'riposte', prompt: `Ta réponse${N}?`, options: [
+        { id: 'aligner', label: 'S\'aligner : Pulpe passe à 1,99 €', desc: 'Ne perdre aucun client.', fx: s => { const d = M(s, { prix: 1.99 - s.prix, conc: -s.conc, image: -10 }); delete d.prix; return d; }, do: s => { s.prix = 1.99; },
+          chain: s => ch(['Les clients partis reviennent'], [`Coût d'une bouteille : ${eu(cout(s))} ; prix : 1,99 €`, 'La marge fond, ou devient négative', 'Pulpe n\'a pas les volumes d\'un géant', 'Au même prix, rien ne distingue plus Pulpe']) },
+        { id: 'differencier', label: 'Miser sur ce que Fruitissimo ne peut pas copier', desc: 'Raconter les producteurs, le pressé du matin, la recette de chaque client. 1 000 € de communication par mois.', fx: s => M(s, { fixe: 1, conc: -Math.round(s.conc * (H.xp === 'rien' ? 0.3 : 0.7)), image: 8 }),
+          chain: s => ch(['Les producteurs nantais en photo sur les bouteilles', 'Un produit pressé le matin face à un produit pasteurisé', ...(H.xp !== 'rien' ? ['L\'expérience Pulpe ne se trouve pas en supermarché'] : [])], [...(H.xp === 'rien' ? ['Mais sans expérience à proposer, l\'argument reste mince'] : []), '1 000 € par mois']) },
+        { id: 'gamme', label: 'Élargir la gamme : shots gingembre, bols de fruits', desc: 'Toucher de nouveaux usages, à 1 500 € par mois de production.', fx: s => M(s, { fixe: 1.5, xp: 12, conc: -Math.round(s.conc * 0.3) }),
+          chain: ch(['De nouveaux produits, de nouvelles occasions d\'achat'], ['Le cœur de l\'offre reste attaqué', 'Une cuisine de deux personnes qui se disperse']) },
+        { id: 'attendre', label: 'Ne rien changer', desc: 'Les clients reviendront quand ils auront goûté.', fx: s => M(s, { conc: s.fid > 60 ? -Math.round(s.conc * 0.6) : 0 }),
+          chain: s => s.fid > 60 ? ch(['Des clients fidèles, qui reviennent vite après avoir goûté'], ['Ceux qui n\'achetaient que pour le prix sont partis']) : ch([], ['Peu de clients fidèles : la plupart restent chez Fruitissimo']) } ] },
+      { t: 'say', who: 'lina', text: s => {
+          s.verdict = F(s).profil ? 'scandale' : H.donnees === 'vendre' ? 'donnees' : s.res < 0 ? 'perte' : s.res < 3 ? 'fragile' : 'succes';
+          return { scandale: `On ne se remet pas de l'histoire des prix selon le téléphone. Chaque nouvelle recherche sur Pulpe la fait remonter.`,
+            donnees: `La CNIL nous a écrit. Et nos clients aussi. Revendre leurs données nous a coûté plus que ce que ça a rapporté.`,
+            perte: `On perd ${ke(-s.res)} par mois. On ne tiendra pas longtemps comme ça.`,
+            fragile: `On tient, mais à peine. ${ke(s.res)} par mois, ce n'est pas assez pour embaucher ni pour investir.`,
+            succes: `${ke(s.res)} par mois, des clients qui reviennent, et Fruitissimo n'a pas réussi à nous copier. On peut embaucher${N}!` }[s.verdict]; } }
+    ] }
+  ],
+
+  endings: [
+    { id: 'scandale', when: s => s.verdict === 'scandale', title: 'Le prix de trop', stamp: 'Bad buzz', color: '#FF5C6A',
+      text: `Un prix personnalisé caché, fondé sur le profil du client, a détruit la confiance. Faire varier les prix peut être légitime (heures creuses, anti-gaspillage), à condition d'être transparent et non discriminant. Les clients pardonnent rarement d'avoir été pris pour des portefeuilles.` },
+    { id: 'donnees', when: s => s.verdict === 'donnees', title: 'La confiance trahie', stamp: 'Données revendues', color: '#FF5C6A',
+      text: `Les données personnelles des clients ne sont pas une marchandise comme une autre. Le RGPD exige un consentement libre, éclairé et explicite. La personnalisation repose sur la confiance${N}: quand elle se brise, l'offre entière perd sa valeur.` },
+    { id: 'perte', when: s => s.verdict === 'perte', title: 'L\'offre qui ne tient pas', stamp: 'Pertes', color: '#FF5C6A',
+      text: s => `${H.riposte === 'aligner' ? 'S\'aligner sur un géant sans en avoir les coûts a fait fondre la marge. ' : ''}${H.prix === 'doute' || H.prix === 'penetration' ? 'Un prix trop bas n\'a pas laissé assez de marge. ' : H.prix === 'cher' ? 'Un prix au-dessus de ce qu\'accepte la cible a fait fuir les clients. ' : ''}Une offre cohérente aligne la cible, le produit, le prix et l'expérience.` },
+    { id: 'fragile', when: s => s.verdict === 'fragile', title: 'Pulpe survit', stamp: 'Fragile', color: '#FFC64F',
+      text: s => `${ke(s.res)} par mois. L'offre fonctionne en partie, mais certains éléments ne sont pas cohérents avec la cible, ou la marque n'a pas assez de quoi se distinguer d'un géant. Regarde ce que tu as choisi pour la recette, le prix et l'expérience.` },
+    { id: 'succes', when: s => true, title: 'Une marque que l\'on ne copie pas', stamp: 'Pulpe grandit', color: '#4CD97B',
+      text: s => `${bt(s.ventes)} bouteilles par mois à ${eu(s.prix)}, ${ke(s.res)} de résultat. Une cible claire, un produit qui répond à son besoin, un prix qu'elle accepte, une expérience qui fait revenir. Fruitissimo peut copier une bouteille, pas une relation.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['seg'], title: 'Acte 1 — Le client', text: h => `La <em>segmentation</em> découpe le marché en groupes de consommateurs aux attentes proches. Le <em>ciblage</em> consiste à choisir le ou les segments visés, et le <em>positionnement</em> à définir la place que la marque veut occuper dans leur esprit. L\'<em>offre</em> se compose du produit (recette), de son <em>conditionnement</em> (emballage) et des services associés. ${h.recette ? 'La cohérence entre la cible et la recette a pesé sur les ventes.' : ''} L\'emballage communique aussi des valeurs : le verre consigné répond aux attentes écologiques.`,
+      chain: () => ({ good: ['Étude de marché', 'Segmentation', 'Ciblage', 'Positionnement', 'Offre cohérente'], bad: ['Vendre à tout le monde', 'Offre floue', 'Personne ne se sent concerné'] }) },
+    { act: 2, needs: ['prix'], title: 'Acte 2 — Le prix', text: h => `Un prix se fixe en regardant trois choses : les <em>coûts</em> (il doit les couvrir), la <em>demande</em> (le <em>prix d\'acceptabilité</em> : au-dessus, le client renonce ; en dessous, il doute de la qualité) et la <em>concurrence</em>. Un prix bas pour conquérir vite le marché est une stratégie de <em>pénétration</em> ; un prix élevé pour une clientèle prête à payer, une stratégie d\'<em>écrémage</em>. ${h.dyn === 'profil' ? 'La <em>tarification personnalisée</em> cachée, fondée sur le profil, est une pratique risquée et souvent jugée déloyale.' : h.dyn === 'antigaspi' ? 'Une <em>tarification dynamique</em> transparente, comme le prix du soir, peut servir à la fois le client et l\'entreprise.' : ''}`,
+      chain: () => ({ good: ['Coûts couverts', 'Prix accepté par la cible', 'Face à la concurrence', 'Bonne marge'], bad: ['Prix trop bas', 'Doute sur la qualité', 'Ou prix trop haut', 'Clients perdus'] }) },
+    { act: 3, needs: ['xp'], title: 'Acte 3 — L\'expérience', text: h => `L\'<em>expérience client</em> désigne tout ce que vit le client avec la marque, au-delà du produit. La <em>personnalisation</em> adapte l\'offre à chacun, l\'<em>abonnement</em> installe une relation durable, le lieu physique crée un moment partagé. Ces dispositifs visent la <em>fidélisation</em>. Ils reposent souvent sur des <em>données personnelles</em>, que le <em>RGPD</em> protège : consentement explicite, usage limité. ${h.donnees === 'vendre' ? 'Les revendre en cachette a trahi les clients.' : ''}`,
+      chain: () => ({ good: ['Expérience', 'Personnalisation', 'Relation', 'Fidélité'], bad: ['Produit seul', 'Achat unique', 'Clients volatils'] }) },
+    { act: 4, needs: ['riposte'], finalOnly: true, title: 'Acte 4 — Le géant', text: h => `Face à un concurrent plus puissant, s\'aligner sur son prix est rarement tenable : il a des coûts plus bas. La <em>différenciation</em> repose sur ce qui fait la <em>valeur perçue</em> de l\'offre : origine des produits, fraîcheur, expérience, relation. ${h.riposte === 'differencier' ? 'Tu as joué la carte de la différenciation.' : h.riposte === 'aligner' ? 'Tu as choisi la guerre des prix, que seul le plus gros peut gagner.' : ''} Une offre est solide quand tous ses éléments sont cohérents entre eux et avec la cible.`,
+      chain: () => ({ good: ['Valeur perçue', 'Différenciation', 'Clients fidèles', 'Offre difficile à copier'], bad: ['Guerre des prix', 'Marge détruite', 'Marque banalisée'] }) }
+  ],
+  vocab: ['Étude de marché', 'Segmentation', 'Cible', 'Positionnement', 'Offre', 'Conditionnement', 'Gamme', 'Coût de revient', 'Prix d\'acceptabilité', 'Stratégie de pénétration', 'Stratégie d\'écrémage', 'Tarification dynamique', 'Expérience client', 'Personnalisation', 'Fidélisation', 'Données personnelles', 'RGPD', 'Différenciation', 'Valeur perçue']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — la bouteille Pulpe et son étiquette de prix.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const R = '#E8564B', em = F(S).emb, col = em === 'verre' ? '#9fd8c8' : em === 'brique' ? '#c9b48a' : em === 'plastique' ? '#cfd6e0' : '#8a8a8a';
+  const fruit = { classique: '#FF6B8A', proteine: '#C79A5B', sanssucre: '#FFB347', bio: '#7BC96F' }[F(S).recette] || '#E8564B';
+  const g = SEG[F(S).seg];
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="La bouteille Pulpe">
+    <rect width="360" height="200" fill="#0a0505"/><rect x="0" y="0" width="360" height="162" fill="#110909"/>
+    <text x="240" y="20" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#A89391">PULPE · NANTES</text>
+    <g transform="translate(206,40)">${em === 'brique' ? `<rect x="-18" y="10" width="36" height="96" rx="3" fill="${col}"/><rect x="-18" y="40" width="36" height="40" fill="${fruit}" opacity=".9"/>` :
+      `<path d="M-8,0 h16 v14 q14,8 14,26 v62 q0,6 -6,6 h-32 q-6,0 -6,-6 v-62 q0,-18 14,-26 z" fill="${col}" opacity=".35" stroke="${col}" stroke-width="1.5"/><path d="M-20,46 h40 v56 q0,6 -6,6 h-28 q-6,0 -6,-6 z" fill="${fruit}" opacity=".9"/>`}
+      <text x="0" y="78" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="900" font-size="8" fill="#fff">PULPE</text></g>
+    <g transform="translate(300,64)"><rect x="-32" y="-14" width="64" height="28" rx="4" fill="${R}"/><text x="0" y="5" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="11" fill="#fff">${eu(S.prix)}</text></g>
+    <text x="300" y="100" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="#A89391">${g ? 'cible : ' + g.nom : 'cible à choisir'}</text>
+    ${S.conc ? `<g transform="translate(300,130)"><rect x="-34" y="-11" width="68" height="22" rx="3" fill="#2b2b2b" stroke="#FF5C6A"/><text x="0" y="4" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="#FF5C6A">Fruitissimo 1,99 €</text></g>` : ''}
+    <rect x="0" y="162" width="360" height="38" fill="#0a0606"/><line x1="0" y1="162" x2="360" y2="162" stroke="#3a1c1a" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

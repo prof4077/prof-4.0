@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Les décisions — Jeu Gestion et finance Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#5FB8B0;--eco-dim:#3A7F79;--good:#4CD97B;--bg:#040808;--panel:#091010;--panel2:#0c1515;--line:#173030;--txt:#EEF3EC;--muted:#8BA8A5;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(95,184,176,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(95,184,176,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#142010;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(95,184,176,.5);background:rgba(95,184,176,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070a06;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(95,184,176,.09), rgba(8,16,16,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#041010;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#041010;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#0e1c1b;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#142010;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#041010;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#060c0c;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#060c0c;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#060c0c;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#060c0c;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(95,184,176,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#060c0c;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(95,184,176,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — Les décisions (Gestion et finance, Terminale STMG, thème 3)
+   Cadence lance un vélo électrique. Fixer le prix (coûts, seuil de rentabilité), juger une commande
+   sous le coût complet (coût partiel), financer l'investissement, passer le creux de trésorerie, affecter le résultat.
+   Jauges : res (résultat de l'année, k€), treso (trésorerie, k€), endet (dettes financières ÷ capitaux propres, inversée),
+            asso (confiance des associés, 0-100).
+   ===================================================================== */
+const N = ' ';
+const r1 = n => Math.round(n * 10) / 10;
+const ke = n => (n < 0 ? '−' : '') + r1(Math.abs(n)).toLocaleString('fr-FR') + N + 'k€';
+const eu = n => Math.round(n).toLocaleString('fr-FR') + N + '€';
+const sk = n => (n >= 0 ? '+' : '−') + ke(Math.abs(n));
+const F = s => s.flags;
+const ch = (good, bad) => ({ good, bad });
+const V = (...a) => a;
+const tab = rows => `<span class="pay">${rows.map(([l, v, t]) => `<span${t ? ' class="tot"' : ''}>${l}</span><b${t ? ' class="tot"' : ''}>${v}</b>`).join('')}</span>`;
+/* Vélo électrique : coût variable 1 400 €, charges fixes propres 250 k€, capacité 650 vélos */
+const CV = 1400, CF = 250, CAP = 650;
+const qte = p => 600 - (p - 1800) / 2;
+const resE = p => qte(p) * (p - CV) / 1000 - CF;
+const endet = s => Math.round(100 * s.dettes / s.cp) / 100;
+
+const GAME = {
+  title: 'Les décisions',
+  brand: 'LES <span>DÉCISIONS</span>',
+  storeKey: 'gfDecisionsFins',
+  backLink: '../../matieres/gestion-finance-terminale.html',
+  footer: 'Gestion et finance, Terminale STMG, thème 3',
+  kicker: 'Gestion et finance · Terminale STMG · Thème 3',
+  debIntro: 'Tu as accompagné toutes les grandes décisions d\'une année. Voici comment on appelle ce que tu as fait.',
+  cutText: 'Ta partie s\'est arrêtée avant l\'assemblée des associés. Rejoue pour aller au bout.',
+  pitch: `Cadence va lancer son premier vélo électrique. M. Ferrand a l'idée, l'atelier a le savoir-faire. À toi les chiffres${N}: fixer un prix qui rapporte, juger une grosse commande, financer une machine à 200${N}000${N}€, passer le printemps sans manquer d'argent, puis proposer aux associés ce qu'on fait du bénéfice.`,
+  meta: '4 actes · 20 minutes',
+  start: s => Object.assign(s, { res: 40, treso: 180, endet: 0.63, asso: 60, cp: 400, dettes: 250, q: 400, qS: 0 }),
+  norm: s => { s.endet = endet(s); },
+  hud: [
+    { k: 'res',    label: 'Résultat', short: 'Résultat', show: s => ke(s.res), pct: s => s.res / 1.5, low: s => s.res < 20, unit: N + 'k€' },
+    { k: 'treso',  label: 'Trésorerie', short: 'Trésorerie', show: s => ke(s.treso), pct: s => 50 + s.treso / 4, low: s => s.treso < 0, unit: N + 'k€' },
+    { k: 'endet',  label: 'Endettement', short: 'Endettement', show: s => s.endet.toLocaleString('fr-FR'), pct: s => s.endet * 70, low: s => s.endet > 1, inv: true },
+    { k: 'asso',   label: 'Confiance des associés', short: 'Associés', show: s => Math.round(s.asso), pct: s => s.asso, low: s => s.asso < 35, clamp: true }
+  ],
+  fail: () => null,
+  lock: () => null,
+  bilan: s => [['Résultat de l\'année', ke(s.res)], ['Trésorerie au plus bas', ke(s.treso)], ['Endettement (dettes ÷ capitaux propres)', s.endet.toLocaleString('fr-FR')], ['Confiance des associés', Math.round(s.asso) + ' / 100']],
+
+  characters: {
+    patron: { name: 'M. Ferrand', role: 'fondateur et dirigeant de Cadence', color: '#FFC64F', body: '#5a3a22', hair: '#8a8f96', acc: 'tie' },
+    banque: { name: 'M. Duval', role: 'chargé d\'affaires, banque', color: '#5B8FFF', body: '#2b3a5a', hair: '#1c1c22', acc: 'tie' },
+    sport:  { name: 'Mme Roux', role: 'acheteuse, chaîne Sportmax', color: '#FF8A4C', body: '#7a3a22', hair: '#3a2418', acc: 'clip' },
+    asso:   { name: 'M. Brun', role: 'associé de Cadence (beau-frère du patron)', color: '#E86FB0', body: '#4a2a4a', hair: '#5a4030', acc: 'tie' },
+    atelier:{ name: 'Inès', role: 'cheffe d\'atelier', color: '#4CD97B', body: '#2f7a4a', hair: '#1c1c22', acc: 'box' },
+    narr:   { name: 'Toi', role: '', color: '#5FB8B0' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Le prix', sub: 'Un prix trop bas fait vendre à perte, un prix trop haut ne fait pas vendre.',
+    steps: [
+      { t: 'say', who: 'atelier', text: `Pour chaque vélo électrique, on achète un moteur, une batterie, un cadre, des pièces, et on paie le temps des monteurs${N}: 1${N}400${N}€ par vélo. Ça, c'est le <em>coût variable</em>${N}: il augmente avec chaque vélo fabriqué.` },
+      { t: 'say', who: 'patron', text: `Et puis il y a ce qui ne bouge pas, qu'on vende 10 vélos ou 600${N}: le technicien recruté pour l'électrique, la publicité, la certification, la location de l'entrepôt des batteries. 250${N}000${N}€ par an. Moi je vendrais à 1${N}800${N}€ pour inonder le marché.` },
+      { t: 'say', who: 'narr', text: `L'étude de marché donne la demande attendue selon le prix${N}: 600 vélos à 1${N}800${N}€, 400 à 2${N}200${N}€, 200 à 2${N}600${N}€. Chaque vélo vendu rapporte la différence entre son prix et son coût variable${N}: la <em>marge sur coût variable</em>. Il faut que toutes ces marges réunies couvrent les 250${N}k€ de charges fixes avant de gagner le moindre euro.` },
+      { t: 'qty', id: 'prix', min: 1800, max: 2600, step: 100, def: 1800, show: n => eu(n),
+        prompt: `Prix de vente du vélo électrique${N}?`,
+        info: (s, p) => { const q = qte(p), m = p - CV, seuil = Math.ceil(CF * 1000 / m);
+          return `Ventes prévues${N}: <b>${q} vélos</b> · marge par vélo${N}: <b>${eu(m)}</b><br>Seuil de rentabilité${N}: <b>${seuil} vélos</b> · résultat du vélo électrique${N}: <b>${ke(resE(p))}</b>`; },
+        resolve: (s, p) => { const q = qte(p), r = r1(resE(p)), seuil = Math.ceil(CF * 1000 / (p - CV)); s.q = q; s.prix = p;
+          const band = p === 2200 ? 'optimal' : p < 2200 ? 'bas' : 'haut';
+          return { band, fx: { res: r },
+            chain: band === 'optimal' ? ch([`${q} vélos à ${eu(p)} : ${eu(p - CV)} de marge chacun`, `Seuil de rentabilité atteint au ${seuil}e vélo`, `Résultat du vélo électrique : ${sk(r)}`], []) :
+                   band === 'bas' ? ch([`${q} vélos vendus : beaucoup de volume`], [`Seulement ${eu(p - CV)} de marge par vélo`, `Il faut vendre ${seuil} vélos rien que pour couvrir les charges fixes`, `Résultat du vélo électrique : ${sk(r)}`, 'Plus de vélos à fabriquer… et à financer']) :
+                   ch([`${eu(p - CV)} de marge par vélo`], [`Seulement ${q} vélos vendus`, `Seuil de rentabilité : ${seuil} vélos`, `Résultat du vélo électrique : ${sk(r)}`]),
+            voix: band === 'bas' ? V({ who: 'patron', text: r < 0 ? `On en vend des centaines et on perd de l'argent${N}? Comment c'est possible${N}?` : `On inonde le marché… mais pour pas grand-chose.` }) :
+                  band === 'optimal' ? V({ who: 'patron', text: `Moins de vélos, mais plus de bénéfice. Je n'y aurais pas cru.` }) : V({ who: 'patron', text: `Nos vélos sont beaux, mais à ce prix-là, les clients regardent ailleurs.` }) }; } }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'La commande', sub: 'Une vente sous le coût complet peut-elle rapporter de l\'argent ?',
+    steps: [
+      { t: 'say', who: 'sport', text: s => `Sportmax voudrait 200 vélos électriques en plus, sous sa propre marque, pour ses magasins. Notre prix${N}: 1${N}650${N}€ pièce, pas un centime de plus.` },
+      { t: 'say', who: 'patron', text: s => `Impossible. Mon comptable m'a calculé le <em>coût complet</em>${N}: 1${N}400${N}€ de coût variable, plus la part des charges fixes, ${eu(CF * 1000 / s.q)} par vélo. Ça fait ${eu(CV + CF * 1000 / s.q)}. À 1${N}650${N}€, on vend à perte${N}!` },
+      { t: 'say', who: 'atelier', text: s => `L'atelier peut monter ${CAP} vélos électriques par an. On en prévoit ${s.q}. ${s.q + 200 > CAP ? `Avec 200 de plus, il faudra des heures supplémentaires pour les ${s.q + 200 - CAP} vélos au-delà de notre capacité${N}: 150${N}€ de plus chacun.` : 'On a la place pour 200 de plus sans rien changer.'}` },
+      { t: 'choice', id: 'commande', prompt: `La commande Sportmax${N}?`, options: [
+        { id: 'accepter', label: 'Accepter : 200 vélos à 1 650 €', desc: s => `Chaque vélo couvre son coût variable (1 400 €) et rapporte 250 € de marge. Les charges fixes sont déjà payées par les autres ventes.`,
+          fx: s => { const x = Math.max(0, s.q + 200 - CAP); return { res: r1(50 - x * 0.15) }; }, do: s => { s.qS = 200; },
+          chain: s => { const x = Math.max(0, s.q + 200 - CAP); return ch(['Les 250 k€ de charges fixes ne changent pas avec ces 200 vélos', '200 × 250 € de marge = +50 k€', ...(x ? [] : ['L\'atelier avait de la place : rien à ajouter'])], x ? [`${x} vélos au-delà de la capacité : ${ke(x * 0.15)} d'heures supplémentaires`] : []); },
+          voix: V({ who: 'patron', text: `Donc vendre «${N}sous le coût complet${N}» nous fait gagner de l'argent${N}? Parce que les charges fixes sont déjà là…` }, { who: 'sport', text: `Livraison avant avril, alors.` }) },
+        { id: 'refuser', label: 'Refuser : c\'est sous le coût complet', desc: 'Ne jamais vendre sous le coût de revient.', fx: { res: 0 },
+          chain: ch(['Aucun risque d\'image : la marque n\'est pas bradée'], ['Les charges fixes restent les mêmes avec ou sans ces vélos', 'Tu renonces à 200 × 250 € de marge sur coût variable', 'Le coût complet n\'était pas le bon outil pour cette décision']),
+          voix: V({ who: 'sport', text: `Tant pis. Un concurrent chinois s'en chargera.` }) },
+        { id: 'contre', label: 'Contre-proposer 100 vélos à 1 700 €', desc: 'Moins de volume, plus de marge par vélo.', fx: { res: 30 }, do: s => { s.qS = 100; },
+          chain: ch(['100 × 300 € de marge = +30 k€', 'Pas d\'heures supplémentaires'], ['Moins que les 50 k€ possibles']),
+          voix: V({ who: 'sport', text: `100 à 1${N}700${N}€… d'accord, pour une première fois.` }) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'La machine', sub: 'Investir, c\'est dépenser aujourd\'hui pour gagner demain. Encore faut-il payer aujourd\'hui.',
+    steps: [
+      { t: 'say', who: 'atelier', text: `Pour assembler les batteries, il nous faut une ligne spéciale${N}: 200${N}000${N}€. Elle durera cinq ans. Sans elle, pas de vélo électrique.` },
+      { t: 'say', who: 'narr', text: s => `La situation financière de Cadence${N}:${tab([['Trésorerie disponible', ke(s.treso)], ['Capitaux propres', ke(s.cp)], ['Dettes financières (emprunts en cours)', ke(s.dettes)], ['Endettement (dettes ÷ capitaux propres)', endet(s).toLocaleString('fr-FR'), 1]])}Les banques s'inquiètent quand les dettes financières dépassent les capitaux propres (endettement supérieur à 1).` },
+      { t: 'choice', id: 'finance', prompt: `Comment financer la ligne de batteries${N}?`, options: [
+        { id: 'emprunt', label: 'Un emprunt bancaire de 200 k€ sur 5 ans, à 4 %', desc: 'Cadence est propriétaire. Usure de la machine 40 k€ par an + intérêts 8 k€.', fx: { res: -48 }, do: s => { s.dettes += 200; },
+          chain: s => ch(['Cadence est propriétaire de la machine', 'La trésorerie est préservée', 'Les intérêts sont modestes'], [`Les dettes passent à ${ke(s.dettes + 200)}`, `L'endettement grimpe à ${r1((s.dettes + 200) / s.cp).toLocaleString('fr-FR')}`, 'Il faudra rembourser 40 k€ de capital par an']) },
+        { id: 'credit', label: 'Un crédit-bail : louer la machine 5 ans, puis la racheter 2 000 €', desc: 'Loyer de 52 k€ par an. Rien à sortir aujourd\'hui, pas d\'emprunt au bilan.', fx: { res: -52 },
+          chain: ch(['Aucune sortie d\'argent aujourd\'hui', 'Pas de nouvel emprunt : l\'endettement ne bouge pas', 'En fin de contrat, Cadence peut racheter la machine pour presque rien'], ['Les loyers coûtent plus cher qu\'un emprunt : 52 k€ contre 48 k€', 'Pendant 5 ans, la machine appartient à la société de crédit-bail']),
+          voix: V({ who: 'banque', text: `Plus cher qu'un emprunt, mais votre bilan reste léger. C'est un choix défendable.` }) },
+        { id: 'capital', label: 'Faire entrer un investisseur : 200 k€ contre un tiers du capital', desc: 'Aucune dette, aucun intérêt. Mais M. Ferrand ne décide plus seul.', fx: { res: -40, asso: -25 }, do: s => { s.cp += 200; },
+          chain: s => ch(['Pas de dette, pas d\'intérêts', `Les capitaux propres passent à ${ke(s.cp + 200)} : l'endettement baisse`], ['Un fonds d\'investissement possède désormais un tiers de Cadence', 'Il touchera un tiers des dividendes, pour toujours', 'M. Ferrand et M. Brun perdent une part du pouvoir']),
+          voix: V({ who: 'asso', text: `On fait entrer un étranger dans l'entreprise familiale${N}? Je vote contre.` }) },
+        { id: 'autofin', label: 'Payer avec la trésorerie de Cadence', desc: 'L\'autofinancement : aucune dette, aucun nouvel associé.', fx: { res: -40, treso: -200, asso: 5 },
+          chain: ch(['Aucune dette, aucun intérêt, aucun nouvel associé', 'Cadence reste totalement indépendante'], ['La trésorerie tombe de 200 k€, avant même le printemps', 'Plus aucune réserve pour faire face aux imprévus']),
+          voix: V({ who: 'patron', text: `Pas un euro de dette. J'aime ça.` }, { who: 'atelier', text: `On commande les batteries de mars avec quoi, alors${N}?` }) } ] },
+      { t: 'event', who: 'banque', if: s => H.finance === 'emprunt', text: s => `Accordé. Mais avec ${ke(s.dettes)} de dettes pour ${ke(s.cp)} de capitaux propres, Cadence est maintenant ${s.dettes > s.cp ? 'plus endettée que ce que ses associés ont apporté. Je ne pourrai pas vous prêter davantage avant longtemps.' : 'proche de la limite. Soyez prudents.'}` }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Le printemps', sub: 'Le budget de trésorerie, puis le partage du bénéfice.', final: true,
+    steps: [
+      { t: 'event', who: 'narr', do: s => { s.besoin = r1((s.q + s.qS) * 0.35 + 40); },
+        text: s => `Tu construis le <em>budget de trésorerie</em>${N}: mois par mois, ce qui entrera et ce qui sortira. Les vélos électriques se vendent d'avril à juillet. Mais les batteries et les moteurs se paient en janvier, février, mars.${tab([['Trésorerie au 1er janvier', ke(s.treso)], [`Achats d'avance pour ${s.q + s.qS} vélos`, '−' + ke((s.q + s.qS) * 0.35)], ['Salaires et charges d\'hiver, non couverts par les ventes', '−' + ke(40)], ['Trésorerie prévue fin mars', ke(s.treso - s.besoin), 1]])}Le découvert autorisé est de 100${N}k€. Les ventes du printemps rembourseront tout… si Cadence tient jusque-là.`,
+        fx: s => ({ treso: -s.besoin }) },
+      { t: 'choice', id: 'treso', prompt: s => `Trésorerie prévue fin mars${N}: ${ke(s.treso)}. Que faire${N}?`, options: [
+        { id: 'affacturage', label: 'L\'affacturage : céder les factures clients à une société spécialisée', desc: 'Elle avance 150 k€ tout de suite, contre une commission de 8 k€.', fx: { treso: 150, res: -8 },
+          chain: ch(['150 k€ disponibles immédiatement', 'La société d\'affacturage se charge aussi de récupérer l\'argent des clients'], ['8 k€ de commission', 'Les clients découvrent qu\'un tiers gère tes factures']),
+          voix: V({ who: 'banque', text: `Une solution classique pour passer un pic saisonnier.` }) },
+        { id: 'decouvert', label: 'Utiliser le découvert autorisé', desc: 'Jusqu\'à −100 k€. Agios : environ 3 k€.', fx: { res: -3 },
+          chain: s => s.treso >= -100 ? ch(['Le découvert absorbe le creux du printemps', 'Seulement 3 k€ d\'agios'], ['Aucune marge en cas d\'imprévu']) : ch(['3 k€ d\'agios'], [`Le besoin dépasse le découvert autorisé de ${ke(-100 - s.treso)}`, 'Des chèques et des prélèvements seront rejetés', 'Les fournisseurs de batteries ne seront pas payés à temps']) },
+        { id: 'reduire', label: 'Fabriquer 100 vélos de moins', desc: '35 k€ d\'achats en moins, mais des ventes perdues au printemps.', fx: { treso: 35, res: -30 },
+          chain: ch(['35 k€ d\'achats évités'], ['100 vélos de moins à vendre', 'Une marge perdue de 30 k€ : les charges fixes, elles, restent là']),
+          voix: V({ who: 'patron', text: `Fabriquer moins pour tenir… alors que les clients attendent.` }) } ] },
+      { t: 'say', who: 'asso', text: s => `L'année se termine avec un résultat de ${ke(s.res)}. ${s.res > 0 ? `J'ai mis de l'argent dans cette entreprise${N}: je propose de distribuer 80${N}% du bénéfice en dividendes.` : 'Pas de bénéfice… donc pas de dividendes. Je suis déçu.'}` },
+      { t: 'choice', id: 'affect', prompt: `Ce que tu proposes à l'assemblée des associés${N}?`, options: [
+        { id: 'dividendes', label: 'Distribuer 80 % en dividendes, comme le demande M. Brun', desc: s => s.res > 0 ? `${ke(0.8 * s.res)} versés aux associés, ${ke(0.2 * s.res)} gardés en réserves.` : 'Rien à distribuer.',
+          fx: s => s.res > 0 ? { asso: 25 } : { asso: -10 }, do: s => { if (s.res > 0) s.cp += r1(0.2 * s.res); },
+          chain: s => s.res > 0 ? ch(['Les associés sont récompensés de leur risque'], ['Les capitaux propres n\'augmentent presque pas', 'Peu d\'argent gardé pour financer les prochains investissements', 'L\'endettement reste élevé']) : ch([], ['Pas de bénéfice, pas de dividendes']) },
+        { id: 'mixte', label: 'Distribuer 30 %, mettre 70 % en réserves', desc: s => s.res > 0 ? `${ke(0.3 * s.res)} de dividendes, ${ke(0.7 * s.res)} en réserves.` : 'Rien à distribuer.',
+          fx: s => s.res > 0 ? { asso: 8 } : { asso: -10 }, do: s => { if (s.res > 0) s.cp += r1(0.7 * s.res); },
+          chain: s => s.res > 0 ? ch(['Les associés touchent une part du bénéfice', 'L\'essentiel renforce les capitaux propres', 'L\'endettement baisse', 'Cadence pourra autofinancer une partie de ses prochains investissements'], ['M. Brun aurait voulu plus']) : ch([], ['Pas de bénéfice, pas de dividendes']) },
+        { id: 'reserves', label: 'Tout mettre en réserves', desc: s => s.res > 0 ? `${ke(s.res)} gardés dans l'entreprise, zéro dividende.` : 'Rien à distribuer.',
+          fx: s => ({ asso: -20 }), do: s => { if (s.res > 0) s.cp += s.res; },
+          chain: s => ch(['Les capitaux propres augmentent du bénéfice entier', 'L\'endettement baisse au maximum', 'L\'entreprise s\'autofinance'], ['Les associés n\'ont rien pour l\'argent qu\'ils ont risqué', 'Leur confiance s\'effrite']) } ] },
+      { t: 'say', who: 'banque', text: s => {
+          s.verdict = s.treso < -100 ? 'cessation' : s.res < 20 ? 'perte' : s.endet > 1 ? 'endette' : s.asso < 35 ? 'conflit' : 'solide';
+          return { cessation: `Fin mars, votre compte était à ${ke(s.treso)}. J'ai dû rejeter des prélèvements. Vos fournisseurs de batteries ont suspendu leurs livraisons.`,
+            perte: `Vous avez lancé un beau produit, mais l'année se solde par ${s.res < 0 ? 'une perte de ' + ke(-s.res) : 'un résultat de ' + ke(s.res) + ' seulement'}. Tout ce travail pour si peu${N}: il faudra revoir vos prix et vos coûts.`,
+            endette: `Vos dettes représentent ${s.endet.toLocaleString('fr-FR')} fois vos capitaux propres. Je ne pourrai plus vous suivre pour le prochain projet.`,
+            conflit: `Les chiffres sont bons. Mais j'entends dire que vos associés ne s'entendent plus. Une entreprise, ce sont aussi des gens qui doivent continuer à investir ensemble.`,
+            solide: `Un produit rentable, un investissement bien financé, un printemps maîtrisé, des associés satisfaits. Pour votre prochain projet, ma porte est ouverte.` }[s.verdict]; } }
+    ] }
+  ],
+
+  endings: [
+    { id: 'cessation', when: s => s.verdict === 'cessation', title: 'Rentable… mais à sec', stamp: 'Paiements rejetés', color: '#FF5C6A',
+      text: s => `Le vélo électrique était ${s.res > 0 ? 'rentable' : 'mal parti'}, mais Cadence n'a pas passé le printemps. ${H.finance === 'autofin' ? 'Payer la machine avec la trésorerie a vidé la caisse juste avant le pic d\'achats. ' : ''}${H.prixv < 2200 ? 'Un prix bas a gonflé les volumes, donc les achats à financer. ' : ''}Un budget de trésorerie sert justement à voir le trou avant de tomber dedans.` },
+    { id: 'perte', when: s => s.verdict === 'perte', title: 'Le pari qui ne rapporte pas', stamp: 'Résultat insuffisant', color: '#FF5C6A',
+      text: s => `Résultat${N}: ${ke(s.res)}. ${H.prixv !== 2200 ? `Au prix de ${eu(H.prixv)}, les marges ne couvraient pas assez les charges fixes. ` : ''}${H.commande === 'refuser' ? 'Refuser la commande Sportmax a privé Cadence de 50 k€ de marge. ' : ''}Chaque décision se lit en coûts${N}: lesquels changent avec elle, lesquels restent.` },
+    { id: 'endette', when: s => s.verdict === 'endette', title: 'Le poids de la dette', stamp: 'Banque fermée', color: '#FFC64F',
+      text: s => `Endettement${N}: ${s.endet.toLocaleString('fr-FR')}. ${H.affect === 'dividendes' ? 'L\'emprunt a alourdi les dettes, et les dividendes ont empêché les capitaux propres de grossir. ' : 'L\'emprunt a alourdi les dettes. '}Cadence est rentable, mais elle ne peut plus emprunter. Le prochain projet devra attendre.` },
+    { id: 'conflit', when: s => s.verdict === 'conflit', title: 'Les associés fâchés', stamp: 'Assemblée houleuse', color: '#FFC64F',
+      text: s => `Les comptes sont sains, mais ${H.finance === 'capital' ? 'l\'entrée d\'un investisseur, puis ' : ''}${H.affect === 'reserves' ? 'l\'absence totale de dividendes' : 'les choix de l\'année'} ont fâché les associés. Le financement d'une entreprise repose aussi sur la confiance de ceux qui y ont mis leur argent.` },
+    { id: 'solide', when: s => true, title: 'Le pari réussi', stamp: 'Projet suivant', color: '#4CD97B',
+      text: s => `Résultat ${ke(s.res)}, endettement ${s.endet.toLocaleString('fr-FR')}, associés confiants. Tu as choisi un prix sur la marge, accepté une commande sur le coût partiel, financé la machine durablement, anticipé le printemps et partagé le bénéfice avec mesure.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['prix'], title: 'Acte 1 — Le prix', text: h => `On distingue les <em>charges variables</em> (qui varient avec la quantité produite) et les <em>charges fixes</em> (qui n\'en dépendent pas). Prix − coût variable = <em>marge sur coût variable</em>. Le <em>seuil de rentabilité</em> est le volume de ventes à partir duquel ces marges couvrent toutes les charges fixes : charges fixes ÷ marge unitaire. ${h.prix === 'optimal' ? 'À 2 200 €, tu as trouvé le meilleur équilibre entre marge et volume.' : 'Le meilleur résultat était à 2 200 € : ni le prix le plus bas, ni le plus haut.'}`,
+      chain: () => ({ good: ['Coût variable', 'Marge sur coût variable', 'Couvrir les charges fixes', 'Seuil de rentabilité', 'Bénéfice'], bad: ['Prix trop bas', 'Petite marge', 'Seuil très haut', 'Perte'] }) },
+    { act: 2, needs: ['commande'], title: 'Acte 2 — La commande', text: h => `Le <em>coût complet</em> répartit toutes les charges, fixes comprises, sur chaque produit. Il sert à vérifier qu\'un prix couvre l\'ensemble des coûts. Mais pour une décision ponctuelle, c\'est le <em>coût partiel</em> (ici le <em>coût variable</em>) qui compte : les charges fixes existent avec ou sans la commande. ${h.commande === 'refuser' ? 'Refuser sur la base du coût complet t\'a fait perdre une marge réelle.' : 'Tu as raisonné sur ce que la commande changeait vraiment.'} Attention à la <em>capacité de production</em> : au-delà, des coûts nouveaux apparaissent.`,
+      chain: () => ({ good: ['Prix > coût variable', 'Charges fixes inchangées', 'Marge en plus'], bad: ['Raisonner au coût complet', 'Refuser', 'Marge perdue'] }) },
+    { act: 3, needs: ['finance'], title: 'Acte 3 — La machine', text: h => `Un <em>investissement</em> se finance par <em>autofinancement</em> (les ressources dégagées par l\'entreprise), par <em>augmentation de capital</em> (de nouveaux apports, au prix d\'un partage du pouvoir), par <em>emprunt</em> (qui augmente l\'<em>endettement</em>) ou par <em>crédit-bail</em> (une location avec option d\'achat). ${{ emprunt: 'L\'emprunt a préservé la trésorerie mais alourdi la dette.', credit: 'Le crédit-bail a préservé la trésorerie et le bilan, pour un coût un peu plus élevé.', capital: 'L\'augmentation de capital a renforcé les capitaux propres, au prix de la dilution du pouvoir des associés.', autofin: 'L\'autofinancement a gardé Cadence indépendante, mais a vidé sa trésorerie.' }[h.finance]}`,
+      chain: () => ({ good: ['Comparer les modes de financement', 'Coût, dette, pouvoir, trésorerie', 'Choix adapté'], bad: ['Un seul critère', 'Dette ou trésorerie à sec'] }) },
+    { act: 4, needs: ['affect'], finalOnly: true, title: 'Acte 4 — Le printemps', text: h => `Le <em>budget de trésorerie</em> prévoit les encaissements et les décaissements mois par mois, pour repérer à l\'avance les besoins. Pour couvrir un besoin ponctuel : <em>découvert bancaire</em>, <em>affacturage</em> (céder ses factures clients contre une avance) ou réduction des dépenses. Enfin, l\'<em>affectation du résultat</em> est décidée par les associés : <em>dividendes</em> (rémunérer les associés) ou <em>mise en réserves</em> (renforcer les capitaux propres et l\'autofinancement).`,
+      chain: () => ({ good: ['Budget de trésorerie', 'Besoin anticipé', 'Solution de financement à court terme', 'Résultat bien affecté'], bad: ['Pas de prévision', 'Découvert dépassé', 'Paiements rejetés'] }) }
+  ],
+  vocab: ['Charges variables', 'Charges fixes', 'Marge sur coût variable', 'Seuil de rentabilité', 'Coût complet', 'Coût partiel', 'Capacité de production', 'Investissement', 'Autofinancement', 'Augmentation de capital', 'Emprunt', 'Crédit-bail', 'Endettement', 'Budget de trésorerie', 'Découvert bancaire', 'Affacturage', 'Affectation du résultat', 'Dividendes', 'Réserves']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — le vélo électrique et la jauge du point mort.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const G = '#5FB8B0', t = S.treso, col = t >= 0 ? '#4CD97B' : t >= -100 ? '#FFC64F' : '#FF5C6A';
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Le vélo électrique de Cadence">
+    <rect width="360" height="200" fill="#050909"/><rect x="0" y="0" width="360" height="162" fill="#081010"/>
+    <text x="240" y="20" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#8BA8A5">CADENCE · VÉLO ÉLECTRIQUE</text>
+    <g transform="translate(200,98)"><circle cx="-22" cy="22" r="18" fill="none" stroke="${G}" stroke-width="2.2"/><circle cx="30" cy="22" r="18" fill="none" stroke="${G}" stroke-width="2.2"/><path d="M-22,22 L0,0 L30,22 M0,0 L-7,-14 M0,0 L22,0" stroke="${G}" stroke-width="2.2" fill="none"/><rect x="2" y="2" width="14" height="8" rx="2" fill="#FFC64F"/><path d="M8,-2 l-3,5 h4 l-3,5" stroke="#050909" stroke-width="1.2" fill="none" transform="translate(1,1)"/></g>
+    <text x="305" y="70" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="#8BA8A5">trésorerie</text>
+    <text x="305" y="86" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="11" fill="${col}">${ke(t)}</text>
+    <text x="305" y="110" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="#8BA8A5">${S.prix ? 'prix ' + eu(S.prix) : 'prix à fixer'}</text>
+    <text x="214" y="150" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="11" fill="#EEF3EC">résultat ${ke(S.res)}</text>
+    <rect x="0" y="162" width="360" height="38" fill="#060a0a"/><line x1="0" y1="162" x2="360" y2="162" stroke="#173030" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

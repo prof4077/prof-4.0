@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Jusqu’où produire ? — Jeu Économie 1re STMG, chapitre 2 · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#4CD97B;--eco-dim:#2F8A4E;--good:#4CD97B;--bg:#050806;--panel:#0a110c;--panel2:#0d1510;--line:#1a2c20;--txt:#EEF3EC;--muted:#8BA394;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(76,217,123,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(76,217,123,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#142010;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:var(--eco);transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070a06;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(76,217,123,.09), rgba(10,18,12,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#0a1406;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#0a1406;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#121c0e;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#142010;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#0a1406;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#080c06;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#080c06;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#080c06;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#080c06;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(76,217,123,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#080c06;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(76,217,123,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+
+/* ---- défis chronométrés et codes ---- */
+.drill .dr-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-family:'Rajdhani',sans-serif;font-weight:700;}
+.dr-t{color:var(--eco);font-size:15px;letter-spacing:.06em;text-transform:uppercase;}.dr-n{color:var(--muted);font-size:14px;white-space:nowrap;}
+.dr-tm{position:relative;height:8px;background:#14231a;border-radius:4px;margin:10px 0 28px;}
+.dr-tm i{display:block;height:100%;background:var(--eco);border-radius:4px;transition:width .1s linear;}
+.dr-tm i.hot{background:var(--bad);}
+.dr-tm span{position:absolute;right:0;top:12px;font-family:'Orbitron',sans-serif;font-size:12px;color:var(--warn);}
+.dr-ctx{font-size:13.5px;color:var(--muted);margin-bottom:6px;line-height:1.45;}
+.dr-qt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:21px;line-height:1.25;margin:4px 0 14px;}
+.dr-intro{font-size:15.5px;line-height:1.55;margin:6px 0 4px;}
+.dr-grid{display:grid;grid-template-columns:1fr;gap:8px;}.dr-grid.c2{grid-template-columns:1fr 1fr;}
+.dr-b{background:var(--panel2);border:1px solid var(--line);color:var(--txt);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;padding:12px 10px;border-radius:6px;cursor:pointer;text-align:center;line-height:1.2;transition:transform .1s,border-color .1s;}
+.dr-b:hover:not(:disabled){border-color:var(--eco);}.dr-b:active{transform:scale(.97);}
+.dr-b.ok{border-color:var(--good);background:rgba(76,217,123,.18);}.dr-b.ko{border-color:var(--bad);background:rgba(255,92,106,.16);}
+.dr-b:disabled{cursor:default;}
+.dr-f{margin-top:12px;min-height:24px;text-align:center;}
+.dr-ok{color:var(--good);font-weight:600;line-height:1.45;}.dr-ko{color:#ffb3ba;line-height:1.5;text-align:left;font-size:14.5px;background:rgba(255,92,106,.08);border-left:3px solid var(--bad);padding:8px 10px;margin-bottom:10px;}
+.dr-ko b{color:var(--txt);}
+.btn.sm{padding:8px 18px;font-size:14px;}
+.dr-num{display:flex;gap:8px;align-items:center;}.dr-num input,.cd-in input{flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);color:var(--txt);font-family:'Orbitron',sans-serif;font-size:18px;padding:11px 12px;border-radius:6px;}
+.dr-num input.ok{border-color:var(--good);}.dr-num input.ko{border-color:var(--bad);}
+.dr-num span{color:var(--muted);font-weight:700;}
+.cd-in{display:flex;gap:8px;margin:12px 0;}.cd-in input{text-transform:uppercase;letter-spacing:.12em;}
+.dr-rec{text-align:center;padding:6px 0 4px;}.dr-big{font-family:'Orbitron',sans-serif;font-weight:900;font-size:34px;color:var(--eco);}
+.dr-bonus{color:var(--warn);font-family:'Rajdhani',sans-serif;font-weight:700;margin-top:4px;}.dr-to{color:var(--bad);margin-top:4px;font-size:14px;}
+.dr-cor{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px;font-size:14px;}
+.dr-miss{list-style:none;padding:0;margin:0;text-align:left;}.dr-miss li{font-size:14px;line-height:1.45;padding:8px 0;border-top:1px solid var(--line);}.dr-miss small{color:var(--muted);}
+.doc{background:#0f1a13;border:1px solid var(--line);border-left:3px solid var(--warn);padding:10px 12px;margin:10px 0;font-size:14.5px;line-height:1.5;}
+.doc h4{margin:0 0 4px;font-family:'Rajdhani',sans-serif;font-size:15px;color:var(--warn);text-transform:uppercase;letter-spacing:.04em;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU — Jusqu'où produire ? (Économie 1re STMG, chapitre 2 : Les décisions du consommateur et du producteur)
+   Acte 1 : Sami, consommateur (utilité marginale, coût d'opportunité, rationalité limitée).
+   Acte 2 : Nina, productrice (recette marginale, coût marginal, optimum du producteur), deux journées de festival.
+   Acte 3 : une dernière commande à la marge, puis un quiz de synthèse.
+   ===================================================================== */
+const N = ' ';
+const eu = n => Math.round(n).toLocaleString('fr-FR') + N + '€';
+const sg = n => (n >= 0 ? '+' : '−') + eu(Math.abs(n));
+const F = s => s.flags;
+const ch = (good, bad) => ({ good, bad });
+const V = (...a) => a;
+const tab = rows => `<span class="pay">${rows.map(([l, v, t]) => `<span${t ? ' class="tot"' : ''}>${l}</span><b${t ? ' class="tot"' : ''}>${v}</b>`).join('')}</span>`;
+
+const UM = [10, 7, 4, 1, -2];             /* utilité de chaque part de pizza successive */
+const RM = 160;                           /* recette marginale d'un lot de 20 bols à 8 € */
+const CM1 = [90, 110, 135, 160, 200, 250];
+const CM2 = CM1.map(c => c + 25);
+const PREF = { jeu: { nom: 'le jeu vidéo', u: 12 }, cine: { nom: 'la sortie cinéma avec ses amis', u: 9 }, permis: { nom: 'l\'épargne pour le permis', u: 6 } };
+const note = s => {
+  let n = 0;
+  n += F(s).parts === 2 ? 3 : (F(s).parts === 1 || F(s).parts === 3) ? 1.5 : 0;
+  n += s.rounds.cout ? 2 * s.rounds.cout.ok : 0;
+  n += s.rounds.facteurs ? 0.5 * s.rounds.facteurs.ok : 0;
+  n += F(s).opt1 ? 3 : 0; n += F(s).opt2 ? 3 : 0; n += F(s).tard ? 2 : 0;
+  n += s.rounds.quiz ? 0.5 * s.rounds.quiz.ok : 0;
+  return Math.round(n * 2) / 2;
+};
+
+/* boucle « un lot de plus ? » pour une journée */
+const lots = (jour, CM) => CM.map((c, k) => ({ t: 'choice', id: `j${jour}l${k + 1}`, if: s => s.jour === jour && s.lots === k && !F(s)['stop' + jour],
+  prompt: s => `${jour === 1 ? 'Samedi' : 'Dimanche'} · lot n°${k + 1}${N}?${tab([['Recette marginale du lot (20 bols × 8 €)', eu(RM)], ['Coût marginal de ce lot', eu(c)], ['Profit de la journée jusqu\'ici', eu(s.profitJ), 1]])}`,
+  options: [
+    { id: 'go', label: `Produire le lot n°${k + 1}`, desc: 'Préparer et vendre 20 bols de plus.', fx: s => ({ profit: RM - c, lots: 1 }), do: s => { s.profitJ += RM - c; },
+      chain: s => RM > c ? ch([`Ce lot rapporte ${eu(RM)} et coûte ${eu(c)}`, `Recette marginale > coût marginal`, `Profit ${sg(RM - c)}`], []) : RM === c ? ch([`Ce lot rapporte ${eu(RM)} et coûte ${eu(c)}`, 'Recette marginale = coût marginal', 'Le profit ne bouge plus : c\'est l\'optimum'], []) : ch([], [`Ce lot rapporte ${eu(RM)} mais coûte ${eu(c)}`, 'Coût marginal > recette marginale', `Profit ${sg(RM - c)}`]) },
+    { id: 'stop', label: 'S\'arrêter là', desc: 'Fermer la commande pour la journée.', set: { ['stop' + jour]: true }, fx: {} } ] }));
+
+const GAME = {
+  title: 'Jusqu\'où produire ?',
+  brand: 'JUSQU\'OÙ <span>PRODUIRE ?</span>',
+  storeKey: 'ec2DecisionsFins',
+  backLink: '../../matieres/economie-1ere.html',
+  footer: 'Économie 1re STMG, chapitre 2',
+  kicker: 'Économie · 1re STMG · Chapitre 2',
+  debIntro: 'Tu as pris des décisions de consommateur, puis de producteur. Voici comment les économistes les analysent.',
+  cutText: '',
+  pitch: `Un week-end de festival à Nantes. Samedi matin, tu accompagnes Sami, 16 ans, qui a 50${N}€ à dépenser et mille envies. Puis tu passes derrière le comptoir du food-truck de Nina, qui doit décider combien de bols préparer. Deux points de vue, une même question${N}: comment faire le meilleur choix quand on ne peut pas tout avoir${N}?`,
+  meta: '3 actes · 15 minutes · une note sur 20',
+  start: s => Object.assign(s, { budget: 50, satis: 0, profit: 0, lots: 0, jour: 0, profitJ: 0, score: 0, ok: 0, tot: 0, ko: 0, serie: 0, best: 0 }),
+  hud: [
+    { k: 'budget', label: 'Budget de Sami', short: 'Budget Sami', show: s => eu(s.budget), pct: s => s.budget * 2, low: s => s.budget < 5, unit: N + '€' },
+    { k: 'satis',  label: 'Satisfaction de Sami', short: 'Satisfaction', show: s => s.satis + N + 'pts', pct: s => s.satis * 2.2, low: () => false, unit: N + 'pts' },
+    { k: 'profit', label: 'Profit de Nina', short: 'Profit Nina', show: s => eu(s.profit), pct: s => s.profit / 3, low: s => s.profit < 0, unit: N + '€' },
+    { k: 'lots',   label: 'Lots produits', short: 'Lots du jour', show: s => s.lots, pct: s => s.lots * 16, low: () => false }
+  ],
+  fail: () => null,
+  lock: () => null,
+  bilan: s => [['Note d\'économiste', note(s).toLocaleString('fr-FR') + ' / 20'], ['Satisfaction de Sami', s.satis + ' points'], ['Profit de Nina sur le week-end', eu(s.profit)], ['Quiz final', s.rounds.quiz ? `${s.rounds.quiz.ok} / ${s.rounds.quiz.n}` : '—']],
+
+  characters: {
+    sami: { name: 'Sami', role: 'lycéen, 16 ans', color: '#5B8FFF', body: '#2b3a5a', hair: '#1c1c22', acc: 'cap' },
+    nina: { name: 'Nina', role: 'food-truck « Bol & Co »', color: '#FFC64F', body: '#b8452f', hair: '#2a1a12', acc: 'box' },
+    narr: { name: 'Toi', role: '', color: '#4CD97B' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Le consommateur', sub: 'Sami a 50 € et un samedi devant lui.',
+    steps: [
+      { t: 'say', who: 'sami', text: `J'ai 50${N}€ pour le week-end. Ce que j'aime le plus${N}: les jeux vidéo. Ensuite, sortir avec mes potes. Et je mets un peu de côté pour le permis, mais c'est loin. Bon, d'abord, on mange${N}: j'ai réservé 15${N}€ pour la fête foraine.` },
+      { t: 'say', who: 'narr', text: `Une part de pizza coûte 3${N}€. Un tour de manège aussi. Sami a noté, sur une échelle de satisfaction, ce que lui apporte chaque achat${N}:${tab([['1re part de pizza (il a très faim)', '10 points'], ['2e part', '7 points'], ['3e part', '4 points'], ['4e part', '1 point'], ['5e part (il n\'en peut plus)', '−2 points'], ['Chaque tour de manège', '5 points', 1]])}Tout ce qui ne va pas à la pizza ira aux manèges.` },
+      { t: 'qty', id: 'parts', min: 0, max: 5, step: 1, def: 0, show: n => n + (n > 1 ? ' parts' : ' part'),
+        prompt: `Combien de parts de pizza pour Sami (15${N}€ au total)${N}?`,
+        info: (s, n) => { const up = UM.slice(0, n).reduce((a, b) => a + b, 0), tours = 5 - n; return `${n} part${n > 1 ? 's' : ''} (${up} pts) + ${tours} tour${tours > 1 ? 's' : ''} de manège (${tours * 5} pts) = <b>${up + tours * 5} points</b>${n ? `<br>La dernière part a apporté <b>${UM[n - 1]} point${Math.abs(UM[n - 1]) > 1 ? 's' : ''}</b>` : ''}`; },
+        resolve: (s, n) => { const up = UM.slice(0, n).reduce((a, b) => a + b, 0), tot = up + (5 - n) * 5; F(s).parts = n;
+          return { band: n === 2 ? 'optimal' : 'autre', fx: { budget: -15, satis: tot },
+            chain: n === 2 ? ch(['1re part : 10 points, 2e part : 7 points', 'La 3e n\'apporterait que 4 points, moins qu\'un tour de manège (5)', 'Chaque part supplémentaire satisfait moins que la précédente : utilité marginale décroissante', `32 points : le maximum possible`], [])
+              : ch([`Total : ${tot} points`], [n > 2 ? `La ${n}e part n'a apporté que ${UM[n - 1]} point${Math.abs(UM[n - 1]) > 1 ? 's' : ''}, moins qu'un tour de manège (5)` : n === 1 ? 'La 2e part aurait apporté 7 points, plus qu\'un tour de manège (5)' : 'La 1re part, très attendue, aurait apporté 10 points', 'Le meilleur choix était 2 parts : 32 points']) }; } },
+      { t: 'say', who: 'sami', text: `Il me reste 35${N}€. Trois options, et je ne peux en choisir qu'une${N}: le nouveau jeu vidéo à 30${N}€, la sortie cinéma et fast-food avec mes potes à 30${N}€, ou mettre 30${N}€ de côté pour le permis.` },
+      { t: 'choice', id: 'achat', prompt: `Que choisit Sami${N}? (rappel${N}: jeux vidéo d'abord, puis ses amis, puis le permis)`, options: [
+        { id: 'jeu', label: 'Le jeu vidéo (30 €)', desc: 'Sa passion numéro un.', set: { achat: 'jeu' }, fx: { budget: -30, satis: 12 },
+          chain: ch(['Le choix le plus cohérent avec ses préférences', 'Satisfaction +12'], ['Il renonce à la sortie avec ses amis et à l\'épargne']) },
+        { id: 'cine', label: 'Le cinéma avec ses amis (30 €)', desc: 'Un moment partagé.', set: { achat: 'cine' }, fx: { budget: -30, satis: 9 },
+          chain: ch(['Un bon moment avec ses amis', 'Satisfaction +9'], ['Il renonce au jeu vidéo, qu\'il préférait']) },
+        { id: 'permis', label: 'Épargner 30 € pour le permis', desc: 'Un projet pour plus tard.', set: { achat: 'permis' }, fx: { budget: -30, satis: 6 },
+          chain: ch(['Un pas de plus vers le permis', 'Satisfaction +6, plus tard'], ['Il renonce au jeu vidéo et à la sortie']) } ] },
+      { t: 'drill', id: 'cout', who: 'sami', title: 'Le coût d\'opportunité', shuffle: false, intro: s => `Sami a choisi ${PREF[F(s).achat].nom}. Mais à quoi a-t-il vraiment renoncé${N}?`,
+        items: s => { const a = F(s).achat, best = a === 'jeu' ? 'cine' : 'jeu'; const opts = ['Les 30 € qu\'il a dépensés', 'Toutes les autres options réunies', `${PREF[best].nom[0].toUpperCase() + PREF[best].nom.slice(1)}, la meilleure option abandonnée`, 'Rien : il a choisi librement'];
+          return [{ q: `Quel est le coût d'opportunité du choix de Sami${N}?`, opts, a: 2, ex: 'Le coût d\'opportunité, c\'est la meilleure alternative abandonnée, pas forcément une somme d\'argent.' }]; } },
+      { t: 'say', who: 'sami', text: `Dernière chose. Hier, j'ai acheté des écouteurs à 30${N}€ avec l'argent de mon anniversaire. Je les voulais pour la qualité du son, mais mes potes ont tous les mêmes, un influenceur disait que c'étaient «${N}les meilleurs de l'année${N}», et il y avait une promo «${N}plus que 2 heures${N}». J'ai même pas lu les comparatifs.` },
+      { t: 'drill', id: 'facteurs', who: 'sami', title: 'Qu\'est-ce qui a influencé Sami ?', time: 45, intro: 'Pour chaque élément, de quel type d\'influence s\'agit-il ?',
+        cats: [{ id: 'pref', label: 'Préférence personnelle' }, { id: 'social', label: 'Environnement social' }, { id: 'info', label: 'Information imparfaite' }, { id: 'budget', label: 'Contrainte budgétaire' }],
+        items: [
+          { q: 'Il tient à la qualité du son', a: 'pref', ex: 'Ce que Sami valorise lui-même : une préférence individuelle.' },
+          { q: 'Tous ses amis ont les mêmes', a: 'social', ex: 'L\'influence des proches fait partie de l\'environnement social.' },
+          { q: 'Un influenceur les présente comme « les meilleurs de l\'année »', a: 'social', ex: 'Réseaux sociaux et publicité construisent aussi les préférences.' },
+          { q: 'Il n\'a pas lu les comparatifs', a: 'info', ex: 'Décider sans toute l\'information : c\'est la rationalité limitée.' },
+          { q: 'La promo « plus que 2 heures » l\'a poussé à décider vite', a: 'info', ex: 'Un temps limité empêche de comparer : rationalité limitée.' },
+          { q: 'Il n\'avait que l\'argent de son anniversaire', a: 'budget', ex: 'Le revenu disponible limite les choix.' } ] }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Le producteur', sub: 'Nina vend des bols à 8 € au festival. Combien en préparer ?',
+    steps: [
+      { t: 'event', who: 'nina', do: s => { s.jour = 1; s.lots = 0; s.profitJ = 0; }, text: `Je prépare par lots de 20 bols, vendus 8${N}€ chacun${N}: chaque lot me rapporte 160${N}€. Mais plus je produis, plus chaque lot me coûte cher${N}: il faut des heures supplémentaires, racheter des ingrédients au prix fort, louer un second réchaud… À toi de décider, lot après lot.` },
+      { t: 'say', who: 'narr', text: `La <em>recette marginale</em>, c'est ce que rapporte un lot de plus. Le <em>coût marginal</em>, ce qu'il coûte. Tant que le lot rapporte plus qu'il ne coûte, le <em>profit</em> augmente.` },
+      ...lots(1, CM1),
+      { t: 'event', who: 'nina', text: s => { F(s).opt1 = s.lots === 3 || s.lots === 4; return `Fin du samedi${N}: ${s.lots} lot${s.lots > 1 ? 's' : ''}, ${eu(s.profitJ)} de profit. ${F(s).opt1 ? `C'est le maximum possible${N}: au 4e lot, le coût marginal (160${N}€) égale la recette marginale. Au-delà, chaque lot fait perdre de l'argent.` : s.lots < 3 ? `On s'est arrêté trop tôt${N}: le lot suivant rapportait plus qu'il ne coûtait. Le maximum était de 145${N}€, avec 3 ou 4 lots.` : `On est allé trop loin${N}: les derniers lots coûtaient plus qu'ils ne rapportaient. Le maximum était de 145${N}€, avec 3 ou 4 lots.`}`; } },
+      { t: 'event', who: 'nina', do: s => { s.jour = 2; s.lots = 0; s.profitJ = 0; }, text: `Dimanche matin, mauvaise nouvelle${N}: le prix des avocats et du saumon a grimpé. Chaque lot me coûte 25${N}€ de plus qu'hier. Le prix du bol, lui, reste à 8${N}€.` },
+      ...lots(2, CM2),
+      { t: 'event', who: 'nina', text: s => { F(s).opt2 = s.lots === 3; return `Fin du dimanche${N}: ${s.lots} lot${s.lots > 1 ? 's' : ''}, ${eu(s.profitJ)} de profit. ${F(s).opt2 ? `Bien vu${N}: avec des coûts plus élevés, l'optimum arrive plus tôt. Au 3e lot, le coût marginal égale déjà la recette marginale.` : `Avec la hausse des coûts, il fallait s'arrêter au 3e lot, où le coût marginal (160${N}€) égale la recette marginale. Le maximum était de 70${N}€.`}`; } },
+      { t: 'event', who: 'nina', do: s => { s.jour = 3; s.lots = 0; }, text: `22${N}h, le festival ferme. Il me reste des bases déjà cuisinées, qui seront perdues demain. Un groupe de musiciens propose de m'acheter 10 bols… à 5${N}€ au lieu de 8${N}€. Pour les servir, je n'ai plus qu'à ajouter la sauce et la barquette${N}: 1${N}€ par bol.` },
+      { t: 'choice', id: 'tard', prompt: `Accepter la commande des musiciens${N}?`, options: [
+        { id: 'oui', label: 'Accepter : 10 bols à 5 €', desc: 'Chaque bol rapporte 5 € et ne coûte plus que 1 €.', set: { tard: true }, fx: { profit: 40 },
+          chain: ch(['Les ingrédients sont déjà achetés, les salaires déjà payés', 'Recette marginale : 5 € par bol, coût marginal : 1 €', 'Profit +40 €', 'Comme l\'avion presque plein qui vend son dernier siège'], []) },
+        { id: 'non', label: 'Refuser : on ne brade pas', desc: '5 €, c\'est moins que le prix normal.', fx: {},
+          chain: ch(['Le prix affiché est respecté'], ['Les bases seront jetées', 'Chaque bol aurait rapporté 4 € de plus qu\'il ne coûtait', '40 € de profit perdus']) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Le débrief', sub: 'Huit questions pour fixer les notions.', final: true,
+    steps: [
+      { t: 'drill', id: 'quiz', who: 'nina', title: 'Quiz du festival', time: 90, pts: 15, intro: 'Huit questions, 90 secondes. Certaines demandent un calcul.',
+        items: [
+          { q: 'Le coût d\'opportunité d\'un choix, c\'est…', opts: ['ce qu\'il coûte en euros', 'la meilleure alternative à laquelle on renonce', 'le prix le plus bas du marché', 'le coût d\'une unité supplémentaire'], a: 1, ex: 'Ce n\'est pas forcément un coût financier.' },
+          { q: 'Un agent rationnel cherche à…', opts: ['dépenser le moins possible', 'atteindre ses objectifs compte tenu de ses préférences et de ses contraintes', 'faire comme les autres', 'acheter le produit le plus cher'], a: 1, ex: 'Un même choix peut être rationnel pour l\'un et pas pour l\'autre.' },
+          { q: 'Décider sans toute l\'information, dans un temps limité, influencé par la publicité : c\'est…', opts: ['la rationalité limitée', 'l\'utilité marginale', 'le coût d\'opportunité', 'l\'optimum du producteur'], a: 0, ex: 'On cherche à être cohérent, sans pouvoir tout calculer.' },
+          { q: 'Le premier verre d\'eau satisfait plus que le troisième. On dit que l\'utilité marginale est…', opts: ['croissante', 'constante', 'décroissante', 'négative'], a: 2, ex: 'Chaque unité supplémentaire satisfait moins que la précédente.' },
+          { q: 'Un producteur rationnel augmente sa production tant que…', opts: ['ses ventes augmentent', 'la recette marginale est supérieure au coût marginal', 'ses coûts baissent', 'il a des clients'], a: 1, ex: 'Il s\'arrête quand la recette marginale égale le coût marginal : c\'est l\'optimum du producteur.' },
+          { q: 'Nina vend 80 bols à 8 €. Ses coûts de production s\'élèvent à 495 €. Quel est son profit ?', num: true, a: 145, unit: '€', tol: 0.5, ex: 'Profit = chiffre d\'affaires − coûts de production = 640 − 495 = 145 €.' },
+          { q: 'Un lot rapporte 160 € et coûte 200 €. Le produire fait varier le profit de… (indique le signe)', num: true, a: -40, unit: '€', tol: 0.5, show: '−40', ex: 'Recette marginale − coût marginal = 160 − 200 = −40 € : le profit baisse.' },
+          { q: 'Le dernier siège d\'un avion presque plein se vend 150 €. Le vendre coûte presque rien. La compagnie doit…', opts: ['refuser, c\'est moins cher qu\'un billet normal', 'accepter : la recette marginale dépasse largement le coût marginal', 'augmenter le prix', 'annuler le vol'], a: 1, ex: 'Les coûts du vol sont déjà engagés : le raisonnement à la marge compte.' } ] },
+      { t: 'say', who: 'narr', text: s => `Ta note d'économiste${N}: <b>${note(s).toLocaleString('fr-FR')} / 20</b>.${tab([['Pizza : utilité marginale', F(s).parts === 2 ? '3 / 3' : (F(s).parts === 1 || F(s).parts === 3) ? '1,5 / 3' : '0 / 3'], ['Coût d\'opportunité', (s.rounds.cout ? 2 * s.rounds.cout.ok : 0) + ' / 2'], ['Ce qui influence Sami', (s.rounds.facteurs ? (0.5 * s.rounds.facteurs.ok).toLocaleString('fr-FR') : 0) + ' / 3'], ['Samedi : optimum', F(s).opt1 ? '3 / 3' : '0 / 3'], ['Dimanche : optimum', F(s).opt2 ? '3 / 3' : '0 / 3'], ['Commande de 22 h', F(s).tard ? '2 / 2' : '0 / 2'], ['Quiz', (s.rounds.quiz ? (0.5 * s.rounds.quiz.ok).toLocaleString('fr-FR') : 0) + ' / 4']])}` }
+    ] }
+  ],
+
+  endings: [
+    { id: 'expert', when: s => note(s) >= 17, title: 'L\'économiste du week-end', stamp: 'Excellent', color: '#FFC64F',
+      text: s => `${note(s).toLocaleString('fr-FR')} / 20. Tu raisonnes à la marge, comme un consommateur et comme un producteur${N}: une unité de plus vaut-elle ce qu'elle coûte${N}?` },
+    { id: 'bien', when: s => note(s) >= 12, title: 'Un bon raisonnement', stamp: 'Bien', color: '#4CD97B',
+      text: s => `${note(s).toLocaleString('fr-FR')} / 20. L'essentiel est là. Regarde dans le détail de ta note où tu as perdu des points, puis rejoue.` },
+    { id: 'moyen', when: s => note(s) >= 8, title: 'Encore un effort', stamp: 'Passable', color: '#FFC64F',
+      text: s => `${note(s).toLocaleString('fr-FR')} / 20. Revois deux idées clés${N}: l'utilité marginale décroissante et la règle «${N}produire tant que la recette marginale dépasse le coût marginal${N}».` },
+    { id: 'revoir', when: s => true, title: 'Le festival à refaire', stamp: 'À revoir', color: '#FF5C6A',
+      text: s => `${note(s).toLocaleString('fr-FR')} / 20. Relis la fiche du chapitre 2, en particulier le coût d'opportunité et le raisonnement à la marge, puis rejoue.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['parts'], title: 'Le consommateur', text: () => `L\'<em>utilité</em> est la satisfaction tirée d\'un bien ; l\'<em>utilité marginale</em> est celle d\'une unité supplémentaire. Elle est généralement <em>décroissante</em>. Toute décision implique un <em>arbitrage</em> et un <em>coût d\'opportunité</em> : la meilleure alternative abandonnée. Un agent <em>rationnel</em> cherche à atteindre ses objectifs compte tenu de ses <em>préférences</em> et de ses <em>contraintes</em>, mais sa rationalité est souvent <em>limitée</em> : information incomplète, temps limité, influence de l\'<em>environnement social</em> et de la publicité.`,
+      chain: () => ({ good: ['Préférences', 'Contrainte budgétaire', 'Arbitrage', 'Satisfaction maximale'], bad: ['Information imparfaite', 'Pression du temps', 'Rationalité limitée'] }) },
+    { act: 2, needs: ['j1l1'], title: 'Le producteur', text: () => `Le producteur cherche à maximiser son <em>profit</em> : chiffre d\'affaires − coûts de production. Il raisonne <em>à la marge</em> : la <em>recette marginale</em> (ce que rapporte une unité de plus) est comparée au <em>coût marginal</em> (ce qu\'elle coûte). Il produit tant que la recette marginale dépasse le coût marginal, jusqu\'à l\'<em>optimum du producteur</em>, où elles sont égales. Quand les coûts des <em>facteurs de production</em> augmentent, l\'optimum arrive plus tôt.`,
+      chain: () => ({ good: ['Recette marginale > coût marginal', 'Produire plus', 'Profit en hausse', 'Optimum'], bad: ['Coût marginal > recette marginale', 'Profit en baisse'] }) }
+  ],
+  vocab: ['Arbitrage', 'Coût d\'opportunité', 'Rationalité', 'Rationalité limitée', 'Utilité', 'Utilité marginale', 'Préférences', 'Contrainte budgétaire', 'Environnement social', 'Profit', 'Chiffre d\'affaires', 'Coûts de production', 'Raisonnement à la marge', 'Coût marginal', 'Recette marginale', 'Optimum du producteur']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — la fête foraine, puis le food-truck de Nina.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const G = '#4CD97B';
+  const truck = `<g transform="translate(250,70)"><rect x="-70" y="0" width="130" height="70" rx="8" fill="#13241a" stroke="${G}" stroke-width="1.5"/><rect x="-55" y="12" width="60" height="30" fill="#0a140e" stroke="#FFC64F"/><text x="-25" y="31" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="#FFC64F">BOL &amp; CO</text><rect x="15" y="12" width="35" height="45" fill="#0a140e"/><circle cx="-40" cy="74" r="10" fill="#222"/><circle cx="35" cy="74" r="10" fill="#222"/></g>
+    <g transform="translate(250,40)">${Array.from({ length: 6 }, (_, i) => `<rect x="${-66 + i * 22}" y="0" width="18" height="18" rx="3" fill="${i < S.lots ? '#FFC64F' : '#1a2c20'}" stroke="#2f4a38"/>`).join('')}</g>
+    <text x="250" y="34" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="#8BA394">lots préparés ${S.jour === 2 ? '(dimanche)' : S.jour === 1 ? '(samedi)' : ''}</text>`;
+  const fete = `<g transform="translate(250,90)"><circle r="52" fill="none" stroke="${G}" stroke-width="2"/>${Array.from({ length: 8 }, (_, i) => { const a = i * Math.PI / 4; return `<line x1="0" y1="0" x2="${52 * Math.cos(a)}" y2="${52 * Math.sin(a)}" stroke="${G}" stroke-width="1" opacity=".5"/><rect x="${52 * Math.cos(a) - 6}" y="${52 * Math.sin(a) - 5}" width="12" height="10" rx="2" fill="#FFC64F"/>`; }).join('')}<path d="M-30,72 L0,0 L30,72" stroke="#2f4a38" stroke-width="3" fill="none"/></g>`;
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Le festival">
+    <rect width="360" height="200" fill="#050806"/><rect x="0" y="0" width="360" height="162" fill="#08100b"/>
+    ${act.num === 1 ? fete : truck}
+    <rect x="0" y="162" width="360" height="38" fill="#060a07"/><line x1="0" y1="162" x2="360" y2="162" stroke="#1a2c20" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  /* espaces insécables fines dans les nombres du texte affiché (jamais dans le SVG ni les attributs) */
+  const fixNums = root => { const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentNode.closest('svg') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT }); let n;
+    while ((n = w.nextNode())) { const t = n.nodeValue.replace(/(\d) (?=\d{3}(?!\d))/g, '$1\u202f').replace(/(\d) (€|%)/g, '$1\u202f$2'); if (t !== n.nodeValue) n.nodeValue = t; } };
+  new MutationObserver(() => fixNums(app)).observe(app, { childList: true, subtree: true });
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  const FAST = /fast/.test(location.search), TF = /tfast/.test(location.search) ? 20 : 1;
+  const wait = ms => FAST ? 15 : ms;
+  const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const norm = t => String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+  let TIMER = null; const stopTimer = () => { if (TIMER) { clearInterval(TIMER); TIMER = null; } };
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">${act.tag || (GAME.actWord || 'Acte') + ' ' + act.num} · ${act.title}</div></div>
+      <div id="hudw">${hud()}</div><div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function refreshHud() { const w = document.getElementById('hudw'); if (w) w.innerHTML = hud(); }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    stopTimer(); S = { flags: {}, rounds: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">${act.tag || (GAME.actWord || 'Acte') + ' ' + act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    stopTimer();
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'drill') {
+      lastDeltas = [];
+      let items = val(st.items, S).slice(); if (st.shuffle !== false) shuffle(items); if (st.n) items = items.slice(0, st.n);
+      const total = items.length, pts = st.pts || 10, T = (st.time || 0) * 1000;
+      let i = 0, ok = 0, miss = [], left = T, paused = false, over = false;
+      frame(val(st.who, S) || null, `<div class="box drill"><div class="dr-h"><span class="dr-t">${val(st.title, S)}</span><span class="dr-n" id="dn"></span></div>${T ? '<div class="dr-tm"><i id="dt"></i><span id="ds"></span></div>' : ''}<div class="dr-q" id="dq"></div><div class="dr-o" id="dop"></div><div class="dr-f" id="df"></div></div>`);
+      const $ = id => document.getElementById(id);
+      const keyLabel = (it, k) => it.opts ? it.opts[k] : ((it.cats || st.cats).find(c => c.id === k) || {}).label;
+      const tick = () => { if (!T) return; $('dt').style.width = (100 * left / T) + '%'; $('ds').textContent = Math.ceil(left / 1000) + ' s'; $('dt').className = left < T * 0.25 ? 'hot' : ''; };
+      function finish() {
+        if (over) return; over = true; stopTimer();
+        const answered = i, unanswered = total - answered;
+        let bonus = 0; if (T && !unanswered) bonus = Math.round(left / 1000) * (st.tbonus || 1);
+        S.score += bonus; S.tot += unanswered; S.rounds[st.id] = { ok, n: total };
+        H[st.id] = ok + '/' + total; refreshHud();
+        const list = miss.map(m => `<li><b>${m.q}</b><br>→ ${m.good}${m.ex ? `<br><small>${m.ex}</small>` : ''}</li>`).join('');
+        $('dq').innerHTML = `<div class="dr-rec"><div class="dr-big">${ok} / ${total}</div><div>${st.recap ? val(st.recap, S, ok, total) : (ok === total ? 'Sans faute !' : ok >= total * 0.7 ? 'Bien joué.' : 'À retravailler.')}</div>${bonus ? `<div class="dr-bonus">Bonus de temps : +${bonus} points</div>` : ''}${unanswered ? `<div class="dr-to">Temps écoulé : ${unanswered} question${unanswered > 1 ? 's' : ''} sans réponse</div>` : ''}</div>${list ? `<div class="dr-cor">À retenir</div><ul class="dr-miss">${list}</ul>` : ''}`;
+        $('dop').innerHTML = ''; $('df').innerHTML = `<button class="btn" id="go">Continuer ▸</button>`;
+        $('dn').textContent = '';
+        if (T) $('dt').parentNode.style.display = 'none';
+        $('go').onclick = next; window.scrollTo(0, 0);
+      }
+      function show() {
+        if (i >= total) return finish();
+        const it = items[i]; window.__ok = it.a; $('dn').textContent = (i + 1) + ' / ' + total; $('df').innerHTML = '';
+        $('dq').innerHTML = `${it.ctx ? `<div class="dr-ctx">${it.ctx}</div>` : ''}<div class="dr-qt">${it.q}</div>`;
+        if (it.num) {
+          $('dop').innerHTML = `<div class="dr-num"><input id="dni" inputmode="decimal" autocomplete="off" placeholder="Ta réponse"><span>${it.unit || ''}</span><button class="btn" id="dnv">OK</button></div>`;
+          const inp = $('dni'); inp.focus();
+          const sub = () => { const v = parseFloat(inp.value.replace(/\s/g, '').replace(',', '.')); if (isNaN(v)) return; answer(Math.abs(v - it.a) <= (it.tol != null ? it.tol : 0.051) ? it.a : v); };
+          $('dnv').onclick = sub; inp.onkeydown = e => { if (e.key === 'Enter') sub(); };
+        } else {
+          const keys = it.opts ? it.opts.map((_, k) => k) : (it.cats || st.cats).map(c => c.id);
+          $('dop').innerHTML = `<div class="dr-grid${keys.length > 3 && !it.opts ? ' c2' : keys.length === 2 && !it.opts ? ' c2' : ''}">${keys.map(k => `<button class="dr-b" data-k="${k}">${keyLabel(it, k)}</button>`).join('')}</div>`;
+          app.querySelectorAll('.dr-b').forEach(b => b.onclick = () => answer(it.opts ? +b.dataset.k : b.dataset.k));
+        }
+      }
+      function answer(k) {
+        if (paused || over) return;
+        const it = items[i], good = k === it.a; S.tot++;
+        if (!it.num) app.querySelectorAll('.dr-b').forEach(b => { b.disabled = true; const bk = it.opts ? +b.dataset.k : b.dataset.k; if (bk === it.a) b.classList.add('ok'); else if (bk === k) b.classList.add('ko'); });
+        else { const inp = $('dni'); inp.disabled = true; inp.classList.add(good ? 'ok' : 'ko'); }
+        const goodLabel = it.num ? (it.show || String(it.a).replace('.', ',')) + (it.unit ? ' ' + it.unit : '') : keyLabel(it, it.a);
+        if (good) {
+          ok++; S.ok++; S.serie++; S.best = Math.max(S.best, S.serie); S.score += pts + Math.min(S.serie - 1, 5) * 2; refreshHud();
+          $('df').innerHTML = `<div class="dr-ok">✓ ${it.okText || 'Exact'}${it.exOk ? ' — ' + it.ex : ''}</div>`;
+          i++; setTimeout(show, wait(it.exOk ? 1400 : 550));
+        } else {
+          S.serie = 0; S.ko++; refreshHud(); paused = true;
+          miss.push({ q: it.q, good: goodLabel, ex: it.ex });
+          $('df').innerHTML = `<div class="dr-ko">✗ Réponse : <b>${goodLabel}</b>${it.ex ? `<br>${it.ex}` : ''}</div><button class="btn sm" id="dnx">Suivant ▸</button>`;
+          $('dnx').onclick = () => { paused = false; i++; show(); };
+        }
+      }
+      if (st.intro) {
+        $('dq').innerHTML = `<div class="dr-intro">${val(st.intro, S)}</div>`;
+        $('df').innerHTML = `<button class="btn" id="dgo">${T ? 'Lancer le chrono ▸' : 'Commencer ▸'}</button>`;
+        $('dgo').onclick = begin; if (T) $('ds').textContent = Math.round(T / 1000) + ' s';
+      } else begin();
+      function begin() {
+        show();
+        if (T) { tick(); let last = Date.now(); TIMER = setInterval(() => { const now = Date.now(), d = (now - last) * TF; last = now; if (!paused && !over) { left -= d; if (left <= 0) { left = 0; tick(); finish(); } else tick(); } }, 100); }
+      }
+    } else if (st.t === 'code') {
+      lastDeltas = [];
+      const answers = [].concat(val(st.answer, S)).map(norm); let tries = 0, solved = false;
+      window.__code = [].concat(val(st.answer, S))[0];
+      frame(val(st.who, S) || null, `<div class="box code"><div class="prompt">${val(st.prompt, S)}</div><div class="cd-in"><input id="cin" autocomplete="off" autocapitalize="off" placeholder="${st.placeholder || 'Le code'}"><button class="btn" id="cgo">Valider</button></div><div id="cf"></div></div>`);
+      const $ = id => document.getElementById(id), inp = $('cin');
+      const done = (txt, cls) => { solved = true; inp.disabled = true; $('cgo').disabled = true; $('cf').innerHTML = `<div class="${cls}">${txt}</div><button class="btn" id="go">Continuer ▸</button>`; $('go').onclick = next; H[st.id] = tries; refreshHud(); };
+      const sub = () => {
+        if (solved || !inp.value.trim()) return;
+        if (answers.includes(norm(inp.value))) { const g = Math.max(st.min || 5, (st.pts || 30) - tries * 10); S.score += g; S.ok++; S.tot++; S.serie++; S.best = Math.max(S.best, S.serie); return done(`✓ ${val(st.win, S) || 'Code correct !'} <span class="dr-bonus">+${g} points</span>`, 'dr-ok'); }
+        tries++; S.ko++; S.serie = 0; refreshHud();
+        if (tries >= (st.max || 3)) { S.tot++; return done(`✗ Le bon code était <b>${[].concat(val(st.answer, S))[0]}</b>.${st.solution ? '<br>' + val(st.solution, S) : ''}`, 'dr-ko'); }
+        $('cf').innerHTML = `<div class="dr-ko">✗ Ce n'est pas ça (${tries} essai${tries > 1 ? 's' : ''} sur ${st.max || 3}).${tries >= 1 && st.hint ? `<br><b>Indice :</b> ${val(st.hint, S)}` : ''}</div>`;
+        inp.value = ''; inp.focus();
+      };
+      $('cgo').onclick = sub; inp.onkeydown = e => { if (e.key === 'Enter') sub(); };
+    } else if (st.t === 'arcade') {
+      lastDeltas = [];
+      app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">${act.tag || (GAME.actWord || 'Acte') + ' ' + act.num} · ${act.title}</div></div><div id="hudw">${hud()}</div>${st.intro ? `<div class="arc-intro">${val(st.intro, S)}</div>` : ''}<div class="arc" id="arc"></div>`;
+      let qok = 0, qn = 0;
+      const api = {
+        fast: FAST, auto: /auto/.test(location.search), S,
+        score(n) { S.score += n; refreshHud(); },
+        ask(q, ov) { return new Promise(res => {
+          window.__ok = q.a; const keys = q.opts ? q.opts.map((_, k) => k) : (q.cats || []).map(c => c.id);
+          const lab = k => q.opts ? q.opts[k] : q.cats.find(c => c.id === k).label;
+          ov.innerHTML = `<div class="arcq"><div class="dr-t">${q.title || 'Question'}</div><div class="dr-qt">${q.q}</div><div class="dr-grid">${keys.map(k => `<button class="dr-b" data-k="${k}">${lab(k)}</button>`).join('')}</div><div class="dr-f" id="arf"></div></div>`; ov.classList.add('on');
+          ov.querySelectorAll('.dr-b').forEach(b => b.onclick = () => {
+            const k = q.opts ? +b.dataset.k : b.dataset.k, good = k === q.a; qn++; S.tot++;
+            ov.querySelectorAll('.dr-b').forEach(x => { x.disabled = true; const xk = q.opts ? +x.dataset.k : x.dataset.k; if (xk === q.a) x.classList.add('ok'); else if (xk === k) x.classList.add('ko'); });
+            const close = () => { ov.classList.remove('on'); ov.innerHTML = ''; res(good); };
+            if (good) { qok++; S.ok++; S.serie++; S.best = Math.max(S.best, S.serie); S.score += 15; refreshHud(); ov.querySelector('#arf').innerHTML = `<div class="dr-ok">✓ ${q.okText || 'Exact'}${q.ex ? ' — ' + q.ex : ''}</div>`; setTimeout(close, wait(1300)); }
+            else { S.ko++; S.serie = 0; refreshHud(); ov.querySelector('#arf').innerHTML = `<div class="dr-ko">✗ Réponse : <b>${lab(q.a)}</b>${q.ex ? '<br>' + q.ex : ''}</div><button class="btn sm" id="dnx">Reprendre ▸</button>`; ov.querySelector('#dnx').onclick = close; }
+          }); }); },
+        end(r) {
+          H[st.id] = r.tag || 'fini'; S.rounds[st.id] = { ok: qok, n: qn, r }; refreshHud();
+          const el = document.getElementById('arc');
+          el.innerHTML = `<div class="box"><div class="dr-rec"><div class="dr-big">${val(st.endTitle, S, r) || 'Partie terminée'}</div><div>${val(st.endText, S, r) || ''}</div>${qn ? `<div class="dr-bonus">Questions : ${qok} / ${qn}</div>` : ''}</div><div style="text-align:center"><button class="btn" id="go">Continuer ▸</button></div></div>`;
+          document.getElementById('go').onclick = next; window.scrollTo(0, 0);
+        }
+      };
+      ARC[st.kind](document.getElementById('arc'), st, api);
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    stopTimer(); store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

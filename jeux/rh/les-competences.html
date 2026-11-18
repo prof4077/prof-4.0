@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Les compétences — Jeu Ressources humaines Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#B86BBA;--eco-dim:#7A3F7C;--good:#4CD97B;--bg:#07050a;--panel:#0f0b14;--panel2:#140f1a;--line:#2d1f36;--txt:#EEF3EC;--muted:#A89AAE;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(184,107,186,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(184,107,186,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#221a2a;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:#F2B66D;transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(184,107,186,.5);background:rgba(184,107,186,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070a06;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(184,107,186,.09), rgba(12,8,16,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#12061a;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#12061a;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#1a1220;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#142010;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#12061a;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#0a070d;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#0a070d;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#0a070d;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#0a070d;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(184,107,186,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#0a070d;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(184,107,186,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — Les compétences (Ressources humaines, Terminale STMG, thème 1)
+   Les Embruns, hôtel-restaurant de 40 chambres à Quiberon, 22 postes en saison.
+   L'élève recrute un chef, intègre les saisonniers, évalue et forme, puis anticipe les compétences de demain.
+   Jauges : service (qualité de service, affichée en note des avis clients), postes (postes pourvus sur 22),
+            comp (niveau de compétences de l'équipe, 0-100), budget (budget RH restant, k€).
+   ===================================================================== */
+const N = ' ';
+const r1 = n => Math.round(n * 10) / 10;
+const ke = n => (n < 0 ? '−' : '') + r1(Math.abs(n)).toLocaleString('fr-FR') + N + 'k€';
+const note = s => (3 + Math.max(0, Math.min(100, s.service)) / 50).toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const F = s => s.flags;
+const ch = (good, bad) => ({ good, bad });
+const V = (...a) => a;
+const tab = rows => `<span class="pay">${rows.map(([l, v, t]) => `<span${t ? ' class="tot"' : ''}>${l}</span><b${t ? ' class="tot"' : ''}>${v}</b>`).join('')}</span>`;
+const CRIT = { mgmt: 'Savoir encadrer une brigade', mer: 'Maîtriser les produits de la mer', couts: 'Gérer les coûts et les commandes', dispo: 'Disponible les week-ends en saison', diplome: 'Diplôme de cuisine (CAP, bac pro, BTS)', age: 'Moins de 35 ans', local: 'Habiter à moins de 20 km' };
+const CAND = {
+  thomas: { nom: 'Thomas, 34 ans', fiche: 'Second dans un restaurant étoilé à Paris. Créatif, exigeant. Quatre postes en trois ans.', mgmt: 2, mer: 2, couts: 1, salaire: 4200 },
+  nadia:  { nom: 'Nadia, 52 ans', fiche: 'Vingt ans cheffe dans une brasserie de la mer à Lorient. Habite à 35 km. Brigade de 8 personnes.', mgmt: 3, mer: 3, couts: 3, salaire: 3300 },
+  lucas:  { nom: 'Lucas, 26 ans', fiche: 'Bac pro cuisine, cinq ans de commis puis second. Très bon cuisinier, n\'a jamais encadré.', mgmt: 1, mer: 2, couts: 2, salaire: 2700 },
+  kevin:  { nom: 'Kevin, 31 ans', fiche: 'Ami du maître d\'hôtel. Cuisinier en snack-bar, sympathique, motivé.', mgmt: 1, mer: 1, couts: 1, salaire: 2600 }
+};
+const exclus = s => { const c = F(s).crit || []; const out = []; if (c.includes('age')) out.push('nadia'); if (c.includes('local') && !out.includes('nadia')) out.push('nadia'); return out; };
+
+const GAME = {
+  title: 'Les compétences',
+  brand: 'LES <span>EMBRUNS</span>',
+  storeKey: 'rhCompFins',
+  backLink: '../../matieres/ressources-humaines-terminale.html',
+  footer: 'Ressources humaines, Terminale STMG, thème 1',
+  kicker: 'Ressources humaines · Terminale STMG · Thème 1',
+  debIntro: 'Tu as recruté, intégré, évalué, formé et anticipé. Voici comment on appelle ce que tu as fait.',
+  cutText: 'Ta partie s\'est arrêtée avant la fin de la saison. Rejoue pour aller au bout.',
+  pitch: `Les Embruns, hôtel-restaurant de 40 chambres face à la mer, à Quiberon. 15 salariés à l'année, 22 en saison. Tu viens d'être nommé(e) responsable des ressources humaines. Le 1er mars, le chef de cuisine annonce son départ. La saison ouvre le 1er avril. Ton budget RH${N}: 20${N}000${N}€ pour l'année.`,
+  meta: '4 actes · 20 minutes',
+  start: s => Object.assign(s, { service: 55, postes: 15, comp: 50, budget: 20 }),
+  hud: [
+    { k: 'service', label: 'Qualité de service', short: 'Avis clients', show: s => note(s) + '/5', pct: s => s.service, low: s => s.service < 45, clamp: true },
+    { k: 'postes',  label: 'Postes pourvus', short: 'Postes', show: s => s.postes + '/22', pct: s => s.postes / 22 * 100, low: s => s.postes < 20 },
+    { k: 'comp',    label: 'Compétences', short: 'Compétences', show: s => Math.round(s.comp), pct: s => s.comp, low: s => s.comp < 40, clamp: true },
+    { k: 'budget',  label: 'Budget RH', short: 'Budget RH', show: s => ke(s.budget), pct: s => s.budget * 5, low: s => s.budget < 0, unit: N + 'k€' }
+  ],
+  fail: () => null,
+  lock: () => null,
+  bilan: s => [['Note des avis clients', note(s) + ' / 5'], ['Postes pourvus', s.postes + ' / 22'], ['Compétences de l\'équipe', Math.round(s.comp) + ' / 100'], ['Budget RH restant', ke(s.budget)]],
+
+  characters: {
+    patronne:{ name: 'Mme Le Bihan', role: 'propriétaire des Embruns', color: '#FFC64F', body: '#3a4a6a', hair: '#c9c9c9', acc: 'clip' },
+    yanis:   { name: 'Yanis', role: 'second de cuisine', color: '#4CD97B', body: '#e8e8e8', hair: '#1c1c22', acc: 'box' },
+    martine: { name: 'Martine', role: 'gouvernante, 28 ans de maison', color: '#B9A6FF', body: '#4a3a5a', hair: '#a0a0a0', acc: 'clip' },
+    saison:  { name: 'Aïcha', role: 'saisonnière, femme de chambre', color: '#FF8A4C', body: '#7a3a22', hair: '#1c1c22', acc: 'box' },
+    chef:    { name: 'Le chef', role: '', color: '#5B8FFF', body: '#e8e8e8', hair: '#5a4030', acc: 'tie' },
+    narr:    { name: 'Toi', role: '', color: '#9C4F9E' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Le recrutement', sub: 'Recruter, c\'est définir un besoin avant de chercher une personne.',
+    steps: [
+      { t: 'say', who: 'patronne', text: `Le chef part fin mars. Sans chef, pas de restaurant, et sans restaurant, l'hôtel perd la moitié de ses réservations. Trouvez-moi quelqu'un. Vite.` },
+      { t: 'say', who: 'yanis', text: `Je suis second ici depuis quatre ans. Je connais la carte, les fournisseurs, l'équipe. Je n'ai jamais dirigé une brigade… mais j'aimerais qu'on me donne ma chance.` },
+      { t: 'choice', id: 'source', prompt: `Où chercher le futur chef${N}?`, options: [
+        { id: 'interne', label: 'Promouvoir Yanis : recrutement interne', desc: 'Il connaît la maison. Il faudra recruter un commis pour le remplacer, et le former au management.', set: { source: 'interne', chef: 'yanis' }, fx: { budget: -1, postes: 1, comp: -5, service: 3 },
+          chain: ch(['Yanis connaît déjà la carte, l\'équipe et les clients', 'L\'équipe voit qu\'on peut évoluer aux Embruns : motivation', 'Aucun temps d\'adaptation à la maison'], ['Il n\'a jamais encadré : un manque de compétences en management', 'Son poste de second se libère : il faut recruter un commis (1 k€)']),
+          voix: V({ who: 'yanis', text: `Merci. Je ne vous décevrai pas. Mais je vais avoir besoin d'aide pour diriger l'équipe.` }) },
+        { id: 'annonce', label: 'Publier une offre d\'emploi', desc: 'Sites d\'emploi, France Travail, réseaux sociaux. 1 000 €.', set: { source: 'annonce' }, fx: { budget: -1 },
+          chain: ch(['Un large choix de candidats', 'Des profils nouveaux pour la maison'], ['Il faut trier, recevoir, choisir : du temps']) },
+        { id: 'cabinet', label: 'Confier la recherche à un cabinet de recrutement', desc: 'Il présélectionne les candidats. 8 000 €.', set: { source: 'cabinet' }, fx: { budget: -8 },
+          chain: ch(['Des professionnels trient et vérifient les candidatures', 'Un gain de temps'], ['8 000 € : 40 % du budget RH de l\'année']) },
+        { id: 'cooptation', label: 'La cooptation : demander aux salariés de recommander quelqu\'un', desc: 'Prime de 500 € si la personne est embauchée.', set: { source: 'cooptation' }, fx: { budget: -0.5 },
+          chain: ch(['Peu coûteux, rapide', 'Le candidat connaît déjà quelqu\'un dans l\'équipe'], ['Peu de candidats, tous issus du même réseau']) } ] },
+      { t: 'pick', id: 'crit', if: s => F(s).source !== 'interne', budget: 3, unit: '', unitLabel: 'Critères', min: 3, go: 'Valider la fiche de poste ▸',
+        prompt: `La fiche de poste. Choisis les 3 critères qui compteront le plus pour sélectionner les candidats.`,
+        options: Object.entries(CRIT).map(([id, label]) => ({ id, label, cost: 1, desc: { mgmt: 'Une brigade de 6 cuisiniers et commis.', mer: 'La carte des Embruns : poissons et fruits de mer.', couts: 'Les commandes et le coût des plats.', dispo: 'Lié aux horaires du poste.', diplome: 'Une garantie de formation.', age: 'Pour l\'énergie, dit Mme Le Bihan.', local: 'Pour être sûr qu\'il soit à l\'heure.' }[id] })),
+        resolve: (s, ids) => { const bad = [], good = []; F(s).crit = ids;
+          if (ids.includes('age') || ids.includes('local')) { F(s).illegal = ids.includes('age') ? 'age' : 'lieu'; bad.push(ids.includes('age') ? 'L\'âge est un critère de discrimination interdit par la loi' : 'Le lieu de résidence est un critère de discrimination interdit par la loi', 'Une candidature est écartée pour une raison qui n\'a rien à voir avec les compétences');
+            if (F(s).source === 'cabinet') { F(s).illegal = null; bad.length = 0; bad.push('Le cabinet refuse ce critère : il est discriminatoire, et il le retire de la fiche'); F(s).crit = ids.filter(i => i !== 'age' && i !== 'local'); } }
+          else good.push('Des critères liés au poste et aux compétences');
+          if (ids.includes('mgmt')) good.push('Le management est au cœur du poste : bon réflexe');
+          if (ids.includes('mer')) good.push('La cuisine des Embruns est une cuisine de la mer');
+          return { fx: {}, chain: ch(good, bad) }; } },
+      { t: 'say', who: 'narr', if: s => F(s).source !== 'interne', text: s => { const pool = F(s).source === 'cooptation' ? ['kevin', 'lucas'] : ['thomas', 'nadia', 'lucas'], ex = exclus(s), crit = (F(s).crit || []).filter(c => ['mgmt', 'mer', 'couts'].includes(c));
+          return `Après les entretiens, voici les candidats retenus.${tab(pool.map(id => { const c = CAND[id]; return [`<b>${c.nom}</b><br><small style="color:var(--muted)">${c.fiche}</small>`, ex.includes(id) ? '<span style="color:var(--bad)">écartée par ton critère</span>' : (crit.length ? crit.map(k => ({ mgmt: 'Encadrement', mer: 'Mer', couts: 'Coûts' })[k] + ' ' + '★'.repeat(c[k])).join('<br>') : 'non évalué') + `<br>${c.salaire.toLocaleString('fr-FR')}${N}€/mois`]; }))}`; } },
+      { t: 'choice', id: 'candidat', if: s => F(s).source !== 'interne', prompt: `Qui embaucher${N}?`, options: [
+        { id: 'thomas', label: 'Thomas, l\'ancien second d\'un étoilé', desc: '4 200 € par mois.', lock: s => F(s).source === 'cooptation' ? 'Pas dans le réseau de tes salariés' : null, set: { chef: 'thomas' }, fx: { postes: 1, service: 10, comp: 5, budget: -4 },
+          chain: ch(['Une cuisine créative qui fait parler', 'Un nom qui attire les clients'], ['900 € de plus par mois que Nadia : 4 k€ sur la saison', 'Il est resté moins d\'un an dans chacun de ses postes', 'Il n\'a jamais travaillé avec un budget serré']) },
+        { id: 'nadia', label: 'Nadia, vingt ans de brasserie de la mer', desc: '3 300 € par mois.', lock: s => F(s).source === 'cooptation' ? 'Pas dans le réseau de tes salariés' : exclus(s).includes('nadia') ? 'Écartée par un de tes critères' : null, set: { chef: 'nadia' }, fx: { postes: 1, service: 12, comp: 15, budget: -2 },
+          chain: ch(['Elle sait encadrer une brigade', 'La cuisine de la mer est son métier', 'Elle tient les coûts'], ['35 km de route chaque jour : elle l\'a choisi']) },
+        { id: 'lucas', label: 'Lucas, le jeune second talentueux', desc: '2 700 € par mois.', set: { chef: 'lucas' }, fx: { postes: 1, service: 4, comp: 3 },
+          chain: ch(['Un très bon cuisinier', 'Un salaire plus bas'], ['Il n\'a jamais encadré personne : il faudra le former']) },
+        { id: 'kevin', label: 'Kevin, l\'ami du maître d\'hôtel', desc: '2 600 € par mois.', lock: s => F(s).source !== 'cooptation' ? 'Il n\'a pas postulé' : null, set: { chef: 'kevin' }, fx: { postes: 1, service: -5, comp: -5 },
+          chain: ch(['Il s\'entend déjà avec le maître d\'hôtel'], ['Il n\'a jamais fait de cuisine de restaurant', 'Recruter dans le réseau de ses salariés, c\'est souvent recruter des profils qui se ressemblent']) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'L\'intégration', sub: 'Les premiers jours décident souvent si un salarié reste.',
+    steps: [
+      { t: 'event', who: 'narr', text: `1er avril. Six saisonniers arrivent${N}: trois serveurs, deux femmes de chambre, un plongeur. La plupart ont moins de 22 ans. Pour deux d'entre eux, c'est le premier emploi.`, fx: { postes: 6 } },
+      { t: 'say', who: 'martine', text: `L'an dernier, on leur a donné un tablier et on les a envoyés en salle. Trois sont partis avant juin. Les clients l'ont senti.` },
+      { t: 'choice', id: 'integ', prompt: `Comment les accueillir${N}?`, options: [
+        { id: 'parcours', label: 'Un vrai parcours d\'intégration', desc: 'Livret d\'accueil, visite et journée de découverte de tous les services, un tuteur pour chacun, point au bout d\'un mois. 2 000 €.', fx: { budget: -2, service: 8, comp: 6 },
+          chain: ch(['Chacun sait ce qu\'on attend de lui, et à qui demander', 'Les tuteurs transmettent les gestes de la maison', 'Aucun départ pendant la saison'], ['2 000 €, et du temps pris aux anciens']),
+          voix: V({ who: 'saison', text: `Martine m'a montré comment faire une chambre en 25 minutes. Et elle m'a dit que je pouvais lui poser toutes les questions.` }) },
+        { id: 'tuteur', label: 'Un tuteur pour chacun, sans plus', desc: 'Une prime de 100 € par tuteur. 600 €.', fx: { budget: -0.6, service: 4, comp: 3, postes: -1 },
+          chain: ch(['Les gestes du métier sont transmis', 'Peu coûteux'], ['Personne n\'explique le fonctionnement global de l\'hôtel', 'Un serveur part au bout de trois semaines']) },
+        { id: 'tas', label: 'Ils apprendront sur le tas', desc: 'Pas de temps à perdre en pleine ouverture.', fx: { service: -12, postes: -3 },
+          chain: ch(['Aucun coût immédiat'], ['Erreurs en salle, chambres mal faites, clients mécontents', 'Trois saisonniers partent avant juin', 'Il faut recruter à nouveau, en pleine saison']),
+          voix: V({ who: 'martine', text: `Comme l'an dernier. Exactement comme l'an dernier.` }) } ] },
+      { t: 'event', who: 'narr', if: s => H.integ === 'tas', text: `Tu passes trois semaines à chercher des remplaçants en pleine saison. Tu en trouves deux, moins expérimentés. Coût du recrutement d'urgence${N}: 1${N}500${N}€.`, fx: { postes: 2, budget: -1.5 } }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'Évaluer et former', sub: 'Faire le point avec chacun, puis développer les compétences dont l\'hôtel a besoin.',
+    steps: [
+      { t: 'say', who: 'patronne', text: `Juin. Il faut faire les entretiens de l'année. Personnellement, je suis pour une note de 1 à 5 et une prime pour les meilleurs. Simple.` },
+      { t: 'choice', id: 'entretien', prompt: `Les entretiens${N}?`, options: [
+        { id: 'pro', label: 'Un entretien annuel sur l\'année écoulée, et l\'entretien professionnel sur les projets de chacun', desc: 'Bilan, objectifs, compétences à développer, souhaits d\'évolution.', fx: { comp: 5, service: 3 },
+          chain: ch(['L\'entretien professionnel est obligatoire au moins tous les deux ans', 'Tu découvres les projets et les difficultés de chacun', 'Les besoins de formation apparaissent clairement'], []) },
+        { id: 'note', label: 'Une note de 1 à 5 et une prime pour les meilleurs', desc: 'Comme le veut Mme Le Bihan.', fx: { service: -3 },
+          chain: ch(['Simple et rapide'], ['Une note ne dit pas ce qu\'il faut améliorer ni comment', 'Les salariés se comparent entre eux', 'Personne ne parle de ses projets d\'avenir']) },
+        { id: 'rien', label: 'Pas le temps en pleine saison', desc: 'On verra en novembre.', fx: { comp: -5 },
+          chain: ch([], ['L\'entretien professionnel est une obligation légale', 'Personne ne sait ce que l\'on attend de lui', 'Les besoins de formation restent inconnus']) } ] },
+      { t: 'say', who: 'narr', if: s => H.entretien === 'pro', text: s => `Ce que les entretiens ont révélé${N}: ${F(s).chef === 'yanis' || F(s).chef === 'lucas' ? `${F(s).chef === 'yanis' ? 'Yanis' : 'Lucas'} se sent dépassé par l'encadrement de la brigade. ` : ''}Martine voudrait faire reconnaître ses 28 ans d'expérience par un diplôme. Aïcha rêve de devenir gouvernante. La réception perd des clients étrangers faute d'anglais. Et personne ne maîtrise le nouveau logiciel de réservation.` },
+      { t: 'pick', id: 'forma', budget: s => Math.max(0, Math.floor(s.budget)), unit: 'k€', unitLabel: 'Budget RH', go: 'Valider le plan ▸',
+        prompt: s => H.entretien === 'pro' ? `Le plan de développement des compétences${N}: que financer${N}?` : `Le plan de formation${N}: que financer${N}? (sans entretiens, tu choisis à l'aveugle)`,
+        options: s => [
+          { id: 'hygiene', label: 'Hygiène alimentaire en cuisine', cost: 1, desc: 'Une formation exigée pour au moins une personne en restauration.' },
+          { id: 'management', label: s.flags.chef === 'yanis' || s.flags.chef === 'lucas' ? `Management d'équipe pour ${s.flags.chef === 'yanis' ? 'Yanis' : 'Lucas'}` : 'Management d\'équipe pour le chef', cost: 3, desc: 'Encadrer, organiser, motiver une brigade.' },
+          { id: 'anglais', label: 'Anglais pour la réception', cost: 2, desc: 'Accueillir les clients étrangers.' },
+          { id: 'vae', label: 'Validation des acquis de l\'expérience pour Martine', cost: 1, desc: 'Un diplôme qui reconnaît ce qu\'elle sait faire. En partie financé par l\'organisme de formation de la branche.' },
+          { id: 'tutorat', label: 'Aïcha formée par Martine pour devenir gouvernante adjointe', cost: 2, desc: 'Une formation en interne, par transmission.' },
+          { id: 'logiciel', label: 'Le logiciel de réservation et de gestion des avis', cost: 2, desc: 'Pour toute l\'équipe de réception.' } ],
+        resolve: (s, ids) => { const fx = { budget: -ids.reduce((a, i) => a + ({ hygiene: 1, management: 3, anglais: 2, vae: 1, tutorat: 2, logiciel: 2 })[i], 0), comp: 0, service: 0 }, good = [], bad = [];
+          if (ids.includes('hygiene')) { good.push('L\'hygiène en cuisine est maîtrisée'); fx.comp += 3; } else { F(s).nohyg = true; bad.push('Personne n\'est formé à l\'hygiène alimentaire en cuisine'); }
+          if (ids.includes('management')) { fx.comp += 8; fx.service += F(s).chef === 'yanis' || F(s).chef === 'lucas' ? 10 : 3; good.push(F(s).chef === 'yanis' || F(s).chef === 'lucas' ? 'Le nouveau chef apprend à diriger : la brigade tourne mieux' : 'Le chef renforce ses méthodes'); }
+          else if (F(s).chef === 'yanis' || F(s).chef === 'lucas') { fx.service -= 8; bad.push('Le nouveau chef reste seul face à son manque d\'expérience : tensions en cuisine'); }
+          if (ids.includes('anglais')) { fx.service += 5; fx.comp += 3; good.push('Les clients étrangers sont mieux accueillis'); }
+          if (ids.includes('vae')) { fx.comp += 4; F(s).vae = true; good.push('Martine obtient un diplôme : son expérience est reconnue', 'Son employabilité augmente, et sa fierté aussi'); }
+          if (ids.includes('tutorat')) { fx.comp += 6; F(s).releve = true; good.push('Aïcha apprend le métier de Martine avant son départ'); }
+          if (ids.includes('logiciel')) { fx.service += 4; fx.comp += 4; F(s).numerique = true; good.push('La réception maîtrise les outils numériques'); }
+          if (H.entretien !== 'pro') { fx.comp = Math.round(fx.comp * 0.6); bad.push('Sans entretiens, certaines formations ne répondent pas aux vrais besoins'); }
+          if (!ids.length) bad.push('Aucune formation : les compétences n\'évoluent pas');
+          return { fx, chain: ch(good, bad) }; } },
+      { t: 'event', who: 'narr', if: s => F(s).nohyg, text: `Juillet. Contrôle sanitaire surprise. L'inspecteur relève des erreurs de conservation et demande des corrections sous quinze jours. L'avis est publié en ligne${N}: «${N}à améliorer${N}».`, fx: { service: -12 } }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Demain', sub: 'Les compétences dont l\'hôtel aura besoin dans trois ans se préparent aujourd\'hui.', final: true,
+    steps: [
+      { t: 'event', who: 'chef', if: s => F(s).chef === 'thomas' && H.entretien !== 'pro', text: `15 août, en plein rush. Thomas pose sa démission${N}: un restaurant de Saint-Tropez lui propose un poste de chef. «${N}Personne ici ne m'a jamais demandé ce que je voulais faire.${N}» Yanis assure l'intérim, épuisé.`, fx: { postes: -1, service: -12, comp: -5 } },
+      { t: 'event', who: 'chef', if: s => F(s).chef === 'thomas' && H.entretien === 'pro', text: `En juin, Thomas avait dit en entretien qu'il voulait créer sa propre carte. Mme Le Bihan lui a confié le menu d'automne. Il a refusé une offre de Saint-Tropez.`, fx: { service: 4 } },
+      { t: 'say', who: 'patronne', text: `Octobre. Trois nouvelles. Martine part à la retraite dans dix-huit mois. Je veux ouvrir un espace bien-être et passer aux réservations en ligne. Et toute la côte cherche des cuisiniers${N}: on n'en trouve plus.` },
+      { t: 'choice', id: 'gpec', prompt: `Comment préparer les trois prochaines années${N}?`, options: [
+        { id: 'gpec', label: 'Anticiper : recenser les compétences, préparer les successions, s\'allier au lycée hôtelier', desc: 'Repérer qui sait faire quoi, ce qui manquera, préparer la relève, accueillir deux apprentis en cuisine. 2 000 €.', fx: { budget: -2, comp: 10 },
+          chain: s => ch(['Tu sais quelles compétences vont manquer, et quand', F(s).releve ? 'Aïcha est déjà prête à succéder à Martine' : 'Un plan pour remplacer Martine', 'Deux apprentis formés à la maison : les cuisiniers de demain', 'Le personnel se forme aux soins du futur espace bien-être'], ['2 000 € et du temps']) },
+        { id: 'externaliser', label: 'Confier le ménage des chambres à une entreprise extérieure', desc: 'Plus besoin de gouvernante ni de femmes de chambre.', fx: { budget: 3, comp: -12, service: -6, postes: -4 },
+          chain: ch(['Moins de recrutements à gérer', 'Un coût prévisible'], ['Le savoir-faire de Martine disparaît avec elle', 'Les femmes de chambre, dont Aïcha, perdent leur poste', 'La qualité dépend désormais d\'une autre entreprise']) },
+        { id: 'attendre', label: 'On verra le moment venu', desc: 'On recrutera quand il le faudra.', fx: {},
+          chain: ch(['Aucun coût aujourd\'hui'], ['Le jour du départ de Martine, personne ne saura faire son travail', 'Les cuisiniers seront toujours aussi rares', 'L\'espace bien-être ouvrira sans personnel formé']) } ] },
+      { t: 'say', who: 'patronne', text: s => {
+          s.verdict = F(s).illegal ? 'discrimination' : (s.service < 50 || s.postes < 20) ? 'saison' : H.gpec !== 'gpec' ? 'courtterme' : 'succes';
+          return { discrimination: `J'ai reçu un courrier du Défenseur des droits. Une personne écartée à cause de ${F(s).illegal === 'age' ? 'son âge' : 'son lieu de résidence'} l'a saisi. La preuve est écrite noir sur blanc${N}: notre fiche de poste.`,
+            saison: `La saison est terminée. ${s.postes < 20 ? 'Il nous a manqué du monde tout l\'été. ' : ''}Note moyenne des avis${N}: ${note(s)}/5. Les clients ne reviendront pas tous.`,
+            courtterme: `Belle saison${N}: ${note(s)}/5 dans les avis. Mais je m'inquiète pour la suite. Qui remplacera Martine${N}? Qui fera tourner l'espace bien-être${N}?`,
+            succes: `${note(s)}/5 dans les avis, une équipe qui progresse, et des projets pour chacun. On est prêts pour les trois prochaines années.` }[s.verdict]; } }
+    ] }
+  ],
+
+  endings: [
+    { id: 'discrimination', when: s => s.verdict === 'discrimination', title: 'La fiche de poste discriminatoire', stamp: 'Discrimination', color: '#FF5C6A',
+      text: s => `Écarter un candidat pour ${F(s).illegal === 'age' ? 'son âge' : 'son lieu de résidence'} est une discrimination interdite par le Code du travail et le Code pénal. La loi liste plus de vingt critères interdits (âge, sexe, origine, lieu de résidence, situation de famille…). Un recrutement ne peut reposer que sur des critères liés au poste et aux compétences. Et la personne écartée était peut-être la meilleure pour le poste.` },
+    { id: 'saison', when: s => s.verdict === 'saison', title: 'La saison difficile', stamp: 'Saison ratée', color: '#FF5C6A',
+      text: s => `${H.integ === 'tas' ? 'Des saisonniers lâchés sans accueil sont partis. ' : ''}${F(s).chef === 'thomas' && H.entretien !== 'pro' ? 'Le chef est parti en plein été. ' : ''}${F(s).nohyg ? 'Le contrôle sanitaire a abîmé la réputation. ' : ''}La qualité de service dépend directement des compétences et de la stabilité de l'équipe. Recruter, intégrer et former, ce n'est pas du temps perdu : c'est le métier de l'hôtel.` },
+    { id: 'courtterme', when: s => s.verdict === 'courtterme', title: 'Une saison sans lendemain', stamp: 'Avenir incertain', color: '#FFC64F',
+      text: `La saison est réussie, mais l'avenir n'est pas préparé. Départs à la retraite, nouveaux métiers, pénurie de candidats${N}: une organisation qui n'anticipe pas ses besoins en compétences les découvre quand il est trop tard.` },
+    { id: 'succes', when: s => true, title: 'Une maison qui fait grandir', stamp: 'Équipe prête', color: '#4CD97B',
+      text: s => `${note(s)}/5 dans les avis. Un recrutement fondé sur les compétences, des saisonniers bien accueillis, des entretiens qui révèlent les projets, des formations ciblées, une relève préparée. Les compétences servent l'hôtel, et l'hôtel développe les compétences de chacun.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['source'], title: 'Acte 1 — Le recrutement', text: h => `Le <em>processus de recrutement</em> commence par l\'analyse du besoin et la <em>fiche de poste</em> (missions, compétences attendues). On peut recruter en <em>interne</em> (promotion, mobilité) ou en <em>externe</em> (annonce, cabinet, <em>cooptation</em>). La sélection doit reposer sur des critères liés au poste : la loi interdit toute <em>discrimination</em> (âge, sexe, origine, lieu de résidence…). Les compétences combinent <em>savoirs</em>, <em>savoir-faire</em> et <em>savoir-être</em>.`,
+      chain: () => ({ good: ['Besoin', 'Fiche de poste', 'Critères liés au poste', 'Bon recrutement'], bad: ['Critère interdit', 'Discrimination', 'Meilleur candidat écarté'] }) },
+    { act: 2, needs: ['integ'], title: 'Acte 2 — L\'intégration', text: h => `L\'<em>intégration</em> (ou <em>onboarding</em>) regroupe l\'accueil, la présentation de l\'organisation, l\'accompagnement par un <em>tuteur</em> et les points de suivi. Elle réduit le <em>turnover</em> (le renouvellement des salariés) et rend les nouveaux salariés efficaces plus vite. ${h.integ === 'tas' ? 'Sans intégration, les départs ont coûté plus cher que l\'accueil.' : ''}`,
+      chain: () => ({ good: ['Accueil', 'Tuteur', 'Repères', 'Salarié qui reste'], bad: ['Pas d\'accueil', 'Erreurs', 'Départs', 'Recruter à nouveau'] }) },
+    { act: 3, needs: ['forma'], title: 'Acte 3 — Évaluer et former', text: h => `L\'<em>entretien annuel d\'évaluation</em> fait le bilan de l\'année et fixe des objectifs. L\'<em>entretien professionnel</em>, obligatoire au moins tous les deux ans, porte sur les perspectives d\'évolution et les besoins de formation. Le <em>plan de développement des compétences</em> organise les formations. La <em>validation des acquis de l\'expérience</em> (VAE) transforme l\'expérience en diplôme. Former développe l\'<em>employabilité</em> des salariés.`,
+      chain: () => ({ good: ['Entretien', 'Besoins repérés', 'Formation ciblée', 'Compétences'], bad: ['Note sans échange', 'Formations au hasard', 'Compétences figées'] }) },
+    { act: 4, needs: ['gpec'], finalOnly: true, title: 'Acte 4 — Demain', text: h => `La <em>gestion prévisionnelle des emplois et des compétences</em> (GPEC) anticipe les besoins futurs : départs à la retraite, nouveaux métiers, pénuries. Elle s\'appuie sur une cartographie des compétences, des plans de succession, l\'<em>alternance</em> et la formation. Une <em>organisation apprenante</em> fait circuler et développe les compétences en continu. ${h.gpec === 'externaliser' ? 'Externaliser fait perdre un savoir-faire interne.' : ''}`,
+      chain: () => ({ good: ['Anticiper', 'Former la relève', 'Compétences disponibles'], bad: ['Attendre', 'Départ subi', 'Compétences perdues'] }) }
+  ],
+  vocab: ['Fiche de poste', 'Recrutement interne', 'Recrutement externe', 'Cooptation', 'Discrimination', 'Savoirs', 'Savoir-faire', 'Savoir-être', 'Intégration', 'Tuteur', 'Turnover', 'Entretien annuel d\'évaluation', 'Entretien professionnel', 'Plan de développement des compétences', 'Validation des acquis de l\'expérience', 'Employabilité', 'GPEC', 'Alternance', 'Organisation apprenante']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — l'hôtel face à la mer, fenêtres allumées selon les postes pourvus.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const P = '#9C4F9E', lit = S.postes;
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="L'hôtel Les Embruns">
+    <rect width="360" height="200" fill="#07050a"/><rect x="0" y="0" width="360" height="162" fill="#0d0a12"/>
+    <path d="M150,150 Q200,142 250,150 T360,150 V162 H150 Z" fill="#1b2a44" opacity=".8"/>
+    <rect x="190" y="50" width="130" height="100" fill="#1a1422" stroke="${P}" stroke-width="1.5"/>
+    <path d="M184,52 L255,22 L326,52 Z" fill="${P}" opacity=".85"/>
+    <text x="255" y="44" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="8" fill="#fff">LES EMBRUNS</text>
+    ${Array.from({ length: 22 }, (_, i) => { const x = 198 + (i % 6) * 20, y = 60 + Math.floor(i / 6) * 22; return `<rect x="${x}" y="${y}" width="12" height="12" fill="${i < lit ? '#FFC64F' : '#2a2233'}"/>`; }).join('')}
+    <rect x="0" y="162" width="360" height="38" fill="#08060b"/><line x1="0" y1="162" x2="360" y2="162" stroke="#2d1f36" stroke-width="1.5"/>
+    <text x="255" y="182" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="11" fill="#A89AAE">${S.postes}/22 postes · avis ${note(S)}/5</text>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

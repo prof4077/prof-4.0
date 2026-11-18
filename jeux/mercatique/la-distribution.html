@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>La distribution — Jeu Mercatique Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#E8564B;--eco-dim:#9A3A31;--good:#4CD97B;--bg:#080404;--panel:#110909;--panel2:#160c0c;--line:#3a1c1a;--txt:#EEF3EC;--muted:#A89391;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(232,86,75,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(232,86,75,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#2a1616;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:#F2B66D;transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(232,86,75,.5);background:rgba(232,86,75,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070a06;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(232,86,75,.09), rgba(16,8,8,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#160404;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#160404;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#1e0f0e;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#142010;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#160404;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#0c0606;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#0c0606;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#0c0606;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#0c0606;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(232,86,75,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#0c0606;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(232,86,75,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — La distribution (Mercatique, Terminale STMG, thème 2)
+   Pulpe veut grandir. L'élève choisit ses canaux (direct, court, long, en ligne), négocie avec une centrale d'achat,
+   organise la logistique d'un produit frais, construit un parcours omnicanal et gère les conflits entre canaux.
+   Modèle mensuel : chaque canal apporte un volume et un prix net (après la marge de l'intermédiaire) ;
+   la cuisine plafonne à 12 000 bouteilles ; résultat = Σ volume × (prix net − coût) − charges fixes.
+   Jauges : ventes, res (résultat mensuel, k€), image (0-100), maitrise (maîtrise de la marque et du client, 0-100).
+   ===================================================================== */
+const N = ' ';
+const r1 = n => Math.round(n * 10) / 10;
+const ke = n => (n < 0 ? '−' : '') + r1(Math.abs(n)).toLocaleString('fr-FR') + N + 'k€';
+const eu = n => n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + N + '€';
+const bt = n => Math.round(n).toLocaleString('fr-FR');
+const F = s => s.flags;
+const ch = (good, bad) => ({ good, bad });
+const V = (...a) => a;
+const tab = rows => `<span class="pay">${rows.map(([l, v, t]) => `<span${t ? ' class="tot"' : ''}>${l}</span><b${t ? ' class="tot"' : ''}>${v}</b>`).join('')}</span>`;
+
+const COUT = 1.30, CAP = 14000;
+const CH = {
+  marche:     { nom: 'Marché du samedi', q: 1500, net: 3.00, fixe: 0.2, type: 'direct' },
+  boutique:   { nom: 'Boutique-bar Pulpe', q: 1800, net: 3.40, fixe: 3.0, type: 'direct' },
+  site:       { nom: 'Site et appli, livraison', q: 1300, net: 2.70, fixe: 1.5, type: 'direct' },
+  epiceries:  { nom: 'Épiceries fines et cafés', q: 2200, net: 2.30, fixe: 0.4, type: 'court' },
+  producteurs:{ nom: 'Magasins de producteurs', q: 1200, net: 2.60, fixe: 0.3, type: 'court' },
+  gms:        { nom: 'Supermarchés (centrale régionale)', q: 5500, net: 1.95, fixe: 1.0, type: 'long' },
+  grossiste:  { nom: 'Grossiste pour la restauration', q: 2500, net: 2.00, fixe: 0.3, type: 'long' },
+  marketplace:{ nom: 'Applis de livraison de repas', q: 1500, net: 2.15, fixe: 0.2, type: 'plateforme' }
+};
+const has = (s, c) => (F(s).ch || []).includes(c);
+const model = s => {
+  const list = ['marche', ...(F(s).ch || [])].filter(c => !(c === 'gms' && F(s).gmsdeal === 'refus'));
+  const img = 0.7 + 0.5 * s.image / 100;
+  let rows = list.map(c => { const k = CH[c]; let q = k.q * img, net = k.net, fixe = k.fixe;
+    if (c === 'gms' && F(s).gmsdeal === 'accepte') { q *= 1.15; net = 1.80; fixe += 1; }
+    if (c === 'gms' && F(s).gmsdeal === 'format') { fixe += 0.3; }
+    const om = F(s).omni;
+    if (om === 'collect' && (k.type === 'direct' || c === 'epiceries')) q *= 1.12;
+    if (om === 'velo' && c === 'site') q *= 1.6;
+    if (om === 'velo' && c === 'boutique') q *= 1.05;
+    if (om === 'fidelite') q *= 1.06;
+    const pc = F(s).prixcanal;
+    if (pc === 'harmoniser' && (c === 'boutique' || c === 'site')) net -= 0.4;
+    if (pc === 'laisser' && (c === 'boutique' || c === 'site')) q *= 0.85;
+    return { c, q, net, fixe }; });
+  let tot = rows.reduce((a, r) => a + r.q, 0); const brut = tot;
+  let rupt = false;
+  if (F(s).logi === 'mutualise' && tot > 7000) { rows.forEach(r => r.q *= 0.85); tot *= 0.85; rupt = true; }
+  const over = tot > CAP; if (over) { rows.forEach(r => r.q *= CAP / tot); tot = CAP; }
+  const logv = F(s).logi === 'presta' ? 0.12 : 0;
+  let res = rows.reduce((a, r) => a + r.q * (r.net - COUT - logv) / 1000 - r.fixe, 0) - s.fixe;
+  const gq = (rows.find(r => r.c === 'gms') || { q: 0 }).q;
+  return { ventes: Math.round(tot / 10) * 10, res: r1(res), over, rupt, brut, gshare: tot ? gq / tot : 0, rows };
+};
+const M = (s, extra) => { const c = Object.assign({}, s, { flags: Object.assign({}, s.flags) }); for (const k in extra || {}) c[k] = (c[k] || 0) + extra[k];
+  const m = model(c); return Object.assign({}, extra, { ventes: m.ventes - s.ventes, res: r1(m.res - s.res) }); };
+
+const GAME = {
+  title: 'La distribution',
+  brand: '<span>PULPE</span> · DISTRIBUTION',
+  storeKey: 'mcDistribFins',
+  backLink: '../../matieres/mercatique-terminale.html',
+  footer: 'Mercatique, Terminale STMG, thème 2',
+  kicker: 'Mercatique · Terminale STMG · Thème 2',
+  debIntro: 'Tu as choisi par où tes smoothies arrivent jusqu\'aux clients. Voici comment on appelle ce que tu as fait.',
+  cutText: 'Ta partie s\'est arrêtée avant les négociations annuelles. Rejoue pour aller au bout.',
+  pitch: `Pulpe a trouvé ses clients. Mais on ne la trouve qu'au marché du samedi${N}: 1${N}500 bouteilles par mois. La cuisine peut en produire 14${N}000. Lina veut que ses smoothies soient partout. Partout${N}? Chaque canal a ses volumes, ses marges, ses exigences… et le pouvoir de décider à la place de Pulpe.`,
+  meta: '4 actes · 20 minutes',
+  start: s => { Object.assign(s, { fixe: 3, image: 60, maitrise: 80 }); const m = model(s); s.ventes = m.ventes; s.res = m.res; },
+  hud: [
+    { k: 'ventes',   label: 'Ventes', short: 'Ventes/mois', show: s => bt(s.ventes), pct: s => s.ventes / CAP * 100, low: s => s.ventes < 4000, unit: ' bouteilles' },
+    { k: 'res',      label: 'Résultat mensuel', short: 'Résultat', show: s => ke(s.res), pct: s => 30 + s.res * 7, low: s => s.res < 0, unit: N + 'k€' },
+    { k: 'image',    label: 'Image de marque', short: 'Image', show: s => Math.round(s.image), pct: s => s.image, low: s => s.image < 40, clamp: true },
+    { k: 'maitrise', label: 'Maîtrise de la marque', short: 'Maîtrise', show: s => Math.round(s.maitrise), pct: s => s.maitrise, low: s => s.maitrise < 40, clamp: true }
+  ],
+  fail: () => null,
+  lock: () => null,
+  bilan: s => { const m = model(s); return [['Ventes par mois', bt(s.ventes) + ' bouteilles'], ['Part des supermarchés', Math.round(100 * m.gshare) + N + '%'], ['Résultat mensuel', ke(s.res)], ['Image de marque', Math.round(s.image) + ' / 100'], ['Maîtrise de la marque', Math.round(s.maitrise) + ' / 100']]; },
+
+  characters: {
+    lina:    { name: 'Lina', role: 'fondatrice de Pulpe', color: '#FFC64F', body: '#b8452f', hair: '#2a1a12', acc: 'clip' },
+    hugo:    { name: 'Hugo', role: 'cuisine et production', color: '#4CD97B', body: '#2f7a4a', hair: '#c9a060', acc: 'box' },
+    centrale:{ name: 'M. Garnier', role: 'acheteur, centrale d\'achat régionale', color: '#5B8FFF', body: '#2b3a5a', hair: '#8a8f96', acc: 'tie' },
+    epicier: { name: 'Mme Le Goff', role: 'épicière, quartier Graslin', color: '#B9A6FF', body: '#4a3a5a', hair: '#a0a0a0', acc: 'clip' },
+    conso:   { name: 'Clients', role: '', color: '#EEF3EC' },
+    narr:    { name: 'Toi', role: '', color: '#E8564B' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Les canaux', sub: 'Vendre soi-même, passer par un commerçant, ou par une chaîne d\'intermédiaires.',
+    steps: [
+      { t: 'say', who: 'lina', text: `On met nos smoothies partout${N}: supermarchés, cafés, Internet, restaurants${N}! Plus on est présents, plus on vend.` },
+      { t: 'say', who: 'narr', text: `Chaque intermédiaire rend un service (il stocke, il expose, il trouve les clients)… et se rémunère par une marge. Une bouteille vendue 3,50${N}€ en boutique rapporte 3,40${N}€ à Pulpe. Vendue 2,99${N}€ en supermarché, elle ne lui rapporte que 1,95${N}€. Coût de fabrication, maintenant que les volumes augmentent${N}: 1,30${N}€.` },
+      { t: 'pick', id: 'ch', budget: 6, unit: 'pts', unitLabel: 'Temps de l\'équipe', min: 1, go: 'Ouvrir ces canaux ▸',
+        prompt: `L'équipe a 6 points de temps. Quels canaux ouvrir${N}?`,
+        options: [
+          { id: 'boutique', label: 'Une boutique-bar Pulpe, en centre-ville', cost: 3, desc: 'Circuit direct. ~1 800 bouteilles/mois, 3,40 € net, loyer et vendeur 3 000 €/mois.' },
+          { id: 'site', label: 'Le site et l\'appli, avec livraison', cost: 2, desc: 'Circuit direct en ligne. ~1 300 bouteilles/mois, 2,70 € net après livraison, 1 500 €/mois.' },
+          { id: 'epiceries', label: 'Des épiceries fines et des cafés de Nantes', cost: 2, desc: 'Circuit court : un seul intermédiaire. ~2 200 bouteilles/mois, 2,30 € net.' },
+          { id: 'gms', label: 'Les supermarchés, via une centrale d\'achat régionale', cost: 2, desc: 'Circuit long. ~5 500 bouteilles/mois, 1,95 € net. C\'est la centrale qui négocie et le magasin qui fixe le prix.' },
+          { id: 'grossiste', label: 'Un grossiste pour les restaurants et cantines', cost: 1, desc: 'Circuit long. ~2 500 bouteilles/mois, 2,00 € net.' },
+          { id: 'marketplace', label: 'Les applis de livraison de repas', cost: 1, desc: 'Une plateforme prend 30 % de commission. ~1 500 bouteilles/mois, 2,15 € net.' } ],
+        resolve: (s, ids) => { const old = { ventes: s.ventes, res: s.res }; F(s).ch = ids; const m = model(s);
+          const mt = (ids.includes('gms') ? -20 : 0) + (ids.includes('marketplace') ? -10 : 0) + (ids.includes('grossiste') ? -5 : 0) + (ids.includes('boutique') ? 5 : 0) + (ids.includes('site') ? 5 : 0);
+          const im = (ids.includes('boutique') ? 8 : 0) + (ids.includes('epiceries') ? 4 : 0) + (ids.includes('gms') ? -5 : 0);
+          const good = [], bad = [];
+          if (ids.includes('boutique') || ids.includes('site')) good.push('Vente directe : toute la marge et le contact avec le client');
+          if (ids.includes('epiceries')) good.push('Circuit court : des commerçants qui conseillent et valorisent Pulpe');
+          if (ids.includes('gms')) { good.push('Des milliers de clients d\'un coup grâce aux supermarchés'); bad.push('La centrale prend une grosse part du prix', 'Le magasin décide du prix et de la place en rayon'); }
+          if (ids.includes('marketplace')) bad.push('La plateforme garde les données des clients et 30 % du prix');
+          if (ids.includes('grossiste')) bad.push('Le grossiste revend sans dire à qui');
+          if (m.over) bad.push(`La demande (${bt(m.brut)} bouteilles) dépasse ce que la cuisine peut produire (${bt(CAP)}) : ruptures de stock`);
+          if (!ids.includes('gms') && !ids.includes('grossiste') && m.ventes < 5000) bad.push('Une présence encore limitée');
+          return { fx: { ventes: m.ventes - old.ventes, res: r1(m.res - old.res), maitrise: mt, image: im - (m.over ? 6 : 0) },
+            chain: ch(good, bad) }; } },
+      { t: 'event', who: 'hugo', if: s => model(s).over, text: `On n'arrive pas à suivre. Certains clients trouvent des rayons vides. Une rupture de stock, c'est un client qui essaie autre chose.` }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'Les intermédiaires', sub: 'Un intermédiaire puissant apporte des volumes… et pose ses conditions.',
+    steps: [
+      { t: 'say', who: 'centrale', if: s => has(s, 'gms'), text: `Pour être référencés dans nos 35 magasins, voici nos conditions${N}: 2${N}000${N}€ de frais de référencement, deux opérations promotionnelles à −25${N}% par an financées par vous, et des pénalités si vous livrez en retard. C'est le prix d'une place en rayon.` },
+      { t: 'choice', id: 'gmsdeal', if: s => has(s, 'gms'), prompt: `Les conditions de la centrale${N}?`, options: [
+        { id: 'accepte', label: 'Tout accepter', desc: 'Les promotions font vendre, mais à 1,80 € net.', set: { gmsdeal: 'accepte' }, fx: s => M(s, { maitrise: -10, image: -4 }),
+          chain: ch(['Une meilleure place en rayon', 'Des promotions qui font découvrir Pulpe : +15 % de volume'], ['Le prix net tombe à 1,80 €', 'Les clients s\'habituent à acheter Pulpe en promotion', 'La centrale décide de plus en plus']), voix: V({ who: 'centrale', text: `Bienvenue chez nous.` }) },
+        { id: 'format', label: 'Négocier : un format familial d\'un litre, réservé aux supermarchés, sans promotion', desc: 'Un produit propre au canal, pour ne pas brader la petite bouteille.', set: { gmsdeal: 'format' }, fx: s => M(s, { maitrise: 5 }),
+          chain: ch(['La petite bouteille garde son prix en boutique et en épicerie', 'Pas de comparaison directe entre les canaux', 'Pulpe impose une partie de ses conditions'], ['Une ligne de production en plus : 300 € par mois']), voix: V({ who: 'centrale', text: `Vous savez ce que vous voulez. D'accord pour un essai.` }) },
+        { id: 'refus', label: 'Refuser : ces conditions sont trop lourdes', desc: 'Pulpe ne sera pas en supermarché.', set: { gmsdeal: 'refus' }, fx: s => M(s, { maitrise: 20, image: 4 }),
+          chain: ch(['Pulpe garde la maîtrise de son prix et de son image'], ['5 500 bouteilles par mois en moins', 'La cuisine tourne loin de sa capacité']), voix: V({ who: 'lina', text: `Bon. On reste petits, mais libres.` }) } ] },
+      { t: 'say', who: 'epicier', if: s => !has(s, 'gms'), text: `Les magasins de producteurs de la région cherchent une boisson locale. Ils prennent une petite marge et racontent l'histoire des produits. Ça vous intéresse${N}?` },
+      { t: 'choice', id: 'prod', if: s => !has(s, 'gms'), prompt: `Les magasins de producteurs${N}?`, options: [
+        { id: 'oui', label: 'Oui : vendre aussi dans les magasins de producteurs', desc: 'Circuit court. ~1 200 bouteilles/mois, 2,60 € net.', fx: s => { const c = Object.assign({}, s, { flags: Object.assign({}, s.flags, { ch: [...F(s).ch, 'producteurs'] }) }); const m = model(c); return { ventes: m.ventes - s.ventes, res: r1(m.res - s.res), image: 6 }; },
+          do: s => { F(s).ch = [...F(s).ch, 'producteurs']; },
+          chain: ch(['Un seul intermédiaire, qui prend peu', 'Pulpe aux côtés des fruits qu\'elle utilise', 'Le local devient visible'], []) },
+        { id: 'non', label: 'Non, rester concentrés', desc: 'Ne pas disperser l\'équipe.', fx: { image: 0 }, chain: ch(['L\'équipe reste concentrée'], ['Un débouché local laissé de côté']) } ] },
+      { t: 'say', who: 'hugo', text: `Un smoothie frais se garde 5 jours, entre 2 et 4${N}°C. Il faut le livrer vite, au froid, partout. Comment on s'organise${N}?` },
+      { t: 'choice', id: 'logi', prompt: `La logistique${N}?`, options: [
+        { id: 'propre', label: 'Acheter un camion frigorifique et un livreur', desc: '1 500 € par mois. Pulpe contrôle tout.', set: { logi: 'propre' }, fx: s => M(s, { fixe: 1.5, maitrise: 5 }),
+          chain: ch(['La chaîne du froid est maîtrisée', 'Le livreur parle aux commerçants chaque jour'], ['1 500 € par mois, quel que soit le volume']) },
+        { id: 'presta', label: 'Confier la livraison à un prestataire logistique', desc: '0,12 € par bouteille livrée.', set: { logi: 'presta' }, fx: s => M(s, { maitrise: -5 }),
+          chain: ch(['Le coût suit les volumes', 'Un professionnel du froid'], ['12 centimes par bouteille', 'Moins de contact avec les points de vente']) },
+        { id: 'mutualise', label: 'Partager la tournée avec trois producteurs de la région', desc: '500 € par mois. Écologique et local, mais une seule tournée par jour.', set: { logi: 'mutualise' }, fx: s => M(s, { fixe: 0.5, image: 5 }),
+          chain: s => model(Object.assign({}, s, { flags: Object.assign({}, s.flags, { logi: 'mutualise' }) })).rupt ? ch(['Peu cher, et une belle histoire'], ['Une tournée partagée ne suffit pas pour de gros volumes', 'Des magasins livrés en retard : 15 % de ventes perdues']) : ch(['Peu cher', 'Moins de camions sur la route', 'Une belle histoire à raconter'], []) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'L\'omnicanal', sub: 'Le client passe d\'un canal à l\'autre. Il veut retrouver la même marque partout.',
+    steps: [
+      { t: 'say', who: 'conso', text: `«${N}J'ai vu Pulpe sur Instagram, je voudrais commander sur mon téléphone et le récupérer près de chez moi.${N}» «${N}Je rends mes bouteilles consignées où${N}?${N}» «${N}Ma carte de fidélité de la boutique ne marche pas sur l'appli.${N}»` },
+      { t: 'choice', id: 'omni', prompt: `Où mettre les 1${N}000${N}€ par mois prévus pour le parcours client${N}?`, options: [
+        { id: 'collect', label: 'Commander en ligne, retirer en boutique ou en épicerie partenaire', desc: 'Click & collect, et retour des bouteilles dans tous les points de vente.', set: { omni: 'collect' }, fx: s => M(s, { fixe: 1, image: 4 }),
+          chain: s => has(s, 'boutique') || has(s, 'epiceries') ? ch(['Le client commande quand il veut, retire où il veut', 'Les canaux physiques et numériques se renforcent : +12 % de ventes'], ['1 000 € par mois']) : ch([], ['Pas de boutique ni d\'épicerie partenaire : presque personne où retirer', '1 000 € par mois']) },
+        { id: 'velo', label: 'Livraison en vélo cargo réfrigéré, en moins d\'une heure', desc: 'Le dernier kilomètre, rapide et sans moteur.', set: { omni: 'velo' }, fx: s => M(s, { fixe: 1, image: 8 }),
+          chain: s => has(s, 'site') ? ch(['Les ventes en ligne bondissent : +60 %', 'Une image écologique et locale'], ['1 000 € par mois']) : ch(['Une belle image'], ['Sans site de vente, le vélo cargo sert peu', '1 000 € par mois']) },
+        { id: 'fidelite', label: 'Un seul compte client, une seule carte de fidélité sur tous les canaux', desc: 'Pulpe voit enfin qui achète quoi, où.', set: { omni: 'fidelite' }, fx: s => M(s, { fixe: 0.5, maitrise: 15 }),
+          chain: ch(['Le client est reconnu partout', 'Pulpe connaît ses clients, quel que soit le canal', '+6 % de ventes'], ['Ça ne fonctionne pas dans les supermarchés ni sur les applis de livraison']) },
+        { id: 'rien', label: 'Chaque canal reste indépendant', desc: 'Pas de dépense.', set: { omni: 'rien' }, fx: s => M(s, { image: -5 }),
+          chain: ch(['Aucun coût'], ['Le client vit des expériences différentes selon le canal', 'Il ne comprend pas pourquoi']) } ] },
+      { t: 'say', who: 'conso', if: s => has(s, 'gms') && F(s).gmsdeal !== 'refus' && (has(s, 'boutique') || has(s, 'site')), text: s => `«${N}Je l'ai payé 3,50${N}€ à la boutique… et je le vois à ${F(s).gmsdeal === 'accepte' ? '2,25 € en promo' : '2,99 €'} au supermarché d'à côté${N}!${N}»` },
+      { t: 'choice', id: 'prixcanal', if: s => has(s, 'gms') && F(s).gmsdeal !== 'refus' && (has(s, 'boutique') || has(s, 'site')), prompt: `Le conflit de prix entre les canaux${N}?`, options: [
+        { id: 'harmoniser', label: 'Baisser le prix en boutique et en ligne', desc: '40 centimes de moins sur la vente directe.', set: { prixcanal: 'harmoniser' }, fx: s => M(s, {}),
+          chain: ch(['Le prix ne choque plus'], ['La vente directe, la plus rentable, perd 40 centimes par bouteille']) },
+        { id: 'formats', label: 'Différencier : en boutique, des recettes du jour qu\'on ne trouve nulle part ailleurs', desc: '500 € par mois de recettes en plus.', set: { prixcanal: 'formats' }, fx: s => M(s, { fixe: 0.5, image: 4 }),
+          chain: ch(['Chaque canal a son offre : plus de comparaison directe', 'La boutique devient une destination'], ['500 € par mois']) },
+        { id: 'laisser', label: 'Ne rien changer', desc: 'Les clients comprendront.', set: { prixcanal: 'laisser' }, fx: s => M(s, { image: -8, maitrise: -5 }),
+          chain: ch([], ['Les clients ont l\'impression d\'être pris pour des pigeons en boutique', '−15 % de ventes en direct', 'L\'image s\'abîme']) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'Les négociations', sub: 'Qui dépend de qui ?', final: true,
+    steps: [
+      { t: 'say', who: 'narr', text: s => { const m = model(s); return `Un an plus tard. Voici d'où viennent les ventes de Pulpe.${tab([...m.rows.filter(r => r.q > 5).map(r => [CH[r.c].nom, bt(r.q) + ' bouteilles']), ['Total par mois', bt(m.ventes) + ' bouteilles', 1], ['Part des supermarchés', Math.round(100 * m.gshare) + N + '%', 1]])}`; } },
+      { t: 'say', who: 'centrale', if: s => has(s, 'gms') && F(s).gmsdeal !== 'refus', text: s => `Négociations annuelles. Nous voulons 8${N}% de baisse sur votre prix. ${model(s).gshare > 0.45 ? 'Vous faites près de la moitié de vos ventes chez nous. Je pense que vous accepterez.' : 'Vous avez d\'autres canaux, je sais. Discutons.'}` },
+      { t: 'say', who: 'lina', text: s => { const m = model(s);
+          s.verdict = (has(s, 'gms') && F(s).gmsdeal !== 'refus' && m.gshare > 0.45 && s.maitrise < 45) ? 'dependance' : s.res < 0 ? 'perte' : s.ventes < 4500 ? 'confidentiel' : (m.over || m.rupt) ? 'rupture' : s.res < 2 ? 'maigre' : 'succes';
+          return { dependance: `On n'a pas le choix. Si la centrale nous retire de ses rayons, on perd la moitié de nos ventes du jour au lendemain. On accepte… et on perd encore de la marge.`,
+            perte: `On vend, mais on perd ${ke(-s.res)} par mois. Les intermédiaires et les frais mangent tout.`,
+            confidentiel: `On est fiers de nos smoothies, mais seulement ${bt(s.ventes)} bouteilles par mois. La cuisine tourne au ralenti.`,
+            rupture: `Des clients trouvent des rayons vides chaque semaine. On a ouvert plus de portes qu'on ne pouvait en servir.`,
+            maigre: `On vend ${bt(s.ventes)} bouteilles par mois, et il nous reste ${ke(s.res)}. Tout ce travail pour faire vivre les intermédiaires${N}?`,
+            succes: `${bt(s.ventes)} bouteilles par mois, ${ke(s.res)} de résultat, et c'est nous qui décidons de notre marque. ${has(s, 'gms') && F(s).gmsdeal !== 'refus' ? 'La centrale peut demander ce qu\'elle veut : on a d\'autres canaux.' : ''}` }[s.verdict]; } }
+    ] }
+  ],
+
+  endings: [
+    { id: 'dependance', when: s => s.verdict === 'dependance', title: 'Prisonnière du distributeur', stamp: 'Dépendance', color: '#FF5C6A',
+      text: `Quand un seul distributeur pèse près de la moitié des ventes, c'est lui qui fixe les règles. Le rapport de force entre producteur et distributeur dépend des alternatives de chacun. Diversifier ses canaux, garder un lien direct avec ses clients et proposer une offre propre à chaque canal, c'est se donner du pouvoir de négociation.` },
+    { id: 'perte', when: s => s.verdict === 'perte', title: 'Des ventes sans marge', stamp: 'Pertes', color: '#FF5C6A',
+      text: `Chaque canal a un coût${N}: marge de l'intermédiaire, commissions, loyers, livraison. Multiplier les canaux sans regarder ce que chacun rapporte vraiment fait vendre beaucoup… pour rien.` },
+    { id: 'confidentiel', when: s => s.verdict === 'confidentiel', title: 'La marque confidentielle', stamp: 'Trop discrète', color: '#FFC64F',
+      text: s => `${bt(s.ventes)} bouteilles par mois, pour une cuisine qui peut en faire 14${N}000. Une distribution trop étroite laisse de nombreux clients sans accès au produit. Le choix des canaux, c'est aussi choisir sa couverture du marché.` },
+    { id: 'rupture', when: s => s.verdict === 'rupture', title: 'Les rayons vides', stamp: 'Ruptures', color: '#FFC64F',
+      text: `La distribution, c'est aussi la logistique${N}: produire assez, livrer à temps, au bon endroit. Ouvrir des canaux qu'on ne peut pas approvisionner abîme la marque plus que de ne pas y être.` },
+    { id: 'maigre', when: s => s.verdict === 'maigre', title: 'Beaucoup de bouteilles, peu de marge', stamp: 'Marge maigre', color: '#FFC64F',
+      text: s => `${bt(s.ventes)} bouteilles par mois, mais seulement ${ke(s.res)} de résultat. Les circuits longs apportent du volume, pas de la marge${N}: c'est la vente directe et les circuits courts qui font vivre une petite marque. Regarde ce que rapporte chaque bouteille selon le canal.` },
+    { id: 'succes', when: s => true, title: 'Partout où il faut', stamp: 'Réseau maîtrisé', color: '#4CD97B',
+      text: s => `${bt(s.ventes)} bouteilles par mois, ${ke(s.res)} de résultat. Des canaux complémentaires, une logistique qui suit, un client qui retrouve la même marque partout, et un rapport de force équilibré avec les distributeurs.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['ch'], title: 'Acte 1 — Les canaux', text: h => `Un <em>canal de distribution</em> est le chemin suivi par le produit jusqu\'au client. Le <em>circuit direct</em> n\'a aucun intermédiaire (boutique, site), le <em>circuit court</em> en a un seul (épicerie, magasin de producteurs), le <em>circuit long</em> en a au moins deux (centrale d\'achat puis supermarché, grossiste puis restaurant). Chaque <em>intermédiaire</em> rend des services (stockage, assortiment, proximité) et se rémunère par une <em>marge</em>. Plus le circuit est long, plus la <em>couverture du marché</em> est large, et plus la marge et la maîtrise du producteur sont faibles.`,
+      chain: () => ({ good: ['Circuit direct', 'Toute la marge', 'Contact client'], bad: ['Circuit long', 'Volumes', 'Marge partagée', 'Moins de maîtrise'] }) },
+    { act: 2, needs: ['logi'], title: 'Acte 2 — Les intermédiaires', text: h => `Pour entrer en grande surface, il faut obtenir son <em>référencement</em> auprès d\'une <em>centrale d\'achat</em>, qui impose ses conditions. Le <em>rapport de force</em> entre producteur et distributeur dépend du poids de chacun pour l\'autre. ${h.gmsdeal === 'format' ? 'Proposer un format propre au canal a protégé ton offre.' : ''} La <em>logistique</em> (stockage, transport, <em>chaîne du froid</em>) peut être gérée en propre, <em>externalisée</em> ou <em>mutualisée</em>.`,
+      chain: () => ({ good: ['Négocier', 'Offre adaptée au canal', 'Logistique à la bonne taille'], bad: ['Tout accepter', 'Marge écrasée', 'Ruptures'] }) },
+    { act: 3, needs: ['omni'], title: 'Acte 3 — L\'omnicanal', text: h => `Le client passe d\'un canal à l\'autre : il découvre sur les réseaux, commande en ligne, retire en magasin. La stratégie <em>omnicanale</em> relie les canaux pour lui offrir un <em>parcours client</em> fluide : <em>click and collect</em>, compte client unique, livraison du <em>dernier kilomètre</em>. Les canaux peuvent aussi entrer en <em>conflit</em>, notamment sur les prix : on peut alors différencier l\'offre selon le canal.`,
+      chain: () => ({ good: ['Canaux reliés', 'Parcours fluide', 'Client reconnu partout'], bad: ['Canaux séparés', 'Prix incohérents', 'Client perdu'] }) },
+    { act: 4, needs: ['omni'], finalOnly: true, title: 'Acte 4 — Les négociations', text: () => `La <em>stratégie de distribution</em> combine plusieurs canaux (<em>distribution multicanale</em>) pour toucher différentes cibles. Elle doit équilibrer la couverture du marché, la rentabilité de chaque canal, les capacités logistiques et l\'indépendance face aux distributeurs.`,
+      chain: () => ({ good: ['Canaux complémentaires', 'Marges suivies', 'Indépendance'], bad: ['Un canal dominant', 'Dépendance', 'Marges imposées'] }) }
+  ],
+  vocab: ['Canal de distribution', 'Circuit direct', 'Circuit court', 'Circuit long', 'Intermédiaire', 'Marge du distributeur', 'Centrale d\'achat', 'Référencement', 'Rapport de force', 'Couverture du marché', 'Logistique', 'Chaîne du froid', 'Externalisation', 'Distribution multicanale', 'Omnicanal', 'Parcours client', 'Click and collect', 'Dernier kilomètre', 'Conflit entre canaux']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — la cuisine Pulpe et ses canaux.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const R = '#E8564B', m = model(S), list = m.rows.filter(r => r.q > 5);
+  const maxq = Math.max(...list.map(r => r.q), 1);
+  const col = { direct: '#4CD97B', court: '#FFC64F', long: '#5B8FFF', plateforme: '#B9A6FF' };
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Les canaux de distribution de Pulpe">
+    <rect width="360" height="200" fill="#0a0505"/><rect x="0" y="0" width="360" height="162" fill="#110909"/>
+    <text x="250" y="18" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="9" fill="#A89391">CANAUX · ${bt(m.ventes)} BOUTEILLES/MOIS</text>
+    ${list.map((r, i) => { const y = 32 + i * 18, w = Math.max(3, 120 * r.q / maxq), k = CH[r.c]; return `<text x="236" y="${y + 9}" text-anchor="end" font-family="Rajdhani,sans-serif" font-weight="700" font-size="9.5" fill="#EEF3EC">${k.nom.split(' (')[0].split(',')[0]}</text><rect x="240" y="${y}" width="${w * 0.95}" height="11" fill="${col[k.type]}" opacity=".85"/>`; }).join('')}
+    ${m.over || m.rupt ? `<text x="250" y="152" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="#FF5C6A">ruptures de stock</text>` : ''}
+    <rect x="0" y="162" width="360" height="38" fill="#0a0606"/><line x1="0" y1="162" x2="360" y2="162" stroke="#3a1c1a" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>

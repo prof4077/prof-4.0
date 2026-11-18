@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Motivation et rémunération — Jeu Ressources humaines Terminale STMG · PROF 4.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--eco:#B86BBA;--eco-dim:#7A3F7C;--good:#4CD97B;--bg:#07050a;--panel:#0f0b14;--panel2:#140f1a;--line:#2d1f36;--txt:#EEF3EC;--muted:#A89AAE;--bad:#FF5C6A;--warn:#FFC64F;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--txt);font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent;
+  background-image:radial-gradient(ellipse 700px 420px at 15% 0%, rgba(184,107,186,.16), transparent 65%),radial-gradient(ellipse 700px 500px at 90% 100%, rgba(184,107,186,.10), transparent 65%);background-attachment:fixed;}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;}
+#app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:12px 14px 22px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.brand{font-family:'Orbitron',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;}
+.brand span{color:var(--eco);}
+.act-tag{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);}
+.hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:10px;}
+.g{background:var(--panel);border:1px solid var(--line);padding:8px 9px 9px;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px);}
+.g-l{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.g-v{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;margin-top:2px;}
+.g-b{height:4px;background:#221a2a;margin-top:6px;overflow:hidden;}
+.g-b i{display:block;height:100%;background:#F2B66D;transition:width .6s ease, background .3s;}
+.g.low .g-v{color:var(--bad);} .g.low .g-b i{background:var(--bad);}
+.deltas{min-height:26px;display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
+.d{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:20px;border:1px solid;animation:pop .35s ease;}
+.d.up{color:var(--eco);border-color:rgba(184,107,186,.5);background:rgba(184,107,186,.1);}
+.d.down{color:var(--bad);border-color:rgba(255,92,106,.5);background:rgba(255,92,106,.1);}
+@keyframes pop{from{transform:translateY(6px);opacity:0;}to{transform:none;opacity:1;}}
+.stage{border:1px solid var(--line);background:#070a06;margin-bottom:12px;clip-path:polygon(14px 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,0 100%,0 14px);}
+.stage svg{display:block;width:100%;height:auto;}
+.box{background:linear-gradient(160deg, rgba(184,107,186,.09), rgba(12,8,16,.96) 55%);border:1px solid color-mix(in srgb, var(--eco) 35%, var(--line));border-left:3px solid var(--eco);padding:16px 16px 18px;animation:pop .3s ease;}
+.who{display:inline-block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:#12061a;padding:3px 10px;margin-bottom:10px;}
+.role{font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);margin-left:8px;}
+.say{font-size:16px;line-height:1.55;}
+.prompt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:19px;line-height:1.3;margin-bottom:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;
+  background:var(--eco);color:#12061a;padding:12px 22px;margin-top:14px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:transform .15s, filter .15s;}
+.btn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.btn{text-decoration:none;}
+.btn.ghost{background:none;color:var(--eco);border:1px solid var(--eco-dim);clip-path:none;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{text-align:left;background:var(--panel2);border:1px solid var(--line);padding:13px 14px;transition:border-color .15s, transform .15s, background .15s;position:relative;}
+.opt:hover:not(:disabled){border-color:var(--eco);transform:translateX(3px);background:#1a1220;}
+.opt:disabled{opacity:.45;cursor:not-allowed;}
+.opt-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;}
+.opt-c{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--warn);white-space:nowrap;}
+.opt-d{font-size:13.5px;color:var(--muted);line-height:1.45;margin-top:3px;}
+.opt-lock{font-size:12px;color:var(--bad);margin-top:5px;font-weight:600;}
+.price{text-align:center;padding:6px 0 2px;}
+.price-v{font-family:'Orbitron',sans-serif;font-weight:900;font-size:38px;color:var(--eco);line-height:1;}
+.price-m{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.price-m b{color:var(--txt);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#142010;margin:20px 0 4px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;background:var(--eco);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);cursor:pointer;}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;background:var(--eco);border:none;border-radius:4px;cursor:pointer;}
+.range-l{display:flex;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:12.5px;color:var(--muted);font-weight:600;}
+.card{text-align:center;padding:34px 18px;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.kicker{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--eco);}
+h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:clamp(38px,11vw,64px);line-height:1;margin:12px 0 8px;font-style:italic;}
+h1 span{color:var(--eco);}
+h2{font-family:'Orbitron',sans-serif;font-weight:800;font-size:clamp(22px,6vw,32px);line-height:1.15;margin:10px 0;}
+.lead{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:480px;margin:10px auto 0;}
+.found{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:13px;color:var(--muted);margin-top:18px;}
+.stamp{display:inline-block;font-family:'Orbitron',sans-serif;font-weight:900;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:2px solid;padding:7px 16px;transform:rotate(-4deg);margin:6px 0 4px;animation:stamp .5s cubic-bezier(.2,1.6,.4,1) .3s both;}
+@keyframes stamp{from{transform:rotate(-4deg) scale(2.2);opacity:0;}to{transform:rotate(-4deg) scale(1);opacity:1;}}
+.end{padding:8px 0 20px;}
+.end-head{text-align:center;padding:18px 6px 6px;}
+.bilan{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:18px 0;}
+.bilan div{background:var(--panel);border:1px solid var(--line);padding:10px 12px;}
+.bilan small{display:block;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+.bilan b{font-family:'Orbitron',sans-serif;font-size:18px;}
+.deb-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:17px;margin:26px 0 4px;}
+.deb-s{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.5;}
+.deb{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--eco);padding:14px 16px;margin-bottom:10px;}
+.deb h3{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--eco);margin-bottom:6px;}
+.deb p{font-size:15px;line-height:1.6;}
+.deb em{font-style:normal;font-weight:600;color:#12061a;background:var(--eco);padding:0 5px;white-space:nowrap;}
+.vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.vocab span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12.5px;border:1px solid var(--eco-dim);color:var(--eco);padding:3px 10px;border-radius:20px;}
+.end-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.foot{text-align:center;font-family:'Rajdhani',sans-serif;font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:22px;letter-spacing:.5px;}
+@media (max-width:420px){.hud{gap:6px;}.g{padding:7px 7px 8px;}.g-v{font-size:12.5px;}.g-l{font-size:8.8px;letter-spacing:0;}.say{font-size:15px;}.act-tag{font-size:10.5px;letter-spacing:1px;}}
+@media (min-width:640px){.stage svg{max-height:290px;}}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;}}
+.pay{display:grid;grid-template-columns:1fr auto;gap:5px 14px;margin:12px 0 6px;padding:12px 14px;background:#0a070d;border:1px solid var(--line);font-size:14.5px;}
+.pay b{text-align:right;font-family:'Rajdhani',sans-serif;font-size:16px;}
+.pay .tot{border-top:1px solid var(--eco-dim);padding-top:6px;color:var(--eco);font-weight:600;}
+.say small{color:var(--muted);font-size:12px;}
+.pay.tick{grid-template-columns:1fr auto auto;font-size:13.5px;}
+.pay.tick b{font-size:14.5px;}
+.donut{display:flex;align-items:center;gap:14px;margin:12px 0 8px;padding:12px;background:#0a070d;border:1px solid var(--line);}
+.donut svg{width:112px;height:112px;flex:none;}
+.leg{display:grid;grid-template-columns:1fr auto;gap:3px 10px;flex:1;font-size:13px;}
+.leg i{display:inline-block;width:9px;height:9px;margin-right:6px;}
+.leg b{font-family:'Rajdhani',sans-serif;font-size:14.5px;text-align:right;}
+.pyr{display:block;margin:2px 0 12px;padding:10px 6px;background:#0a070d;border:1px solid var(--line);}
+.pyr svg{display:block;width:100%;max-width:340px;margin:0 auto;}
+.brand{flex:none;}.act-tag{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chain{margin:12px 0 16px;display:flex;flex-direction:column;gap:12px;}
+.ch-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;padding:10px;border:1px solid var(--line);background:#0a070d;border-left:3px solid var(--eco);}
+.ch-row.bad{border-left-color:var(--bad);}
+.ch-p{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14.5px;line-height:1.2;padding:6px 9px;border:1px solid var(--eco);color:var(--txt);background:rgba(184,107,186,.1);}
+.ch-row.bad .ch-p{border-color:var(--bad);background:rgba(255,92,106,.1);}
+.ch-a{color:var(--eco);font-weight:700;padding:0 2px;}
+.ch-row.bad .ch-a{color:var(--bad);}
+.chain.anim .ch-p,.chain.anim .ch-a{opacity:0;animation:chin .4s ease forwards;}
+@keyframes chin{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.chain.anim .ch-p,.chain.anim .ch-a{animation:none;opacity:1;}}
+.voix{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.vx{padding:10px 12px;background:#0a070d;border:1px solid var(--line);}
+.vx p{margin-top:8px;font-size:15px;line-height:1.5;}
+.deb .chain{margin:10px 0 2px;}.deb .ch-p{font-size:13px;padding:4px 7px;}
+@media (max-width:420px){.act-tag{font-size:9.5px;letter-spacing:.5px;}}
+.d.up{color:var(--good);border-color:rgba(76,217,123,.5);background:rgba(76,217,123,.1);}
+.ch-row.good{border-left-color:var(--good);}.ch-row.good .ch-p{border-color:var(--good);background:rgba(76,217,123,.08);}.ch-row.good .ch-a{color:var(--good);}
+.pay small{color:var(--bad);font-weight:600;font-size:12px;}
+.pay.tick span b{color:var(--eco);}
+.pick-h{text-align:center;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:15px;margin:0 0 10px;}.pick-h b{color:var(--eco);font-size:18px;}
+.opt.pick[aria-pressed="true"]{border-color:var(--eco);background:rgba(184,107,186,.09);box-shadow:inset 3px 0 0 var(--eco);}
+.opt.pick:disabled{opacity:.4;}.pick-c{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--eco);white-space:nowrap;margin-left:8px;}
+.opt-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   1. CONTENU DU JEU — Motivation, QVCT et rémunération (Ressources humaines, Terminale STMG, thème 2)
+   Les Embruns, un an plus tard : trop d'absences, trop de départs. 45 k€ pour agir.
+   L'élève améliore les conditions de travail, construit une rémunération globale, corrige une inégalité,
+   cultive la motivation intrinsèque, puis voit si l'équipe tient… et si Aïcha reste.
+   Jauges : motiv (motivation, 0-100), abs (absentéisme, %, inversé), turn (départs de saisonniers, %, inversé),
+            budget (k€ restants).
+   ===================================================================== */
+const N = ' ';
+const r1 = n => Math.round(n * 10) / 10;
+const ke = n => (n < 0 ? '−' : '') + r1(Math.abs(n)).toLocaleString('fr-FR') + N + 'k€';
+const pc = n => r1(n).toLocaleString('fr-FR') + N + '%';
+const F = s => s.flags;
+const ch = (good, bad) => ({ good, bad });
+const V = (...a) => a;
+const tab = rows => `<span class="pay">${rows.map(([l, v, t]) => `<span${t ? ' class="tot"' : ''}>${l}</span><b${t ? ' class="tot"' : ''}>${v}</b>`).join('')}</span>`;
+
+const QVT = {
+  ergo:     { label: 'Chariots allégés et lits à hauteur réglable pour les femmes de chambre', cost: 6, desc: 'Contre les douleurs de dos et d\'épaules, première cause d\'arrêt.', fx: { abs: -3, motiv: 5 }, good: 'Moins de douleurs au dos : les arrêts maladie baissent nettement' },
+  coupures: { label: 'Supprimer les coupures en salle et en cuisine', cost: 8, desc: 'Fini le 11 h-15 h puis 18 h-23 h : des journées continues, grâce à une embauche de plus.', fx: { motiv: 10, turn: -8, abs: -1 }, good: 'Des journées continues : on peut enfin avoir une vie le soir ou l\'après-midi' },
+  planning: { label: 'Plannings connus trois semaines à l\'avance, sur une appli', cost: 1, desc: 'Aujourd\'hui, on les découvre le vendredi pour la semaine suivante.', fx: { motiv: 5, abs: -1 }, good: 'Chacun peut organiser sa vie personnelle' },
+  pause:    { label: 'Une vraie salle de pause et un repas d\'équipe', cost: 2, desc: 'Aujourd\'hui : deux chaises dans la réserve.', fx: { motiv: 4 }, good: 'Un lieu pour souffler et se parler' },
+  logement: { label: 'Louer trois appartements pour loger les saisonniers', cost: 9, desc: 'À Quiberon l\'été, se loger coûte plus cher qu\'un salaire.', fx: { turn: -12, motiv: 4 }, good: 'Les saisonniers peuvent enfin vivre sur place : plus de candidats, moins de départs' },
+  quatrej:  { label: 'Tester la semaine de quatre jours à la réception', cost: 3, desc: 'Les mêmes 35 heures, sur quatre jours au lieu de cinq.', fx: { motiv: 7, abs: -1.5 }, good: 'Trois jours de repos par semaine à la réception' }
+};
+
+const GAME = {
+  title: 'Motivation et rémunération',
+  brand: 'LES <span>EMBRUNS</span>',
+  storeKey: 'rhQvtFins',
+  backLink: '../../matieres/ressources-humaines-terminale.html',
+  footer: 'Ressources humaines, Terminale STMG, thème 2',
+  kicker: 'Ressources humaines · Terminale STMG · Thème 2',
+  debIntro: 'Tu as agi sur les conditions de travail, la rémunération et la reconnaissance. Voici comment on appelle ce que tu as fait.',
+  cutText: 'Ta partie s\'est arrêtée avant la fin de la saison. Rejoue pour aller au bout.',
+  pitch: `Un an a passé aux Embruns. Les clients sont contents, l'équipe beaucoup moins. 9${N}% d'absentéisme, 40${N}% des saisonniers partis avant la fin de la saison. L'hôtel concurrent, de l'autre côté de la baie, paie 150${N}€ de plus par mois. Mme Le Bihan te donne 45${N}000${N}€ pour l'année. «${N}Augmentez tout le monde, et qu'on n'en parle plus.${N}»`,
+  meta: '4 actes · 20 minutes',
+  start: s => Object.assign(s, { motiv: 42, abs: 9, turn: 40, budget: 45 }),
+  norm: s => { s.abs = Math.max(3, s.abs); s.turn = Math.max(8, s.turn); },
+  hud: [
+    { k: 'motiv',  label: 'Motivation', short: 'Motivation', show: s => Math.round(s.motiv), pct: s => s.motiv, low: s => s.motiv < 45, clamp: true },
+    { k: 'abs',    label: 'Absentéisme', short: 'Absences', show: s => pc(s.abs), pct: s => s.abs * 8, low: s => s.abs > 7, inv: true, unit: N + 'pts' },
+    { k: 'turn',   label: 'Départs de saisonniers', short: 'Départs', show: s => pc(s.turn), pct: s => s.turn * 2, low: s => s.turn > 25, inv: true, unit: N + 'pts' },
+    { k: 'budget', label: 'Budget', short: 'Budget', show: s => ke(s.budget), pct: s => s.budget * 100 / 45, low: s => s.budget < 0, unit: N + 'k€' }
+  ],
+  fail: () => null,
+  lock: () => null,
+  bilan: s => [['Motivation', Math.round(s.motiv) + ' / 100'], ['Absentéisme', pc(s.abs)], ['Départs de saisonniers', pc(s.turn)], ['Budget restant', ke(s.budget)]],
+
+  characters: {
+    patronne:{ name: 'Mme Le Bihan', role: 'propriétaire des Embruns', color: '#FFC64F', body: '#3a4a6a', hair: '#c9c9c9', acc: 'clip' },
+    martine: { name: 'Martine', role: 'gouvernante', color: '#B9A6FF', body: '#4a3a5a', hair: '#a0a0a0', acc: 'clip' },
+    aicha:   { name: 'Aïcha', role: 'gouvernante adjointe', color: '#FF8A4C', body: '#7a3a22', hair: '#1c1c22', acc: 'box' },
+    bruno:   { name: 'Bruno', role: 'serveur, élu au comité social et économique', color: '#4CD97B', body: '#2f7a4a', hair: '#5a4030', acc: 'tie' },
+    narr:    { name: 'Toi', role: '', color: '#B86BBA' }
+  },
+
+  acts: [
+  /* ------------------------------ ACTE 1 ------------------------------ */
+  { num: 1, title: 'Les conditions de travail', sub: 'Avant de motiver, il faut cesser d\'abîmer.',
+    steps: [
+      { t: 'say', who: 'bruno', text: `On a fait un questionnaire anonyme. 19 réponses sur 22.${tab([['« J\'ai mal au dos ou aux épaules » (femmes de chambre)', '6 sur 6'], ['« Les coupures m\'empêchent d\'avoir une vie » (salle, cuisine)', '9 sur 11'], ['« Je découvre mon planning trop tard »', '14 sur 19'], ['« Je ne trouve pas de logement pour la saison » (saisonniers)', '5 sur 6'], ['« Je suis moins payé qu\'en face »', '12 sur 19'], ['« Personne ne me dit quand je fais du bon travail »', '13 sur 19']])}` },
+      { t: 'say', who: 'narr', text: `Un salarié qui souffre, qui ne peut pas s'organiser ou qui ne trouve pas où dormir finit par s'absenter ou partir. La <em>qualité de vie et des conditions de travail</em>, c'est d'abord ça. 15${N}k€ pour commencer${N}?` },
+      { t: 'pick', id: 'qvt', budget: 15, unit: 'k€', unitLabel: 'Budget conditions de travail', go: 'Lancer ces actions ▸',
+        prompt: `Les actions sur les conditions de travail (15${N}k€)${N}?`,
+        options: Object.entries(QVT).map(([id, q]) => ({ id, label: q.label, cost: q.cost, desc: q.desc })),
+        resolve: (s, ids) => { const fx = { budget: 0, motiv: 0, abs: 0, turn: 0 }, good = [], bad = [];
+          ids.forEach(i => { const q = QVT[i]; fx.budget -= q.cost; for (const k in q.fx) fx[k] += q.fx[k]; good.push(q.good); });
+          if (!ids.includes('ergo')) bad.push('Les femmes de chambre continuent de s\'abîmer le dos');
+          if (!ids.includes('coupures')) bad.push('Les coupures restent : la vie personnelle de la salle et de la cuisine aussi');
+          if (!ids.includes('logement')) bad.push('Les saisonniers dorment toujours dans leur voiture ou à 40 km');
+          if (!ids.length) bad.push('Rien ne change dans le quotidien de l\'équipe');
+          return { fx, chain: ch(good, bad) }; } }
+    ] },
+
+  /* ------------------------------ ACTE 2 ------------------------------ */
+  { num: 2, title: 'La rémunération', sub: 'Le salaire n\'est qu\'une partie de ce que l\'on gagne en travaillant.',
+    steps: [
+      { t: 'say', who: 'patronne', text: s => `Il reste ${ke(s.budget)}. Une augmentation générale de 80${N}€ brut par mois pour tout le monde coûte 30${N}k€ sur l'année, avec les cotisations. Mais il y a d'autres façons de payer les gens, paraît-il.` },
+      { t: 'choice', id: 'remu', prompt: `La rémunération${N}?`, options: [
+        { id: 'generale', label: 'Augmentation générale : +80 € brut par mois pour tous', desc: '30 k€. Le salaire de base augmente pour toujours.', fx: { budget: -30, motiv: 10, turn: -5 },
+          chain: ch(['L\'écart avec l\'hôtel d\'en face se réduit', 'Tout le monde est concerné, sans jaloux', 'Un sentiment de justice immédiat'], ['30 k€ par an, chaque année', 'Après quelques mois, une augmentation devient normale : elle ne motive plus, elle évite seulement d\'être mécontent']),
+          voix: V({ who: 'bruno', text: `Merci. C'était attendu depuis longtemps.` }) },
+        { id: 'merite', label: 'Une prime individuelle au mérite, décidée par chaque responsable', desc: '15 k€. Récompenser les meilleurs.', fx: { budget: -15, motiv: 2, abs: 0.5 },
+          chain: ch(['Les plus efficaces sont récompensés'], ['Qui décide qui est « le meilleur », et comment ?', 'Les femmes de chambre et la plonge se sentent oubliées', 'Des jalousies entre collègues']),
+          voix: V({ who: 'martine', text: `Mes filles font toutes 14 chambres par jour. Laquelle je dois choisir${N}?` }) },
+        { id: 'collective', label: 'Une prime collective : si la note des avis et le chiffre d\'affaires progressent, toute l\'équipe partage', desc: '12 k€ prévus. L\'intéressement aux résultats de l\'hôtel.', fx: { budget: -12, motiv: 8, turn: -3 },
+          chain: ch(['Tout le monde gagne ensemble, de la plonge à la réception', 'Chacun a intérêt à ce que les clients soient contents', 'Pas de cotisations sociales sur l\'intéressement : plus de net pour le même coût'], ['Un montant qui varie selon l\'année']) },
+        { id: 'avantages', label: 'Des avantages : meilleure mutuelle, repas offerts, chèques-vacances', desc: '14 k€. La rémunération globale, au-delà du salaire.', fx: { budget: -14, motiv: 5, turn: -4, abs: -0.5 },
+          chain: ch(['Une mutuelle mieux prise en charge : moins de frais de santé', 'Un repas offert par jour : près de 150 € par mois pour un salarié', 'Des chèques-vacances pour partir en hiver'], ['Ça ne se voit pas sur la fiche de paie : il faut l\'expliquer']) } ] },
+      { t: 'say', who: 'martine', text: `Autre chose. Mes femmes de chambre, toutes des femmes, gagnent 1${N}850${N}€ brut. Les plongeurs, tous des hommes, 1${N}950${N}€. Même niveau de qualification, même pénibilité, mêmes horaires. Pourquoi${N}?` },
+      { t: 'choice', id: 'egalite', prompt: `L'écart de salaire${N}?`, options: [
+        { id: 'corriger', label: 'Aligner les femmes de chambre sur les plongeurs', desc: '+100 € brut par mois pour 6 personnes : 3 k€ pour la fin d\'année.', fx: { budget: -3, motiv: 6 },
+          chain: ch(['À travail de valeur égale, salaire égal : c\'est la loi', 'Un signal fort pour toute l\'équipe'], ['3 k€ de plus']) },
+        { id: 'justifier', label: 'Garder l\'écart : les plongeurs portent des charges lourdes', desc: 'C\'est une différence de poste.', set: { inegal: true }, fx: { motiv: -6 },
+          chain: ch([], ['Les femmes de chambre portent du linge et soulèvent des matelas toute la journée', 'Une justification qui ne tient pas devant un juge', 'Un écart de salaire entre femmes et hommes pour un travail de valeur égale est interdit']) },
+        { id: 'ignorer', label: 'Ne rien faire pour l\'instant', desc: 'On verra l\'année prochaine.', set: { inegal: true }, fx: { motiv: -8 },
+          chain: ch([], ['L\'inégalité continue', 'Martine et son équipe se sentent méprisées']) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 3 ------------------------------ */
+  { num: 3, title: 'La reconnaissance', sub: 'Ce qui motive vraiment ne s\'achète pas toujours.',
+    steps: [
+      { t: 'say', who: 'aicha', text: `Le plus dur, ce n'est pas la fatigue. C'est qu'on fait 14 chambres parfaites par jour et que personne ne le voit. Et le chef de réception nous envoie des messages sur WhatsApp à 23${N}h pour le lendemain.` },
+      { t: 'choice', id: 'reco', prompt: `Qu'est-ce qui changerait le quotidien${N}? (sans budget supplémentaire)`, options: [
+        { id: 'autonomie', label: 'Laisser chaque équipe organiser elle-même son travail', desc: 'Les femmes de chambre se répartissent les étages, la salle choisit son organisation du service.', fx: { motiv: 9, abs: -0.5 },
+          chain: ch(['Les salariés décident de la manière de faire leur travail', 'Ceux qui font le travail savent souvent le mieux l\'organiser', 'Un sentiment de confiance et de responsabilité'], ['Il faut accepter de lâcher un peu de contrôle']) },
+        { id: 'retours', label: 'Partager chaque semaine les avis clients qui citent l\'équipe', desc: '« Chambre impeccable », « serveur adorable » : affichés et lus en réunion.', fx: { motiv: 6 },
+          chain: ch(['Le travail invisible devient visible', 'La reconnaissance vient des clients, et de la direction']) },
+        { id: 'deconnexion', label: 'Une charte de déconnexion : aucun message professionnel après 20 h ni pendant les repos', desc: 'Le droit à la déconnexion, appliqué.', fx: { motiv: 5, abs: -1 },
+          chain: ch(['Le repos redevient du repos', 'Moins de fatigue, moins d\'arrêts'], ['Les managers doivent mieux anticiper']) },
+        { id: 'employe', label: 'Élire « l\'employé du mois », avec sa photo à l\'accueil', desc: 'Simple et visible.', fx: { motiv: 1 },
+          chain: ch(['Une personne par mois est mise en valeur'], ['21 autres ne le sont pas', 'Les postes au contact des clients gagnent toujours']) } ] }
+    ] },
+
+  /* ------------------------------ ACTE 4 ------------------------------ */
+  { num: 4, title: 'La saison', sub: 'Les indicateurs ne mentent pas.', final: true,
+    steps: [
+      { t: 'event', who: 'bruno', if: s => H.remu === 'generale' && !(H.qvt || '').includes('coupures') && !(H.qvt || '').includes('ergo'), text: `Juillet. «${N}Les 80${N}€, c'était bien. Mais j'ai toujours mal au dos et je finis toujours à minuit. L'augmentation, on l'a déjà oubliée.${N}»`, fx: { motiv: -7 } },
+      { t: 'event', who: 'narr', text: s => `Au fil de l'été, ${s.motiv >= 60 ? 'les saisonniers restent : ils en parlent à leurs amis, et les candidatures spontanées arrivent.' : s.motiv >= 45 ? 'quelques saisonniers partent encore, mais moins que l\'an dernier.' : 'les départs continuent, comme chaque année.'}`, fx: s => ({ turn: -Math.max(0, Math.round((s.motiv - 42) / 4)) }) },
+      { t: 'event', who: 'aicha', text: s => `Août. L'hôtel d'en face propose à Aïcha 200${N}€ de plus par mois pour devenir gouvernante. ${s.motiv >= 62 ? `Elle refuse${N}: «${N}Ici, on m'a formée, on me fait confiance, et je sais à quoi ressemblera ma semaine. 200${N}€, ça ne rachète pas ça.${N}»` : `Elle accepte${N}: «${N}Ici, rien ne change vraiment. Là-bas, au moins, c'est mieux payé.${N}»`}`,
+        fx: s => s.motiv >= 62 ? { motiv: 2 } : { motiv: -6, turn: 4 } },
+      { t: 'say', who: 'patronne', text: s => {
+          s.verdict = F(s).inegal ? 'inegalite' : s.budget < 0 ? 'budget' : (s.motiv < 50 || s.turn > 32) ? 'fuite' : (s.motiv < 65 || s.turn > 25) ? 'moyen' : 'succes';
+          return `Fin de saison. Voici le bilan.${tab([['Motivation (baromètre)', Math.round(s.motiv) + ' / 100'], ['Absentéisme', `${pc(s.abs)} (9 % l'an dernier)`], ['Départs de saisonniers', `${pc(s.turn)} (40 % l'an dernier)`], ['Budget', s.budget >= 0 ? `${ke(s.budget)} non dépensés` : `${ke(-s.budget)} de dépassement`, 1]])}${{ inegalite: 'Et une lettre de l\'inspection du travail, au sujet des salaires des femmes de chambre.', budget: 'Vous avez dépassé le budget que je vous avais donné. Je ne peux pas suivre.', fuite: 'L\'équipe continue de partir.', moyen: 'Ça va mieux. Mais on est loin d\'une équipe qui a envie de rester.', succes: 'Je n\'avais jamais vu une équipe aussi stable.' }[s.verdict]}`; } }
+    ] }
+  ],
+
+  endings: [
+    { id: 'inegalite', when: s => s.verdict === 'inegalite', title: 'L\'inégalité de salaire', stamp: 'Inspection du travail', color: '#FF5C6A',
+      text: `Payer moins les femmes de chambre que les plongeurs, pour un travail de valeur égale, est une discrimination salariale interdite par le Code du travail. Les salariées peuvent réclamer devant le conseil de prud'hommes les sommes perdues. L'égalité de rémunération entre femmes et hommes n'est pas une option.` },
+    { id: 'budget', when: s => s.verdict === 'budget', title: 'Le budget explosé', stamp: 'Dépassement', color: '#FF5C6A',
+      text: `Les bonnes intentions ont coûté plus que prévu. Une politique de rémunération doit concilier la motivation des salariés et les moyens de l'entreprise${N}: une augmentation générale pèse chaque année, d'autres leviers coûtent moins pour un effet comparable.` },
+    { id: 'fuite', when: s => s.verdict === 'fuite', title: 'L\'équipe qui s\'en va', stamp: 'Départs', color: '#FFC64F',
+      text: s => `${H.remu === 'generale' && !(H.qvt || '').includes('coupures') ? 'L\'argent seul n\'a pas suffi : les causes du malaise étaient ailleurs. ' : ''}Douleurs, horaires, logement, reconnaissance${N}: ce sont souvent eux qui font partir les salariés. Supprimer ce qui crée l'insatisfaction et nourrir ce qui motive sont deux actions différentes, et toutes deux nécessaires.` },
+    { id: 'moyen', when: s => s.verdict === 'moyen', title: 'Mieux, mais pas encore', stamp: 'En progrès', color: '#FFC64F',
+      text: `Les absences et les départs reculent, mais la motivation reste moyenne. Il manque sans doute un levier${N}: des conditions de travail, une rémunération perçue comme juste, ou une reconnaissance du travail accompli.` },
+    { id: 'succes', when: s => true, title: 'L\'équipe qui reste', stamp: 'Équipe fidèle', color: '#4CD97B',
+      text: s => `Absentéisme ${pc(s.abs)}, départs ${pc(s.turn)}. Tu as d'abord supprimé ce qui faisait souffrir, puis construit une rémunération globale juste, et enfin donné de l'autonomie et de la reconnaissance. Aïcha est restée${N}: ce n'était pas qu'une question d'argent.` }
+  ],
+
+  debrief: [
+    { act: 1, needs: ['qvt'], title: 'Acte 1 — Les conditions de travail', text: () => `La <em>qualité de vie et des conditions de travail</em> (QVCT) regroupe tout ce qui permet de bien travailler : santé et sécurité (prévenir les <em>troubles musculo-squelettiques</em>), organisation du temps de travail, <em>conciliation entre vie professionnelle et vie personnelle</em>, environnement de travail. Des conditions dégradées se voient dans les indicateurs : <em>absentéisme</em> et <em>turnover</em> (taux de départ). Un <em>baromètre social</em> (questionnaire) permet de repérer les problèmes.`,
+      chain: () => ({ good: ['Écouter', 'Prévenir la pénibilité', 'Organiser le temps', 'Moins d\'absences'], bad: ['Douleurs', 'Coupures', 'Pas de logement', 'Départs'] }) },
+    { act: 2, needs: ['remu'], title: 'Acte 2 — La rémunération', text: h => `La <em>rémunération globale</em> comprend le <em>salaire de base</em> (fixe), la part <em>variable</em> (primes individuelles ou collectives), l\'<em>épargne salariale</em> (<em>intéressement</em>, participation), les <em>avantages sociaux</em> (mutuelle, repas, chèques-vacances). Elle doit être <em>équitable</em> à l\'intérieur de l\'entreprise et compétitive face aux concurrents. L\'<em>égalité de rémunération entre les femmes et les hommes</em>, pour un travail de valeur égale, est une obligation légale. ${h.remu === 'merite' ? 'Une prime individuelle mal définie peut être perçue comme injuste.' : ''}`,
+      chain: () => ({ good: ['Rémunération globale', 'Équité', 'Égalité femmes-hommes', 'Sentiment de justice'], bad: ['Salaire seul', 'Primes arbitraires', 'Inégalité'] }) },
+    { act: 3, needs: ['reco'], title: 'Acte 3 — La reconnaissance', text: h => `La <em>motivation extrinsèque</em> vient de l\'extérieur (salaire, primes) ; la <em>motivation intrinsèque</em> vient du travail lui-même (intérêt, <em>autonomie</em>, sentiment d\'utilité). Selon Herzberg, certains facteurs (salaire, conditions) évitent l\'insatisfaction sans motiver durablement ; d\'autres (<em>reconnaissance</em>, responsabilités, réussite) motivent vraiment. Le <em>droit à la déconnexion</em> protège le temps de repos.`,
+      chain: () => ({ good: ['Autonomie', 'Reconnaissance', 'Repos respecté', 'Motivation durable'], bad: ['Contrôle', 'Travail invisible', 'Messages à minuit'] }) },
+    { act: 4, needs: ['reco'], finalOnly: true, title: 'Acte 4 — La saison', text: () => `Les <em>indicateurs sociaux</em> (absentéisme, turnover, baromètre) mesurent l\'effet des politiques RH. Ce qui retient un salarié, c\'est un ensemble : conditions de travail, rémunération perçue comme juste, reconnaissance, perspectives. On parle de <em>fidélisation</em> des salariés.`,
+      chain: () => ({ good: ['Conditions', 'Rémunération juste', 'Reconnaissance', 'Fidélisation'], bad: ['Un seul levier', 'Effet passager', 'Départs'] }) }
+  ],
+  vocab: ['Qualité de vie et des conditions de travail', 'Troubles musculo-squelettiques', 'Conciliation vie professionnelle et vie personnelle', 'Baromètre social', 'Absentéisme', 'Turnover', 'Rémunération globale', 'Salaire de base', 'Rémunération variable', 'Intéressement', 'Avantages sociaux', 'Équité', 'Égalité de rémunération femmes-hommes', 'Motivation intrinsèque', 'Motivation extrinsèque', 'Autonomie', 'Reconnaissance', 'Droit à la déconnexion', 'Fidélisation']
+};
+let H = {};
+
+/* =====================================================================
+   2. DÉCOR — l'hôtel et le baromètre de l'équipe.
+   ===================================================================== */
+GAME.scene = (S, act) => {
+  const P = '#9C4F9E', m = Math.round(S.motiv), col = m >= 65 ? '#4CD97B' : m >= 45 ? '#FFC64F' : '#FF5C6A';
+  return `<svg viewBox="0 0 360 200" role="img" aria-label="Le baromètre de l'équipe des Embruns">
+    <rect width="360" height="200" fill="#07050a"/><rect x="0" y="0" width="360" height="162" fill="#0d0a12"/>
+    <path d="M150,150 Q200,142 250,150 T360,150 V162 H150 Z" fill="#1b2a44" opacity=".8"/>
+    <rect x="175" y="60" width="100" height="90" fill="#1a1422" stroke="${P}" stroke-width="1.5"/><path d="M169,62 L225,34 L281,62 Z" fill="${P}" opacity=".85"/>
+    <text x="225" y="56" text-anchor="middle" font-family="Orbitron,sans-serif" font-weight="800" font-size="7" fill="#fff">LES EMBRUNS</text>
+    ${Array.from({ length: 12 }, (_, i) => `<rect x="${184 + (i % 4) * 22}" y="${72 + Math.floor(i / 4) * 24}" width="12" height="12" fill="${i < Math.round(m / 8.5) ? '#FFC64F' : '#2a2233'}"/>`).join('')}
+    <g transform="translate(318,40)"><rect x="-7" y="0" width="14" height="96" rx="7" fill="#1a1422" stroke="#3a2d44"/><rect x="-4" y="${3 + 90 * (1 - m / 100)}" width="8" height="${90 * m / 100}" rx="4" fill="${col}"/><circle cx="0" cy="104" r="10" fill="${col}"/></g>
+    <text x="318" y="30" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="10" fill="${col}">motivation ${m}</text>
+    <rect x="0" y="162" width="360" height="38" fill="#08060b"/><line x1="0" y1="162" x2="360" y2="162" stroke="#2d1f36" stroke-width="1.5"/>`;
+};
+/* =====================================================================
+   3. MOTEUR — générique, lit GAME et ne contient aucun texte de scénario.
+   ===================================================================== */
+(function () {
+  const app = document.getElementById('app');
+  let S, queue, act, lastDeltas = [], maxAct = 0;
+  const HUD = {}; GAME.hud.forEach(g => HUD[g.k] = g);
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(GAME.storeKey) || '[]'); } catch (e) { return []; } },
+    add(id) { try { const a = store.get(); if (!a.includes(id)) { a.push(id); localStorage.setItem(GAME.storeKey, JSON.stringify(a)); } } catch (e) {} }
+  };
+  const val = (v, ...a) => typeof v === 'function' ? v(...a) : v;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function character(id) {
+    const c = GAME.characters[id];
+    if (!c || !c.body) return '';
+    const acc = {
+      bun: `<circle cx="-2" cy="-88" r="7" fill="${c.hair}"/>`,
+      cap: `<path d="M-15,-72 Q0,-92 15,-72 Z" fill="${c.color}"/><rect x="6" y="-74" width="16" height="4" rx="2" fill="${c.color}"/>`,
+      box: `<rect x="14" y="-44" width="22" height="18" rx="3" fill="#8a5a22" stroke="${c.color}" stroke-width="1.5"/>`,
+      tie: `<path d="M0,-52 L4,-44 L0,-26 L-4,-44 Z" fill="${c.color}"/>`,
+      clip: `<rect x="14" y="-46" width="16" height="22" rx="2" fill="#EEF3EC"/><rect x="18" y="-49" width="8" height="5" rx="1" fill="${c.color}"/><rect x="2" y="-73" width="12" height="6" rx="3" fill="none" stroke="#EEF3EC" stroke-width="1.5"/>`
+    }[c.acc] || '';
+    return `<g transform="translate(76,186)">
+      <ellipse cx="0" cy="2" rx="26" ry="5" fill="#000" opacity=".5"/>
+      <rect x="-13" y="-22" width="11" height="24" rx="5" fill="#1b2420"/><rect x="2" y="-22" width="11" height="24" rx="5" fill="#1b2420"/>
+      <rect x="-25" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(8 -20 -50)"/>
+      <rect x="-18" y="-56" width="36" height="40" rx="12" fill="${c.body}"/>
+      <rect x="15" y="-52" width="10" height="28" rx="5" fill="${c.body}" transform="rotate(-18 20 -50)"/>
+      <circle cx="0" cy="-70" r="15" fill="#E8B58A"/>
+      <path d="M-15,-72 Q-14,-88 0,-87 Q15,-88 15,-72 Q8,-80 -15,-72 Z" fill="${c.hair}"/>
+      <circle cx="4" cy="-70" r="1.8" fill="#151515"/><circle cx="11" cy="-70" r="1.8" fill="#151515"/>
+      <path d="M4,-63 Q8,-60 12,-63" stroke="#151515" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      ${acc}
+      <path d="M12,-82 Q19,-70 12,-58 M17,-52 Q21,-36 17,-20" stroke="${c.color}" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85"/>
+    </g>`;
+  }
+
+  function hud() {
+    return `<div class="hud">${GAME.hud.map(g => `<div class="g${g.low(S) ? ' low' : ''}"><div class="g-l" title="${g.label}">${g.short}</div><div class="g-v">${g.show(S)}</div><div class="g-b"><i style="width:${clamp(g.pct(S), 0, 100)}%"></i></div></div>`).join('')}</div>
+      <div class="deltas" aria-live="polite">${lastDeltas.map(d => `<span class="d ${d.v > 0 ? 'up' : 'down'}">${d.t}</span>`).join('')}</div>`;
+  }
+  function frame(who, inner) {
+    app.innerHTML = `<div class="topbar"><div class="brand">${GAME.brand}</div><div class="act-tag">Acte ${act.num} · ${act.title}</div></div>
+      ${hud()}<div class="stage">${GAME.scene(S, act)}${character(who)}</svg></div>${inner}`;
+  }
+  function whoTag(id) {
+    const c = GAME.characters[id] || GAME.characters.narr;
+    return `<span class="who" style="background:${c.color}">${c.name}</span>${c.role ? `<span class="role">${c.role}</span>` : ''}`;
+  }
+  function applyFx(fx) {
+    lastDeltas = [];
+    if (!fx) return;
+    for (const k in fx) {
+      const v = fx[k]; if (!v) continue;
+      S[k] = Math.round((S[k] + v) * 10) / 10;
+      const g = HUD[k];
+      if (g && g.clamp) S[k] = clamp(S[k], 0, 100);
+      if (g) lastDeltas.push({ v: g.inv ? -v : v, t: `${g.label} ${v > 0 ? '+' : '−'}${Math.abs(v).toLocaleString('fr-FR')}${g.unit || ''}` });
+    }
+    if (GAME.norm) GAME.norm(S);
+  }
+  function pushAfter(lines) {
+    queue.unshift(...(lines || []).map(l => l.t ? Object.assign({}, l, { _after: true }) : ({ t: 'say', who: l.who, text: l.text, _after: true })));
+  }
+
+  function chainHtml(ch, anim) {
+    let k = 0;
+    const row = (items, tone) => items && items.length ? `<div class="ch-row ${tone}">${items.map((it, i) => `${i ? `<span class="ch-a"${anim ? ` style="animation-delay:${(k * 0.45).toFixed(2)}s"` : ''}>→</span>` : ''}<span class="ch-p"${anim ? ` style="animation-delay:${(k++ * 0.45).toFixed(2)}s"` : ''}>${it}</span>`).join('')}</div>` : '';
+    return `<div class="chain${anim ? ' anim' : ''}">${row(ch.good, 'good')}${row(ch.bad, 'bad')}</div>`;
+  }
+  function startGame() {
+    S = { flags: {} }; GAME.start(S);
+    H = {}; lastDeltas = []; maxAct = 0;
+    startAct(0);
+  }
+  function startAct(i) {
+    act = GAME.acts[i]; maxAct = Math.max(maxAct, act.num); lastDeltas = [];
+    queue = act.steps.slice();
+    app.innerHTML = `<div class="card"><div class="kicker">Acte ${act.num}</div><h2>${act.title}</h2><p class="lead">${act.sub}</p><button class="btn" id="go">Continuer ▸</button></div>`;
+    document.getElementById('go').onclick = next;
+    window.scrollTo(0, 0);
+  }
+  function next() {
+    const f = !act.final && GAME.fail(S);
+    if (f && !(queue[0] && queue[0]._after)) return end(f);
+    let st;
+    while ((st = queue.shift())) { if (!st.if || st.if(S)) break; }
+    if (!st) {
+      const i = GAME.acts.indexOf(act);
+      return i + 1 < GAME.acts.length ? startAct(i + 1) : end();
+    }
+    if (st.t === 'say' || st.t === 'event') {
+      let text;
+      if (st.t === 'event') { if (st.do) st.do(S); text = val(st.text, S); applyFx(val(st.fx, S)); if (st.set) Object.assign(S.flags, st.set); }
+      else { if (!st._after) lastDeltas = []; text = val(st.text, S); }
+      const w = val(st.who, S); frame(w, `<div class="box">${whoTag(w)}<p class="say">${text}</p><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'choice') {
+      lastDeltas = [];
+      const options = st.options;
+      const html = options.map((o, i) => {
+        let lock = o.lock ? o.lock(S) : null;
+        if (!lock && o.cost) lock = GAME.lock(S, o.cost);
+        return `<button class="opt" data-i="${i}" ${lock ? 'disabled' : ''}><div class="opt-t"><span>${val(o.label, S)}</span>${o.cost ? `<span class="opt-c">− ${o.cost.toLocaleString('fr-FR')}${N}€</span>` : ''}</div><div class="opt-d">${val(o.desc, S) || ''}</div>${lock ? `<div class="opt-lock">${lock}</div>` : ''}</button>`;
+      }).join('');
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><div class="opts">${html}</div></div>`);
+      app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+        const o = options[+b.dataset.i];
+        H[st.id] = o.id;
+        if (o.set) Object.assign(S.flags, o.set);
+        const fx = val(o.fx, S);
+        if (o.do) o.do(S);
+        const suite = (val(o.after, S) || []).slice();
+        if (o.voix) suite.unshift({ t: 'voix', voix: val(o.voix, S) });
+        if (o.chain) suite.unshift({ t: 'chain', chain: val(o.chain, S), fx });   // les jauges ne bougent qu'après la chaîne
+        else applyFx(fx);
+        pushAfter(suite); next();
+      });
+    } else if (st.t === 'chain') {
+      lastDeltas = [];
+      frame(null, `<div class="box"><div class="prompt">Ce que ta décision déclenche</div>${chainHtml(st.chain, true)}<button class="btn" id="go">${st.solo ? 'Continuer' : 'Voir les réactions'} ▸</button></div>`);
+      document.getElementById('go').onclick = () => { applyFx(st.fx); next(); };
+    } else if (st.t === 'voix') {
+      frame(null, `<div class="box"><div class="voix">${st.voix.map(v => { const c = GAME.characters[v.who] || {}; return `<div class="vx"><span class="who" style="background:${c.color || '#EEF3EC'}">${v.nom || c.name}</span>${!v.nom && c.role ? `<span class="role">${c.role}</span>` : ''}<p>${v.text}</p></div>`; }).join('')}</div><button class="btn" id="go">Continuer ▸</button></div>`);
+      document.getElementById('go').onclick = next;
+    } else if (st.t === 'pick') {
+      lastDeltas = [];
+      const opts = val(st.options, S), budget = val(st.budget, S), sel = new Set();
+      frame(null, `<div class="box"><div class="prompt">${val(st.prompt, S)}</div><p class="pick-h" id="pk"></p><div class="opts">${opts.map((o, i) => `<button class="opt pick" data-i="${i}" aria-pressed="false"><div class="opt-t"><span>${o.label}</span><span class="pick-c">${o.cost} ${st.unit || ''}</span></div><div class="opt-d">${val(o.desc, S) || ''}</div></button>`).join('')}</div><div style="text-align:center"><button class="btn" id="go">${st.go || 'Valider ▸'}</button></div></div>`);
+      const used = () => [...sel].reduce((a, i) => a + opts[i].cost, 0);
+      const upd = () => {
+        const u = used();
+        document.getElementById('pk').innerHTML = `${st.unitLabel || 'Budget'} : <b>${budget - u}</b> ${st.unit || ''} restant${budget - u > 1 ? 's' : ''} sur ${budget}`;
+        app.querySelectorAll('.pick').forEach(b => { const i = +b.dataset.i; b.disabled = !sel.has(i) && opts[i].cost > budget - u; b.setAttribute('aria-pressed', sel.has(i)); });
+        document.getElementById('go').disabled = st.min ? sel.size < st.min : false;
+      };
+      app.querySelectorAll('.pick').forEach(b => b.onclick = () => { const i = +b.dataset.i; sel.has(i) ? sel.delete(i) : sel.add(i); upd(); });
+      upd();
+      document.getElementById('go').onclick = () => {
+        const ids = [...sel].sort((x, y) => x - y).map(i => opts[i].id);
+        H[st.id] = ids.join(',') || 'aucun';
+        const res = st.resolve(S, ids) || {};
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    } else if (st.t === 'qty') {
+      lastDeltas = [];
+      const mn = val(st.min, S), mx = val(st.max, S), pr = val(st.prompt, S);
+      frame(null, `<div class="box"><div class="prompt">${pr}</div>
+        <div class="price"><div class="price-v" id="pv"></div><div class="price-m" id="pm"></div></div>
+        <input type="range" id="rng" min="${mn}" max="${mx}" step="${st.step || 1}" value="${val(st.def, S)}" aria-label="${pr}">
+        <div class="range-l"><span>${st.show(mn)}</span><span>${st.show(mx)}</span></div>
+        <div style="text-align:center"><button class="btn" id="go">Valider ▸</button></div></div>`);
+      const r = document.getElementById('rng'), upd = () => {
+        document.getElementById('pv').textContent = st.show(+r.value);
+        document.getElementById('pm').innerHTML = st.info(S, +r.value);
+      };
+      r.oninput = upd; upd();
+      document.getElementById('go').onclick = () => {
+        const n = +r.value, res = st.resolve(S, n);
+        H[st.id] = res.band || String(n); H[st.id + 'v'] = n;
+        if (res.do) res.do(S);
+        const suite = (res.after || []).slice();
+        if (res.voix) suite.unshift({ t: 'voix', voix: res.voix });
+        if (res.chain) suite.unshift({ t: 'chain', chain: res.chain, fx: res.fx });
+        else applyFx(res.fx);
+        pushAfter(suite); next();
+      };
+    }
+    window.scrollTo(0, 0);
+  }
+
+  function end(forced) {
+    const e = forced ? GAME.endings.find(x => x.id === forced) : GAME.endings.find(x => x.when(S));
+    store.add(e.id);
+    const deb = GAME.debrief.filter(d => d.act <= maxAct && !(d.finalOnly && forced) && (d.needs || []).every(k => H[k] !== undefined))
+      .map(d => `<div class="deb"><h3>${d.title}</h3><p>${d.text(H, S).replace(/ ([:?!;»])/g, N + '$1').replace(/« /g, '«' + N)}</p>${d.chain ? chainHtml(d.chain(H, S), false) : ''}</div>`).join('');
+    const found = store.get().length;
+    app.innerHTML = `<div class="end" data-ending="${e.id}">
+      <div class="end-head"><div class="kicker">Fin de partie</div><h2>${val(e.title, S)}</h2>
+        <div class="stamp" style="color:${e.color};border-color:${e.color}">${e.stamp}</div><p class="lead">${val(e.text, S)}</p></div>
+      <div class="bilan">${GAME.bilan(S).map(b => `<div><small>${b[0]}</small><b>${b[1]}</b></div>`).join('')}</div>
+      ${deb ? `<div class="deb-t">Ce que tu viens de vivre a un nom</div><p class="deb-s">${GAME.debIntro}</p>${deb}` : ''}
+      ${forced ? `<p class="deb-s">${GAME.cutText}</p>` : ''}
+      <div class="vocab">${GAME.vocab.map(v => `<span>${v}</span>`).join('')}</div>
+      <div class="end-btns"><button class="btn" id="again">Rejouer ▸</button><a class="btn ghost" href="${GAME.backLink}">Retour au cours</a></div>
+      <p class="found">Fins découvertes${N}: ${found} / ${GAME.endings.length}</p>
+    </div><div class="foot">© 2026 Prof 4.0 — Romain Pineau · ${GAME.footer}</div>`;
+    document.getElementById('again').onclick = startGame;
+    window.scrollTo(0, 0);
+  }
+
+  function home() {
+    const found = store.get().length;
+    app.innerHTML = `<div class="card"><div class="kicker">${GAME.kicker}</div>
+      <h1>${GAME.brand}</h1>
+      <p class="lead">${GAME.pitch}</p>
+      <button class="btn" id="go">Jouer ▸</button>
+      <p class="found">${GAME.meta} · ${GAME.endings.length} fins possibles${found ? ` · ${found} découverte${found > 1 ? 's' : ''}` : ''}</p></div>
+      <div class="foot">© 2026 Prof 4.0 — Romain Pineau</div>`;
+    document.getElementById('go').onclick = startGame;
+  }
+  home();
+})();
+</script>
+</body>
+</html>
