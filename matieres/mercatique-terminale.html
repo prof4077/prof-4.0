@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8"/>
 <title>PROF 4.0 — Mercatique</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&amp;family=Rajdhani:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
 <style>
 :root{ --level-neon:#7CFF3D; --level-dim:#3FA324; --level-glow:rgba(124,255,61,.55); }
 
@@ -368,157 +369,195 @@ footer summary:hover{color:var(--level-neon);}
 .tg-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;color:#fff;margin-top:3px;line-height:1.3;}
 .tg-d{font-size:13.5px;color:var(--muted);margin-top:4px;line-height:1.45;}
 @media (max-width:640px){.theme-game{flex-wrap:wrap;gap:10px 12px;padding:12px 14px;}.tg-ico{width:38px;height:38px;}.tg-txt{flex:1 1 calc(100% - 52px);}.tg-t{font-size:14px;}.theme-game .status-ready{margin-left:50px;}}
+
+
+/* PROF 4.0 / Collection SVG 100 maîtres + 32 scènes contextualisées.
+   Priorité à la lisibilité, sans double réduction de la largeur disponible. */
+.breadcrumb{flex-wrap:wrap;min-width:0;max-width:100%;gap:5px 8px;}
+.chapter-card{
+    min-height:184px; padding:26px 28px; gap:18px;
+    isolation:isolate;
+}
+.chapter-card::before{
+    opacity:.12 !important;
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 70%,#000 100%) !important;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 70%,#000 100%) !important;
+}
+.chapter-left{width:calc(100% - 172px);max-width:none;min-width:0;position:relative;z-index:2;}
+.chapter-left>div:last-child{min-width:0;}
+.chapter-name{line-height:1.25;overflow-wrap:break-word;}
+.chapter-links{width:100%;max-width:none;position:relative;z-index:3;margin-top:auto;}
+.chapter-links .links-row{max-width:100%;}
+.chapter-art{
+    position:absolute;right:19px;top:20px;width:170px;height:105px;z-index:1;
+    display:flex;align-items:center;justify-content:center;pointer-events:none;
+    filter:drop-shadow(0 0 7px color-mix(in srgb,var(--subj) 24%,transparent));
+}
+.chapter-art::before{
+    content:'';position:absolute;inset:14px;border-radius:50%;pointer-events:none;
+    background:radial-gradient(ellipse at center,color-mix(in srgb,var(--subj) 13%,transparent),transparent 72%);
+    filter:blur(12px);
+}
+.chapter-art>svg{width:100%;height:100%;display:block;overflow:visible;position:relative;color:var(--subj) !important;}
+.chapter-art svg path,.chapter-art svg circle,.chapter-art svg rect,
+.chapter-art svg ellipse,.chapter-art svg polygon{vector-effect:non-scaling-stroke;}
+.chapter-card:hover .chapter-art{
+    filter:drop-shadow(0 0 12px color-mix(in srgb,var(--subj) 34%,transparent));
+}
+@media(max-width:1000px) and (min-width:761px){
+    .chapter-card{padding:25px 23px;}
+    .chapter-left{width:calc(100% - 123px);}
+    .chapter-art{width:132px;height:87px;right:10px;top:17px;}
+}
+@media(max-width:760px){
+    .chapter-card{min-height:170px;padding:22px 20px;gap:16px;}
+    .chapter-left{width:calc(100% - 93px);gap:12px;}
+    .chapter-art{width:93px;height:70px;right:12px;top:17px;}
+    .chapter-card::before{opacity:.05 !important;}
+    .chapter-links{width:100%;max-width:none;}
+}
+@media(max-width:400px){
+    .chapter-card{padding:20px 16px;}
+    .chapter-left{width:calc(100% - 83px);gap:9px;}
+    .chapter-num-wrap{width:36px;height:36px;}
+    .chapter-art{width:82px;height:62px;right:10px;top:14px;}
+    .chapter-name{font-size:16.5px;}
+}
+
 </style>
 </head>
 <body>
 <div class="bg-field"></div>
 <div class="hex-grid" style="background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2784%27%20height%3D%2796%27%20viewBox%3D%270%200%2084%2096%27%3E%3Cpath%20d%3D%27M42%200%20L84%2024%20L84%2072%20L42%2096%20L0%2072%20L0%2024%20Z%27%20fill%3D%27none%27%20stroke%3D%27%237CFF3D%27%20stroke-width%3D%271%27/%3E%3C/svg%3E');"></div>
-
 <div class="page-bg-decor" style="position:absolute;top:0;left:0;width:100%;overflow:hidden;z-index:0;pointer-events:none;">
 <!-- motif 1 : cadran tech, haut gauche -->
 <div style="position:absolute;top:-60px;left:-60px;width:320px;height:320px;z-index:0;pointer-events:none;opacity:.30;">
-  <svg viewBox="0 0 200 200" style="width:100%;height:100%;animation:spinA 60s linear infinite;transform-origin:center;">
-    <circle cx="100" cy="100" r="92" fill="none" stroke="#E8564B" stroke-width="1"/>
-    <circle cx="100" cy="100" r="92" fill="none" stroke="#E8564B" stroke-width="3" stroke-dasharray="3 11"/>
-    <circle cx="100" cy="100" r="70" fill="none" stroke="#E8564B" stroke-width="1"/>
-    <circle cx="100" cy="100" r="48" fill="none" stroke="#E8564B" stroke-width="1.5"/>
-  </svg>
+<svg style="width:100%;height:100%;animation:spinA 60s linear infinite;transform-origin:center;" viewbox="0 0 200 200">
+<circle cx="100" cy="100" fill="none" r="92" stroke="#E8564B" stroke-width="1"></circle>
+<circle cx="100" cy="100" fill="none" r="92" stroke="#E8564B" stroke-dasharray="3 11" stroke-width="3"></circle>
+<circle cx="100" cy="100" fill="none" r="70" stroke="#E8564B" stroke-width="1"></circle>
+<circle cx="100" cy="100" fill="none" r="48" stroke="#E8564B" stroke-width="1.5"></circle>
+</svg>
 </div>
-
 <!-- motif 1b : petit hexagone, haut centre-droit -->
 <div style="position:absolute;top:60px;left:48%;width:110px;height:110px;z-index:0;pointer-events:none;opacity:.26;">
-  <svg viewBox="0 0 110 110" style="width:100%;height:100%;animation:spinB 45s linear infinite;transform-origin:center;">
-    <polygon points="55,6 98,29 98,81 55,104 12,81 12,29" fill="none" stroke="#E8564B" stroke-width="1.5"/>
-  </svg>
+<svg style="width:100%;height:100%;animation:spinB 45s linear infinite;transform-origin:center;" viewbox="0 0 110 110">
+<polygon fill="none" points="55,6 98,29 98,81 55,104 12,81 12,29" stroke="#E8564B" stroke-width="1.5"></polygon>
+</svg>
 </div>
-
 <!-- motif 2 : hexagones concentriques, milieu droit -->
 <div style="position:absolute;top:680px;right:-90px;width:280px;height:280px;z-index:0;pointer-events:none;opacity:.28;">
-  <svg viewBox="0 0 200 200" style="width:100%;height:100%;animation:spinB 70s linear infinite;transform-origin:center;">
-    <polygon points="100,10 178,55 178,145 100,190 22,145 22,55" fill="none" stroke="#E8564B" stroke-width="1"/>
-    <polygon points="100,35 155,67 155,133 100,165 45,133 45,67" fill="none" stroke="#E8564B" stroke-width="2" stroke-dasharray="3 8"/>
-  </svg>
+<svg style="width:100%;height:100%;animation:spinB 70s linear infinite;transform-origin:center;" viewbox="0 0 200 200">
+<polygon fill="none" points="100,10 178,55 178,145 100,190 22,145 22,55" stroke="#E8564B" stroke-width="1"></polygon>
+<polygon fill="none" points="100,35 155,67 155,133 100,165 45,133 45,67" stroke="#E8564B" stroke-dasharray="3 8" stroke-width="2"></polygon>
+</svg>
 </div>
-
 <!-- motif 2b : cadran, milieu gauche -->
 <div style="position:absolute;top:420px;left:60px;width:130px;height:130px;z-index:0;pointer-events:none;opacity:.26;">
-  <svg viewBox="0 0 130 130" style="width:100%;height:100%;animation:spinA 50s linear infinite;transform-origin:center;">
-    <circle cx="65" cy="65" r="58" fill="none" stroke="#E8564B" stroke-width="1"/>
-    <circle cx="65" cy="65" r="58" fill="none" stroke="#E8564B" stroke-width="5" stroke-dasharray="10 22" opacity="0.6"/>
-    <circle cx="65" cy="65" r="36" fill="none" stroke="#E8564B" stroke-width="1"/>
-  </svg>
+<svg style="width:100%;height:100%;animation:spinA 50s linear infinite;transform-origin:center;" viewbox="0 0 130 130">
+<circle cx="65" cy="65" fill="none" r="58" stroke="#E8564B" stroke-width="1"></circle>
+<circle cx="65" cy="65" fill="none" opacity="0.6" r="58" stroke="#E8564B" stroke-dasharray="10 22" stroke-width="5"></circle>
+<circle cx="65" cy="65" fill="none" r="36" stroke="#E8564B" stroke-width="1"></circle>
+</svg>
 </div>
-
 <!-- motif 3 : cluster nid d'abeilles, gauche -->
 <div style="position:absolute;top:1150px;left:-40px;width:300px;height:300px;z-index:0;pointer-events:none;opacity:.28;">
-  <svg viewBox="0 0 200 200" style="width:100%;height:100%;">
-    <g fill="none" stroke="#E8564B" stroke-width="2">
-      <polygon points="100,60 126,75 126,105 100,120 74,105 74,75"/>
-      <polygon points="150,90 176,105 176,135 150,150 124,135 124,105"/>
-      <polygon points="50,90 76,105 76,135 50,150 24,135 24,105"/>
-      <polygon points="100,120 126,135 126,165 100,180 74,165 74,135"/>
-    </g>
-  </svg>
+<svg style="width:100%;height:100%;" viewbox="0 0 200 200">
+<g fill="none" stroke="#E8564B" stroke-width="2">
+<polygon points="100,60 126,75 126,105 100,120 74,105 74,75"></polygon>
+<polygon points="150,90 176,105 176,135 150,150 124,135 124,105"></polygon>
+<polygon points="50,90 76,105 76,135 50,150 24,135 24,105"></polygon>
+<polygon points="100,120 126,135 126,165 100,180 74,165 74,135"></polygon>
+</g>
+</svg>
 </div>
-
 <!-- motif 3b : boussole, droite -->
 <div style="position:absolute;top:1000px;right:140px;width:120px;height:120px;z-index:0;pointer-events:none;opacity:.26;">
-  <svg viewBox="0 0 120 120" style="width:100%;height:100%;animation:spinB 55s linear infinite;transform-origin:center;">
-    <polygon points="60,8 103,34 103,86 60,112 17,86 17,34" fill="none" stroke="#E8564B" stroke-width="1"/>
-    <circle cx="60" cy="60" r="34" fill="none" stroke="#E8564B" stroke-width="1" stroke-dasharray="2 5"/>
-  </svg>
+<svg style="width:100%;height:100%;animation:spinB 55s linear infinite;transform-origin:center;" viewbox="0 0 120 120">
+<polygon fill="none" points="60,8 103,34 103,86 60,112 17,86 17,34" stroke="#E8564B" stroke-width="1"></polygon>
+<circle cx="60" cy="60" fill="none" r="34" stroke="#E8564B" stroke-dasharray="2 5" stroke-width="1"></circle>
+</svg>
 </div>
-
 <!-- motif 4 : boussole hexagonale, droite -->
 <div style="position:absolute;top:1750px;right:-70px;width:260px;height:260px;z-index:0;pointer-events:none;opacity:.30;">
-  <svg viewBox="0 0 200 200" style="width:100%;height:100%;animation:spinA 65s linear infinite;transform-origin:center;">
-    <polygon points="100,14 172,57 172,143 100,186 28,143 28,57" fill="none" stroke="#E8564B" stroke-width="1"/>
-    <circle cx="100" cy="100" r="56" fill="none" stroke="#E8564B" stroke-width="1" stroke-dasharray="2 6"/>
-    <line x1="100" y1="20" x2="100" y2="180" stroke="#E8564B" stroke-width="1"/>
-    <line x1="20" y1="100" x2="180" y2="100" stroke="#E8564B" stroke-width="1"/>
-  </svg>
+<svg style="width:100%;height:100%;animation:spinA 65s linear infinite;transform-origin:center;" viewbox="0 0 200 200">
+<polygon fill="none" points="100,14 172,57 172,143 100,186 28,143 28,57" stroke="#E8564B" stroke-width="1"></polygon>
+<circle cx="100" cy="100" fill="none" r="56" stroke="#E8564B" stroke-dasharray="2 6" stroke-width="1"></circle>
+<line stroke="#E8564B" stroke-width="1" x1="100" x2="100" y1="20" y2="180"></line>
+<line stroke="#E8564B" stroke-width="1" x1="20" x2="180" y1="100" y2="100"></line>
+</svg>
 </div>
-
 <!-- motif 4b : hexagone simple, gauche -->
 <div style="position:absolute;top:1900px;left:100px;width:90px;height:90px;z-index:0;pointer-events:none;opacity:.26;">
-  <svg viewBox="0 0 90 90" style="width:100%;height:100%;animation:spinB 40s linear infinite;transform-origin:center;">
-    <polygon points="45,5 80,24 80,66 45,85 10,66 10,24" fill="none" stroke="#E8564B" stroke-width="1.5" stroke-dasharray="3 6"/>
-  </svg>
+<svg style="width:100%;height:100%;animation:spinB 40s linear infinite;transform-origin:center;" viewbox="0 0 90 90">
+<polygon fill="none" points="45,5 80,24 80,66 45,85 10,66 10,24" stroke="#E8564B" stroke-dasharray="3 6" stroke-width="1.5"></polygon>
+</svg>
 </div>
-
 <!-- motif 5 : cadran circulaire, bas gauche -->
 <div style="position:absolute;top:2300px;left:-70px;width:280px;height:280px;z-index:0;pointer-events:none;opacity:.28;">
-  <svg viewBox="0 0 200 200" style="width:100%;height:100%;animation:spinB 75s linear infinite;transform-origin:center;">
-    <circle cx="100" cy="100" r="80" fill="none" stroke="#E8564B" stroke-width="1"/>
-    <circle cx="100" cy="100" r="80" fill="none" stroke="#E8564B" stroke-width="6" stroke-dasharray="14 30" opacity="0.6"/>
-    <circle cx="100" cy="100" r="50" fill="none" stroke="#E8564B" stroke-width="1"/>
-  </svg>
+<svg style="width:100%;height:100%;animation:spinB 75s linear infinite;transform-origin:center;" viewbox="0 0 200 200">
+<circle cx="100" cy="100" fill="none" r="80" stroke="#E8564B" stroke-width="1"></circle>
+<circle cx="100" cy="100" fill="none" opacity="0.6" r="80" stroke="#E8564B" stroke-dasharray="14 30" stroke-width="6"></circle>
+<circle cx="100" cy="100" fill="none" r="50" stroke="#E8564B" stroke-width="1"></circle>
+</svg>
 </div>
-
 <!-- motif 5b : petit hexagone, centre -->
 <div style="position:absolute;top:2180px;left:50%;width:100px;height:100px;z-index:0;pointer-events:none;opacity:.24;">
-  <svg viewBox="0 0 100 100" style="width:100%;height:100%;animation:spinA 48s linear infinite;transform-origin:center;">
-    <polygon points="50,5 89,27 89,73 50,95 11,73 11,27" fill="none" stroke="#E8564B" stroke-width="1.5"/>
-  </svg>
+<svg style="width:100%;height:100%;animation:spinA 48s linear infinite;transform-origin:center;" viewbox="0 0 100 100">
+<polygon fill="none" points="50,5 89,27 89,73 50,95 11,73 11,27" stroke="#E8564B" stroke-width="1.5"></polygon>
+</svg>
 </div>
-
 <!-- motif 6 : hexagones concentriques, bas droite -->
 <div style="position:absolute;top:2850px;right:-90px;width:300px;height:300px;z-index:0;pointer-events:none;opacity:.28;">
-  <svg viewBox="0 0 200 200" style="width:100%;height:100%;animation:spinA 68s linear infinite;transform-origin:center;">
-    <polygon points="100,10 178,55 178,145 100,190 22,145 22,55" fill="none" stroke="#E8564B" stroke-width="1"/>
-    <polygon points="100,35 155,67 155,133 100,165 45,133 45,67" fill="none" stroke="#E8564B" stroke-width="2" stroke-dasharray="3 8"/>
-  </svg>
+<svg style="width:100%;height:100%;animation:spinA 68s linear infinite;transform-origin:center;" viewbox="0 0 200 200">
+<polygon fill="none" points="100,10 178,55 178,145 100,190 22,145 22,55" stroke="#E8564B" stroke-width="1"></polygon>
+<polygon fill="none" points="100,35 155,67 155,133 100,165 45,133 45,67" stroke="#E8564B" stroke-dasharray="3 8" stroke-width="2"></polygon>
+</svg>
 </div>
-
 <!-- motif 6b : cadran, bas gauche -->
 <div style="position:absolute;top:2700px;left:140px;width:110px;height:110px;z-index:0;pointer-events:none;opacity:.26;">
-  <svg viewBox="0 0 110 110" style="width:100%;height:100%;animation:spinB 52s linear infinite;transform-origin:center;">
-    <circle cx="55" cy="55" r="48" fill="none" stroke="#E8564B" stroke-width="1"/>
-    <circle cx="55" cy="55" r="48" fill="none" stroke="#E8564B" stroke-width="4" stroke-dasharray="8 18" opacity="0.6"/>
-  </svg>
-</div>
-
-<!-- trame "circuit" reliant les motifs, sur toute la hauteur -->
-<svg style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.34;" preserveAspectRatio="none">
-  <path d="M 60,140 Q 200,300 400,560 T 900,900 Q 1100,1050 950,1300 T 500,1750 Q 250,1950 700,2200 T 900,2650 Q 750,2850 500,3000"
-    fill="none" stroke="#E8564B" stroke-width="1.5" stroke-dasharray="2 10"/>
-  <circle cx="400" cy="560" r="3" fill="#E8564B"/>
-  <circle cx="950" cy="1300" r="3" fill="#E8564B"/>
-  <circle cx="700" cy="2200" r="3" fill="#E8564B"/>
-  <circle cx="500" cy="3000" r="3" fill="#E8564B"/>
+<svg style="width:100%;height:100%;animation:spinB 52s linear infinite;transform-origin:center;" viewbox="0 0 110 110">
+<circle cx="55" cy="55" fill="none" r="48" stroke="#E8564B" stroke-width="1"></circle>
+<circle cx="55" cy="55" fill="none" opacity="0.6" r="48" stroke="#E8564B" stroke-dasharray="8 18" stroke-width="4"></circle>
 </svg>
-
+</div>
+<!-- trame "circuit" reliant les motifs, sur toute la hauteur -->
+<svg preserveaspectratio="none" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.34;">
+<path d="M 60,140 Q 200,300 400,560 T 900,900 Q 1100,1050 950,1300 T 500,1750 Q 250,1950 700,2200 T 900,2650 Q 750,2850 500,3000" fill="none" stroke="#E8564B" stroke-dasharray="2 10" stroke-width="1.5"></path>
+<circle cx="400" cy="560" fill="#E8564B" r="3"></circle>
+<circle cx="950" cy="1300" fill="#E8564B" r="3"></circle>
+<circle cx="700" cy="2200" fill="#E8564B" r="3"></circle>
+<circle cx="500" cy="3000" fill="#E8564B" r="3"></circle>
+</svg>
 <!-- petites formes de remplissage entre les grands motifs -->
 <div style="position:absolute;top:340px;right:120px;width:60px;height:60px;z-index:0;pointer-events:none;opacity:.4;">
-  <svg viewBox="0 0 60 60"><polygon points="30,4 54,17 54,43 30,56 6,43 6,17" fill="none" stroke="#E8564B" stroke-width="1.5"/></svg>
+<svg viewbox="0 0 60 60"><polygon fill="none" points="30,4 54,17 54,43 30,56 6,43 6,17" stroke="#E8564B" stroke-width="1.5"></polygon></svg>
 </div>
 <div style="position:absolute;top:950px;left:160px;width:40px;height:40px;z-index:0;pointer-events:none;opacity:.42;">
-  <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#E8564B" stroke-width="1" stroke-dasharray="2 5"/></svg>
+<svg viewbox="0 0 40 40"><circle cx="20" cy="20" fill="none" r="17" stroke="#E8564B" stroke-dasharray="2 5" stroke-width="1"></circle></svg>
 </div>
 <div style="position:absolute;top:1480px;right:200px;width:50px;height:50px;z-index:0;pointer-events:none;opacity:.4;">
-  <svg viewBox="0 0 50 50"><polygon points="25,3 45,14 45,36 25,47 5,36 5,14" fill="none" stroke="#E8564B" stroke-width="1.5"/></svg>
+<svg viewbox="0 0 50 50"><polygon fill="none" points="25,3 45,14 45,36 25,47 5,36 5,14" stroke="#E8564B" stroke-width="1.5"></polygon></svg>
 </div>
 <div style="position:absolute;top:2050px;left:140px;width:36px;height:36px;z-index:0;pointer-events:none;opacity:.42;">
-  <svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#E8564B" stroke-width="1" stroke-dasharray="2 5"/></svg>
+<svg viewbox="0 0 36 36"><circle cx="18" cy="18" fill="none" r="15" stroke="#E8564B" stroke-dasharray="2 5" stroke-width="1"></circle></svg>
 </div>
 <div style="position:absolute;top:2600px;right:170px;width:46px;height:46px;z-index:0;pointer-events:none;opacity:.4;">
-  <svg viewBox="0 0 46 46"><polygon points="23,3 42,13 42,33 23,43 4,33 4,13" fill="none" stroke="#E8564B" stroke-width="1.5"/></svg>
+<svg viewbox="0 0 46 46"><polygon fill="none" points="23,3 42,13 42,33 23,43 4,33 4,13" stroke="#E8564B" stroke-width="1.5"></polygon></svg>
 </div>
-
 <!-- particules hexagonales flottantes sur toute la hauteur -->
 <div style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:hidden;">
-  <div class="particle" style="left:8%;bottom:0%;width:14px;height:16px;animation-delay:0s;animation-duration:22s;border-color:#E8564B;"></div>
-  <div class="particle" style="left:22%;bottom:15%;width:18px;height:20px;animation-delay:3s;animation-duration:26s;border-color:#E8564B;"></div>
-  <div class="particle" style="left:38%;bottom:35%;width:12px;height:14px;animation-delay:6s;animation-duration:20s;border-color:#E8564B;"></div>
-  <div class="particle" style="left:55%;bottom:8%;width:16px;height:18px;animation-delay:2s;animation-duration:24s;border-color:#E8564B;"></div>
-  <div class="particle" style="left:70%;bottom:45%;width:14px;height:16px;animation-delay:8s;animation-duration:21s;border-color:#E8564B;"></div>
-  <div class="particle" style="left:85%;bottom:20%;width:18px;height:20px;animation-delay:4s;animation-duration:25s;border-color:#E8564B;"></div>
-  <div class="particle" style="left:15%;bottom:60%;width:14px;height:16px;animation-delay:10s;animation-duration:23s;border-color:#E8564B;"></div>
-  <div class="particle" style="left:45%;bottom:70%;width:16px;height:18px;animation-delay:5s;animation-duration:27s;border-color:#E8564B;"></div>
-  <div class="particle" style="left:65%;bottom:80%;width:12px;height:14px;animation-delay:12s;animation-duration:22s;border-color:#E8564B;"></div>
-  <div class="particle" style="left:92%;bottom:65%;width:16px;height:18px;animation-delay:7s;animation-duration:24s;border-color:#E8564B;"></div>
+<div class="particle" style="left:8%;bottom:0%;width:14px;height:16px;animation-delay:0s;animation-duration:22s;border-color:#E8564B;"></div>
+<div class="particle" style="left:22%;bottom:15%;width:18px;height:20px;animation-delay:3s;animation-duration:26s;border-color:#E8564B;"></div>
+<div class="particle" style="left:38%;bottom:35%;width:12px;height:14px;animation-delay:6s;animation-duration:20s;border-color:#E8564B;"></div>
+<div class="particle" style="left:55%;bottom:8%;width:16px;height:18px;animation-delay:2s;animation-duration:24s;border-color:#E8564B;"></div>
+<div class="particle" style="left:70%;bottom:45%;width:14px;height:16px;animation-delay:8s;animation-duration:21s;border-color:#E8564B;"></div>
+<div class="particle" style="left:85%;bottom:20%;width:18px;height:20px;animation-delay:4s;animation-duration:25s;border-color:#E8564B;"></div>
+<div class="particle" style="left:15%;bottom:60%;width:14px;height:16px;animation-delay:10s;animation-duration:23s;border-color:#E8564B;"></div>
+<div class="particle" style="left:45%;bottom:70%;width:16px;height:18px;animation-delay:5s;animation-duration:27s;border-color:#E8564B;"></div>
+<div class="particle" style="left:65%;bottom:80%;width:12px;height:14px;animation-delay:12s;animation-duration:22s;border-color:#E8564B;"></div>
+<div class="particle" style="left:92%;bottom:65%;width:16px;height:18px;animation-delay:7s;animation-duration:24s;border-color:#E8564B;"></div>
 </div>
-
 <style>@keyframes spinA{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
 @keyframes spinB{from{transform:rotate(0deg);}to{transform:rotate(-360deg);}}
 .particle{position:absolute;border:1px solid #E8564B;opacity:0;
@@ -526,286 +565,338 @@ footer summary:hover{color:var(--level-neon);}
   animation-name:floatUpPage;animation-timing-function:linear;animation-iteration-count:infinite;}
 @keyframes floatUpPage{0%{transform:translateY(0) rotate(0deg);opacity:0;}10%{opacity:.75;}90%{opacity:.55;}100%{transform:translateY(-900px) rotate(180deg);opacity:0;}}
 </style>
-
-
 </div>
 <div class="page-content" style="position:relative;z-index:1;">
 <header>
-  <div class="nav-wrap">
-    <div class="brand">
-      <div class="brand-hex"></div>
-      <div class="brand-name">PROF <span>4.0</span></div>
-    </div>
-    <div class="breadcrumb"><a href="../index.html">Accueil</a><span class="sep">/</span><a href="../stmg.html">STMG</a><span class="sep">/</span><a href="../terminale.html">Terminale</a><span class="sep">/</span><span class="current">Mercatique</span></div>
-  </div>
+<div class="nav-wrap">
+<div class="brand">
+<div class="brand-hex"></div>
+<div class="brand-name">PROF <span>4.0</span></div>
+</div>
+<div class="breadcrumb"><a href="../index.html">Accueil</a><span class="sep">/</span><a href="../stmg.html">STMG</a><span class="sep">/</span><a href="../terminale.html">Terminale</a><span class="sep">/</span><span class="current">Mercatique</span></div>
+</div>
 </header>
 <div class="build-banner">
-  <svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 9v4M12 16.5h.01"/><path d="M10.3 3.9L2.5 18a1.8 1.8 0 001.55 2.7h15.9a1.8 1.8 0 001.55-2.7L13.7 3.9a1.8 1.8 0 00-3.4 0z"/></svg>
-  <span>Site en construction &mdash; de nouveaux contenus (fiches, vid&eacute;os, podcasts, jeux) sont ajout&eacute;s au fur et &agrave; mesure.</span>
+<svg stroke-width="2" viewbox="0 0 24 24"><path d="M12 9v4M12 16.5h.01"></path><path d="M10.3 3.9L2.5 18a1.8 1.8 0 001.55 2.7h15.9a1.8 1.8 0 001.55-2.7L13.7 3.9a1.8 1.8 0 00-3.4 0z"></path></svg>
+<span>Site en construction — de nouveaux contenus (fiches, vidéos, podcasts, jeux) sont ajoutés au fur et à mesure.</span>
 </div>
-
 <section style="--subj:#E8564B;position:relative;">
-  <div class="particle-field"><div class="particle" style="left:4%;bottom:-10%;width:16px;height:18px;animation-delay:0s;animation-duration:11s;"></div><div class="particle" style="left:14%;bottom:0%;width:20px;height:23px;animation-delay:1.4s;animation-duration:14s;"></div><div class="particle" style="left:24%;bottom:-20%;width:14px;height:16px;animation-delay:3.1s;animation-duration:10s;"></div><div class="particle" style="left:34%;bottom:5%;width:22px;height:25px;animation-delay:0.6s;animation-duration:16s;"></div><div class="particle" style="left:46%;bottom:-15%;width:18px;height:21px;animation-delay:4.5s;animation-duration:12s;"></div><div class="particle" style="left:58%;bottom:0%;width:15px;height:17px;animation-delay:2.2s;animation-duration:15s;"></div></div>
-  <div class="sec-head" style="text-align:center;">
-    <div class="sec-num" style="color:#E8564B;">Terminale</div>
-    <div style="display:flex;align-items:center;justify-content:center;gap:20px;">
-      <svg class="subj-flank" width="50" height="50" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 26h12l25-12v36L22 38H10zM22 38l5 14h9l-7-17"/><path d="M47 23c5 4 5 14 0 18M52 18c8 7 8 21 0 28"/><path d="M10 26v12"/></g></svg>
-      <div class="sec-title">Mercatique</div>
-      <svg class="subj-flank" width="50" height="50" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 26h12l25-12v36L22 38H10zM22 38l5 14h9l-7-17"/><path d="M47 23c5 4 5 14 0 18M52 18c8 7 8 21 0 28"/><path d="M10 26v12"/></g></svg>
-    </div>
-    <p class="sec-sub" style="margin-left:auto;margin-right:auto;">Bienvenue ! Tu trouveras ici toutes les ressources n&eacute;cessaires pour progresser en Mercatique.</p>
-  </div>
-  <nav class="theme-nav" aria-label="Th&egrave;mes du programme">
-    <a href="#theme-1" class="theme-chip" title="La définition de l&#x27;offre"><span class="theme-chip-num">TH&Egrave;ME 1</span><span class="theme-chip-txt">La définition de l'offre</span></a>
-    <a href="#theme-2" class="theme-chip" title="La distribution de l&#x27;offre"><span class="theme-chip-num">TH&Egrave;ME 2</span><span class="theme-chip-txt">La distribution de l'offre</span></a>
-    <a href="#theme-3" class="theme-chip" title="La communication de l&#x27;offre"><span class="theme-chip-num">TH&Egrave;ME 3</span><span class="theme-chip-txt">La communication de l'offre</span></a>
-  </nav>
-
-  <div class="theme-block" id="theme-1">
-    <div class="theme-head-wrap"><div class="theme-head">
-      <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
-      <div class="theme-bignum" aria-hidden="true">01</div>
-      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 22h38v32H13zM19 22v-7h26v7M21 31h22M21 39h14"/><path d="m51 27 6 6-6 6m-6-6h12"/></g></svg></div></div>
-      <div class="theme-head-txt">
-        <div class="theme-label">Th&egrave;me 1 &middot; Chapitres 01 &agrave; 07</div>
-        <h2 class="theme-title">La définition de l'offre</h2>
-      </div>
-    </div></div>
-    <div class="theme-game"><div class="tg-ico"><svg viewBox="0 0 32 32" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11h14a6 6 0 0 1 5.6 8.2l-1.3 3.4a3 3 0 0 1-5 .9L20 21h-8l-2.3 2.5a3 3 0 0 1-5-.9l-1.3-3.4A6 6 0 0 1 9 11z"/><path d="M10 14.5v4M8 16.5h4"/></g><circle cx="21" cy="15.5" r="1.3" fill="currentColor"/><circle cx="23.5" cy="18" r="1.3" fill="currentColor"/></svg></div><div class="tg-txt"><div class="tg-k">Jeu du thème</div><div class="tg-t">L’offre</div><div class="tg-d">Pulpe, smoothies nantais&nbsp;: choisir sa cible, sa recette, son prix et l’expérience client, puis tenir face à un géant à 1,99 €.</div></div><a href="../jeux/mercatique/l-offre.html" target="_blank" class="status-ready"><span class="type-dot type-jeu"></span>Jouer</a></div>
-  <div class="chapter-grid">
-
-    <div class="chapter-card">
-      <div class="chapter-left">
-        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">01</div></div>
-        <div>
-          <div class="chapter-name">Adapter l'offre à des groupes de clients</div>
-          </div>
-        </div>
-      <div class="chapter-links"><div class="links-row"><a href="../ressources/mercatique/mercatique-ch01-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
-      <div class="corner-br"></div>
-    </div>
-
-    <div class="chapter-card">
-      <div class="chapter-left">
-        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">02</div></div>
-        <div>
-          <div class="chapter-name">Les composantes de l'offre</div>
-          </div>
-        </div>
-      <div class="chapter-links"><div class="links-row"><a href="../ressources/mercatique/mercatique-ch02-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
-      <div class="corner-br"></div>
-    </div>
-
-    <div class="chapter-card">
-      <div class="chapter-left">
-        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">03</div></div>
-        <div>
-          <div class="chapter-name">La personnalisation de l'offre</div>
-          </div>
-        </div>
-      <div class="chapter-links"><div class="links-row"><a href="../ressources/mercatique/mercatique-ch03-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
-      <div class="corner-br"></div>
-    </div>
-
-    <div class="chapter-card">
-      <div class="chapter-left">
-        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">04</div></div>
-        <div>
-          <div class="chapter-name">L'expérience de consommation</div>
-          </div>
-        </div>
-      <div class="chapter-links"><div class="links-row"><a href="../ressources/mercatique/mercatique-ch04-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
-      <div class="corner-br"></div>
-    </div>
-
-    <div class="chapter-card">
-      <div class="chapter-left">
-        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">05</div></div>
-        <div>
-          <div class="chapter-name">La diversité des politiques de prix</div>
-          </div>
-        </div>
-      <div class="chapter-links"><div class="links-row"><a href="../ressources/mercatique/mercatique-ch05-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
-      <div class="corner-br"></div>
-    </div>
-
-    <div class="chapter-card">
-      <div class="chapter-left">
-        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">06</div></div>
-        <div>
-          <div class="chapter-name">La fixation du prix selon une logique rationnelle</div>
-          </div>
-        </div>
-      <div class="chapter-links"><div class="links-row"><a href="../ressources/mercatique/mercatique-ch06-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
-      <div class="corner-br"></div>
-    </div>
-
-    <div class="chapter-card">
-      <div class="chapter-left">
-        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">07</div></div>
-        <div>
-          <div class="chapter-name">Les modèles de gratuité</div>
-          </div>
-        </div>
-      <div class="chapter-links"><div class="links-row"><a href="../ressources/mercatique/mercatique-ch07-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
-      <div class="corner-br"></div>
-    </div>
-
-  </div>
-  </div>
-
-  <div class="theme-block" id="theme-2">
-    <div class="theme-head-wrap"><div class="theme-head">
-      <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
-      <div class="theme-bignum" aria-hidden="true">02</div>
-      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 20h30v27H8zM38 29h10l8 9v9H38z"/><circle cx="19" cy="51" r="5"/><circle cx="47" cy="51" r="5"/><path d="M13 27h19m-19 7h13m-5 6 5 5"/></g></svg></div></div>
-      <div class="theme-head-txt">
-        <div class="theme-label">Th&egrave;me 2 &middot; Chapitres 08 &agrave; 11</div>
-        <h2 class="theme-title">La distribution de l'offre</h2>
-      </div>
-    </div></div>
-    <div class="theme-game"><div class="tg-ico"><svg viewBox="0 0 32 32" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11h14a6 6 0 0 1 5.6 8.2l-1.3 3.4a3 3 0 0 1-5 .9L20 21h-8l-2.3 2.5a3 3 0 0 1-5-.9l-1.3-3.4A6 6 0 0 1 9 11z"/><path d="M10 14.5v4M8 16.5h4"/></g><circle cx="21" cy="15.5" r="1.3" fill="currentColor"/><circle cx="23.5" cy="18" r="1.3" fill="currentColor"/></svg></div><div class="tg-txt"><div class="tg-k">Jeu du thème</div><div class="tg-t">La distribution</div><div class="tg-d">Boutique, épiceries, supermarchés, applis&nbsp;: choisir ses canaux, négocier avec une centrale, livrer au froid et relier le tout.</div></div><a href="../jeux/mercatique/la-distribution.html" target="_blank" class="status-ready"><span class="type-dot type-jeu"></span>Jouer</a></div>
-  <div class="chapter-grid">
-
-    <div class="chapter-card">
-      <div class="chapter-left">
-        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">08</div></div>
-        <div>
-          <div class="chapter-name">Les stratégies de distribution de l'offre</div>
-          </div>
-        </div>
-      <div class="chapter-links"><div class="links-row"><a href="../ressources/mercatique/mercatique-ch08-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
-      <div class="corner-br"></div>
-    </div>
-
-    <div class="chapter-card">
-      <div class="chapter-left">
-        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">09</div></div>
-        <div>
-          <div class="chapter-name">Les relations producteurs-distributeurs</div>
-          </div>
-        </div>
-      <div class="chapter-links"><div class="links-row"><a href="../ressources/mercatique/mercatique-ch09-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
-      <div class="corner-br"></div>
-    </div>
-
-    <div class="chapter-card">
-      <div class="chapter-left">
-        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">10</div></div>
-        <div>
-          <div class="chapter-name">La prise en compte du choix des consommateurs par la distribution</div>
-          </div>
-        </div>
-      <div class="chapter-links"><div class="links-row"><a href="../ressources/mercatique/mercatique-ch10-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
-      <div class="corner-br"></div>
-    </div>
-
-    <div class="chapter-card">
-      <div class="chapter-left">
-        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">11</div></div>
-        <div>
-          <div class="chapter-name">La digitalisation des unités commerciales</div>
-          </div>
-        </div>
-      <div class="chapter-links"><div class="links-row"><a href="../ressources/mercatique/mercatique-ch11-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
-      <div class="corner-br"></div>
-    </div>
-
-  </div>
-  </div>
-
-  <div class="theme-block" id="theme-3">
-    <div class="theme-head-wrap"><div class="theme-head">
-      <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
-      <div class="theme-bignum" aria-hidden="true">03</div>
-      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 25h13l25-12v38L22 39H9zM22 39l5 14h10l-7-17"/><path d="M48 23c6 4 6 14 0 18m5-24c10 8 10 22 0 30"/></g></svg></div></div>
-      <div class="theme-head-txt">
-        <div class="theme-label">Th&egrave;me 3 &middot; Chapitres 12 &agrave; 16</div>
-        <h2 class="theme-title">La communication de l'offre</h2>
-      </div>
-    </div></div>
-    <div class="theme-game"><div class="tg-ico"><svg viewBox="0 0 32 32" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11h14a6 6 0 0 1 5.6 8.2l-1.3 3.4a3 3 0 0 1-5 .9L20 21h-8l-2.3 2.5a3 3 0 0 1-5-.9l-1.3-3.4A6 6 0 0 1 9 11z"/><path d="M10 14.5v4M8 16.5h4"/></g><circle cx="21" cy="15.5" r="1.3" fill="currentColor"/><circle cx="23.5" cy="18" r="1.3" fill="currentColor"/></svg></div><div class="tg-txt"><div class="tg-k">Jeu du thème</div><div class="tg-t">La communication</div><div class="tg-d">20 000 € pour faire connaître Pulpe à Rennes&nbsp;: objectif, message, médias payés, propres et gagnés, influenceurs, indicateurs, et un bad buzz.</div></div><a href="../jeux/mercatique/la-communication.html" target="_blank" class="status-ready"><span class="type-dot type-jeu"></span>Jouer</a></div>
-  <div class="chapter-grid">
-
-    <div class="chapter-card">
-      <div class="chapter-left">
-        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">12</div></div>
-        <div>
-          <div class="chapter-name">La valorisation de l'offre par la communication</div>
-          </div>
-        </div>
-      <div class="chapter-links"><div class="links-row"><a href="../ressources/mercatique/mercatique-ch12-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
-      <div class="corner-br"></div>
-    </div>
-
-    <div class="chapter-card">
-      <div class="chapter-left">
-        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">13</div></div>
-        <div>
-          <div class="chapter-name">La diversité des formes de communication</div>
-          </div>
-        </div>
-      <div class="chapter-links"><div class="links-row"><a href="../ressources/mercatique/mercatique-ch13-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
-      <div class="corner-br"></div>
-    </div>
-
-    <div class="chapter-card">
-      <div class="chapter-left">
-        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">14</div></div>
-        <div>
-          <div class="chapter-name">Les stratégies de fidélisation au service de la relation client</div>
-          </div>
-        </div>
-      <div class="chapter-links"><div class="links-row"><a href="../ressources/mercatique/mercatique-ch14-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
-      <div class="corner-br"></div>
-    </div>
-
-    <div class="chapter-card">
-      <div class="chapter-left">
-        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">15</div></div>
-        <div>
-          <div class="chapter-name">La communication numérique et participative</div>
-          </div>
-        </div>
-      <div class="chapter-links"><div class="links-row"><a href="../ressources/mercatique/mercatique-ch15-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
-      <div class="corner-br"></div>
-    </div>
-
-    <div class="chapter-card">
-      <div class="chapter-left">
-        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">16</div></div>
-        <div>
-          <div class="chapter-name">La communication virale</div>
-          </div>
-        </div>
-      <div class="chapter-links"><div class="links-row"><a href="../ressources/mercatique/mercatique-ch16-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
-      <div class="corner-br"></div>
-    </div>
-
-  </div>
-  </div>
-  <div class="back-row"><a href="../terminale.html" class="btn btn-ghost">&larr; Retour &agrave; Terminale</a></div>
+<div class="particle-field"><div class="particle" style="left:4%;bottom:-10%;width:16px;height:18px;animation-delay:0s;animation-duration:11s;"></div><div class="particle" style="left:14%;bottom:0%;width:20px;height:23px;animation-delay:1.4s;animation-duration:14s;"></div><div class="particle" style="left:24%;bottom:-20%;width:14px;height:16px;animation-delay:3.1s;animation-duration:10s;"></div><div class="particle" style="left:34%;bottom:5%;width:22px;height:25px;animation-delay:0.6s;animation-duration:16s;"></div><div class="particle" style="left:46%;bottom:-15%;width:18px;height:21px;animation-delay:4.5s;animation-duration:12s;"></div><div class="particle" style="left:58%;bottom:0%;width:15px;height:17px;animation-delay:2.2s;animation-duration:15s;"></div></div>
+<div class="sec-head" style="text-align:center;">
+<div class="sec-num" style="color:#E8564B;">Terminale</div>
+<div style="display:flex;align-items:center;justify-content:center;gap:20px;">
+<svg aria-hidden="true" class="subj-flank" height="50" viewbox="0 0 64 64" width="50"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.2"><path d="M10 26h12l25-12v36L22 38H10zM22 38l5 14h9l-7-17"></path><path d="M47 23c5 4 5 14 0 18M52 18c8 7 8 21 0 28"></path><path d="M10 26v12"></path></g></svg>
+<div class="sec-title">Mercatique</div>
+<svg aria-hidden="true" class="subj-flank" height="50" viewbox="0 0 64 64" width="50"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.2"><path d="M10 26h12l25-12v36L22 38H10zM22 38l5 14h9l-7-17"></path><path d="M47 23c5 4 5 14 0 18M52 18c8 7 8 21 0 28"></path><path d="M10 26v12"></path></g></svg>
+</div>
+<p class="sec-sub" style="margin-left:auto;margin-right:auto;">Bienvenue ! Tu trouveras ici toutes les ressources nécessaires pour progresser en Mercatique.</p>
+</div>
+<nav aria-label="Thèmes du programme" class="theme-nav">
+<a class="theme-chip" href="#theme-1" title="La définition de l'offre"><span class="theme-chip-num">THÈME 1</span><span class="theme-chip-txt">La définition de l'offre</span></a>
+<a class="theme-chip" href="#theme-2" title="La distribution de l'offre"><span class="theme-chip-num">THÈME 2</span><span class="theme-chip-txt">La distribution de l'offre</span></a>
+<a class="theme-chip" href="#theme-3" title="La communication de l'offre"><span class="theme-chip-num">THÈME 3</span><span class="theme-chip-txt">La communication de l'offre</span></a>
+</nav>
+<div class="theme-block" id="theme-1">
+<div class="theme-head-wrap"><div class="theme-head">
+<svg aria-hidden="true" class="theme-deco" preserveaspectratio="xMaxYMid slice" viewbox="0 0 420 110"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"></polygon><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-dasharray="3 5" stroke-width="1.2"></polygon><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"></polygon><path d="M120,92 H210 L232,70 H250" stroke-dasharray="2 6" stroke-width="1.2"></path><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"></path></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"></circle><circle cx="170" cy="18" r="2.6"></circle><circle cx="330" cy="44" r="3.2"></circle><circle cx="384" cy="70" r="2.2"></circle></g></svg>
+<div aria-hidden="true" class="theme-bignum">01</div>
+<div class="theme-hex-wrap"><svg aria-hidden="true" class="theme-ring" viewbox="0 0 80 80"><circle cx="40" cy="40" fill="none" r="37" stroke="currentColor" stroke-dasharray="4 7" stroke-width="1.5"></circle></svg><div class="theme-hex"><svg aria-hidden="true" class="theme-ico" viewbox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.2"><path d="M13 22h38v32H13zM19 22v-7h26v7M21 31h22M21 39h14"></path><path d="m51 27 6 6-6 6m-6-6h12"></path></g></svg></div></div>
+<div class="theme-head-txt">
+<div class="theme-label">Thème 1 · Chapitres 01 à 07</div>
+<h2 class="theme-title">La définition de l'offre</h2>
+</div>
+</div></div>
+<div class="theme-game"><div class="tg-ico"><svg aria-hidden="true" viewbox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M9 11h14a6 6 0 0 1 5.6 8.2l-1.3 3.4a3 3 0 0 1-5 .9L20 21h-8l-2.3 2.5a3 3 0 0 1-5-.9l-1.3-3.4A6 6 0 0 1 9 11z"></path><path d="M10 14.5v4M8 16.5h4"></path></g><circle cx="21" cy="15.5" fill="currentColor" r="1.3"></circle><circle cx="23.5" cy="18" fill="currentColor" r="1.3"></circle></svg></div><div class="tg-txt"><div class="tg-k">Jeu du thème</div><div class="tg-t">L’offre</div><div class="tg-d">Pulpe, smoothies nantais : choisir sa cible, sa recette, son prix et l’expérience client, puis tenir face à un géant à 1,99 €.</div></div><a class="status-ready" href="../jeux/mercatique/l-offre.html" target="_blank"><span class="type-dot type-jeu"></span>Jouer</a></div>
+<div class="chapter-grid">
+<div class="chapter-card">
+<div class="chapter-left">
+<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">01</div></div>
+<div>
+<div class="chapter-name">Adapter l'offre à des groupes de clients</div>
+</div>
+</div>
+<div class="chapter-links"><div class="links-row"><a class="status-ready" href="../ressources/mercatique/mercatique-ch01-fiche.pdf" target="_blank"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+<div aria-hidden="true" class="chapter-art" data-svg="ME-01"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
+<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
+<desc>Clientèles segmentées en groupes distincts</desc>
+<path class="arc" d="M15 16h28l11 10m116 53v17h-30"></path><path class="route" d="M40 88h87"></path>
+<g opacity="1.00" transform="translate(-3.0 27.0) rotate(-8) scale(0.750)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><circle cx="28" cy="32" r="12"></circle><path d="M8 78v-8q0-20 20-20t20 20v8H8z"></path><rect height="53" rx="5" width="35" x="57" y="25"></rect><path class="dim" d="M66 38h17M66 49h17M66 60h13"></path></g></g><g opacity="1.00" transform="translate(108.0 4.0) rotate(8) scale(0.670)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><rect height="72" rx="4" width="74" x="13" y="16"></rect><path d="M13 39h74M13 63h74M37 16v72M62 16v72"></path><path class="dim" d="m20 27 6 6 7-10"></path></g></g><g opacity="0.65" transform="translate(103.0 75.0) rotate(0) scale(0.350)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><circle cx="28" cy="32" r="12"></circle><path d="M8 78v-8q0-20 20-20t20 20v8H8z"></path><rect height="53" rx="5" width="35" x="57" y="25"></rect><path class="dim" d="M66 38h17M66 49h17M66 60h13"></path></g></g>
+</svg></div><div class="corner-br"></div>
+</div>
+<div class="chapter-card">
+<div class="chapter-left">
+<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">02</div></div>
+<div>
+<div class="chapter-name">Les composantes de l'offre</div>
+</div>
+</div>
+<div class="chapter-links"><div class="links-row"><a class="status-ready" href="../ressources/mercatique/mercatique-ch02-fiche.pdf" target="_blank"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+<div aria-hidden="true" class="chapter-art" data-svg="ME-02"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
+<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
+<desc>Produit avec services et marque associés</desc>
+<path class="arc" d="M15 16h28l11 10m116 53v17h-30"></path><path class="route" d="M40 88h87"></path>
+<g opacity="1.00" transform="translate(30.0 12.0) rotate(0) scale(0.820)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><rect height="49" rx="3" width="72" x="14" y="38"></rect><path d="M9 30h82v17H9zM50 30v57"></path><path d="M50 29q-29 4-31-8-2-19 17-12 10 6 14 20Zm0 0q29 4 31-8 2-19-17-12-10 6-14 20Z"></path></g></g><g opacity="0.75" transform="translate(115.0 4.0) rotate(14) scale(0.490)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="m51 12 10 24 25 3-19 16 6 27-22-14-22 14 6-27-19-16 25-3z"></path><path class="dim" d="M15 13h12M75 12h12"></path></g></g><g opacity="0.55" transform="translate(2.0 73.0) rotate(-9) scale(0.360)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="m51 12 10 24 25 3-19 16 6 27-22-14-22 14 6-27-19-16 25-3z"></path><path class="dim" d="M15 13h12M75 12h12"></path></g></g>
+</svg></div><div class="corner-br"></div>
+</div>
+<div class="chapter-card">
+<div class="chapter-left">
+<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">03</div></div>
+<div>
+<div class="chapter-name">La personnalisation de l'offre</div>
+</div>
+</div>
+<div class="chapter-links"><div class="links-row"><a class="status-ready" href="../ressources/mercatique/mercatique-ch03-fiche.pdf" target="_blank"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+<div aria-hidden="true" class="chapter-art" data-svg="ME-03"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
+<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
+<desc>Produit configurable par le client</desc>
+<circle class="orbit" cx="106" cy="73" r="49"></circle><path class="arc" d="M25 28h29M22 31v29M162 93h-29m32-3V62"></path>
+<g opacity="1.00" transform="translate(33.0 11.0) rotate(0) scale(1.000)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><rect height="49" rx="3" width="72" x="14" y="38"></rect><path d="M9 30h82v17H9zM50 30v57"></path><path d="M50 29q-29 4-31-8-2-19 17-12 10 6 14 20Zm0 0q29 4 31-8 2-19-17-12-10 6-14 20Z"></path></g></g><g opacity="0.85" transform="translate(118.0 51.0) rotate(-12) scale(0.540)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M19 12v75l23-22 15 24 13-7-15-24h30Z"></path></g></g>
+</svg></div><div class="corner-br"></div>
+</div>
+<div class="chapter-card">
+<div class="chapter-left">
+<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">04</div></div>
+<div>
+<div class="chapter-name">L'expérience de consommation</div>
+</div>
+</div>
+<div class="chapter-links"><div class="links-row"><a class="status-ready" href="../ressources/mercatique/mercatique-ch04-fiche.pdf" target="_blank"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+<div aria-hidden="true" class="chapter-art" data-svg="ME-04"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
+<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
+<desc>Parcours expérientiel et émotions client</desc>
+<path class="route" d="M12 84q45-54 83-29t76-33"></path><circle class="point" cx="19" cy="79" r="3"></circle><circle class="point" cx="168" cy="24" r="3"></circle>
+<g opacity="1.00" transform="translate(4.0 33.0) rotate(0) scale(0.780)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><circle cx="21" cy="78" r="8"></circle><circle cx="82" cy="24" r="8"></circle><path d="M28 74q38-7 12-27t35-20" stroke-dasharray="5 7"></path><path class="dim" d="M61 15h13V5"></path></g></g><g opacity="1.00" transform="translate(99.0 0.0) rotate(0) scale(0.760)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M50 86S12 62 12 36q0-19 19-19 12 0 19 12 7-12 19-12 19 0 19 19 0 26-38 50Z"></path><path d="M24 50h15l8-12 9 23 8-11h12"></path></g></g><path class="link" d="M75 74q27-5 27-22m-8 6 8-6 8 5"></path>
+</svg></div><div class="corner-br"></div>
+</div>
+<div class="chapter-card">
+<div class="chapter-left">
+<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">05</div></div>
+<div>
+<div class="chapter-name">La diversité des politiques de prix</div>
+</div>
+</div>
+<div class="chapter-links"><div class="links-row"><a class="status-ready" href="../ressources/mercatique/mercatique-ch05-fiche.pdf" target="_blank"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+<div aria-hidden="true" class="chapter-art" data-svg="ME-05"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
+<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
+<desc>Étiquettes de prix selon stratégies</desc>
+<path class="arc" d="M15 16h28l11 10m116 53v17h-30"></path><path class="route" d="M40 88h87"></path>
+<g opacity="1.00" transform="translate(-3.0 27.0) rotate(-8) scale(0.750)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M11 19h47l32 31-34 34-45-45Z"></path><circle cx="32" cy="35" r="7"></circle><path class="dim" d="M48 49h22m-11-11v22"></path></g></g><g opacity="1.00" transform="translate(108.0 4.0) rotate(8) scale(0.670)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M11 19h47l32 31-34 34-45-45Z"></path><circle cx="32" cy="35" r="7"></circle><path class="dim" d="M48 49h22m-11-11v22"></path></g></g><g opacity="0.65" transform="translate(103.0 75.0) rotate(0) scale(0.350)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M11 19h47l32 31-34 34-45-45Z"></path><circle cx="32" cy="35" r="7"></circle><path class="dim" d="M48 49h22m-11-11v22"></path></g></g>
+</svg></div><div class="corner-br"></div>
+</div>
+<div class="chapter-card">
+<div class="chapter-left">
+<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">06</div></div>
+<div>
+<div class="chapter-name">La fixation du prix selon une logique rationnelle</div>
+</div>
+</div>
+<div class="chapter-links"><div class="links-row"><a class="status-ready" href="../ressources/mercatique/mercatique-ch06-fiche.pdf" target="_blank"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+<div aria-hidden="true" class="chapter-art" data-svg="ME-06"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
+<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
+<desc>Coûts, demande et prix optimal</desc>
+<path class="arc" d="M95 15v80M13 13h26m102 84h30"></path><circle class="point" cx="95" cy="54" r="4"></circle>
+<g opacity="1.00" transform="translate(8.0 20.0) rotate(-8) scale(0.790)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M19 12v75l23-22 15 24 13-7-15-24h30Z"></path></g></g><g opacity="1.00" transform="translate(104.0 17.0) rotate(7) scale(0.760)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><rect height="82" rx="6" width="54" x="23" y="10"></rect><rect height="20" rx="2" width="36" x="32" y="20"></rect><path d="M32 54h8m10 0h8m-26 14h8m10 0h8m-26 14h8m10 0h8"></path></g></g>
+</svg></div><div class="corner-br"></div>
+</div>
+<div class="chapter-card">
+<div class="chapter-left">
+<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">07</div></div>
+<div>
+<div class="chapter-name">Les modèles de gratuité</div>
+</div>
+</div>
+<div class="chapter-links"><div class="links-row"><a class="status-ready" href="../ressources/mercatique/mercatique-ch07-fiche.pdf" target="_blank"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+<div aria-hidden="true" class="chapter-art" data-svg="ME-07"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
+<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
+<desc>Offre gratuite et revenus indirects</desc>
+<path class="arc" d="M15 16h28l11 10m116 53v17h-30"></path><path class="route" d="M40 88h87"></path>
+<g opacity="1.00" transform="translate(8.0 25.0) rotate(0) scale(0.780)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><rect height="49" rx="3" width="72" x="14" y="38"></rect><path d="M9 30h82v17H9zM50 30v57"></path><path d="M50 29q-29 4-31-8-2-19 17-12 10 6 14 20Zm0 0q29 4 31-8 2-19-17-12-10 6-14 20Z"></path></g></g><g opacity="1.00" transform="translate(112.0 1.0) rotate(0) scale(0.670)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><rect height="54" rx="7" width="75" x="13" y="30"></rect><path d="M13 41V27q0-9 9-9h49"></path><path d="M65 46h30v23H65q-8 0-8-11t8-12Z"></path><circle cx="72" cy="58" r="3"></circle></g></g><path class="link" d="M84 55h18V25h9M102 55v27h20"></path>
+</svg></div><div class="corner-br"></div>
+</div>
+</div>
+</div>
+<div class="theme-block" id="theme-2">
+<div class="theme-head-wrap"><div class="theme-head">
+<svg aria-hidden="true" class="theme-deco" preserveaspectratio="xMaxYMid slice" viewbox="0 0 420 110"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"></polygon><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-dasharray="3 5" stroke-width="1.2"></polygon><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"></polygon><path d="M120,92 H210 L232,70 H250" stroke-dasharray="2 6" stroke-width="1.2"></path><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"></path></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"></circle><circle cx="170" cy="18" r="2.6"></circle><circle cx="330" cy="44" r="3.2"></circle><circle cx="384" cy="70" r="2.2"></circle></g></svg>
+<div aria-hidden="true" class="theme-bignum">02</div>
+<div class="theme-hex-wrap"><svg aria-hidden="true" class="theme-ring" viewbox="0 0 80 80"><circle cx="40" cy="40" fill="none" r="37" stroke="currentColor" stroke-dasharray="4 7" stroke-width="1.5"></circle></svg><div class="theme-hex"><svg aria-hidden="true" class="theme-ico" viewbox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.2"><path d="M8 20h30v27H8zM38 29h10l8 9v9H38z"></path><circle cx="19" cy="51" r="5"></circle><circle cx="47" cy="51" r="5"></circle><path d="M13 27h19m-19 7h13m-5 6 5 5"></path></g></svg></div></div>
+<div class="theme-head-txt">
+<div class="theme-label">Thème 2 · Chapitres 08 à 11</div>
+<h2 class="theme-title">La distribution de l'offre</h2>
+</div>
+</div></div>
+<div class="theme-game"><div class="tg-ico"><svg aria-hidden="true" viewbox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M9 11h14a6 6 0 0 1 5.6 8.2l-1.3 3.4a3 3 0 0 1-5 .9L20 21h-8l-2.3 2.5a3 3 0 0 1-5-.9l-1.3-3.4A6 6 0 0 1 9 11z"></path><path d="M10 14.5v4M8 16.5h4"></path></g><circle cx="21" cy="15.5" fill="currentColor" r="1.3"></circle><circle cx="23.5" cy="18" fill="currentColor" r="1.3"></circle></svg></div><div class="tg-txt"><div class="tg-k">Jeu du thème</div><div class="tg-t">La distribution</div><div class="tg-d">Boutique, épiceries, supermarchés, applis : choisir ses canaux, négocier avec une centrale, livrer au froid et relier le tout.</div></div><a class="status-ready" href="../jeux/mercatique/la-distribution.html" target="_blank"><span class="type-dot type-jeu"></span>Jouer</a></div>
+<div class="chapter-grid">
+<div class="chapter-card">
+<div class="chapter-left">
+<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">08</div></div>
+<div>
+<div class="chapter-name">Les stratégies de distribution de l'offre</div>
+</div>
+</div>
+<div class="chapter-links"><div class="links-row"><a class="status-ready" href="../ressources/mercatique/mercatique-ch08-fiche.pdf" target="_blank"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+<div aria-hidden="true" class="chapter-art" data-svg="ME-08"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
+<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
+<desc>Entrepôt vers magasin et domicile</desc>
+<path class="arc" d="M18 97h35M134 14h36"></path><path class="route" d="M21 21 153 89"></path>
+<g opacity="1.00" transform="translate(24.0 7.0) rotate(0) scale(1.090)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><rect height="49" rx="3" width="76" x="12" y="30"></rect><path d="M25 30v49m13-49v49m13-49v49m13-49v49m13-49v49M11 86h77"></path><circle cx="26" cy="88" r="4"></circle></g></g><g opacity="0.90" transform="translate(114.0 58.0) rotate(0) scale(0.550)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><circle cx="21" cy="78" r="8"></circle><circle cx="82" cy="24" r="8"></circle><path d="M28 74q38-7 12-27t35-20" stroke-dasharray="5 7"></path><path class="dim" d="M61 15h13V5"></path></g></g>
+</svg></div><div class="corner-br"></div>
+</div>
+<div class="chapter-card">
+<div class="chapter-left">
+<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">09</div></div>
+<div>
+<div class="chapter-name">Les relations producteurs-distributeurs</div>
+</div>
+</div>
+<div class="chapter-links"><div class="links-row"><a class="status-ready" href="../ressources/mercatique/mercatique-ch09-fiche.pdf" target="_blank"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+<div aria-hidden="true" class="chapter-art" data-svg="ME-09"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
+<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
+<desc>Producteur et distributeur en négociation</desc>
+<path class="arc" d="M95 15v80M13 13h26m102 84h30"></path><circle class="point" cx="95" cy="54" r="4"></circle>
+<g opacity="1.00" transform="translate(8.0 20.0) rotate(-8) scale(0.790)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M8 39 34 25l16 6 17-6 25 15-17 25-13 5-18-9-13 10-17-6z"></path><path class="dim" d="m35 43 17-11 20 22-10 16M23 57l14 11m-7-17 19 17"></path></g></g><g opacity="1.00" transform="translate(104.0 17.0) rotate(7) scale(0.760)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M13 35h74l-7 21q-9 8-20 0-10 8-20 0-10 8-20 0zM21 56v31h58V56M35 86V66h22v20"></path></g></g>
+</svg></div><div class="corner-br"></div>
+</div>
+<div class="chapter-card">
+<div class="chapter-left">
+<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">10</div></div>
+<div>
+<div class="chapter-name">La prise en compte du choix des consommateurs par la distribution</div>
+</div>
+</div>
+<div class="chapter-links"><div class="links-row"><a class="status-ready" href="../ressources/mercatique/mercatique-ch10-fiche.pdf" target="_blank"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+<div aria-hidden="true" class="chapter-art" data-svg="ME-10"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
+<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
+<desc>Client choisissant point de vente et livraison</desc>
+<path class="route" d="M12 84q45-54 83-29t76-33"></path><circle class="point" cx="19" cy="79" r="3"></circle><circle class="point" cx="168" cy="24" r="3"></circle>
+<g opacity="1.00" transform="translate(4.0 33.0) rotate(0) scale(0.780)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M12 48h30M42 48v-28h16m-16 28v30h16m-16-30h16"></path><rect height="22" rx="4" width="30" x="58" y="9"></rect><rect height="22" rx="4" width="30" x="58" y="38"></rect><rect height="22" rx="4" width="30" x="58" y="67"></rect></g></g><g opacity="1.00" transform="translate(99.0 0.0) rotate(0) scale(0.760)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M13 35h74l-7 21q-9 8-20 0-10 8-20 0-10 8-20 0zM21 56v31h58V56M35 86V66h22v20"></path></g></g><path class="link" d="M75 74q27-5 27-22m-8 6 8-6 8 5"></path>
+</svg></div><div class="corner-br"></div>
+</div>
+<div class="chapter-card">
+<div class="chapter-left">
+<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">11</div></div>
+<div>
+<div class="chapter-name">La digitalisation des unités commerciales</div>
+</div>
+</div>
+<div class="chapter-links"><div class="links-row"><a class="status-ready" href="../ressources/mercatique/mercatique-ch11-fiche.pdf" target="_blank"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+<div aria-hidden="true" class="chapter-art" data-svg="ME-11"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
+<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
+<desc>Magasin phygital avec borne mobile</desc>
+<path class="arc" d="M95 15v80M13 13h26m102 84h30"></path><circle class="point" cx="95" cy="54" r="4"></circle>
+<g opacity="1.00" transform="translate(17.0 17.0) rotate(0) scale(0.820)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M13 35h74l-7 21q-9 8-20 0-10 8-20 0-10 8-20 0zM21 56v31h58V56M35 86V66h22v20"></path></g></g><g opacity="1.00" transform="translate(104.0 8.0) rotate(0) scale(0.750)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><rect height="86" rx="9" width="47" x="27" y="7"></rect><path class="dim" d="M41 18h20M41 81h20"></path><rect height="44" rx="3" width="33" x="34" y="26"></rect></g></g>
+</svg></div><div class="corner-br"></div>
+</div>
+</div>
+</div>
+<div class="theme-block" id="theme-3">
+<div class="theme-head-wrap"><div class="theme-head">
+<svg aria-hidden="true" class="theme-deco" preserveaspectratio="xMaxYMid slice" viewbox="0 0 420 110"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"></polygon><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-dasharray="3 5" stroke-width="1.2"></polygon><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"></polygon><path d="M120,92 H210 L232,70 H250" stroke-dasharray="2 6" stroke-width="1.2"></path><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"></path></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"></circle><circle cx="170" cy="18" r="2.6"></circle><circle cx="330" cy="44" r="3.2"></circle><circle cx="384" cy="70" r="2.2"></circle></g></svg>
+<div aria-hidden="true" class="theme-bignum">03</div>
+<div class="theme-hex-wrap"><svg aria-hidden="true" class="theme-ring" viewbox="0 0 80 80"><circle cx="40" cy="40" fill="none" r="37" stroke="currentColor" stroke-dasharray="4 7" stroke-width="1.5"></circle></svg><div class="theme-hex"><svg aria-hidden="true" class="theme-ico" viewbox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.2"><path d="M9 25h13l25-12v38L22 39H9zM22 39l5 14h10l-7-17"></path><path d="M48 23c6 4 6 14 0 18m5-24c10 8 10 22 0 30"></path></g></svg></div></div>
+<div class="theme-head-txt">
+<div class="theme-label">Thème 3 · Chapitres 12 à 16</div>
+<h2 class="theme-title">La communication de l'offre</h2>
+</div>
+</div></div>
+<div class="theme-game"><div class="tg-ico"><svg aria-hidden="true" viewbox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M9 11h14a6 6 0 0 1 5.6 8.2l-1.3 3.4a3 3 0 0 1-5 .9L20 21h-8l-2.3 2.5a3 3 0 0 1-5-.9l-1.3-3.4A6 6 0 0 1 9 11z"></path><path d="M10 14.5v4M8 16.5h4"></path></g><circle cx="21" cy="15.5" fill="currentColor" r="1.3"></circle><circle cx="23.5" cy="18" fill="currentColor" r="1.3"></circle></svg></div><div class="tg-txt"><div class="tg-k">Jeu du thème</div><div class="tg-t">La communication</div><div class="tg-d">20 000 € pour faire connaître Pulpe à Rennes : objectif, message, médias payés, propres et gagnés, influenceurs, indicateurs, et un bad buzz.</div></div><a class="status-ready" href="../jeux/mercatique/la-communication.html" target="_blank"><span class="type-dot type-jeu"></span>Jouer</a></div>
+<div class="chapter-grid">
+<div class="chapter-card">
+<div class="chapter-left">
+<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">12</div></div>
+<div>
+<div class="chapter-name">La valorisation de l'offre par la communication</div>
+</div>
+</div>
+<div class="chapter-links"><div class="links-row"><a class="status-ready" href="../ressources/mercatique/mercatique-ch12-fiche.pdf" target="_blank"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+<div aria-hidden="true" class="chapter-art" data-svg="ME-12"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
+<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
+<desc>Produit mis en valeur par campagne publicitaire</desc>
+<circle class="orbit" cx="106" cy="73" r="49"></circle><path class="arc" d="M25 28h29M22 31v29M162 93h-29m32-3V62"></path>
+<g opacity="1.00" transform="translate(30.0 12.0) rotate(0) scale(1.000)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M17 28h20l9-12h20l9 12h10v56H17Z"></path><circle cx="51" cy="55" r="18"></circle><circle class="dim" cx="51" cy="55" r="8"></circle></g></g><g opacity="0.85" transform="translate(118.0 51.0) rotate(-12) scale(0.540)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="m51 12 10 24 25 3-19 16 6 27-22-14-22 14 6-27-19-16 25-3z"></path><path class="dim" d="M15 13h12M75 12h12"></path></g></g>
+</svg></div><div class="corner-br"></div>
+</div>
+<div class="chapter-card">
+<div class="chapter-left">
+<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">13</div></div>
+<div>
+<div class="chapter-name">La diversité des formes de communication</div>
+</div>
+</div>
+<div class="chapter-links"><div class="links-row"><a class="status-ready" href="../ressources/mercatique/mercatique-ch13-fiche.pdf" target="_blank"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+<div aria-hidden="true" class="chapter-art" data-svg="ME-13"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
+<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
+<desc>Affichage, événement et média social</desc>
+<path class="arc" d="M15 16h28l11 10m116 53v17h-30"></path><path class="route" d="M40 88h87"></path>
+<g opacity="1.00" transform="translate(-3.0 27.0) rotate(-8) scale(0.750)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M16 41h23l40-22v62L39 59H16zM28 60v21h17l-7-20M80 44h13v13H80"></path></g></g><g opacity="1.00" transform="translate(108.0 4.0) rotate(8) scale(0.670)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><rect height="86" rx="9" width="47" x="27" y="7"></rect><path class="dim" d="M41 18h20M41 81h20"></path><rect height="44" rx="3" width="33" x="34" y="26"></rect></g></g><g opacity="0.65" transform="translate(103.0 75.0) rotate(0) scale(0.350)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M16 41h23l40-22v62L39 59H16zM28 60v21h17l-7-20M80 44h13v13H80"></path></g></g>
+</svg></div><div class="corner-br"></div>
+</div>
+<div class="chapter-card">
+<div class="chapter-left">
+<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">14</div></div>
+<div>
+<div class="chapter-name">Les stratégies de fidélisation au service de la relation client</div>
+</div>
+</div>
+<div class="chapter-links"><div class="links-row"><a class="status-ready" href="../ressources/mercatique/mercatique-ch14-fiche.pdf" target="_blank"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+<div aria-hidden="true" class="chapter-art" data-svg="ME-14"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
+<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
+<desc>Carte fidélité et relation client récurrente</desc>
+<path class="arc" d="M26 22h30M139 87h27"></path>
+<g opacity="1.00" transform="translate(26.0 10.0) rotate(0) scale(0.840)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><rect height="57" rx="7" width="80" x="10" y="22"></rect><circle cx="35" cy="44" r="10"></circle><path d="M18 69q0-14 17-14t17 14M59 38h22M59 49h21M59 61h15"></path></g></g><g opacity="1.00" transform="translate(108.0 33.0) rotate(0) scale(0.680)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M11 29h66l-12-12m12 12L65 41M89 73H23l12-12M23 73l12 12"></path><circle class="dim" cx="49" cy="51" r="7"></circle></g></g><path class="link" d="M40 13Q135-5 149 31"></path>
+</svg></div><div class="corner-br"></div>
+</div>
+<div class="chapter-card">
+<div class="chapter-left">
+<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">15</div></div>
+<div>
+<div class="chapter-name">La communication numérique et participative</div>
+</div>
+</div>
+<div class="chapter-links"><div class="links-row"><a class="status-ready" href="../ressources/mercatique/mercatique-ch15-fiche.pdf" target="_blank"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+<div aria-hidden="true" class="chapter-art" data-svg="ME-15"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
+<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
+<desc>Communauté co-créant du contenu autour marque</desc>
+<path class="arc" d="M15 16h28l11 10m116 53v17h-30"></path><path class="route" d="M40 88h87"></path>
+<g opacity="1.00" transform="translate(30.0 12.0) rotate(0) scale(0.820)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M9 25h58v42H33L16 82V67H9ZM43 44h49v37H68L56 91V81"></path><path class="dim" d="M21 39h27M21 50h19M57 59h24"></path></g></g><g opacity="0.75" transform="translate(115.0 4.0) rotate(14) scale(0.490)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><circle cx="50" cy="25" r="10"></circle><circle cx="19" cy="42" r="8"></circle><circle cx="81" cy="42" r="8"></circle><path d="M33 72V61q0-17 17-17t17 17v11H33ZM5 77V65q0-13 14-13 8 0 12 6M95 77V65q0-13-14-13-8 0-12 6"></path></g></g><g opacity="0.55" transform="translate(2.0 73.0) rotate(-9) scale(0.360)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><circle cx="50" cy="25" r="10"></circle><circle cx="19" cy="42" r="8"></circle><circle cx="81" cy="42" r="8"></circle><path d="M33 72V61q0-17 17-17t17 17v11H33ZM5 77V65q0-13 14-13 8 0 12 6M95 77V65q0-13-14-13-8 0-12 6"></path></g></g>
+</svg></div><div class="corner-br"></div>
+</div>
+<div class="chapter-card">
+<div class="chapter-left">
+<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">16</div></div>
+<div>
+<div class="chapter-name">La communication virale</div>
+</div>
+</div>
+<div class="chapter-links"><div class="links-row"><a class="status-ready" href="../ressources/mercatique/mercatique-ch16-fiche.pdf" target="_blank"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+<div aria-hidden="true" class="chapter-art" data-svg="ME-16"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
+<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
+<desc>Message se propageant de proche en proche</desc>
+<path class="route" d="M12 84q45-54 83-29t76-33"></path><circle class="point" cx="19" cy="79" r="3"></circle><circle class="point" cx="168" cy="24" r="3"></circle>
+<g opacity="1.00" transform="translate(11.0 25.0) rotate(0) scale(0.750)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M12 22h76v50H45L27 88V72H12Z"></path><path class="dim" d="M27 41h46M27 54h36"></path></g></g><g opacity="1.00" transform="translate(95.0 7.0) rotate(0) scale(0.840)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><circle cx="50" cy="49" r="13"></circle><circle cx="16" cy="21" r="9"></circle><circle cx="86" cy="18" r="9"></circle><circle cx="18" cy="80" r="9"></circle><circle cx="85" cy="79" r="9"></circle><path d="M25 26 41 42m34-20L59 40M26 75l16-17m34 16L60 58"></path></g></g><circle class="point" cx="83" cy="31" r="3"></circle><circle class="point" cx="104" cy="89" r="3"></circle>
+</svg></div><div class="corner-br"></div>
+</div>
+</div>
+</div>
+<div class="back-row"><a class="btn btn-ghost" href="../terminale.html">← Retour à Terminale</a></div>
 </section>
-
 <footer>
-  <div class="foot-brand">PROF 4.0</div>
-  <p>Apprendre &middot; Comprendre &middot; R&eacute;ussir &mdash; &copy; 2026</p>
-  <p style="margin-top:14px;">
-    <a href="https://youtube.com/@prof4.0stmg?si=fywFQySRD-AFr2OB" target="_blank" rel="noopener"
-       style="color:var(--level-neon);font-weight:700;">&#9654; Cha&icirc;ne YouTube</a>
+<div class="foot-brand">PROF 4.0</div>
+<p>Apprendre · Comprendre · Réussir — © 2026</p>
+<p style="margin-top:14px;">
+<a href="https://youtube.com/@prof4.0stmg?si=fywFQySRD-AFr2OB" rel="noopener" style="color:var(--level-neon);font-weight:700;" target="_blank">▶ Chaîne YouTube</a>
+</p>
+<p style="margin-top:18px;font-size:11.5px;color:var(--muted);max-width:480px;margin-left:auto;margin-right:auto;">
+    © 2026 Prof 4.0 — Romain Pineau, auteur et créateur. Tous droits réservés.
   </p>
-  <p style="margin-top:18px;font-size:11.5px;color:var(--muted);max-width:480px;margin-left:auto;margin-right:auto;">
-    &copy; 2026 Prof 4.0 &mdash; Romain Pineau, auteur et cr&eacute;ateur. Tous droits r&eacute;serv&eacute;s.
-  </p>
-  <details style="margin-top:8px;max-width:480px;margin-left:auto;margin-right:auto;text-align:left;">
-    <summary style="cursor:pointer;color:var(--muted);text-decoration:underline;font-size:11px;text-align:center;list-style:none;">Mentions l&eacute;gales</summary>
-    <p style="margin-top:8px;font-size:11px;line-height:1.6;color:var(--muted);">
-      Les contenus originaux pr&eacute;sents sur ce site, notamment les cours, textes, exercices, corrig&eacute;s, supports graphiques et contenus audio et vid&eacute;o, sont prot&eacute;g&eacute;s par le droit d&rsquo;auteur. Toute reproduction, adaptation ou diffusion, totale ou partielle, sans autorisation pr&eacute;alable de l&rsquo;auteur est interdite, sous r&eacute;serve des exceptions pr&eacute;vues par la loi.
+<details style="margin-top:8px;max-width:480px;margin-left:auto;margin-right:auto;text-align:left;">
+<summary style="cursor:pointer;color:var(--muted);text-decoration:underline;font-size:11px;text-align:center;list-style:none;">Mentions légales</summary>
+<p style="margin-top:8px;font-size:11px;line-height:1.6;color:var(--muted);">
+      Les contenus originaux présents sur ce site, notamment les cours, textes, exercices, corrigés, supports graphiques et contenus audio et vidéo, sont protégés par le droit d’auteur. Toute reproduction, adaptation ou diffusion, totale ou partielle, sans autorisation préalable de l’auteur est interdite, sous réserve des exceptions prévues par la loi.
     </p>
-  </details>
+</details>
 </footer>
 </div>
-
 <script>
 (function(){
   function fitDecor(){
@@ -817,6 +908,5 @@ footer summary:hover{color:var(--level-neon);}
   window.addEventListener('resize', fitDecor);
 })();
 </script>
-
 </body>
 </html>
