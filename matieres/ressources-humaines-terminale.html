@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-
 <html lang="fr">
 <head>
-<meta charset="utf-8"/>
+<meta charset="UTF-8">
 <title>PROF 4.0 — Ressources Humaines</title>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&amp;family=Rajdhani:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{ --level-neon:#7CFF3D; --level-dim:#3FA324; --level-glow:rgba(124,255,61,.55); }
 
@@ -369,195 +368,157 @@ footer summary:hover{color:var(--level-neon);}
 .tg-t{font-family:'Orbitron',sans-serif;font-weight:800;font-size:15px;color:#fff;margin-top:3px;line-height:1.3;}
 .tg-d{font-size:13.5px;color:var(--muted);margin-top:4px;line-height:1.45;}
 @media (max-width:640px){.theme-game{flex-wrap:wrap;gap:10px 12px;padding:12px 14px;}.tg-ico{width:38px;height:38px;}.tg-txt{flex:1 1 calc(100% - 52px);}.tg-t{font-size:14px;}.theme-game .status-ready{margin-left:50px;}}
-
-
-/* PROF 4.0 / Collection SVG 100 maîtres + 32 scènes contextualisées.
-   Priorité à la lisibilité, sans double réduction de la largeur disponible. */
-.breadcrumb{flex-wrap:wrap;min-width:0;max-width:100%;gap:5px 8px;}
-.chapter-card{
-    min-height:184px; padding:26px 28px; gap:18px;
-    isolation:isolate;
-}
-.chapter-card::before{
-    opacity:.12 !important;
-    mask-image:linear-gradient(90deg,transparent 0%,transparent 70%,#000 100%) !important;
-    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 70%,#000 100%) !important;
-}
-.chapter-left{width:calc(100% - 172px);max-width:none;min-width:0;position:relative;z-index:2;}
-.chapter-left>div:last-child{min-width:0;}
-.chapter-name{line-height:1.25;overflow-wrap:break-word;}
-.chapter-links{width:100%;max-width:none;position:relative;z-index:3;margin-top:auto;}
-.chapter-links .links-row{max-width:100%;}
-.chapter-art{
-    position:absolute;right:19px;top:20px;width:170px;height:105px;z-index:1;
-    display:flex;align-items:center;justify-content:center;pointer-events:none;
-    filter:drop-shadow(0 0 7px color-mix(in srgb,var(--subj) 24%,transparent));
-}
-.chapter-art::before{
-    content:'';position:absolute;inset:14px;border-radius:50%;pointer-events:none;
-    background:radial-gradient(ellipse at center,color-mix(in srgb,var(--subj) 13%,transparent),transparent 72%);
-    filter:blur(12px);
-}
-.chapter-art>svg{width:100%;height:100%;display:block;overflow:visible;position:relative;color:var(--subj) !important;}
-.chapter-art svg path,.chapter-art svg circle,.chapter-art svg rect,
-.chapter-art svg ellipse,.chapter-art svg polygon{vector-effect:non-scaling-stroke;}
-.chapter-card:hover .chapter-art{
-    filter:drop-shadow(0 0 12px color-mix(in srgb,var(--subj) 34%,transparent));
-}
-@media(max-width:1000px) and (min-width:761px){
-    .chapter-card{padding:25px 23px;}
-    .chapter-left{width:calc(100% - 123px);}
-    .chapter-art{width:132px;height:87px;right:10px;top:17px;}
-}
-@media(max-width:760px){
-    .chapter-card{min-height:170px;padding:22px 20px;gap:16px;}
-    .chapter-left{width:calc(100% - 93px);gap:12px;}
-    .chapter-art{width:93px;height:70px;right:12px;top:17px;}
-    .chapter-card::before{opacity:.05 !important;}
-    .chapter-links{width:100%;max-width:none;}
-}
-@media(max-width:400px){
-    .chapter-card{padding:20px 16px;}
-    .chapter-left{width:calc(100% - 83px);gap:9px;}
-    .chapter-num-wrap{width:36px;height:36px;}
-    .chapter-art{width:82px;height:62px;right:10px;top:14px;}
-    .chapter-name{font-size:16.5px;}
-}
-
 </style>
 </head>
 <body>
 <div class="bg-field"></div>
 <div class="hex-grid" style="background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2784%27%20height%3D%2796%27%20viewBox%3D%270%200%2084%2096%27%3E%3Cpath%20d%3D%27M42%200%20L84%2024%20L84%2072%20L42%2096%20L0%2072%20L0%2024%20Z%27%20fill%3D%27none%27%20stroke%3D%27%237CFF3D%27%20stroke-width%3D%271%27/%3E%3C/svg%3E');"></div>
+
 <div class="page-bg-decor" style="position:absolute;top:0;left:0;width:100%;overflow:hidden;z-index:0;pointer-events:none;">
 <!-- motif 1 : cadran tech, haut gauche -->
 <div style="position:absolute;top:-60px;left:-60px;width:320px;height:320px;z-index:0;pointer-events:none;opacity:.30;">
-<svg style="width:100%;height:100%;animation:spinA 60s linear infinite;transform-origin:center;" viewbox="0 0 200 200">
-<circle cx="100" cy="100" fill="none" r="92" stroke="#9C4F9E" stroke-width="1"></circle>
-<circle cx="100" cy="100" fill="none" r="92" stroke="#9C4F9E" stroke-dasharray="3 11" stroke-width="3"></circle>
-<circle cx="100" cy="100" fill="none" r="70" stroke="#9C4F9E" stroke-width="1"></circle>
-<circle cx="100" cy="100" fill="none" r="48" stroke="#9C4F9E" stroke-width="1.5"></circle>
-</svg>
+  <svg viewBox="0 0 200 200" style="width:100%;height:100%;animation:spinA 60s linear infinite;transform-origin:center;">
+    <circle cx="100" cy="100" r="92" fill="none" stroke="#9C4F9E" stroke-width="1"/>
+    <circle cx="100" cy="100" r="92" fill="none" stroke="#9C4F9E" stroke-width="3" stroke-dasharray="3 11"/>
+    <circle cx="100" cy="100" r="70" fill="none" stroke="#9C4F9E" stroke-width="1"/>
+    <circle cx="100" cy="100" r="48" fill="none" stroke="#9C4F9E" stroke-width="1.5"/>
+  </svg>
 </div>
+
 <!-- motif 1b : petit hexagone, haut centre-droit -->
 <div style="position:absolute;top:60px;left:48%;width:110px;height:110px;z-index:0;pointer-events:none;opacity:.26;">
-<svg style="width:100%;height:100%;animation:spinB 45s linear infinite;transform-origin:center;" viewbox="0 0 110 110">
-<polygon fill="none" points="55,6 98,29 98,81 55,104 12,81 12,29" stroke="#9C4F9E" stroke-width="1.5"></polygon>
-</svg>
+  <svg viewBox="0 0 110 110" style="width:100%;height:100%;animation:spinB 45s linear infinite;transform-origin:center;">
+    <polygon points="55,6 98,29 98,81 55,104 12,81 12,29" fill="none" stroke="#9C4F9E" stroke-width="1.5"/>
+  </svg>
 </div>
+
 <!-- motif 2 : hexagones concentriques, milieu droit -->
 <div style="position:absolute;top:680px;right:-90px;width:280px;height:280px;z-index:0;pointer-events:none;opacity:.28;">
-<svg style="width:100%;height:100%;animation:spinB 70s linear infinite;transform-origin:center;" viewbox="0 0 200 200">
-<polygon fill="none" points="100,10 178,55 178,145 100,190 22,145 22,55" stroke="#9C4F9E" stroke-width="1"></polygon>
-<polygon fill="none" points="100,35 155,67 155,133 100,165 45,133 45,67" stroke="#9C4F9E" stroke-dasharray="3 8" stroke-width="2"></polygon>
-</svg>
+  <svg viewBox="0 0 200 200" style="width:100%;height:100%;animation:spinB 70s linear infinite;transform-origin:center;">
+    <polygon points="100,10 178,55 178,145 100,190 22,145 22,55" fill="none" stroke="#9C4F9E" stroke-width="1"/>
+    <polygon points="100,35 155,67 155,133 100,165 45,133 45,67" fill="none" stroke="#9C4F9E" stroke-width="2" stroke-dasharray="3 8"/>
+  </svg>
 </div>
+
 <!-- motif 2b : cadran, milieu gauche -->
 <div style="position:absolute;top:420px;left:60px;width:130px;height:130px;z-index:0;pointer-events:none;opacity:.26;">
-<svg style="width:100%;height:100%;animation:spinA 50s linear infinite;transform-origin:center;" viewbox="0 0 130 130">
-<circle cx="65" cy="65" fill="none" r="58" stroke="#9C4F9E" stroke-width="1"></circle>
-<circle cx="65" cy="65" fill="none" opacity="0.6" r="58" stroke="#9C4F9E" stroke-dasharray="10 22" stroke-width="5"></circle>
-<circle cx="65" cy="65" fill="none" r="36" stroke="#9C4F9E" stroke-width="1"></circle>
-</svg>
+  <svg viewBox="0 0 130 130" style="width:100%;height:100%;animation:spinA 50s linear infinite;transform-origin:center;">
+    <circle cx="65" cy="65" r="58" fill="none" stroke="#9C4F9E" stroke-width="1"/>
+    <circle cx="65" cy="65" r="58" fill="none" stroke="#9C4F9E" stroke-width="5" stroke-dasharray="10 22" opacity="0.6"/>
+    <circle cx="65" cy="65" r="36" fill="none" stroke="#9C4F9E" stroke-width="1"/>
+  </svg>
 </div>
+
 <!-- motif 3 : cluster nid d'abeilles, gauche -->
 <div style="position:absolute;top:1150px;left:-40px;width:300px;height:300px;z-index:0;pointer-events:none;opacity:.28;">
-<svg style="width:100%;height:100%;" viewbox="0 0 200 200">
-<g fill="none" stroke="#9C4F9E" stroke-width="2">
-<polygon points="100,60 126,75 126,105 100,120 74,105 74,75"></polygon>
-<polygon points="150,90 176,105 176,135 150,150 124,135 124,105"></polygon>
-<polygon points="50,90 76,105 76,135 50,150 24,135 24,105"></polygon>
-<polygon points="100,120 126,135 126,165 100,180 74,165 74,135"></polygon>
-</g>
-</svg>
+  <svg viewBox="0 0 200 200" style="width:100%;height:100%;">
+    <g fill="none" stroke="#9C4F9E" stroke-width="2">
+      <polygon points="100,60 126,75 126,105 100,120 74,105 74,75"/>
+      <polygon points="150,90 176,105 176,135 150,150 124,135 124,105"/>
+      <polygon points="50,90 76,105 76,135 50,150 24,135 24,105"/>
+      <polygon points="100,120 126,135 126,165 100,180 74,165 74,135"/>
+    </g>
+  </svg>
 </div>
+
 <!-- motif 3b : boussole, droite -->
 <div style="position:absolute;top:1000px;right:140px;width:120px;height:120px;z-index:0;pointer-events:none;opacity:.26;">
-<svg style="width:100%;height:100%;animation:spinB 55s linear infinite;transform-origin:center;" viewbox="0 0 120 120">
-<polygon fill="none" points="60,8 103,34 103,86 60,112 17,86 17,34" stroke="#9C4F9E" stroke-width="1"></polygon>
-<circle cx="60" cy="60" fill="none" r="34" stroke="#9C4F9E" stroke-dasharray="2 5" stroke-width="1"></circle>
-</svg>
+  <svg viewBox="0 0 120 120" style="width:100%;height:100%;animation:spinB 55s linear infinite;transform-origin:center;">
+    <polygon points="60,8 103,34 103,86 60,112 17,86 17,34" fill="none" stroke="#9C4F9E" stroke-width="1"/>
+    <circle cx="60" cy="60" r="34" fill="none" stroke="#9C4F9E" stroke-width="1" stroke-dasharray="2 5"/>
+  </svg>
 </div>
+
 <!-- motif 4 : boussole hexagonale, droite -->
 <div style="position:absolute;top:1750px;right:-70px;width:260px;height:260px;z-index:0;pointer-events:none;opacity:.30;">
-<svg style="width:100%;height:100%;animation:spinA 65s linear infinite;transform-origin:center;" viewbox="0 0 200 200">
-<polygon fill="none" points="100,14 172,57 172,143 100,186 28,143 28,57" stroke="#9C4F9E" stroke-width="1"></polygon>
-<circle cx="100" cy="100" fill="none" r="56" stroke="#9C4F9E" stroke-dasharray="2 6" stroke-width="1"></circle>
-<line stroke="#9C4F9E" stroke-width="1" x1="100" x2="100" y1="20" y2="180"></line>
-<line stroke="#9C4F9E" stroke-width="1" x1="20" x2="180" y1="100" y2="100"></line>
-</svg>
+  <svg viewBox="0 0 200 200" style="width:100%;height:100%;animation:spinA 65s linear infinite;transform-origin:center;">
+    <polygon points="100,14 172,57 172,143 100,186 28,143 28,57" fill="none" stroke="#9C4F9E" stroke-width="1"/>
+    <circle cx="100" cy="100" r="56" fill="none" stroke="#9C4F9E" stroke-width="1" stroke-dasharray="2 6"/>
+    <line x1="100" y1="20" x2="100" y2="180" stroke="#9C4F9E" stroke-width="1"/>
+    <line x1="20" y1="100" x2="180" y2="100" stroke="#9C4F9E" stroke-width="1"/>
+  </svg>
 </div>
+
 <!-- motif 4b : hexagone simple, gauche -->
 <div style="position:absolute;top:1900px;left:100px;width:90px;height:90px;z-index:0;pointer-events:none;opacity:.26;">
-<svg style="width:100%;height:100%;animation:spinB 40s linear infinite;transform-origin:center;" viewbox="0 0 90 90">
-<polygon fill="none" points="45,5 80,24 80,66 45,85 10,66 10,24" stroke="#9C4F9E" stroke-dasharray="3 6" stroke-width="1.5"></polygon>
-</svg>
+  <svg viewBox="0 0 90 90" style="width:100%;height:100%;animation:spinB 40s linear infinite;transform-origin:center;">
+    <polygon points="45,5 80,24 80,66 45,85 10,66 10,24" fill="none" stroke="#9C4F9E" stroke-width="1.5" stroke-dasharray="3 6"/>
+  </svg>
 </div>
+
 <!-- motif 5 : cadran circulaire, bas gauche -->
 <div style="position:absolute;top:2300px;left:-70px;width:280px;height:280px;z-index:0;pointer-events:none;opacity:.28;">
-<svg style="width:100%;height:100%;animation:spinB 75s linear infinite;transform-origin:center;" viewbox="0 0 200 200">
-<circle cx="100" cy="100" fill="none" r="80" stroke="#9C4F9E" stroke-width="1"></circle>
-<circle cx="100" cy="100" fill="none" opacity="0.6" r="80" stroke="#9C4F9E" stroke-dasharray="14 30" stroke-width="6"></circle>
-<circle cx="100" cy="100" fill="none" r="50" stroke="#9C4F9E" stroke-width="1"></circle>
-</svg>
+  <svg viewBox="0 0 200 200" style="width:100%;height:100%;animation:spinB 75s linear infinite;transform-origin:center;">
+    <circle cx="100" cy="100" r="80" fill="none" stroke="#9C4F9E" stroke-width="1"/>
+    <circle cx="100" cy="100" r="80" fill="none" stroke="#9C4F9E" stroke-width="6" stroke-dasharray="14 30" opacity="0.6"/>
+    <circle cx="100" cy="100" r="50" fill="none" stroke="#9C4F9E" stroke-width="1"/>
+  </svg>
 </div>
+
 <!-- motif 5b : petit hexagone, centre -->
 <div style="position:absolute;top:2180px;left:50%;width:100px;height:100px;z-index:0;pointer-events:none;opacity:.24;">
-<svg style="width:100%;height:100%;animation:spinA 48s linear infinite;transform-origin:center;" viewbox="0 0 100 100">
-<polygon fill="none" points="50,5 89,27 89,73 50,95 11,73 11,27" stroke="#9C4F9E" stroke-width="1.5"></polygon>
-</svg>
+  <svg viewBox="0 0 100 100" style="width:100%;height:100%;animation:spinA 48s linear infinite;transform-origin:center;">
+    <polygon points="50,5 89,27 89,73 50,95 11,73 11,27" fill="none" stroke="#9C4F9E" stroke-width="1.5"/>
+  </svg>
 </div>
+
 <!-- motif 6 : hexagones concentriques, bas droite -->
 <div style="position:absolute;top:2850px;right:-90px;width:300px;height:300px;z-index:0;pointer-events:none;opacity:.28;">
-<svg style="width:100%;height:100%;animation:spinA 68s linear infinite;transform-origin:center;" viewbox="0 0 200 200">
-<polygon fill="none" points="100,10 178,55 178,145 100,190 22,145 22,55" stroke="#9C4F9E" stroke-width="1"></polygon>
-<polygon fill="none" points="100,35 155,67 155,133 100,165 45,133 45,67" stroke="#9C4F9E" stroke-dasharray="3 8" stroke-width="2"></polygon>
-</svg>
+  <svg viewBox="0 0 200 200" style="width:100%;height:100%;animation:spinA 68s linear infinite;transform-origin:center;">
+    <polygon points="100,10 178,55 178,145 100,190 22,145 22,55" fill="none" stroke="#9C4F9E" stroke-width="1"/>
+    <polygon points="100,35 155,67 155,133 100,165 45,133 45,67" fill="none" stroke="#9C4F9E" stroke-width="2" stroke-dasharray="3 8"/>
+  </svg>
 </div>
+
 <!-- motif 6b : cadran, bas gauche -->
 <div style="position:absolute;top:2700px;left:140px;width:110px;height:110px;z-index:0;pointer-events:none;opacity:.26;">
-<svg style="width:100%;height:100%;animation:spinB 52s linear infinite;transform-origin:center;" viewbox="0 0 110 110">
-<circle cx="55" cy="55" fill="none" r="48" stroke="#9C4F9E" stroke-width="1"></circle>
-<circle cx="55" cy="55" fill="none" opacity="0.6" r="48" stroke="#9C4F9E" stroke-dasharray="8 18" stroke-width="4"></circle>
-</svg>
+  <svg viewBox="0 0 110 110" style="width:100%;height:100%;animation:spinB 52s linear infinite;transform-origin:center;">
+    <circle cx="55" cy="55" r="48" fill="none" stroke="#9C4F9E" stroke-width="1"/>
+    <circle cx="55" cy="55" r="48" fill="none" stroke="#9C4F9E" stroke-width="4" stroke-dasharray="8 18" opacity="0.6"/>
+  </svg>
 </div>
+
 <!-- trame "circuit" reliant les motifs, sur toute la hauteur -->
-<svg preserveaspectratio="none" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.34;">
-<path d="M 60,140 Q 200,300 400,560 T 900,900 Q 1100,1050 950,1300 T 500,1750 Q 250,1950 700,2200 T 900,2650 Q 750,2850 500,3000" fill="none" stroke="#9C4F9E" stroke-dasharray="2 10" stroke-width="1.5"></path>
-<circle cx="400" cy="560" fill="#9C4F9E" r="3"></circle>
-<circle cx="950" cy="1300" fill="#9C4F9E" r="3"></circle>
-<circle cx="700" cy="2200" fill="#9C4F9E" r="3"></circle>
-<circle cx="500" cy="3000" fill="#9C4F9E" r="3"></circle>
+<svg style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.34;" preserveAspectRatio="none">
+  <path d="M 60,140 Q 200,300 400,560 T 900,900 Q 1100,1050 950,1300 T 500,1750 Q 250,1950 700,2200 T 900,2650 Q 750,2850 500,3000"
+    fill="none" stroke="#9C4F9E" stroke-width="1.5" stroke-dasharray="2 10"/>
+  <circle cx="400" cy="560" r="3" fill="#9C4F9E"/>
+  <circle cx="950" cy="1300" r="3" fill="#9C4F9E"/>
+  <circle cx="700" cy="2200" r="3" fill="#9C4F9E"/>
+  <circle cx="500" cy="3000" r="3" fill="#9C4F9E"/>
 </svg>
+
 <!-- petites formes de remplissage entre les grands motifs -->
 <div style="position:absolute;top:340px;right:120px;width:60px;height:60px;z-index:0;pointer-events:none;opacity:.4;">
-<svg viewbox="0 0 60 60"><polygon fill="none" points="30,4 54,17 54,43 30,56 6,43 6,17" stroke="#9C4F9E" stroke-width="1.5"></polygon></svg>
+  <svg viewBox="0 0 60 60"><polygon points="30,4 54,17 54,43 30,56 6,43 6,17" fill="none" stroke="#9C4F9E" stroke-width="1.5"/></svg>
 </div>
 <div style="position:absolute;top:950px;left:160px;width:40px;height:40px;z-index:0;pointer-events:none;opacity:.42;">
-<svg viewbox="0 0 40 40"><circle cx="20" cy="20" fill="none" r="17" stroke="#9C4F9E" stroke-dasharray="2 5" stroke-width="1"></circle></svg>
+  <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#9C4F9E" stroke-width="1" stroke-dasharray="2 5"/></svg>
 </div>
 <div style="position:absolute;top:1480px;right:200px;width:50px;height:50px;z-index:0;pointer-events:none;opacity:.4;">
-<svg viewbox="0 0 50 50"><polygon fill="none" points="25,3 45,14 45,36 25,47 5,36 5,14" stroke="#9C4F9E" stroke-width="1.5"></polygon></svg>
+  <svg viewBox="0 0 50 50"><polygon points="25,3 45,14 45,36 25,47 5,36 5,14" fill="none" stroke="#9C4F9E" stroke-width="1.5"/></svg>
 </div>
 <div style="position:absolute;top:2050px;left:140px;width:36px;height:36px;z-index:0;pointer-events:none;opacity:.42;">
-<svg viewbox="0 0 36 36"><circle cx="18" cy="18" fill="none" r="15" stroke="#9C4F9E" stroke-dasharray="2 5" stroke-width="1"></circle></svg>
+  <svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#9C4F9E" stroke-width="1" stroke-dasharray="2 5"/></svg>
 </div>
 <div style="position:absolute;top:2600px;right:170px;width:46px;height:46px;z-index:0;pointer-events:none;opacity:.4;">
-<svg viewbox="0 0 46 46"><polygon fill="none" points="23,3 42,13 42,33 23,43 4,33 4,13" stroke="#9C4F9E" stroke-width="1.5"></polygon></svg>
+  <svg viewBox="0 0 46 46"><polygon points="23,3 42,13 42,33 23,43 4,33 4,13" fill="none" stroke="#9C4F9E" stroke-width="1.5"/></svg>
 </div>
+
 <!-- particules hexagonales flottantes sur toute la hauteur -->
 <div style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;overflow:hidden;">
-<div class="particle" style="left:8%;bottom:0%;width:14px;height:16px;animation-delay:0s;animation-duration:22s;border-color:#9C4F9E;"></div>
-<div class="particle" style="left:22%;bottom:15%;width:18px;height:20px;animation-delay:3s;animation-duration:26s;border-color:#9C4F9E;"></div>
-<div class="particle" style="left:38%;bottom:35%;width:12px;height:14px;animation-delay:6s;animation-duration:20s;border-color:#9C4F9E;"></div>
-<div class="particle" style="left:55%;bottom:8%;width:16px;height:18px;animation-delay:2s;animation-duration:24s;border-color:#9C4F9E;"></div>
-<div class="particle" style="left:70%;bottom:45%;width:14px;height:16px;animation-delay:8s;animation-duration:21s;border-color:#9C4F9E;"></div>
-<div class="particle" style="left:85%;bottom:20%;width:18px;height:20px;animation-delay:4s;animation-duration:25s;border-color:#9C4F9E;"></div>
-<div class="particle" style="left:15%;bottom:60%;width:14px;height:16px;animation-delay:10s;animation-duration:23s;border-color:#9C4F9E;"></div>
-<div class="particle" style="left:45%;bottom:70%;width:16px;height:18px;animation-delay:5s;animation-duration:27s;border-color:#9C4F9E;"></div>
-<div class="particle" style="left:65%;bottom:80%;width:12px;height:14px;animation-delay:12s;animation-duration:22s;border-color:#9C4F9E;"></div>
-<div class="particle" style="left:92%;bottom:65%;width:16px;height:18px;animation-delay:7s;animation-duration:24s;border-color:#9C4F9E;"></div>
+  <div class="particle" style="left:8%;bottom:0%;width:14px;height:16px;animation-delay:0s;animation-duration:22s;border-color:#9C4F9E;"></div>
+  <div class="particle" style="left:22%;bottom:15%;width:18px;height:20px;animation-delay:3s;animation-duration:26s;border-color:#9C4F9E;"></div>
+  <div class="particle" style="left:38%;bottom:35%;width:12px;height:14px;animation-delay:6s;animation-duration:20s;border-color:#9C4F9E;"></div>
+  <div class="particle" style="left:55%;bottom:8%;width:16px;height:18px;animation-delay:2s;animation-duration:24s;border-color:#9C4F9E;"></div>
+  <div class="particle" style="left:70%;bottom:45%;width:14px;height:16px;animation-delay:8s;animation-duration:21s;border-color:#9C4F9E;"></div>
+  <div class="particle" style="left:85%;bottom:20%;width:18px;height:20px;animation-delay:4s;animation-duration:25s;border-color:#9C4F9E;"></div>
+  <div class="particle" style="left:15%;bottom:60%;width:14px;height:16px;animation-delay:10s;animation-duration:23s;border-color:#9C4F9E;"></div>
+  <div class="particle" style="left:45%;bottom:70%;width:16px;height:18px;animation-delay:5s;animation-duration:27s;border-color:#9C4F9E;"></div>
+  <div class="particle" style="left:65%;bottom:80%;width:12px;height:14px;animation-delay:12s;animation-duration:22s;border-color:#9C4F9E;"></div>
+  <div class="particle" style="left:92%;bottom:65%;width:16px;height:18px;animation-delay:7s;animation-duration:24s;border-color:#9C4F9E;"></div>
 </div>
+
 <style>@keyframes spinA{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
 @keyframes spinB{from{transform:rotate(0deg);}to{transform:rotate(-360deg);}}
 .particle{position:absolute;border:1px solid #9C4F9E;opacity:0;
@@ -565,274 +526,231 @@ footer summary:hover{color:var(--level-neon);}
   animation-name:floatUpPage;animation-timing-function:linear;animation-iteration-count:infinite;}
 @keyframes floatUpPage{0%{transform:translateY(0) rotate(0deg);opacity:0;}10%{opacity:.75;}90%{opacity:.55;}100%{transform:translateY(-900px) rotate(180deg);opacity:0;}}
 </style>
+
+
 </div>
 <div class="page-content" style="position:relative;z-index:1;">
 <header>
-<div class="nav-wrap">
-<div class="brand">
-<div class="brand-hex"></div>
-<div class="brand-name">PROF <span>4.0</span></div>
-</div>
-<div class="breadcrumb"><a href="../index.html">Accueil</a><span class="sep">/</span><a href="../stmg.html">STMG</a><span class="sep">/</span><a href="../terminale.html">Terminale</a><span class="sep">/</span><span class="current">Ressources Humaines</span></div>
-</div>
+  <div class="nav-wrap">
+    <div class="brand">
+      <div class="brand-hex"></div>
+      <div class="brand-name">PROF <span>4.0</span></div>
+    </div>
+    <div class="breadcrumb"><a href="../index.html">Accueil</a><span class="sep">/</span><a href="../stmg.html">STMG</a><span class="sep">/</span><a href="../terminale.html">Terminale</a><span class="sep">/</span><span class="current">Ressources Humaines</span></div>
+  </div>
 </header>
 <div class="build-banner">
-<svg stroke-width="2" viewbox="0 0 24 24"><path d="M12 9v4M12 16.5h.01"></path><path d="M10.3 3.9L2.5 18a1.8 1.8 0 001.55 2.7h15.9a1.8 1.8 0 001.55-2.7L13.7 3.9a1.8 1.8 0 00-3.4 0z"></path></svg>
-<span>Site en construction — de nouveaux contenus (fiches, vidéos, podcasts, jeux) sont ajoutés au fur et à mesure.</span>
+  <svg viewBox="0 0 24 24" stroke-width="2"><path d="M12 9v4M12 16.5h.01"/><path d="M10.3 3.9L2.5 18a1.8 1.8 0 001.55 2.7h15.9a1.8 1.8 0 001.55-2.7L13.7 3.9a1.8 1.8 0 00-3.4 0z"/></svg>
+  <span>Site en construction &mdash; de nouveaux contenus (fiches, vid&eacute;os, podcasts, jeux) sont ajout&eacute;s au fur et &agrave; mesure.</span>
 </div>
+
 <section style="--subj:#9C4F9E;position:relative;">
-<div class="particle-field"><div class="particle" style="left:4%;bottom:-10%;width:16px;height:18px;animation-delay:0s;animation-duration:11s;"></div><div class="particle" style="left:14%;bottom:0%;width:20px;height:23px;animation-delay:1.4s;animation-duration:14s;"></div><div class="particle" style="left:24%;bottom:-20%;width:14px;height:16px;animation-delay:3.1s;animation-duration:10s;"></div><div class="particle" style="left:34%;bottom:5%;width:22px;height:25px;animation-delay:0.6s;animation-duration:16s;"></div><div class="particle" style="left:46%;bottom:-15%;width:18px;height:21px;animation-delay:4.5s;animation-duration:12s;"></div><div class="particle" style="left:58%;bottom:0%;width:15px;height:17px;animation-delay:2.2s;animation-duration:15s;"></div></div>
-<div class="sec-head" style="text-align:center;">
-<div class="sec-num" style="color:#9C4F9E;">Terminale</div>
-<div style="display:flex;align-items:center;justify-content:center;gap:20px;">
-<svg aria-hidden="true" class="subj-flank" height="50" viewbox="0 0 64 64" width="50"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.2"><circle cx="21" cy="21" r="7"></circle><circle cx="43" cy="21" r="7"></circle><path d="M8 49c0-9 5-15 13-15s13 6 13 15v5H8zm22 5v-5c0-7 4-13 12-13s14 6 14 14v4H30Z"></path><path d="M30 28h4"></path></g></svg>
-<div class="sec-title">Ressources Humaines</div>
-<svg aria-hidden="true" class="subj-flank" height="50" viewbox="0 0 64 64" width="50"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.2"><circle cx="21" cy="21" r="7"></circle><circle cx="43" cy="21" r="7"></circle><path d="M8 49c0-9 5-15 13-15s13 6 13 15v5H8zm22 5v-5c0-7 4-13 12-13s14 6 14 14v4H30Z"></path><path d="M30 28h4"></path></g></svg>
-</div>
-<p class="sec-sub" style="margin-left:auto;margin-right:auto;">Bienvenue ! Tu trouveras ici toutes les ressources nécessaires pour progresser en Ressources Humaines.</p>
-</div>
-<nav aria-label="Thèmes du programme" class="theme-nav">
-<a class="theme-chip" href="#theme-1" title="Les compétences au service de l'organisation et l'organisation au service du développement des compétences"><span class="theme-chip-num">THÈME 1</span><span class="theme-chip-txt">Les compétences au service de l'organisation et l'organisation au service du développement des compétences</span></a>
-<a class="theme-chip" href="#theme-2" title="Des facteurs de motivation et de satisfaction : qualité de vie au travail et rémunération"><span class="theme-chip-num">THÈME 2</span><span class="theme-chip-txt">Des facteurs de motivation et de satisfaction : qualité de vie au travail et rémunération</span></a>
-<a class="theme-chip" href="#theme-3" title="La recherche de cohésion, un levier d'amélioration des relations de travail et du climat social"><span class="theme-chip-num">THÈME 3</span><span class="theme-chip-txt">La recherche de cohésion, un levier d'amélioration des relations de travail et du climat social</span></a>
-</nav>
-<div class="theme-block" id="theme-1">
-<div class="theme-head-wrap"><div class="theme-head">
-<svg aria-hidden="true" class="theme-deco" preserveaspectratio="xMaxYMid slice" viewbox="0 0 420 110"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"></polygon><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-dasharray="3 5" stroke-width="1.2"></polygon><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"></polygon><path d="M120,92 H210 L232,70 H250" stroke-dasharray="2 6" stroke-width="1.2"></path><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"></path></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"></circle><circle cx="170" cy="18" r="2.6"></circle><circle cx="330" cy="44" r="3.2"></circle><circle cx="384" cy="70" r="2.2"></circle></g></svg>
-<div aria-hidden="true" class="theme-bignum">01</div>
-<div class="theme-hex-wrap"><svg aria-hidden="true" class="theme-ring" viewbox="0 0 80 80"><circle cx="40" cy="40" fill="none" r="37" stroke="currentColor" stroke-dasharray="4 7" stroke-width="1.5"></circle></svg><div class="theme-hex"><svg aria-hidden="true" class="theme-ico" viewbox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.2"><circle cx="32" cy="20" r="10"></circle><path d="M12 54v-5a20 20 0 0 1 40 0v5M23 35l9 8 9-8M32 43v11"></path><path d="m28 17 3 3 6-7"></path></g></svg></div></div>
-<div class="theme-head-txt">
-<div class="theme-label">Thème 1 · Chapitres 01 à 04</div>
-<h2 class="theme-title">Les compétences au service de l'organisation et l'organisation au service du développement des compétences</h2>
-</div>
-</div></div>
-<div class="theme-game"><div class="tg-ico"><svg aria-hidden="true" viewbox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M9 11h14a6 6 0 0 1 5.6 8.2l-1.3 3.4a3 3 0 0 1-5 .9L20 21h-8l-2.3 2.5a3 3 0 0 1-5-.9l-1.3-3.4A6 6 0 0 1 9 11z"></path><path d="M10 14.5v4M8 16.5h4"></path></g><circle cx="21" cy="15.5" fill="currentColor" r="1.3"></circle><circle cx="23.5" cy="18" fill="currentColor" r="1.3"></circle></svg></div><div class="tg-txt"><div class="tg-k">Jeu du thème</div><div class="tg-t">Les compétences</div><div class="tg-d">Hôtel-restaurant Les Embruns : recruter un chef sans discriminer, intégrer les saisonniers, évaluer, former et préparer la relève.</div></div><a class="status-ready" href="../jeux/rh/les-competences.html" target="_blank"><span class="type-dot type-jeu"></span>Jouer</a></div>
-<div class="chapter-grid">
-<div class="chapter-card">
-<div class="chapter-left">
-<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">01</div></div>
-<div>
-<div class="chapter-name">Le besoin en recrutement</div>
-<div class="chapter-meta">Vidéo &amp; fiche à venir</div>
-</div>
-</div>
-<span class="status-empty">Vide</span>
-<div aria-hidden="true" class="chapter-art" data-svg="RH-01"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
-<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
-<desc>Poste vacant sous une loupe, matrice de compétences et profil candidat</desc>
-<circle class="orbit" cx="106" cy="73" r="49"></circle><path class="arc" d="M25 28h29M22 31v29M162 93h-29m32-3V62"></path>
-<g opacity="1.00" transform="translate(34.0 9.0) rotate(0) scale(1.000)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><rect height="53" rx="6" width="76" x="12" y="35"></rect><path d="M36 35V24q0-7 7-7h14q7 0 7 7v11M12 55h76M43 51h14v9H43z"></path></g></g><g opacity="0.85" transform="translate(118.0 51.0) rotate(-12) scale(0.540)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M17 18h49l15 14v58H17zM66 18v14h15"></path><circle cx="51" cy="53" r="14"></circle><path class="dim" d="m61 63 17 18M46 44c13-3 18 4 14 13m-16-4c3-7 10-7 12-1"></path></g></g>
-</svg></div><div class="corner-br"></div>
-</div>
-<div class="chapter-card">
-<div class="chapter-left">
-<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">02</div></div>
-<div>
-<div class="chapter-name">Les évolutions des relations de travail</div>
-<div class="chapter-meta">Vidéo &amp; fiche à venir</div>
-</div>
-</div>
-<span class="status-empty">Vide</span>
-<div aria-hidden="true" class="chapter-art" data-svg="RH-02"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
-<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
-<desc>Deux modes de travail : salarié relié à un employeur et indépendant travaillant en autonomie</desc>
-<path class="arc" d="M95 15v80M13 13h26m102 84h30"></path><circle class="point" cx="95" cy="54" r="4"></circle>
-<g opacity="1.00" transform="translate(8.0 20.0) rotate(-8) scale(0.790)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><circle cx="38" cy="29" r="12"></circle><path d="M14 81V64q0-19 24-19t24 19v17"></path><path class="dim" d="M72 22v46m-9-32 9-13 9 13m-9 32-9-13 9-13 9 13"></path></g></g><g opacity="1.00" transform="translate(104.0 17.0) rotate(7) scale(0.760)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><rect height="54" rx="6" width="72" x="14" y="16"></rect><path d="M14 57h72M40 70v11m20-11v11M29 84h42"></path><path class="dim" d="M28 45 40 35l11 8 18-17"></path></g></g>
-</svg></div><div class="corner-br"></div>
-</div>
-<div class="chapter-card">
-<div class="chapter-left">
-<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">03</div></div>
-<div>
-<div class="chapter-name">L’évaluation des ressources humaines</div>
-<div class="chapter-meta">Vidéo &amp; fiche à venir</div>
-</div>
-</div>
-<span class="status-empty">Vide</span>
-<div aria-hidden="true" class="chapter-art" data-svg="RH-03"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
-<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
-<desc>Face-à-face d’entretien avec grille de critères et trajectoire de progression</desc>
-<path class="arc" d="M95 15v80M13 13h26m102 84h30"></path><circle class="point" cx="95" cy="54" r="4"></circle>
-<g opacity="1.00" transform="translate(8.0 20.0) rotate(-8) scale(0.790)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><circle cx="50" cy="25" r="10"></circle><circle cx="19" cy="42" r="8"></circle><circle cx="81" cy="42" r="8"></circle><path d="M33 72V61q0-17 17-17t17 17v11H33ZM5 77V65q0-13 14-13 8 0 12 6M95 77V65q0-13-14-13-8 0-12 6"></path></g></g><g opacity="1.00" transform="translate(104.0 17.0) rotate(7) scale(0.760)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><rect height="80" rx="5" width="64" x="18" y="12"></rect><path d="m29 34 6 6 10-13m-16 34 6 6 10-13M52 34h19M52 61h19M29 78h43"></path></g></g>
-</svg></div><div class="corner-br"></div>
-</div>
-<div class="chapter-card">
-<div class="chapter-left">
-<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">04</div></div>
-<div>
-<div class="chapter-name">Le développement des compétences</div>
-<div class="chapter-meta">Vidéo &amp; fiche à venir</div>
-</div>
-</div>
-<span class="status-empty">Vide</span>
-<div aria-hidden="true" class="chapter-art" data-svg="RH-04"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
-<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
-<desc>Escalier d’apprentissage composé de modules de formation menant à de nouvelles compétences</desc>
-<path class="route" d="M12 84q45-54 83-29t76-33"></path><circle class="point" cx="19" cy="79" r="3"></circle><circle class="point" cx="168" cy="24" r="3"></circle>
-<g opacity="1.00" transform="translate(4.0 33.0) rotate(0) scale(0.780)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M9 88h22V69h20V51h19V30h20"></path><path d="M73 17h17v17M90 17 65 43"></path></g></g><g opacity="1.00" transform="translate(99.0 0.0) rotate(0) scale(0.760)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M12 22h30q12 0 12 10v46q-10-9-24-9H12zM88 22H66q-12 0-12 10v46q10-9 24-9h10z"></path><path class="dim" d="M54 32v49M20 35h21M20 46h19M67 35h13M67 46h13"></path></g></g><path class="link" d="M75 74q27-5 27-22m-8 6 8-6 8 5"></path>
-</svg></div><div class="corner-br"></div>
-</div>
-</div>
-</div>
-<div class="theme-block" id="theme-2">
-<div class="theme-head-wrap"><div class="theme-head">
-<svg aria-hidden="true" class="theme-deco" preserveaspectratio="xMaxYMid slice" viewbox="0 0 420 110"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"></polygon><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-dasharray="3 5" stroke-width="1.2"></polygon><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"></polygon><path d="M120,92 H210 L232,70 H250" stroke-dasharray="2 6" stroke-width="1.2"></path><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"></path></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"></circle><circle cx="170" cy="18" r="2.6"></circle><circle cx="330" cy="44" r="3.2"></circle><circle cx="384" cy="70" r="2.2"></circle></g></svg>
-<div aria-hidden="true" class="theme-bignum">02</div>
-<div class="theme-hex-wrap"><svg aria-hidden="true" class="theme-ring" viewbox="0 0 80 80"><circle cx="40" cy="40" fill="none" r="37" stroke="currentColor" stroke-dasharray="4 7" stroke-width="1.5"></circle></svg><div class="theme-hex"><svg aria-hidden="true" class="theme-ico" viewbox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.2"><path d="M32 53S9 39 9 24a12 12 0 0 1 23-5 12 12 0 0 1 23 5c0 15-23 29-23 29Z"></path><path d="M18 32h9l4-8 6 17 4-9h7"></path></g></svg></div></div>
-<div class="theme-head-txt">
-<div class="theme-label">Thème 2 · Chapitres 05 à 08</div>
-<h2 class="theme-title">Des facteurs de motivation et de satisfaction : qualité de vie au travail et rémunération</h2>
-</div>
-</div></div>
-<div class="theme-game"><div class="tg-ico"><svg aria-hidden="true" viewbox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M9 11h14a6 6 0 0 1 5.6 8.2l-1.3 3.4a3 3 0 0 1-5 .9L20 21h-8l-2.3 2.5a3 3 0 0 1-5-.9l-1.3-3.4A6 6 0 0 1 9 11z"></path><path d="M10 14.5v4M8 16.5h4"></path></g><circle cx="21" cy="15.5" fill="currentColor" r="1.3"></circle><circle cx="23.5" cy="18" fill="currentColor" r="1.3"></circle></svg></div><div class="tg-txt"><div class="tg-k">Jeu du thème</div><div class="tg-t">Motivation et rémunération</div><div class="tg-d">Absences et départs aux Embruns : conditions de travail, rémunération globale, égalité femmes-hommes et reconnaissance. Aïcha restera-t-elle ?</div></div><a class="status-ready" href="../jeux/rh/motivation-et-remuneration.html" target="_blank"><span class="type-dot type-jeu"></span>Jouer</a></div>
-<div class="chapter-grid">
-<div class="chapter-card">
-<div class="chapter-left">
-<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">05</div></div>
-<div>
-<div class="chapter-name">La mobilité professionnelle</div>
-<div class="chapter-meta">Vidéo &amp; fiche à venir</div>
-</div>
-</div>
-<span class="status-empty">Vide</span>
-<div aria-hidden="true" class="chapter-art" data-svg="RH-05"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
-<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
-<desc>Collaborateur au carrefour de trois parcours : promotion, mobilité latérale, changement d’organisation</desc>
-<path class="route" d="M12 84q45-54 83-29t76-33"></path><circle class="point" cx="19" cy="79" r="3"></circle><circle class="point" cx="168" cy="24" r="3"></circle>
-<g opacity="1.00" transform="translate(4.0 33.0) rotate(0) scale(0.780)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M12 48h30M42 48v-28h16m-16 28v30h16m-16-30h16"></path><rect height="22" rx="4" width="30" x="58" y="9"></rect><rect height="22" rx="4" width="30" x="58" y="38"></rect><rect height="22" rx="4" width="30" x="58" y="67"></rect></g></g><g opacity="1.00" transform="translate(99.0 0.0) rotate(0) scale(0.760)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><circle cx="38" cy="29" r="12"></circle><path d="M14 81V64q0-19 24-19t24 19v17"></path><path class="dim" d="M72 22v46m-9-32 9-13 9 13m-9 32-9-13 9-13 9 13"></path></g></g><path class="link" d="M75 74q27-5 27-22m-8 6 8-6 8 5"></path>
-</svg></div><div class="corner-br"></div>
-</div>
-<div class="chapter-card">
-<div class="chapter-left">
-<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">06</div></div>
-<div>
-<div class="chapter-name">La santé et la sécurité au travail</div>
-<div class="chapter-meta">Vidéo &amp; fiche à venir</div>
-</div>
-</div>
-<span class="status-empty">Vide</span>
-<div aria-hidden="true" class="chapter-art" data-svg="RH-06"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
-<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
-<desc>Poste de travail entouré de dangers identifiés et d’un dispositif de prévention</desc>
-<circle class="orbit" cx="106" cy="73" r="49"></circle><path class="arc" d="M25 28h29M22 31v29M162 93h-29m32-3V62"></path>
-<g opacity="1.00" transform="translate(31.0 12.0) rotate(0) scale(1.040)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M50 9 83 22v29q0 25-33 42-33-17-33-42V22z"></path><path d="m32 50 13 13 23-26"></path></g></g><g opacity="0.91" transform="translate(114.0 53.0) rotate(0) scale(0.530)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M14 56h76M23 56v33m54-33v33M32 49h36M38 45V25h24v20"></path><path class="dim" d="M73 17h15v16H73"></path></g></g>
-</svg></div><div class="corner-br"></div>
-</div>
-<div class="chapter-card">
-<div class="chapter-left">
-<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">07</div></div>
-<div>
-<div class="chapter-name">Le mieux-vivre au travail</div>
-<div class="chapter-meta">Vidéo &amp; fiche à venir</div>
-</div>
-</div>
-<span class="status-empty">Vide</span>
-<div aria-hidden="true" class="chapter-art" data-svg="RH-07"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
-<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
-<desc>Espace de travail ergonomique, salarié serein et plante RSE</desc>
-<path class="arc" d="M15 16h28l11 10m116 53v17h-30"></path><path class="route" d="M40 88h87"></path>
-<g opacity="1.00" transform="translate(30.0 12.0) rotate(0) scale(0.820)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><rect height="44" rx="10" width="42" x="30" y="12"></rect><path d="M18 58h66M24 58v12h52V58M33 70v20m34-20v20"></path></g></g><g opacity="0.75" transform="translate(115.0 4.0) rotate(14) scale(0.490)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M84 16Q29 12 20 52q-5 33 25 33Q89 83 84 16Z"></path><path d="M23 81q31-36 50-48M37 66l-4-23m19 8 17 3"></path></g></g><g opacity="0.55" transform="translate(2.0 73.0) rotate(-9) scale(0.360)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M84 16Q29 12 20 52q-5 33 25 33Q89 83 84 16Z"></path><path d="M23 81q31-36 50-48M37 66l-4-23m19 8 17 3"></path></g></g>
-</svg></div><div class="corner-br"></div>
-</div>
-<div class="chapter-card">
-<div class="chapter-left">
-<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">08</div></div>
-<div>
-<div class="chapter-name">La rémunération</div>
-<div class="chapter-meta">Vidéo &amp; fiche à venir</div>
-</div>
-</div>
-<span class="status-empty">Vide</span>
-<div aria-hidden="true" class="chapter-art" data-svg="RH-08"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
-<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
-<desc>Bulletin de paie relié à un salaire et à une distinction de reconnaissance</desc>
-<path class="arc" d="M18 97h35M134 14h36"></path><path class="route" d="M21 21 153 89"></path>
-<g opacity="1.00" transform="translate(9.0 13.0) rotate(-12) scale(0.850)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M19 12h46l16 17v61H19zM65 12v17h16M30 43h39M30 55h35"></path><path d="m30 76 12-9 8 6 14-13"></path><path class="dim" d="m65 75 11-7"></path></g></g><g opacity="1.00" transform="translate(105.0 41.0) rotate(10) scale(0.690)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><circle cx="50" cy="50" r="34"></circle><circle class="dim" cx="50" cy="50" r="24"></circle><path d="M38 40h27m-27 10h24m-24 10h27"></path></g></g>
-</svg></div><div class="corner-br"></div>
-</div>
-</div>
-</div>
-<div class="theme-block" id="theme-3">
-<div class="theme-head-wrap"><div class="theme-head">
-<svg aria-hidden="true" class="theme-deco" preserveaspectratio="xMaxYMid slice" viewbox="0 0 420 110"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"></polygon><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-dasharray="3 5" stroke-width="1.2"></polygon><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"></polygon><path d="M120,92 H210 L232,70 H250" stroke-dasharray="2 6" stroke-width="1.2"></path><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"></path></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"></circle><circle cx="170" cy="18" r="2.6"></circle><circle cx="330" cy="44" r="3.2"></circle><circle cx="384" cy="70" r="2.2"></circle></g></svg>
-<div aria-hidden="true" class="theme-bignum">03</div>
-<div class="theme-hex-wrap"><svg aria-hidden="true" class="theme-ring" viewbox="0 0 80 80"><circle cx="40" cy="40" fill="none" r="37" stroke="currentColor" stroke-dasharray="4 7" stroke-width="1.5"></circle></svg><div class="theme-hex"><svg aria-hidden="true" class="theme-ico" viewbox="0 0 64 64"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.2"><circle cx="18" cy="18" r="6"></circle><circle cx="46" cy="18" r="6"></circle><circle cx="32" cy="43" r="6"></circle><path d="M22 22 29 37m13-15-7 15M24 18h16M9 53c1-6 4-9 9-9m37 9c-1-6-4-9-9-9m-24 9h20"></path></g></svg></div></div>
-<div class="theme-head-txt">
-<div class="theme-label">Thème 3 · Chapitres 09 à 11</div>
-<h2 class="theme-title">La recherche de cohésion, un levier d'amélioration des relations de travail et du climat social</h2>
-</div>
-</div></div>
-<div class="theme-game"><div class="tg-ico"><svg aria-hidden="true" viewbox="0 0 32 32"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M9 11h14a6 6 0 0 1 5.6 8.2l-1.3 3.4a3 3 0 0 1-5 .9L20 21h-8l-2.3 2.5a3 3 0 0 1-5-.9l-1.3-3.4A6 6 0 0 1 9 11z"></path><path d="M10 14.5v4M8 16.5h4"></path></g><circle cx="21" cy="15.5" fill="currentColor" r="1.3"></circle><circle cx="23.5" cy="18" fill="currentColor" r="1.3"></circle></svg></div><div class="tg-txt"><div class="tg-k">Jeu du thème</div><div class="tg-t">La cohésion</div><div class="tg-d">Salle contre cuisine, un chef qui humilie, une rumeur de vente et une négociation avec le CSE : retisser l’équipe avant l’été.</div></div><a class="status-ready" href="../jeux/rh/la-cohesion.html" target="_blank"><span class="type-dot type-jeu"></span>Jouer</a></div>
-<div class="chapter-grid">
-<div class="chapter-card">
-<div class="chapter-left">
-<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">09</div></div>
-<div>
-<div class="chapter-name">La cohésion</div>
-<div class="chapter-meta">Vidéo &amp; fiche à venir</div>
-</div>
-</div>
-<span class="status-empty">Vide</span>
-<div aria-hidden="true" class="chapter-art" data-svg="RH-09"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
-<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
-<desc>Pièces complémentaires formant un collectif autour d’un objectif commun</desc>
-<path class="arc" d="M15 16h28l11 10m116 53v17h-30"></path><path class="route" d="M40 88h87"></path>
-<g opacity="1.00" transform="translate(30.0 12.0) rotate(0) scale(0.820)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M14 19h25q-2 9 8 11 11-2 9-11h30v26q-12-3-12 9t12 10v23H59q3-11-9-11t-10 11H14V61q12 2 12-9t-12-9Z"></path></g></g><g opacity="0.75" transform="translate(115.0 4.0) rotate(14) scale(0.490)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><circle cx="50" cy="25" r="10"></circle><circle cx="19" cy="42" r="8"></circle><circle cx="81" cy="42" r="8"></circle><path d="M33 72V61q0-17 17-17t17 17v11H33ZM5 77V65q0-13 14-13 8 0 12 6M95 77V65q0-13-14-13-8 0-12 6"></path></g></g><g opacity="0.55" transform="translate(2.0 73.0) rotate(-9) scale(0.360)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><circle cx="50" cy="25" r="10"></circle><circle cx="19" cy="42" r="8"></circle><circle cx="81" cy="42" r="8"></circle><path d="M33 72V61q0-17 17-17t17 17v11H33ZM5 77V65q0-13 14-13 8 0 12 6M95 77V65q0-13-14-13-8 0-12 6"></path></g></g>
-</svg></div><div class="corner-br"></div>
-</div>
-<div class="chapter-card">
-<div class="chapter-left">
-<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">10</div></div>
-<div>
-<div class="chapter-name">Le dialogue social</div>
-<div class="chapter-meta">Vidéo &amp; fiche à venir</div>
-</div>
-</div>
-<span class="status-empty">Vide</span>
-<div aria-hidden="true" class="chapter-art" data-svg="RH-10"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
-<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
-<desc>Table de négociation : direction et représentants du personnel face à face</desc>
-<path class="arc" d="M95 15v80M13 13h26m102 84h30"></path><circle class="point" cx="95" cy="54" r="4"></circle>
-<g opacity="1.00" transform="translate(8.0 20.0) rotate(-8) scale(0.790)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M8 39 34 25l16 6 17-6 25 15-17 25-13 5-18-9-13 10-17-6z"></path><path class="dim" d="m35 43 17-11 20 22-10 16M23 57l14 11m-7-17 19 17"></path></g></g><g opacity="1.00" transform="translate(104.0 17.0) rotate(7) scale(0.760)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M12 22h76v50H45L27 88V72H12Z"></path><path class="dim" d="M27 41h46M27 54h36"></path></g></g>
-</svg></div><div class="corner-br"></div>
-</div>
-<div class="chapter-card">
-<div class="chapter-left">
-<div class="chapter-num-wrap"><svg viewbox="0 0 44 44"><polygon fill="none" points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" stroke="var(--subj)" stroke-width="1.5"></polygon></svg><div class="chapter-num">11</div></div>
-<div>
-<div class="chapter-name">La communication, facteur de cohésion et de performance</div>
-<div class="chapter-meta">Vidéo &amp; fiche à venir</div>
-</div>
-</div>
-<span class="status-empty">Vide</span>
-<div aria-hidden="true" class="chapter-art" data-svg="RH-11"><svg aria-hidden="true" viewbox="0 0 180 112" xmlns="http://www.w3.org/2000/svg">
-<style>.dim{opacity:.42}.orbit{fill:none;stroke:currentColor;stroke-width:1;opacity:.13;stroke-dasharray:5 9}.arc{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.26}.route{fill:none;stroke:currentColor;stroke-width:1.5;opacity:.23;stroke-dasharray:3 7}.point{fill:currentColor;opacity:.58}.link{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.8}</style>
-<desc>Deux canaux de communication : vers salariés et candidats, depuis un pôle RH</desc>
-<path class="arc" d="M15 16h28l11 10m116 53v17h-30"></path><path class="route" d="M40 88h87"></path>
-<g opacity="1.00" transform="translate(8.0 25.0) rotate(0) scale(0.780)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M16 41h23l40-22v62L39 59H16zM28 60v21h17l-7-20M80 44h13v13H80"></path></g></g><g opacity="1.00" transform="translate(112.0 1.0) rotate(0) scale(0.670)"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.9"><path d="M12 22h76v50H45L27 88V72H12Z"></path><path class="dim" d="M27 41h46M27 54h36"></path></g></g><path class="link" d="M84 55h18V25h9M102 55v27h20"></path>
-</svg></div><div class="corner-br"></div>
-</div>
-</div>
-</div>
-<div class="back-row"><a class="btn btn-ghost" href="../terminale.html">← Retour à Terminale</a></div>
+  <div class="particle-field"><div class="particle" style="left:4%;bottom:-10%;width:16px;height:18px;animation-delay:0s;animation-duration:11s;"></div><div class="particle" style="left:14%;bottom:0%;width:20px;height:23px;animation-delay:1.4s;animation-duration:14s;"></div><div class="particle" style="left:24%;bottom:-20%;width:14px;height:16px;animation-delay:3.1s;animation-duration:10s;"></div><div class="particle" style="left:34%;bottom:5%;width:22px;height:25px;animation-delay:0.6s;animation-duration:16s;"></div><div class="particle" style="left:46%;bottom:-15%;width:18px;height:21px;animation-delay:4.5s;animation-duration:12s;"></div><div class="particle" style="left:58%;bottom:0%;width:15px;height:17px;animation-delay:2.2s;animation-duration:15s;"></div></div>
+  <div class="sec-head" style="text-align:center;">
+    <div class="sec-num" style="color:#9C4F9E;">Terminale</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:20px;">
+      <svg class="subj-flank" width="50" height="50" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="21" cy="21" r="7"/><circle cx="43" cy="21" r="7"/><path d="M8 49c0-9 5-15 13-15s13 6 13 15v5H8zm22 5v-5c0-7 4-13 12-13s14 6 14 14v4H30Z"/><path d="M30 28h4"/></g></svg>
+      <div class="sec-title">Ressources Humaines</div>
+      <svg class="subj-flank" width="50" height="50" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="21" cy="21" r="7"/><circle cx="43" cy="21" r="7"/><path d="M8 49c0-9 5-15 13-15s13 6 13 15v5H8zm22 5v-5c0-7 4-13 12-13s14 6 14 14v4H30Z"/><path d="M30 28h4"/></g></svg>
+    </div>
+    <p class="sec-sub" style="margin-left:auto;margin-right:auto;">Bienvenue ! Tu trouveras ici toutes les ressources n&eacute;cessaires pour progresser en Ressources Humaines.</p>
+  </div>
+  <nav class="theme-nav" aria-label="Th&egrave;mes du programme">
+    <a href="#theme-1" class="theme-chip" title="Les compétences au service de l&#x27;organisation et l&#x27;organisation au service du développement des compétences"><span class="theme-chip-num">TH&Egrave;ME 1</span><span class="theme-chip-txt">Les compétences au service de l'organisation et l'organisation au service du développement des compétences</span></a>
+    <a href="#theme-2" class="theme-chip" title="Des facteurs de motivation et de satisfaction : qualité de vie au travail et rémunération"><span class="theme-chip-num">TH&Egrave;ME 2</span><span class="theme-chip-txt">Des facteurs de motivation et de satisfaction&nbsp;: qualité de vie au travail et rémunération</span></a>
+    <a href="#theme-3" class="theme-chip" title="La recherche de cohésion, un levier d&#x27;amélioration des relations de travail et du climat social"><span class="theme-chip-num">TH&Egrave;ME 3</span><span class="theme-chip-txt">La recherche de cohésion, un levier d'amélioration des relations de travail et du climat social</span></a>
+  </nav>
+
+  <div class="theme-block" id="theme-1">
+    <div class="theme-head-wrap"><div class="theme-head">
+      <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
+      <div class="theme-bignum" aria-hidden="true">01</div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="20" r="10"/><path d="M12 54v-5a20 20 0 0 1 40 0v5M23 35l9 8 9-8M32 43v11"/><path d="m28 17 3 3 6-7"/></g></svg></div></div>
+      <div class="theme-head-txt">
+        <div class="theme-label">Th&egrave;me 1 &middot; Chapitres 01 &agrave; 04</div>
+        <h2 class="theme-title">Les compétences au service de l'organisation et l'organisation au service du développement des compétences</h2>
+      </div>
+    </div></div>
+    <div class="theme-game"><div class="tg-ico"><svg viewBox="0 0 32 32" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11h14a6 6 0 0 1 5.6 8.2l-1.3 3.4a3 3 0 0 1-5 .9L20 21h-8l-2.3 2.5a3 3 0 0 1-5-.9l-1.3-3.4A6 6 0 0 1 9 11z"/><path d="M10 14.5v4M8 16.5h4"/></g><circle cx="21" cy="15.5" r="1.3" fill="currentColor"/><circle cx="23.5" cy="18" r="1.3" fill="currentColor"/></svg></div><div class="tg-txt"><div class="tg-k">Jeu du thème</div><div class="tg-t">Les compétences</div><div class="tg-d">Hôtel-restaurant Les Embruns&nbsp;: recruter un chef sans discriminer, intégrer les saisonniers, évaluer, former et préparer la relève.</div></div><a href="../jeux/rh/les-competences.html" target="_blank" class="status-ready"><span class="type-dot type-jeu"></span>Jouer</a></div>
+  <div class="chapter-grid">
+
+    <div class="chapter-card">
+      <div class="chapter-left">
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">01</div></div>
+        <div>
+          <div class="chapter-name">Les compétences et la gestion prévisionnelle des emplois</div>
+        </div>
+      </div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/rh/rh-ch01-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+      <div class="corner-br"></div>
+    </div>
+
+    <div class="chapter-card">
+      <div class="chapter-left">
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">02</div></div>
+        <div>
+          <div class="chapter-name">Le recrutement, l'accueil et l'intégration</div>
+        </div>
+      </div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/rh/rh-ch02-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+      <div class="corner-br"></div>
+    </div>
+
+    <div class="chapter-card">
+      <div class="chapter-left">
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">03</div></div>
+        <div>
+          <div class="chapter-name">L'évaluation des compétences et du travail</div>
+        </div>
+      </div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/rh/rh-ch03-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+      <div class="corner-br"></div>
+    </div>
+
+    <div class="chapter-card">
+      <div class="chapter-left">
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">04</div></div>
+        <div>
+          <div class="chapter-name">La formation, l'employabilité et la mobilité professionnelle</div>
+        </div>
+      </div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/rh/rh-ch04-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+      <div class="corner-br"></div>
+    </div>
+
+  </div>
+  </div>
+
+  <div class="theme-block" id="theme-2">
+    <div class="theme-head-wrap"><div class="theme-head">
+      <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
+      <div class="theme-bignum" aria-hidden="true">02</div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M32 53S9 39 9 24a12 12 0 0 1 23-5 12 12 0 0 1 23 5c0 15-23 29-23 29Z"/><path d="M18 32h9l4-8 6 17 4-9h7"/></g></svg></div></div>
+      <div class="theme-head-txt">
+        <div class="theme-label">Th&egrave;me 2 &middot; Chapitres 05 &agrave; 08</div>
+        <h2 class="theme-title">Des facteurs de motivation et de satisfaction&nbsp;: qualité de vie au travail et rémunération</h2>
+      </div>
+    </div></div>
+    <div class="theme-game"><div class="tg-ico"><svg viewBox="0 0 32 32" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11h14a6 6 0 0 1 5.6 8.2l-1.3 3.4a3 3 0 0 1-5 .9L20 21h-8l-2.3 2.5a3 3 0 0 1-5-.9l-1.3-3.4A6 6 0 0 1 9 11z"/><path d="M10 14.5v4M8 16.5h4"/></g><circle cx="21" cy="15.5" r="1.3" fill="currentColor"/><circle cx="23.5" cy="18" r="1.3" fill="currentColor"/></svg></div><div class="tg-txt"><div class="tg-k">Jeu du thème</div><div class="tg-t">Motivation et rémunération</div><div class="tg-d">Absences et départs aux Embruns&nbsp;: conditions de travail, rémunération globale, égalité femmes-hommes et reconnaissance. Aïcha restera-t-elle&nbsp;?</div></div><a href="../jeux/rh/motivation-et-remuneration.html" target="_blank" class="status-ready"><span class="type-dot type-jeu"></span>Jouer</a></div>
+  <div class="chapter-grid">
+
+    <div class="chapter-card">
+      <div class="chapter-left">
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">05</div></div>
+        <div>
+          <div class="chapter-name">La motivation et la qualité de vie au travail</div>
+        </div>
+      </div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/rh/rh-ch05-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+      <div class="corner-br"></div>
+    </div>
+
+    <div class="chapter-card">
+      <div class="chapter-left">
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">06</div></div>
+        <div>
+          <div class="chapter-name">Les conditions de travail et l'ergonomie</div>
+        </div>
+      </div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/rh/rh-ch06-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+      <div class="corner-br"></div>
+    </div>
+
+    <div class="chapter-card">
+      <div class="chapter-left">
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">07</div></div>
+        <div>
+          <div class="chapter-name">La santé, la sécurité et la protection sociale</div>
+        </div>
+      </div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/rh/rh-ch07-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+      <div class="corner-br"></div>
+    </div>
+
+    <div class="chapter-card">
+      <div class="chapter-left">
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">08</div></div>
+        <div>
+          <div class="chapter-name">La rémunération et la reconnaissance du travail</div>
+        </div>
+      </div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/rh/rh-ch08-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+      <div class="corner-br"></div>
+    </div>
+
+  </div>
+  </div>
+
+  <div class="theme-block" id="theme-3">
+    <div class="theme-head-wrap"><div class="theme-head">
+      <svg class="theme-deco" viewBox="0 0 420 110" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linejoin="round"><polygon points="330,8 362,26 362,62 330,80 298,62 298,26" stroke-width="1.6"/><polygon points="384,40 410,55 410,85 384,100 358,85 358,55" stroke-width="1.2" stroke-dasharray="3 5"/><polygon points="268,58 286,68 286,88 268,98 250,88 250,68" stroke-width="1.2"/><path d="M120,92 H210 L232,70 H250" stroke-width="1.2" stroke-dasharray="2 6"/><path d="M170,18 H260 L280,38 H298" stroke-width="1.2"/></g><g fill="currentColor"><circle cx="120" cy="92" r="2.6"/><circle cx="170" cy="18" r="2.6"/><circle cx="330" cy="44" r="3.2"/><circle cx="384" cy="70" r="2.2"/></g></svg>
+      <div class="theme-bignum" aria-hidden="true">03</div>
+      <div class="theme-hex-wrap"><svg class="theme-ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="37" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 7"/></svg><div class="theme-hex"><svg class="theme-ico" viewBox="0 0 64 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="6"/><circle cx="46" cy="18" r="6"/><circle cx="32" cy="43" r="6"/><path d="M22 22 29 37m13-15-7 15M24 18h16M9 53c1-6 4-9 9-9m37 9c-1-6-4-9-9-9m-24 9h20"/></g></svg></div></div>
+      <div class="theme-head-txt">
+        <div class="theme-label">Th&egrave;me 3 &middot; Chapitres 09 &agrave; 11</div>
+        <h2 class="theme-title">La recherche de cohésion, un levier d'amélioration des relations de travail et du climat social</h2>
+      </div>
+    </div></div>
+    <div class="theme-game"><div class="tg-ico"><svg viewBox="0 0 32 32" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11h14a6 6 0 0 1 5.6 8.2l-1.3 3.4a3 3 0 0 1-5 .9L20 21h-8l-2.3 2.5a3 3 0 0 1-5-.9l-1.3-3.4A6 6 0 0 1 9 11z"/><path d="M10 14.5v4M8 16.5h4"/></g><circle cx="21" cy="15.5" r="1.3" fill="currentColor"/><circle cx="23.5" cy="18" r="1.3" fill="currentColor"/></svg></div><div class="tg-txt"><div class="tg-k">Jeu du thème</div><div class="tg-t">La cohésion</div><div class="tg-d">Salle contre cuisine, un chef qui humilie, une rumeur de vente et une négociation avec le CSE&nbsp;: retisser l’équipe avant l’été.</div></div><a href="../jeux/rh/la-cohesion.html" target="_blank" class="status-ready"><span class="type-dot type-jeu"></span>Jouer</a></div>
+  <div class="chapter-grid">
+
+    <div class="chapter-card">
+      <div class="chapter-left">
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">09</div></div>
+        <div>
+          <div class="chapter-name">Les relations professionnelles et la gestion des conflits</div>
+        </div>
+      </div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/rh/rh-ch09-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+      <div class="corner-br"></div>
+    </div>
+
+    <div class="chapter-card">
+      <div class="chapter-left">
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">10</div></div>
+        <div>
+          <div class="chapter-name">Le dialogue social et la négociation collective</div>
+        </div>
+      </div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/rh/rh-ch10-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+      <div class="corner-br"></div>
+    </div>
+
+    <div class="chapter-card">
+      <div class="chapter-left">
+        <div class="chapter-num-wrap"><svg viewBox="0 0 44 44"><polygon points="13,2 31,2 42,13 42,31 31,42 13,42 2,31 2,13" fill="none" stroke="var(--subj)" stroke-width="1.5"/></svg><div class="chapter-num">11</div></div>
+        <div>
+          <div class="chapter-name">La communication RH au service de la cohésion</div>
+        </div>
+      </div>
+      <div class="chapter-links"><div class="links-row"><a href="../ressources/rh/rh-ch11-fiche.pdf" target="_blank" class="status-ready"><span class="type-dot type-fiche"></span>Fiche</a></div></div>
+      <div class="corner-br"></div>
+    </div>
+
+  </div>
+  </div>
+  <div class="back-row"><a href="../terminale.html" class="btn btn-ghost">&larr; Retour &agrave; Terminale</a></div>
 </section>
+
 <footer>
-<div class="foot-brand">PROF 4.0</div>
-<p>Apprendre · Comprendre · Réussir — © 2026</p>
-<p style="margin-top:14px;">
-<a href="https://youtube.com/@prof4.0stmg?si=fywFQySRD-AFr2OB" rel="noopener" style="color:var(--level-neon);font-weight:700;" target="_blank">▶ Chaîne YouTube</a>
-</p>
-<p style="margin-top:18px;font-size:11.5px;color:var(--muted);max-width:480px;margin-left:auto;margin-right:auto;">
-    © 2026 Prof 4.0 — Romain Pineau, auteur et créateur. Tous droits réservés.
+  <div class="foot-brand">PROF 4.0</div>
+  <p>Apprendre &middot; Comprendre &middot; R&eacute;ussir &mdash; &copy; 2026</p>
+  <p style="margin-top:14px;">
+    <a href="https://youtube.com/@prof4.0stmg?si=fywFQySRD-AFr2OB" target="_blank" rel="noopener"
+       style="color:var(--level-neon);font-weight:700;">&#9654; Cha&icirc;ne YouTube</a>
   </p>
-<details style="margin-top:8px;max-width:480px;margin-left:auto;margin-right:auto;text-align:left;">
-<summary style="cursor:pointer;color:var(--muted);text-decoration:underline;font-size:11px;text-align:center;list-style:none;">Mentions légales</summary>
-<p style="margin-top:8px;font-size:11px;line-height:1.6;color:var(--muted);">
-      Les contenus originaux présents sur ce site, notamment les cours, textes, exercices, corrigés, supports graphiques et contenus audio et vidéo, sont protégés par le droit d’auteur. Toute reproduction, adaptation ou diffusion, totale ou partielle, sans autorisation préalable de l’auteur est interdite, sous réserve des exceptions prévues par la loi.
+  <p style="margin-top:18px;font-size:11.5px;color:var(--muted);max-width:480px;margin-left:auto;margin-right:auto;">
+    &copy; 2026 Prof 4.0 &mdash; Romain Pineau, auteur et cr&eacute;ateur. Tous droits r&eacute;serv&eacute;s.
+  </p>
+  <details style="margin-top:8px;max-width:480px;margin-left:auto;margin-right:auto;text-align:left;">
+    <summary style="cursor:pointer;color:var(--muted);text-decoration:underline;font-size:11px;text-align:center;list-style:none;">Mentions l&eacute;gales</summary>
+    <p style="margin-top:8px;font-size:11px;line-height:1.6;color:var(--muted);">
+      Les contenus originaux pr&eacute;sents sur ce site, notamment les cours, textes, exercices, corrig&eacute;s, supports graphiques et contenus audio et vid&eacute;o, sont prot&eacute;g&eacute;s par le droit d&rsquo;auteur. Toute reproduction, adaptation ou diffusion, totale ou partielle, sans autorisation pr&eacute;alable de l&rsquo;auteur est interdite, sous r&eacute;serve des exceptions pr&eacute;vues par la loi.
     </p>
-</details>
+  </details>
 </footer>
 </div>
+
 <script>
 (function(){
   function fitDecor(){
@@ -844,5 +762,6 @@ footer summary:hover{color:var(--level-neon);}
   window.addEventListener('resize', fitDecor);
 })();
 </script>
+
 </body>
 </html>
