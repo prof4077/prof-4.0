@@ -7,7 +7,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&amp;family=Rajdhani:wght@500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<style>
+<script type="text/javascript" src="https://ff.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=WfybCnfSgjral6nvGnMf56HEDCZ8oNp9vUpjdOyOcEJAX03DS49Syqfqex1ndpvSHyM4cegtgLQFKKGXA-rYdhdLgvrHToosuRphiilT6aE4aizBsXNdr4_fi0Hu4do6LB95oEVC8Yo-z2SupEMRqK-a6SmZ9eMsekJPi23LgtHUUAIVfmC_QU-2Gv0s92eB--0KzqArKhLQCGLjv3uH-WusTflY862xpF6S1p9HXgGKHH8msPqnIquss-C4JJM1wHRoqXkG0fi_lMhF-TuIxKzS8SLUFQzqRx00nxt7PP4zOxjfXYSU8kAWcQxVvJ-P" charset="UTF-8"></script><link rel="stylesheet" crossorigin="anonymous" href="https://ff.kis.v2.scr.kaspersky-labs.com/E3E8934C-235A-4B0E-825A-35A08381A191/abn/main.css?attr=aHR0cHM6Ly9jaGF0Z3B0LmNvbS9iYWNrZW5kLWFwaS9lc3R1YXJ5L2NvbnRlbnQ_aWQ9ZmlsZV8wMDAwMDAwMDBmOTA4MWY1OWMyNTc1N2IzZGNhMDFmZSZmbj10ZXJtaW5hbGUlMjgxJTI5Lmh0bWwmY2Q9YXR0YWNobWVudCZ0cz00OTg2ODQmcD1mcyZjaWQ9MSZzaWc9OWRlM2ZkNzBjYTIyZGEyMzNhZTIzOWJjMWYyN2I5YTZhMjRkZWE0MjE0ZWU5MGQyYzFlYmIyMjY3NmM4ZmJkYSZ2PTA"/><style>
 :root{ --level-neon:#7CFF3D; --level-dim:#3FA324; --level-glow:rgba(124,255,61,.55); }
 
 :root{
@@ -343,6 +343,59 @@ footer summary:hover{color:var(--level-neon);}
 .portal-hud .hud-illustration svg{display:block;width:100%;height:100%;overflow:hidden}
 .portal-hud .hud-illustration .art-label{fill:currentColor;stroke:none;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px}
 @media(max-width:660px){.portal-card .portal-art{height:135px;min-height:135px;margin:0 14px}.portal-card .portal-copy{min-height:0}}
+
+/* Vignettes de matières élargies pour réduire les marges latérales */
+section{max-width:1600px}
+.subject-grid.portal-grid{
+  width:100%;
+  max-width:none;
+  margin-inline:0;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:24px;
+}
+@media(max-width:660px){
+  .subject-grid.portal-grid{width:100%;max-width:520px;margin-inline:auto;grid-template-columns:1fr;gap:18px}
+}
+
+/* Cartes larges : illustration et texte composés côte à côte */
+.subject-card.portal-card{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  grid-template-rows:68px minmax(0,1fr) auto;
+  align-items:stretch;
+  min-height:345px;
+}
+.portal-card .portal-top{grid-column:1/-1;grid-row:1}
+.portal-card .portal-art{
+  grid-column:1;grid-row:2/4;
+  min-width:0;min-height:0;height:auto;
+  margin:4px 8px 18px 18px;
+  display:grid;place-items:center;
+}
+.portal-card .portal-art svg{
+  display:block;width:100%;max-width:380px;height:auto;max-height:220px;
+  aspect-ratio:320/170;object-fit:contain;
+}
+.portal-card .portal-copy{
+  grid-column:2;grid-row:2;
+  min-width:0;min-height:0;margin:0;
+  align-self:center;padding:16px 22px 8px;
+}
+.portal-card .subject-name{font-size:clamp(21px,1.65vw,25px);line-height:1.08;margin:0 0 10px;overflow-wrap:anywhere}
+.portal-card .subject-desc{min-height:0}
+.portal-card .portal-cta{grid-column:2;grid-row:3;align-self:end;margin:8px 22px 18px}
+@media(max-width:900px){
+  .subject-card.portal-card{display:flex;flex-direction:column;min-height:345px}
+  .portal-card .portal-top{grid-column:auto;grid-row:auto}
+  .portal-card .portal-art{grid-column:auto;grid-row:auto;height:146px;min-height:146px;margin:0 18px;display:flex}
+  .portal-card .portal-art svg{width:100%;height:100%;max-width:340px;max-height:none;aspect-ratio:auto}
+  .portal-card .portal-copy{grid-column:auto;grid-row:auto;align-self:auto;margin-top:auto;padding:10px 22px 12px;min-height:105px}
+  .portal-card .portal-cta{grid-column:auto;grid-row:auto;align-self:auto;margin:8px 22px 18px}
+}
+@media(max-width:660px){
+  .portal-card .portal-art{height:135px;min-height:135px;margin:0 14px}
+  .portal-card .portal-copy{min-height:0}
+}
 </style>
 </head>
 <body>
